@@ -26,11 +26,17 @@ import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
+import org.jboss.pnc.model.DeliverableAnalyzerReport_;
+import org.jboss.pnc.model.DeliverableArtifact;
+import org.jboss.pnc.model.DeliverableArtifact_;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,8 +71,20 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withDeliveredInProductMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
-            Join<Artifact, ProductMilestone> productMilestones = root.join(Artifact_.deliveredInProductMilestones);
-            return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
+            Root<DeliverableArtifact> deliverableArtifact = query.from(DeliverableArtifact.class);
+            Join<DeliverableAnalyzerReport, DeliverableAnalyzerOperation> operation = deliverableArtifact
+                    .join(DeliverableArtifact_.report)
+                    .join(DeliverableAnalyzerReport_.operation);
+
+            return cb
+                    .and(
+                            cb.equal(
+                                    operation.get(DeliverableAnalyzerOperation_.productMilestone)
+                                            .get(ProductMilestone_.id),
+                                    productMilestoneId),
+                            cb.equal(
+                                    deliverableArtifact.get(DeliverableArtifact_.artifact).get(Artifact_.id),
+                                    root.get(Artifact_.id)));
         };
     }
 
