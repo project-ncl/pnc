@@ -335,7 +335,15 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(3);
+        assertThat(all).hasSize(2);
+        RemoteCollection<Artifact> built = client.getDeliveredArtifacts(
+                milestoneId,
+                Optional.empty(),
+                Optional.of("md5==4af310bf0ef67bc7d143f35818ea1ed2"));
+
+        assertThat(built).hasSize(1);
+        Artifact builtArtifact = built.iterator().next();
+        assertThat(builtArtifact.getIdentifier()).isEqualTo("demo:built-artifact1:jar:1.0");
     }
 
     @Test
