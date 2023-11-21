@@ -30,6 +30,7 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.DeliverableAnalyzerReport;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.integration.setup.Deployments;
@@ -37,7 +38,6 @@ import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -68,6 +68,28 @@ public class DeliverableAnalyzerReportEndpointTest {
     }
 
     @Test
+    public void shouldGetDeliverableAnalyzerReports() throws RemoteResourceException {
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
+                RestClientConfiguration.asAnonymous());
+        RemoteCollection<DeliverableAnalyzerReport> all = client.getAll();
+
+        assertThat(all).hasSize(1);
+    }
+
+    @Test
+    public void shouldGetSpecificDeliverableAnalyzerReport() throws ClientException {
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
+                RestClientConfiguration.asAnonymous());
+
+        DeliverableAnalyzerReport report = client.getSpecific(operationId);
+
+        assertThat(report.getId()).isEqualTo(operationId);
+        assertThat(report.getLabels()).containsOnly(DeliverableAnalyzerReportLabel.RELEASED);
+        assertThat(report.getUser()).isNotNull();
+        assertThat(report.getStartTime()).isNotNull();
+    }
+
+    @Test
     public void testGetAnalyzedArtifacts() throws ClientException {
         // given
         DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
@@ -92,7 +114,6 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
     }
 
-    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
     @Test
     public void testGetLabelHistory() throws ClientException {
         // given
@@ -110,7 +131,6 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(firstLabelHistoryEntry.getReason()).isEqualTo("This was a game-changer! Release it! <3");
     }
 
-    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
     @Test
     @InSequence(10)
     public void testAddLabelEntry() throws ClientException {
@@ -124,9 +144,12 @@ public class DeliverableAnalyzerReportEndpointTest {
         // when
         assertThat(client.getLabelHistory(operationId).size()).isOne();
         client.addLabel(operationId, request);
+        DeliverableAnalyzerReport report = client.getSpecific(operationId);
         RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
 
         // then
+        assertThat(report.getLabels()).containsExactly(DeliverableAnalyzerReportLabel.DELETED);
+
         assertThat(labelHistory.size()).isEqualTo(3);
 
         Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
@@ -148,7 +171,6 @@ public class DeliverableAnalyzerReportEndpointTest {
                 .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
     }
 
-    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
     @Test
     @InSequence(20)
     public void testRemoveLabelEntry() throws ClientException {
@@ -161,9 +183,12 @@ public class DeliverableAnalyzerReportEndpointTest {
 
         // when
         client.removeLabel(operationId, request);
+        DeliverableAnalyzerReport report = client.getSpecific(operationId);
         RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
 
         // then
+        assertThat(report.getLabels()).isEmpty();
+
         assertThat(labelHistory.size()).isEqualTo(4);
 
         Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
