@@ -20,9 +20,18 @@ package org.jboss.pnc.common.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
@@ -30,6 +39,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -37,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -167,18 +178,53 @@ public class HttpUtils {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.get());
         }
 
+        performHttpRequest(URI.create(uri), payload, request);
+    }
+
+    public static void performHttpRequest(Request request, Object payload, Optional<String> authToken) {
+        URI uri = request.getUri();
+        Request.Method method = request.getMethod();
+        LOG.debug("Sending HTTP {} request to {} with payload {}", method, uri, payload);
+        HttpEntityEnclosingRequestBase httpRequest;
+        switch (method) {
+            case POST:
+                httpRequest = new HttpPost(uri);
+                break;
+            case PUT:
+                httpRequest = new HttpPut(uri);
+                break;
+            case PATCH:
+                httpRequest = new HttpPatch(uri);
+                break;
+            default:
+                throw new IllegalArgumentException(method + " HTTP method does not support payload.");
+        }
+        try {
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(payload), "UTF-8");
+            entity.setContentType(MediaType.APPLICATION_JSON);
+            httpRequest.setEntity(entity);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot map payload to JSON", e);
+        }
+        request.getHeaders().forEach(h -> httpRequest.setHeader(h.getName(), h.getValue()));
+        authToken.ifPresent(s -> httpRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + s));
+        performHttpRequest(uri, payload, httpRequest);
+    }
+
+    private static void performHttpRequest(URI uri, Object payload, HttpUriRequest httpRequest) {
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
+            try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
                 if (isSuccess(response.getStatusLine().getStatusCode())) {
                     LOG.debug(
-                            "HTTP POST request to {} with payload {} sent successfully. Response code: {}",
+                            "HTTP {} request to {} with payload {} sent successfully. Response code: {}",
+                            httpRequest.getMethod(),
                             uri,
                             payload,
                             response.getStatusLine().getStatusCode());
                 } else {
                     LOG.error(
-                            "Sending HTTP POST request to {} with payload {} failed! "
-                                    + "Response code: {}, Message: {}",
+                            "Sending HTTP {} request to {} with payload {} failed! " + "Response code: {}, Message: {}",
+                            httpRequest.getMethod(),
                             uri,
                             payload,
                             response.getStatusLine().getStatusCode(),
