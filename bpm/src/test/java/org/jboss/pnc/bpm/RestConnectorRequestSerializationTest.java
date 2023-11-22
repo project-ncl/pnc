@@ -112,7 +112,7 @@ public class RestConnectorRequestSerializationTest {
         urls.add(url1);
         urls.add(url2);
         String operationId = Sequence.nextBase32Id();
-        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(operationId, "id", urls, false);
+        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(operationId, urls, false);
         List<Request.Header> headers = new ArrayList<>();
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
 

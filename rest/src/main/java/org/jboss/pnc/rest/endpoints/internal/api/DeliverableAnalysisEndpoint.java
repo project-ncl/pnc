@@ -33,6 +33,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 
 /**
@@ -48,7 +50,7 @@ public interface DeliverableAnalysisEndpoint {
 
     @Operation(
             summary = "Notify PNC about finished Deliverable anaylysis.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
+            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION) })
     @POST
     @Path("/complete")
     @Consumes(MediaType.APPLICATION_JSON)
