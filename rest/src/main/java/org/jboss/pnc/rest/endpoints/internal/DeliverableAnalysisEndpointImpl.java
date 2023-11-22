@@ -17,16 +17,23 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 @ApplicationScoped
+@Slf4j
 public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpoint {
 
     @Inject
@@ -38,9 +45,24 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     @Inject
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
 
+    @Inject
+    private ManagedExecutorService executorService;
+
     @Override
+    @RespondWithStatus(Response.Status.ACCEPTED)
     public void completeAnalysis(AnalysisResult response) {
-        resultProcessor.completeAnalysis(transformToModelAnalysisResult(response));
+        executorService.execute(() -> {
+            ResultStatus result;
+            try {
+                resultProcessor.completeAnalysis(transformToModelAnalysisResult(response));
+                result = ResultStatus.SUCCESS;
+            } catch (RuntimeException e) {
+                log.error("Storing results of deliverable operation with id={} failed: ", response.getOperationId(), e);
+                result = ResultStatus.FAILED;
+            }
+
+            HttpUtils.performHttpRequest(response.getCallback(), result);
+        });
     }
 
     @Override
@@ -58,5 +80,4 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
                 .wasRunAsScratchAnalysis(analysisResult.isScratch())
                 .build();
     }
-
 }
