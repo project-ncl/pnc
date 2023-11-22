@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mapper.abstracts;
 
+import org.apache.commons.lang.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -88,8 +89,11 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
             return;
         }
         RepositoryType repositoryType = targetRepository.getRepositoryType();
-        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)) {
-            if (artifactDB.getDeployPath() == null || artifactDB.getDeployPath().equals("")) {
+        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)
+                || repositoryType.equals(RepositoryType.GENERIC_PROXY)) {
+            if (StringUtils.isEmpty(artifactDB.getDeployPath())
+                    && !repositoryType.equals(RepositoryType.GENERIC_PROXY)) {
+                // it is acceptable for generic.http downloads to have empty deploypath
                 deployUrlSetter.accept("");
                 publicUrlSetter.accept("");
             } else {
