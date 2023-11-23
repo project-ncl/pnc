@@ -406,6 +406,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     var restoreOuter = MDC.getCopyOfContextMap();
 
                     // wrap in appropriate MDC context to avoid using context of dependant
+                    MDCUtils.removeBuildContext();
                     MDCUtils.addBuildContext(getMDCMeta(buildTask));
                     ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
                     updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
