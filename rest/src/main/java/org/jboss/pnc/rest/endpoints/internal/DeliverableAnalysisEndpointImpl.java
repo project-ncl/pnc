@@ -24,13 +24,11 @@ import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 @Slf4j
@@ -49,7 +47,6 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     private ManagedExecutorService executorService;
 
     @Override
-    @RespondWithStatus(Response.Status.ACCEPTED)
     public void completeAnalysis(AnalysisResult response) {
         executorService.execute(() -> {
             ResultStatus result;
