@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
@@ -32,6 +33,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -54,6 +56,7 @@ public interface DeliverableAnalysisEndpoint {
     @POST
     @Path("/complete")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RespondWithStatus(Response.Status.ACCEPTED)
     void completeAnalysis(@Parameter(description = "Analysis response") AnalysisResult response);
 
     @Operation(
