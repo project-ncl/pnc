@@ -17,13 +17,9 @@
  */
 package org.jboss.pnc.facade;
 
-import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
-import org.jboss.pnc.model.User;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface DeliverableAnalyzerManager {
@@ -47,11 +43,4 @@ public interface DeliverableAnalyzerManager {
      * @param analysisResult The result of the deliverable analyzer operation.
      */
     void completeAnalysis(AnalysisResult analysisResult);
-
-    /**
-     * Clear the milestone of all delivered artifacts.
-     *
-     * @param milestoneId Id of the milestone which should be cleared.
-     */
-    void clear(int milestoneId);
 }
