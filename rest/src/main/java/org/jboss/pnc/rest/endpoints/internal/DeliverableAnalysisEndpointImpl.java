@@ -24,7 +24,6 @@ import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
-import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
@@ -37,9 +36,6 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
 
     @Inject
     private DeliverableAnalyzerManagerImpl resultProcessor;
-
-    @Inject
-    private ProductMilestoneMapper milestoneMapper;
 
     @Inject
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
@@ -61,12 +57,6 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
 
             HttpUtils.performHttpRequest(response.getCallback(), new Result(result));
         });
-    }
-
-    @Override
-    public void clearAnalysis(String milestoneId) {
-        int id = milestoneMapper.getIdMapper().toEntity(milestoneId);
-        resultProcessor.clear(id);
     }
 
     private org.jboss.pnc.facade.deliverables.api.AnalysisResult transformToModelAnalysisResult(
