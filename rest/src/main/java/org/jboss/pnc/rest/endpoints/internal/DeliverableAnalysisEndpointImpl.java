@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
@@ -55,10 +56,10 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
                 result = ResultStatus.SUCCESS;
             } catch (RuntimeException e) {
                 log.error("Storing results of deliverable operation with id={} failed: ", response.getOperationId(), e);
-                result = ResultStatus.FAILED;
+                result = ResultStatus.SYSTEM_ERROR;
             }
 
-            HttpUtils.performHttpRequest(response.getCallback(), result);
+            HttpUtils.performHttpRequest(response.getCallback(), new Result(result));
         });
     }
 
