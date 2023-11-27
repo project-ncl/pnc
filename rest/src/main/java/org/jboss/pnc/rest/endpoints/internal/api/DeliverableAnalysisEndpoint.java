@@ -59,11 +59,4 @@ public interface DeliverableAnalysisEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     void completeAnalysis(@Parameter(description = "Analysis response") AnalysisResult response);
 
-    @Operation(
-            summary = "Clear list of delivered artifacts from milestone.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
-    @DELETE
-    @Path("/clear-milestone/{milestoneId}")
-    void clearAnalysis(@Parameter(description = "Milestone ID.") @PathParam("milestoneId") String milestoneId);
-
 }

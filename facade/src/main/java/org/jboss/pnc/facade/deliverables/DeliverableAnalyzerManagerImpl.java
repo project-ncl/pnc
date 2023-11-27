@@ -53,7 +53,6 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
@@ -68,7 +67,6 @@ import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -98,7 +96,6 @@ import java.util.stream.Stream;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 /**
  *
@@ -305,15 +302,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             a.setModificationUser(user);
             a.setModificationTime(new Date());
         };
-    }
-
-    @Override
-    @RolesAllowed(USERS_ADMIN)
-    @Transactional
-    public void clear(int id) {
-        ProductMilestone milestone = milestoneRepository.queryById(id);
-        milestone.getDeliveredArtifacts().forEach(artifactUpdater("Removed from deliverables of milestone " + id));
-        milestone.getDeliveredArtifacts().clear();
     }
 
     private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(Artifact artifact, TargetRepository targetRepo) {
