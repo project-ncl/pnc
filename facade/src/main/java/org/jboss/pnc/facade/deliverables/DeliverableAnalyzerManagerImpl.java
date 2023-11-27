@@ -55,6 +55,7 @@ import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
@@ -200,9 +201,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         Set<Base32LongID> pncBuiltRecordIds = new HashSet<>();
 
         log.debug("Processing deliverables in {} builds. Distribution URL: {}", builds.size(), distributionUrl);
+        User user = report.getOperation().getUser();
 
         ArtifactStats stats = new ArtifactStats();
-        ArtifactCache artifactCache = new ArtifactCache(builds);
+        ArtifactCache artifactCache = new ArtifactCache(builds, user);
         Set<Base32LongID> pncBuildIds = new HashSet<>();
 
         for (Build build : builds) {
@@ -241,7 +243,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .peek(stats.notFoundCounter())
-                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuildIds))
+                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuildIds, user))
                     .forEach(artifact -> addDeliveredArtifact(artifact, report, false, null));
         }
         stats.log(distributionUrl);
@@ -339,7 +341,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
             Artifact artifact,
             TargetRepository targetRepo,
-            Set<Base32LongID> pncBuiltRecordIds) {
+            Set<Base32LongID> pncBuiltRecordIds,
+            User user) {
 
         // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
         // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact with
@@ -386,7 +389,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         // Finally, there was no artifact found with the same SHA-256. Create a new one
-        return createArtifact(mapNotFoundArtifact(artifact), targetRepo);
+        return createArtifact(mapNotFoundArtifact(artifact, user), targetRepo);
     }
 
     private org.jboss.pnc.model.Artifact createArtifact(
@@ -404,8 +407,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return savedArtifact;
     }
 
-    private org.jboss.pnc.model.Artifact mapNotFoundArtifact(Artifact artifact) {
-        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(artifact);
+    private org.jboss.pnc.model.Artifact mapNotFoundArtifact(Artifact artifact, User user) {
+        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(artifact, user);
         Path path = Paths.get(artifact.getFilename());
         builder.filename(path.getFileName().toString());
         builder.identifier(artifact.getFilename());
@@ -418,13 +421,14 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private org.jboss.pnc.model.Artifact mapBrewArtifact(
             Artifact artifact,
             String nvr,
-            TargetRepository targetRepository) {
+            TargetRepository targetRepository,
+            User user) {
         if (artifact.getArtifactType() != ArtifactType.MAVEN) {
             throw new UnsupportedOperationException("Brew artifact " + artifact + " is not Maven!");
         }
         MavenArtifact mavenArtifact = (MavenArtifact) artifact;
 
-        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(mavenArtifact);
+        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(mavenArtifact, user);
         builder.identifier(createIdentifier(mavenArtifact));
         builder.filename(createFileName(mavenArtifact));
         builder.deployPath(createDeployPath(mavenArtifact));
@@ -435,7 +439,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return builder.build();
     }
 
-    private org.jboss.pnc.model.Artifact.Builder mapArtifact(Artifact artifact) {
+    private org.jboss.pnc.model.Artifact.Builder mapArtifact(Artifact artifact, User user) {
         Date now = new Date();
         org.jboss.pnc.model.Artifact.Builder builder = org.jboss.pnc.model.Artifact.builder();
         builder.md5(artifact.getMd5());
@@ -443,7 +447,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         builder.sha256(artifact.getSha256());
         builder.size(artifact.getSize());
         builder.importDate(now);
-        builder.creationUser(userService.currentUser());
+        builder.creationUser(user);
         builder.creationTime(now);
 
         if (artifact.isBuiltFromSource()) {
@@ -674,7 +678,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         private Map<IdentifierShaRepo, org.jboss.pnc.model.Artifact> brewCache = new HashMap<>();
         private Map<String, TargetRepository> targetRepositoryCache = new HashMap<>();
 
-        public ArtifactCache(Collection<Build> builds) {
+        private User user;
+
+        public ArtifactCache(Collection<Build> builds, User user) {
+            this.user = user;
             prefetchPNCArtifacts(builds);
             prefetchTargetRepos(builds);
             prefetchBrewArtifacts(builds);
@@ -740,7 +747,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 return build.getArtifacts()
                         .stream()
                         .peek(this::assertBrewArtifacts)
-                        .map(a -> mapBrewArtifact(a, build.getBrewNVR(), targetRepository))
+                        .map(a -> mapBrewArtifact(a, build.getBrewNVR(), targetRepository, user))
                         .map(a -> new IdentifierShaRepo(a.getIdentifierSha256(), targetRepository));
             }
         }
@@ -779,7 +786,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 Artifact artifact,
                 TargetRepository targetRepository,
                 String nvr) {
-            return findOrCreateBrewArtifact(mapBrewArtifact(artifact, nvr, targetRepository));
+            return findOrCreateBrewArtifact(mapBrewArtifact(artifact, nvr, targetRepository, user));
         }
 
         private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(org.jboss.pnc.model.Artifact artifact) {
