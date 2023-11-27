@@ -27,6 +27,7 @@ import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
+import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -45,7 +46,7 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     @Inject
     private KeycloakServiceClient keycloakServiceClient;
 
-    @Inject
+    @Resource
     private ManagedExecutorService executorService;
 
     @Override

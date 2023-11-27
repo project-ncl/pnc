@@ -55,14 +55,12 @@ import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
@@ -100,7 +98,6 @@ import java.util.stream.Stream;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 
 /**
  *
@@ -116,8 +113,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
     public static final String URL_PARAMETER_PREFIX = "url-";
 
-    @Inject
-    private ProductMilestoneRepository milestoneRepository;
     @Inject
     private ArtifactRepository artifactRepository;
     @Inject
@@ -271,7 +266,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             Base32LongID operationId,
             boolean wasRunAsScratchAnalysis) {
 
-        var report = DeliverableAnalyzerReport.builder()
+        DeliverableAnalyzerReport report = DeliverableAnalyzerReport.builder()
                 .id(operationId)
                 .operation(deliverableAnalyzerOperationRepository.queryById(operationId))
                 .labels(getReportLabels(wasRunAsScratchAnalysis))
@@ -302,23 +297,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .build();
         deliverableAnalyzerLabelEntryRepository.save(labelHistoryEntry);
         report.getLabelHistory().add(labelHistoryEntry);
-    }
-
-    public Consumer<org.jboss.pnc.model.Artifact> artifactUpdater(String message) {
-        User user = userService.currentUser();
-        return a -> {
-            a.setQualityLevelReason(message);
-            a.setModificationUser(user);
-            a.setModificationTime(new Date());
-        };
-    }
-
-
-    private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
-            Artifact artifact,
-            TargetRepository targetRepo,
-            String nvr) {
-        return findOrCreateArtifact(mapBrewArtifact(artifact, nvr), targetRepo);
     }
 
     private Optional<org.jboss.pnc.model.Artifact> getBestMatchingArtifact(
@@ -424,22 +402,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
         targetRepo.getArtifacts().add(savedArtifact);
         return savedArtifact;
-    }
-
-    private org.jboss.pnc.model.Artifact findOrCreateArtifact(
-            org.jboss.pnc.model.Artifact artifact,
-            TargetRepository targetRepo) {
-
-        // find
-        org.jboss.pnc.model.Artifact dbArtifact = artifactRepository.queryByPredicates(
-                ArtifactPredicates.withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()),
-                ArtifactPredicates.withTargetRepositoryId(targetRepo.getId()));
-        if (dbArtifact != null) {
-            return dbArtifact;
-        }
-
-        // create
-        return createArtifact(artifact, targetRepo);
     }
 
     private org.jboss.pnc.model.Artifact mapNotFoundArtifact(Artifact artifact) {
@@ -576,15 +538,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(":"));
-    }
-
-    private TargetRepository getBrewRepository(Build build) {
-        String path = KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR() + '/';
-        TargetRepository tr = targetRepositoryRepository.queryByIdentifierAndPath(INDY_MAVEN, path);
-        if (tr == null) {
-            tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
-        }
-        return tr;
     }
 
     private TargetRepository getDistributionRepository(String distURL) {
