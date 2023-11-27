@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
@@ -29,6 +30,7 @@ import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Optional;
 
 @ApplicationScoped
 @Slf4j
@@ -39,6 +41,9 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
 
     @Inject
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
+
+    @Inject
+    private KeycloakServiceClient keycloakServiceClient;
 
     @Inject
     private ManagedExecutorService executorService;
@@ -55,7 +60,10 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
                 result = ResultStatus.SYSTEM_ERROR;
             }
 
-            HttpUtils.performHttpRequest(response.getCallback(), new Result(result));
+            HttpUtils.performHttpRequest(
+                    response.getCallback(),
+                    new Result(result),
+                    Optional.of(keycloakServiceClient.getAuthToken()));
         });
     }
 

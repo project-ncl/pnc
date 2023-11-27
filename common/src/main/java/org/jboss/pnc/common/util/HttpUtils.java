@@ -20,9 +20,11 @@ package org.jboss.pnc.common.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
@@ -179,47 +181,33 @@ public class HttpUtils {
         performHttpRequest(URI.create(uri), payload, request);
     }
 
-    public static void performHttpRequest(Request request, Object payload) {
+    public static void performHttpRequest(Request request, Object payload, Optional<String> authToken) {
         URI uri = request.getUri();
         Request.Method method = request.getMethod();
         LOG.debug("Sending HTTP {} request to {} with payload {}", method, uri, payload);
-        HttpUriRequest httpRequest;
-        StringEntity entity;
-        try {
-            entity = new StringEntity(objectMapper.writeValueAsString(payload), "UTF-8");
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Cannot map payload to JSON", e);
-        }
-        entity.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntityEnclosingRequestBase httpRequest;
         switch (method) {
-            case GET:
-                httpRequest = new HttpGet(uri);
-                break;
             case POST:
                 httpRequest = new HttpPost(uri);
-                ((HttpPost) httpRequest).setEntity(entity);
                 break;
             case PUT:
                 httpRequest = new HttpPut(uri);
-                ((HttpPut) httpRequest).setEntity(entity);
-                break;
-            case DELETE:
-                httpRequest = new HttpDelete(uri);
-                break;
-            case HEAD:
-                httpRequest = new HttpHead(uri);
                 break;
             case PATCH:
                 httpRequest = new HttpPatch(uri);
-                ((HttpPatch) httpRequest).setEntity(entity);
-                break;
-            case OPTIONS:
-                httpRequest = new HttpOptions(uri);
                 break;
             default:
-                throw new IllegalArgumentException("Unknown HTTP method provided: " + method);
+                throw new IllegalArgumentException(method + " HTTP method does not support payload.");
         }
-
+        try {
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(payload), "UTF-8");
+            entity.setContentType(MediaType.APPLICATION_JSON);
+            httpRequest.setEntity(entity);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot map payload to JSON", e);
+        }
+        request.getHeaders().forEach(h -> httpRequest.setHeader(h.getName(), h.getValue()));
+        authToken.ifPresent(s -> httpRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + s));
         performHttpRequest(uri, payload, httpRequest);
     }
 
