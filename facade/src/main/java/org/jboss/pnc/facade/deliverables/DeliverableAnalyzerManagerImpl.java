@@ -54,7 +54,6 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
@@ -69,7 +68,6 @@ import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -314,14 +312,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         };
     }
 
-    @Override
-    @RolesAllowed(USERS_ADMIN)
-    @Transactional
-    public void clear(int id) {
-        ProductMilestone milestone = milestoneRepository.queryById(id);
-        milestone.getDeliveredArtifacts().forEach(artifactUpdater("Removed from deliverables of milestone " + id));
-        milestone.getDeliveredArtifacts().clear();
-    }
 
     private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
             Artifact artifact,
