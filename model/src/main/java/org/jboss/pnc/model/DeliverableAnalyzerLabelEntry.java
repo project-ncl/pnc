@@ -49,7 +49,7 @@ import java.util.Date;
 @Table(
         uniqueConstraints = @UniqueConstraint(
                 name = "uc_delanlabelentry_id_report",
-                columnNames = { "report_id", "change_order" }))
+                columnNames = { "report_id", "changeorder" }))
 public class DeliverableAnalyzerLabelEntry implements GenericEntity<Base32LongID> {
 
     @EmbeddedId
@@ -68,7 +68,6 @@ public class DeliverableAnalyzerLabelEntry implements GenericEntity<Base32LongID
      * attribute to create unique constraint in order to prevent 2 threads to modify the same report in the same time
      * and bring it to the inconsistent state.
      */
-    @Column(name = "change_order")
     private Integer changeOrder;
 
     /**
