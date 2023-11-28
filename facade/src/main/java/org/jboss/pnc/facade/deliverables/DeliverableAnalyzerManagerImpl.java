@@ -62,7 +62,6 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRep
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
@@ -95,6 +94,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,8 +115,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
     public static final String URL_PARAMETER_PREFIX = "url-";
 
-    @Inject
-    private ProductMilestoneRepository milestoneRepository;
     @Inject
     private ArtifactRepository artifactRepository;
     @Inject
@@ -206,7 +204,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds, user);
-        Set<Base32LongID> pncBuildIds = new HashSet<>();
 
         for (Build build : builds) {
             log.debug("Processing build {}", build);
@@ -214,19 +211,31 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 throw new IllegalArgumentException("Build system type not set.");
             }
 
+            /*
+             * If the build is marked as imported (can happen for Brew builds only because BuildFinder considers only
+             * the PNC artifacts which are associated with a build), we need to handle the artifacts differently, to
+             * avoid the issue of Brew imports having priority over PNC imported artifacts.
+             */
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
             Consumer<Artifact> statCounter;
             switch (build.getBuildSystemType()) {
                 case PNC:
                     statCounter = stats.pncCounter();
                     artifactParser = artifactCache::findPNCArtifact;
-                    pncBuildIds.add(BuildMapper.idMapper.toEntity(build.getPncId()));
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
-                    TargetRepository brewRepository = artifactCache.findOrCreateTargetRepository(build);
-                    artifactParser = art -> artifactCache
-                            .findOrCreateBrewArtifact(art, brewRepository, build.getBrewNVR());
+                    // The artifact comes from a proper Brew build.
+                    if (!build.isImport()) {
+                        TargetRepository brewRepository = artifactCache.findOrCreateTargetRepository(build);
+                        artifactParser = art -> artifactCache
+                                .findOrCreateBrewArtifact(art, brewRepository, build.getBrewNVR());
+                    } else {
+                        // The artifact comes from a Brew build which is an import. We need to search the artifacts
+                        // among existing PNC artifacts similarly to what we do with not found artifacts, to match the best
+                        // existing artifacts (if any)
+                        artifactParser = art -> findOrCreateBrewImportedArtifact(art, user, artifactCache, build);
+                    }
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
@@ -240,11 +249,14 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             });
         }
 
+        /*
+         * Not found artifacts are artifacts which were not built in PNC and not built in Brew (either properly built or imported)
+         */
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .peek(stats.notFoundCounter())
-                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuildIds, user))
+                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, user))
                     .forEach(artifact -> addDeliveredArtifact(artifact, report, false, null));
         }
         stats.log(distributionUrl);
@@ -348,57 +360,55 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
-    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
+    private org.jboss.pnc.model.Artifact findOrCreateBrewImportedArtifact(
             Artifact artifact,
-            TargetRepository targetRepo,
-            Set<Base32LongID> pncBuiltRecordIds,
-            User user) {
+            User user,
+            ArtifactCache artifactCache,
+            Build build) {
 
-        // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
-        // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact with
-        // some priority checks.
+        // This is a Brew artifact, so let's convert it to get the identifier, filename etc initialized.
+        // The target repository can be left null for now, in case we need to create the artifact we will deal with it
+        org.jboss.pnc.model.Artifact brewArtifact = mapBrewArtifact(artifact, build.getBrewNVR(), null, user);
 
-        List<org.jboss.pnc.model.Artifact> artifacts;
-        Optional<org.jboss.pnc.model.Artifact> bestMatch;
-
-        // 1) We will see if there are artifacts with the same SHA-256 which are dependencies of one of the found
-        // PNC builds (if any) in the current delivered analysis.
-        // If more than one artifact is found, find a best match.
-        if (!pncBuiltRecordIds.isEmpty()) {
-            artifacts = artifactRepository
-                    .withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds);
-            bestMatch = getBestMatchingArtifact(artifacts);
-            if (bestMatch.isPresent()) {
-                return bestMatch.get();
-            }
-        }
-
-        // 2) We will see if there is an artifact with the same SHA-256 and identifier.
-        // If more than one artifact is found, find a best match.
-        if (artifact.getArtifactType() == ArtifactType.MAVEN) {
-            String identifier = createIdentifier((MavenArtifact) artifact);
-            artifacts = artifactRepository.withIdentifierAndSha256(identifier, artifact.getSha256());
-            bestMatch = getBestMatchingArtifact(artifacts);
-            if (bestMatch.isPresent()) {
-                return bestMatch.get();
-            }
-        } else {
-            artifacts = artifactRepository.withIdentifierAndSha256(artifact.getFilename(), artifact.getSha256());
-            bestMatch = getBestMatchingArtifact(artifacts);
-            if (bestMatch.isPresent()) {
-                return bestMatch.get();
-            }
-        }
-
-        // 3) We will see if there is an artifact just with the same SHA-256.
-        // If more than one artifact is found, find a best match.
-        artifacts = artifactRepository.withSha256In(Collections.singleton(artifact.getSha256()));
-        bestMatch = getBestMatchingArtifact(artifacts);
+        // Search for an artifact with the same SHA-256 and identifier.
+        // If more than one artifact is found (should not happen), find a best match.
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                .withIdentifierAndSha256(brewArtifact.getIdentifier(), artifact.getSha256());
+        Optional<org.jboss.pnc.model.Artifact> bestMatch = getBestMatchingArtifact(artifacts);
         if (bestMatch.isPresent()) {
             return bestMatch.get();
         }
 
-        // Finally, there was no artifact found with the same SHA-56. Create a new one
+        // Otherwise, we need to create this artifact.
+        TargetRepository brewRepository = artifactCache.findOrCreateTargetRepository(build);
+        brewArtifact.setTargetRepository(brewRepository);
+        org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(brewArtifact);
+        brewRepository.getArtifacts().add(savedArtifact);
+        return savedArtifact;
+    }
+
+    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
+            Artifact artifact,
+            TargetRepository targetRepo,
+            User user) {
+
+        // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
+        // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact.
+        // PLEASE NOTE that we don't know much about such artifacts, for example whether they are Maven based. We really
+        // know just their SHA and their filename. Their identifier is their filename.
+        Path path = Paths.get(artifact.getFilename());
+        String filename = path.getFileName().toString();
+
+        // Search for artifacts with the same SHA-256 and filter for its name. If no matches are found, create the
+        // artifact. Yes, if an artifact was renamed in the ZIP, we will create a new entry in the DB.
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                .withSha256In(Collections.singleton(artifact.getSha256()));
+        artifacts = artifacts.stream().filter(art -> art.getFilename().equals(filename)).collect(Collectors.toList());
+        if (artifacts != null && artifacts.size() == 1) {
+            return artifacts.iterator().next();
+        }
+
+        // There was no artifact found with the same SHA-56 and name. Create a new one
         return createArtifact(mapNotFoundArtifact(artifact, user), targetRepo);
     }
 

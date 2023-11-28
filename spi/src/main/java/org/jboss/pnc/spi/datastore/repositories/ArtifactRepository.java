@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 import java.util.Collection;
@@ -33,8 +32,6 @@ public interface ArtifactRepository extends Repository<Artifact, Integer> {
     Artifact withPurl(String purl);
 
     Set<Artifact> withIdentifierAndSha256(Collection<Artifact.IdentifierSha256> identifierSha256Set);
-
-    List<Artifact> withSha256AndDependantBuildRecordIdIn(String sha256, Set<Base32LongID> buildRecordIds);
 
     List<Artifact> withIdentifierAndSha256(String identifier, String sha256);
 

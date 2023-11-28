@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
@@ -68,11 +67,6 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
             artifacts.addAll(artifactsInDb);
         }
         return artifacts;
-    }
-
-    @Override
-    public List<Artifact> withSha256AndDependantBuildRecordIdIn(String sha256, Set<Base32LongID> buildRecordIds) {
-        return queryWithPredicates(ArtifactPredicates.withSha256AndDependantBuildRecordIdIn(sha256, buildRecordIds));
     }
 
     @Override
