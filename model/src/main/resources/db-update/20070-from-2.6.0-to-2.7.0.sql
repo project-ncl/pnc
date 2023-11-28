@@ -65,3 +65,9 @@ ALTER TABLE build_configuration_align_strats_aud
     ADD CONSTRAINT fk_buildconfiguration_align_strats_aud_buildconfiguration FOREIGN KEY (buildconfiguration_id, rev) REFERENCES buildconfiguration_aud(id, rev);
 
 COMMIT;
+
+BEGIN transaction;
+   ALTER TABLE deliverableartifact ADD COLUMN unmatchedFilenames TEXT;
+COMMIT;
+
+
