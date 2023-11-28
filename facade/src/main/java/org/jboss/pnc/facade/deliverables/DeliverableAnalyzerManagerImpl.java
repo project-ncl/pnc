@@ -85,6 +85,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -232,7 +233,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                                 .findOrCreateBrewArtifact(art, brewRepository, build.getBrewNVR());
                     } else {
                         // The artifact comes from a Brew build which is an import. We need to search the artifacts
-                        // among existing PNC artifacts similarly to what we do with not found artifacts, to match the best
+                        // among existing PNC artifacts similarly to what we do with not found artifacts, to match the
+                        // best
                         // existing artifacts (if any)
                         artifactParser = art -> findOrCreateBrewImportedArtifact(art, user, artifactCache, build);
                     }
@@ -245,20 +247,26 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                         artifactParser.apply(artifactDto),
                         report,
                         artifactDto.isBuiltFromSource(),
-                        build.getBrewId());
+                        build.getBrewId(),
+                        artifactDto.getUnmatchedFilenames());
             });
         }
 
         /*
-         * Not found artifacts are artifacts which were not built in PNC and not built in Brew (either properly built or imported)
+         * Not found artifacts are artifacts which were not built in PNC and not built in Brew (either properly built or
+         * imported)
          */
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
-            notFoundArtifacts.stream()
-                    .peek(stats.notFoundCounter())
-                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, user))
-                    .forEach(artifact -> addDeliveredArtifact(artifact, report, false, null));
+            Iterator<Artifact> iterator = notFoundArtifacts.iterator();
+            while (iterator.hasNext()) {
+                Artifact art = iterator.next();
+                stats.notFoundCounter().accept(art);
+                org.jboss.pnc.model.Artifact artifact = findOrCreateNotFoundArtifact(art, distributionRepository, user);
+                addDeliveredArtifact(artifact, report, false, null, art.getUnmatchedFilenames());
+            }
         }
+
         stats.log(distributionUrl);
     }
 
@@ -266,12 +274,14 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             org.jboss.pnc.model.Artifact artifact,
             DeliverableAnalyzerReport report,
             boolean builtFromSource,
-            Long brewBuildId) {
+            Long brewBuildId,
+            Collection<String> unmatchedFilenames) {
         DeliverableArtifact deliverableArtifact = DeliverableArtifact.builder()
                 .artifact(artifact)
                 .report(report)
                 .builtFromSource(builtFromSource)
                 .brewBuildId(brewBuildId)
+                .unmatchedFilenames(unmatchedFilenames)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
         deliverableArtifactRepository.save(deliverableArtifact);
