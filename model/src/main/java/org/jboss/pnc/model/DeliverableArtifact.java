@@ -22,13 +22,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import org.jboss.pnc.model.utils.DeliverableArtifactUnmatchedFilesToStringConverter;
+
 import java.util.Objects;
+import java.util.Collection;
 
 /**
  * Join table between {@link DeliverableAnalyzerReport} and {@link Artifact} with some additional information.
@@ -62,6 +67,12 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
      * The id of the Brew build in case this artifact was built in Brew.
      */
     private Long brewBuildId;
+
+    /**
+     * The list of unmatched filenames inside this artifact
+     */
+    @Convert(converter = DeliverableArtifactUnmatchedFilesToStringConverter.class)
+    private Collection<String> unmatchedFilenames;
 
     public DeliverableArtifactPK getId() {
         return new DeliverableArtifactPK(report, artifact);
