@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 @Converter
-public class DeliverableArtifactUnmatchedFilesToStringConverter
+public class DeliverableArtifactArchiveFilenamesToStringConverter
         implements AttributeConverter<Collection<String>, String> {
 
     private static final String DELIMITER = ";";

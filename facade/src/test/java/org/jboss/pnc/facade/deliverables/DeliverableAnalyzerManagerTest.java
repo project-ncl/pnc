@@ -34,12 +34,14 @@ import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
@@ -66,10 +68,15 @@ import static org.mockito.Mockito.when;
 public class DeliverableAnalyzerManagerTest {
 
     public static final Base32LongID ID = new Base32LongID(42);
+    private static final Base32LongID DISTRIBUTION_ID = new Base32LongID(13);
+    private static final String distributionUrl = "https://example.com/distribution.zip";
+
     @Mock
     private ArtifactRepository artifactRepository;
     @Mock
     private TargetRepositoryRepository targetRepositoryRepository;
+    @Mock
+    private DeliverableAnalyzerDistributionRepository deliverableAnalyzerDistributionRepository;
     @Mock
     private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
     @Mock
@@ -121,6 +128,8 @@ public class DeliverableAnalyzerManagerTest {
         when(deliverableAnalyzerOperationRepository.queryById(any())).thenReturn(deliverableAnalyzerOperation);
         when(deliverableAnalyzerReportRepository.save(any()))
                 .thenReturn(DeliverableAnalyzerReport.builder().id(ID).build());
+        when(deliverableAnalyzerDistributionRepository.save(any())).thenReturn(
+                DeliverableAnalyzerDistribution.builder().id(DISTRIBUTION_ID).distributionUrl(distributionUrl).build());
     }
 
     @Test
@@ -128,7 +137,7 @@ public class DeliverableAnalyzerManagerTest {
         // with
         Set<Build> builds = prepareBuilds();
         Set<Artifact> nfArtifacts = prepareNotFoundArtifacts();
-        String distributionUrl = "https://example.com/distribution.zip";
+
         FinderResult result = FinderResult.builder()
                 .builds(builds)
                 .notFoundArtifacts(nfArtifacts)
