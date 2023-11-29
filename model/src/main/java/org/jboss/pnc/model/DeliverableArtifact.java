@@ -30,7 +30,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.jboss.pnc.model.utils.DeliverableArtifactUnmatchedFilesToStringConverter;
+import org.jboss.pnc.model.utils.DeliverableArtifactArchiveFilenamesToStringConverter;
 
 import java.util.Objects;
 import java.util.Collection;
@@ -69,10 +69,20 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     private Long brewBuildId;
 
     /**
-     * The list of unmatched filenames inside this artifact
+     * The list of archive filenames associated with this artifact
      */
-    @Convert(converter = DeliverableArtifactUnmatchedFilesToStringConverter.class)
-    private Collection<String> unmatchedFilenames;
+    @Convert(converter = DeliverableArtifactArchiveFilenamesToStringConverter.class)
+    private Collection<String> archiveFilenames;
+
+    /**
+     * The list of archive unmatched filenames inside this artifact
+     */
+    @Convert(converter = DeliverableArtifactArchiveFilenamesToStringConverter.class)
+    private Collection<String> archiveUnmatchedFilenames;
+
+    @ManyToOne
+    @JoinColumn(name = "distribution_id", foreignKey = @ForeignKey(name = "fk_deliverableartifact_distribution"))
+    private DeliverableAnalyzerDistribution distribution;
 
     public DeliverableArtifactPK getId() {
         return new DeliverableArtifactPK(report, artifact);
