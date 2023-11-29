@@ -432,7 +432,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
                 .withSha256In(Collections.singleton(artifact.getSha256()));
         artifacts = artifacts.stream().filter(art -> art.getFilename().equals(filename)).collect(Collectors.toList());
-        if (artifacts != null && artifacts.size() == 1) {
+        if (artifacts.size() == 1) {
             return artifacts.iterator().next();
         }
 
