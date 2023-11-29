@@ -91,7 +91,7 @@ BEGIN transaction;
     CREATE TABLE deliverableanalyzerdistribution
     (
         id                  BIGINT             NOT NULL,
-        distributionUrl     varchar(1024)      NOT NULL,
+        distributionUrl     TEXT               NOT NULL,
         creationtime        timestamptz        NOT NULL,
         PRIMARY KEY (id)
     );

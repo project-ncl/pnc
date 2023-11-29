@@ -66,8 +66,3 @@ ALTER TABLE build_configuration_align_strats_aud
 
 COMMIT;
 
-BEGIN transaction;
-   ALTER TABLE deliverableartifact ADD COLUMN unmatchedFilenames TEXT;
-COMMIT;
-
-
