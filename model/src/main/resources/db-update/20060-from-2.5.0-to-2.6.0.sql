@@ -83,3 +83,32 @@ ALTER TABLE deliverableanalyzerlabelentry
             REFERENCES usertable(id);
 
 COMMIT;
+
+--------------------------------------------------------------------------------
+-- DeliverableAnalyzerDistribution
+--------------------------------------------------------------------------------
+BEGIN transaction;
+    CREATE TABLE deliverableanalyzerdistribution
+    (
+        id                  BIGINT             NOT NULL,
+        distributionUrl     varchar(1024)      NOT NULL,
+        creationtime        timestamptz        NOT NULL,
+        PRIMARY KEY (id)
+    );
+COMMIT;
+
+--------------------------------------------------------------------------------
+-- Update to DeliverableArtifact
+--------------------------------------------------------------------------------
+
+BEGIN transaction;
+   ALTER TABLE deliverableartifact ADD COLUMN archiveFilenames TEXT;
+   ALTER TABLE deliverableartifact ADD COLUMN archiveUnmatchedFilenames TEXT;
+
+   ALTER TABLE deliverableartifact
+   ADD CONSTRAINT fk_deliverableartifact_distribution
+       FOREIGN KEY (distribution_id)
+           REFERENCES deliverableanalyzerdistribution(id);
+COMMIT;
+
+

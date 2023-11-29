@@ -51,6 +51,7 @@ import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
@@ -58,6 +59,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
@@ -120,6 +122,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private ArtifactRepository artifactRepository;
     @Inject
     private TargetRepositoryRepository targetRepositoryRepository;
+    @Inject
+    private DeliverableAnalyzerDistributionRepository deliverableAnalyzerDistributionRepository;
     @Inject
     private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
     @Inject
@@ -207,6 +211,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds, user);
+        DeliverableAnalyzerDistribution distribution = getDistribution(distributionUrl);
 
         for (Build build : builds) {
             log.debug("Processing build {}", build);
@@ -236,8 +241,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     } else {
                         // The artifact comes from a Brew build which is an import. We need to search the artifacts
                         // among existing PNC artifacts similarly to what we do with not found artifacts, to match the
-                        // best
-                        // existing artifacts (if any)
+                        // best existing artifacts (if any)
                         artifactParser = art -> findOrCreateBrewImportedArtifact(art, user, artifactCache, build);
                     }
                     break;
@@ -250,7 +254,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                         report,
                         artifactDto.isBuiltFromSource(),
                         build.getBrewId(),
-                        artifactDto.getUnmatchedFilenames());
+                        artifactDto.getArchiveFilenames(),
+                        artifactDto.getArchiveUnmatchedFilenames(),
+                        distribution);
             });
         }
 
@@ -265,7 +271,14 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 Artifact art = iterator.next();
                 stats.notFoundCounter().accept(art);
                 org.jboss.pnc.model.Artifact artifact = findOrCreateNotFoundArtifact(art, distributionRepository, user);
-                addDeliveredArtifact(artifact, report, false, null, art.getUnmatchedFilenames());
+                addDeliveredArtifact(
+                        artifact,
+                        report,
+                        false,
+                        null,
+                        art.getArchiveFilenames(),
+                        art.getArchiveUnmatchedFilenames(),
+                        distribution);
             }
         }
 
@@ -277,15 +290,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             DeliverableAnalyzerReport report,
             boolean builtFromSource,
             Long brewBuildId,
-            Collection<String> unmatchedFilenames) {
+            Collection<String> archiveFilenames,
+            Collection<String> archiveUnmatchedFilenames,
+            DeliverableAnalyzerDistribution distribution) {
         DeliverableArtifact deliverableArtifact = DeliverableArtifact.builder()
                 .artifact(artifact)
                 .report(report)
                 .builtFromSource(builtFromSource)
                 .brewBuildId(brewBuildId)
-                .unmatchedFilenames(unmatchedFilenames)
+                .archiveFilenames(archiveFilenames)
+                .archiveUnmatchedFilenames(archiveUnmatchedFilenames)
+                .distribution(distribution)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
+        distribution.addDeliverableArtifact(deliverableArtifact);
         deliverableArtifactRepository.save(deliverableArtifact);
     }
 
@@ -586,6 +604,22 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return targetRepositoryRepository.save(tr);
     }
 
+    private DeliverableAnalyzerDistribution getDistribution(String distURL) {
+        DeliverableAnalyzerDistribution distribution = deliverableAnalyzerDistributionRepository.queryByUrl(distURL);
+        if (distribution == null) {
+            distribution = createDistribution(distURL);
+        }
+        return distribution;
+    }
+
+    private DeliverableAnalyzerDistribution createDistribution(String url) {
+        DeliverableAnalyzerDistribution distro = DeliverableAnalyzerDistribution.builder()
+                .distributionUrl(url)
+                .artifacts(new HashSet<>())
+                .build();
+        return deliverableAnalyzerDistributionRepository.save(distro);
+    }
+
     private void startAnalysis(
             String milestoneId,
             List<String> deliverablesUrls,
@@ -700,6 +734,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         private Map<IdentifierShaRepo, org.jboss.pnc.model.Artifact> brewCache = new HashMap<>();
         private Map<String, TargetRepository> targetRepositoryCache = new HashMap<>();
+        private Map<String, DeliverableAnalyzerDistribution> analyzerDistributionCache = new HashMap<>();
 
         private User user;
 
