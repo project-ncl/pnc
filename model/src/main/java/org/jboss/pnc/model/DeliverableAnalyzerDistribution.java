@@ -30,6 +30,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Type;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
@@ -52,6 +54,7 @@ public class DeliverableAnalyzerDistribution implements GenericEntity<Base32Long
     /**
      * The url of the distribution analyzed
      */
+    @Type(type = "org.hibernate.type.TextType")
     private String distributionUrl;
 
     @NotNull
@@ -71,12 +74,14 @@ public class DeliverableAnalyzerDistribution implements GenericEntity<Base32Long
             artifacts = new HashSet<DeliverableArtifact>();
         }
         artifacts.add(deliverableArtifact);
+        deliverableArtifact.setDistribution(this);
     }
 
     public void removeDeliverableArtifact(DeliverableArtifact deliverableArtifact) {
         if (artifacts != null) {
             artifacts.remove(deliverableArtifact);
         }
+        deliverableArtifact.setDistribution(null);
     }
 
     @Override

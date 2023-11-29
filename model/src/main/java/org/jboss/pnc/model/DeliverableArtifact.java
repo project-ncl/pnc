@@ -30,6 +30,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Type;
 import org.jboss.pnc.model.utils.DeliverableArtifactArchiveFilenamesToStringConverter;
 
 import java.util.Objects;
@@ -72,12 +73,14 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
      * The list of archive filenames associated with this artifact
      */
     @Convert(converter = DeliverableArtifactArchiveFilenamesToStringConverter.class)
+    @Type(type = "org.hibernate.type.TextType")
     private Collection<String> archiveFilenames;
 
     /**
      * The list of archive unmatched filenames inside this artifact
      */
     @Convert(converter = DeliverableArtifactArchiveFilenamesToStringConverter.class)
+    @Type(type = "org.hibernate.type.TextType")
     private Collection<String> archiveUnmatchedFilenames;
 
     @ManyToOne
