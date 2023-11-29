@@ -57,6 +57,7 @@ import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.Artifact.IdentifierSha256;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionRepository;
@@ -219,11 +220,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 throw new IllegalArgumentException("Build system type not set.");
             }
 
-            /*
-             * If the build is marked as imported (can happen for Brew builds only because BuildFinder considers only
-             * the PNC artifacts which are associated with a build), we need to handle the artifacts differently, to
-             * avoid the issue of Brew imports having priority over PNC imported artifacts.
-             */
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
             Consumer<Artifact> statCounter;
             switch (build.getBuildSystemType()) {
@@ -233,17 +229,13 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
-                    // The artifact comes from a proper Brew build.
-                    if (!build.isImport()) {
-                        TargetRepository brewRepository = artifactCache.findOrCreateTargetRepository(build);
-                        artifactParser = art -> artifactCache
-                                .findOrCreateBrewArtifact(art, brewRepository, build.getBrewNVR());
-                    } else {
-                        // The artifact comes from a Brew build which is an import. We need to search the artifacts
-                        // among existing PNC artifacts similarly to what we do with not found artifacts, to match the
-                        // best existing artifacts (if any)
-                        artifactParser = art -> findOrCreateBrewImportedArtifact(art, user, artifactCache, build);
-                    }
+                    // The artifact comes from a Brew build (either a proper build or an import). We need to search
+                    // among existing PNC artifacts similarly to what we do with not found artifacts, to match the
+                    // best existing ones (if any). If the Brew build is a proper build (not an import), it might be
+                    // that we already have a PNC dependency from MRRC which is also found in Brew. In this case, we
+                    // want to reuse the existing MRRC artifact. If the Brew build is an import, we want to still
+                    // pioritize the existing PNC dependencies.
+                    artifactParser = art -> findOrCreateBrewArtifact(art, user, artifactCache, build);
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
@@ -381,7 +373,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
-    private org.jboss.pnc.model.Artifact findOrCreateBrewImportedArtifact(
+    private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
             Artifact artifact,
             User user,
             ArtifactCache artifactCache,
@@ -390,22 +382,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         // This is a Brew artifact, so let's convert it to get the identifier, filename etc initialized.
         // The target repository can be left null for now, in case we need to create the artifact we will deal with it
         org.jboss.pnc.model.Artifact brewArtifact = mapBrewArtifact(artifact, build.getBrewNVR(), null, user);
-
-        // Search for an artifact with the same SHA-256 and identifier.
-        // If more than one artifact is found (should not happen), find a best match.
-        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
-                .withIdentifierAndSha256(brewArtifact.getIdentifier(), artifact.getSha256());
-        Optional<org.jboss.pnc.model.Artifact> bestMatch = getBestMatchingArtifact(artifacts);
-        if (bestMatch.isPresent()) {
-            return bestMatch.get();
-        }
-
-        // Otherwise, we need to create this artifact.
-        TargetRepository brewRepository = artifactCache.findOrCreateTargetRepository(build);
-        brewArtifact.setTargetRepository(brewRepository);
-        org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(brewArtifact);
-        brewRepository.getArtifacts().add(savedArtifact);
-        return savedArtifact;
+        return artifactCache.findOrCreateBrewArtifact(brewArtifact, build);
     }
 
     private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
@@ -732,9 +709,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         private Map<Integer, org.jboss.pnc.model.Artifact> pncCache = new HashMap<>();
 
-        private Map<IdentifierShaRepo, org.jboss.pnc.model.Artifact> brewCache = new HashMap<>();
+        private Map<IdentifierSha256, org.jboss.pnc.model.Artifact> brewCache = new HashMap<>();
         private Map<String, TargetRepository> targetRepositoryCache = new HashMap<>();
-        private Map<String, DeliverableAnalyzerDistribution> analyzerDistributionCache = new HashMap<>();
 
         private User user;
 
@@ -775,39 +751,29 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         private void prefetchBrewArtifacts(Collection<Build> builds) {
-            Set<IdentifierShaRepo> queries = builds.stream()
+            Set<IdentifierSha256> identifierSha256Set = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
                     .flatMap(this::prefetchBrewBuild)
                     .collect(Collectors.toSet());
 
-            Set<org.jboss.pnc.model.Artifact.IdentifierSha256> identifierSha256Set = queries.stream()
-                    .map(IdentifierShaRepo::getIdentifierSha256)
-                    .collect(Collectors.toSet());
             Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
                     .withIdentifierAndSha256(identifierSha256Set);
-            for (org.jboss.pnc.model.Artifact artifact : artifacts) {
-                IdentifierShaRepo key = new IdentifierShaRepo(
-                        artifact.getIdentifierSha256(),
-                        artifact.getTargetRepository());
-                if (queries.contains(key)) {
-                    brewCache.put(key, artifact);
-                }
-            }
-            log.debug("Preloaded {} brew artifacts to cache.", targetRepositoryCache.size(), brewCache.size());
+            // Search for all artifacts with the provided SHA-256 and identifiers.
+            // If more than one artifact is found for the same SHA-256 and identifier (should not happen for Maven
+            // artifacts!), find a best match.
+            Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
+                    .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
+            groupedByIdentifierSha256.forEach(
+                    (key, matchedArtifacts) -> brewCache.put(key, getBestMatchingArtifact(matchedArtifacts).get()));
+            log.debug("Preloaded {} brew artifacts to cache.", brewCache.size());
         }
 
-        public Stream<IdentifierShaRepo> prefetchBrewBuild(Build build) {
-            String path = getKojiPath(build);
-            TargetRepository targetRepository = targetRepositoryCache.get(path);
-            if (targetRepository == null) {
-                return Stream.empty();
-            } else {
-                return build.getArtifacts()
-                        .stream()
-                        .peek(this::assertBrewArtifacts)
-                        .map(a -> mapBrewArtifact(a, build.getBrewNVR(), targetRepository, user))
-                        .map(a -> new IdentifierShaRepo(a.getIdentifierSha256(), targetRepository));
-            }
+        public Stream<IdentifierSha256> prefetchBrewBuild(Build build) {
+            return build.getArtifacts()
+                    .stream()
+                    .peek(this::assertBrewArtifacts)
+                    .map(a -> mapBrewArtifact(a, build.getBrewNVR(), null, user))
+                    .map(a -> a.getIdentifierSha256());
         }
 
         private String getKojiPath(Build build) {
@@ -840,30 +806,22 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return tr;
         }
 
-        public org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
-                Artifact artifact,
-                TargetRepository targetRepository,
-                String nvr) {
-            return findOrCreateBrewArtifact(mapBrewArtifact(artifact, nvr, targetRepository, user));
-        }
-
-        private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(org.jboss.pnc.model.Artifact artifact) {
-            TargetRepository targetRepository = artifact.getTargetRepository();
-            IdentifierShaRepo key = new IdentifierShaRepo(artifact.getIdentifierSha256(), targetRepository);
-            org.jboss.pnc.model.Artifact cachedArtifact = brewCache.get(key);
+        private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
+                org.jboss.pnc.model.Artifact artifact,
+                Build build) {
+            org.jboss.pnc.model.Artifact cachedArtifact = brewCache.get(artifact.getIdentifierSha256());
             if (cachedArtifact != null) {
                 return cachedArtifact;
             }
+
+            // Otherwise, we need to create this artifact.
+            TargetRepository brewRepository = findOrCreateTargetRepository(build);
+            artifact.setTargetRepository(brewRepository);
             org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
-            targetRepository.getArtifacts().add(savedArtifact);
-            brewCache.put(key, savedArtifact);
+            brewRepository.getArtifacts().add(savedArtifact);
+            brewCache.put(artifact.getIdentifierSha256(), savedArtifact);
             return savedArtifact;
         }
     }
 
-    @Value
-    private static class IdentifierShaRepo {
-        org.jboss.pnc.model.Artifact.IdentifierSha256 identifierSha256;
-        TargetRepository targetRepository;
-    }
 }
