@@ -31,16 +31,16 @@
     </login-config>
 
     <security-role>
-        <role-name>pnc-users-build-delete</role-name>
+        <role-name>pnc-app-build-delete</role-name>
     </security-role>
     <security-role>
-        <role-name>pnc-users-build-admin</role-name>
+        <role-name>pnc-app-build-user</role-name>
     </security-role>
     <security-role>
-        <role-name>pnc-users-artifact-admin</role-name>
+        <role-name>pnc-app-artifact-user</role-name>
     </security-role>
     <security-role>
-        <role-name>pnc-users-environment-admin</role-name>
+        <role-name>pnc-app-environment-user</role-name>
     </security-role>
     <security-role>
         <role-name>pnc-users-admin</role-name>

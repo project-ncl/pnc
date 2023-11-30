@@ -26,16 +26,16 @@ public class UserRoles {
     public static final String USERS_ADMIN = "pnc-users-admin";
 
     /** Role used by humans / service accounts that modify artifacts */
-    public static final String USERS_ARTIFACT_ADMIN = "pnc-users-artifact-admin";
+    public static final String USERS_ARTIFACT_ADMIN = "pnc-app-artifact-user";
 
     /** Role used by humans / service accounts to delete temporary builds */
-    public static final String USERS_BUILD_DELETE = "pnc-users-build-delete";
+    public static final String USERS_BUILD_DELETE = "pnc-app-build-delete";
 
     /** Role used by humans / service accounts to create / change builds (including deletion) */
-    public static final String USERS_BUILD_ADMIN = "pnc-users-build-admin";
+    public static final String USERS_BUILD_ADMIN = "pnc-app-build-user";
 
     /** Role used by humans / service accounts to create / change environment */
-    public static final String USERS_ENVIRONMENT_ADMIN = "pnc-users-environment-admin";
+    public static final String USERS_ENVIRONMENT_ADMIN = "pnc-app-environment-user";
 
     /**
      * User's with this role are routed to new implementations that usually run in parallel to the old one (blue/green

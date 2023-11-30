@@ -173,7 +173,7 @@ public interface BuildEndpoint {
      * @param callback {@value SwaggerConstants#CALLBACK_URL}
      */
     @Operation(
-            summary = "[role:pnc-users-build-delete, pnc-users-build-admin, pnc-users-admin] " + DELETE_DESC,
+            summary = "[role:pnc-app-build-delete, pnc-app-build-user, pnc-users-admin] " + DELETE_DESC,
             description = DELETE_DESC2,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
@@ -198,7 +198,7 @@ public interface BuildEndpoint {
      * @param build
      */
     @Operation(
-            summary = "[role:pnc-users-build-admin, pnc-users-admin] " + UPDATE_DESC,
+            summary = "[role:pnc-app-build-user, pnc-users-admin] " + UPDATE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
@@ -257,7 +257,7 @@ public interface BuildEndpoint {
      * @param artifactIds {@value ARTIFACT_IDS}
      */
     @Operation(
-            summary = "[role:pnc-users-build-admin, pnc-users-admin] " + SET_BUILT_ARTIFACTS,
+            summary = "[role:pnc-app-build-user, pnc-users-admin] " + SET_BUILT_ARTIFACTS,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
@@ -278,7 +278,7 @@ public interface BuildEndpoint {
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_IDS) List<String> artifactIds);
 
-    static final String CREATE_BUILT_ARTIFACTS_QUALITY_REVISION = "Add a new quality level revision for the built artifacts of this build. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with pnc-users-artifact-admin, pnc-users-build-admin, pnc-users-admin role can also specify BLACKLISTED and DELETED quality levels.";
+    static final String CREATE_BUILT_ARTIFACTS_QUALITY_REVISION = "Add a new quality level revision for the built artifacts of this build. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with pnc-app-artifact-user, pnc-app-build-user, pnc-users-admin role can also specify BLACKLISTED and DELETED quality levels.";
     static final String ARTIFACT_QUALITY = "Quality level of the artifact.";
     static final String ARTIFACT_QUALITY_REASON = "The reason for adding a new quality level for this artifact.";
 
@@ -351,7 +351,7 @@ public interface BuildEndpoint {
      * @param artifactIds {@value ARTIFACT_IDS}
      */
     @Operation(
-            summary = "[role:admin] " + SET_DEPENDANT_ARTIFACTS_DESC,
+            summary = "[role:pnc-app-build-user, pnc-users-admin] " + SET_DEPENDANT_ARTIFACTS_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
