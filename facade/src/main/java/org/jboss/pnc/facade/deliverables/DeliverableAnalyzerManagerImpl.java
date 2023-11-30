@@ -337,17 +337,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private Optional<org.jboss.pnc.model.Artifact> getBestMatchingArtifact(
-            Collection<org.jboss.pnc.model.Artifact> artifacts) {
+            Collection<org.jboss.pnc.model.Artifact> artifacts,
+            boolean isImport) {
         if (artifacts == null || artifacts.isEmpty()) {
             return Optional.empty();
         }
 
-        return artifacts.stream()
-                .sorted(Comparator.comparing(DeliverableAnalyzerManagerImpl::getNotFoundArtifactRating).reversed())
-                .findFirst();
+        Function<org.jboss.pnc.model.Artifact, Integer> artifactRatingFunction = isImport
+                ? DeliverableAnalyzerManagerImpl::getNotBuiltArtifactRating
+                : DeliverableAnalyzerManagerImpl::getBuiltArtifactRating;
+
+        return artifacts.stream().sorted(Comparator.comparing(artifactRatingFunction).reversed()).findFirst();
     }
 
-    private static int getNotFoundArtifactRating(org.jboss.pnc.model.Artifact artifact) {
+    private static Integer getNotBuiltArtifactRating(org.jboss.pnc.model.Artifact artifact) {
         ArtifactQuality quality = artifact.getArtifactQuality();
 
         switch (quality) {
@@ -359,6 +362,30 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 return 3;
             case IMPORTED:
                 return 4;
+            case DEPRECATED:
+                return -1;
+            case BLACKLISTED:
+                return -2;
+            case TEMPORARY:
+                return -3;
+            case DELETED:
+                return -4;
+            default:
+                log.warn("Unsupported ArtifactQuality! Got: {}", quality);
+                return -100;
+        }
+    }
+
+    private static Integer getBuiltArtifactRating(org.jboss.pnc.model.Artifact artifact) {
+        ArtifactQuality quality = artifact.getArtifactQuality();
+
+        switch (quality) {
+            case NEW:
+                return 1;
+            case VERIFIED:
+                return 2;
+            case TESTED:
+                return 3;
             case DEPRECATED:
                 return -1;
             case BLACKLISTED:
@@ -719,6 +746,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             prefetchPNCArtifacts(builds);
             prefetchTargetRepos(builds);
             prefetchBrewArtifacts(builds);
+            prefetchBrewImportedArtifacts(builds);
         }
 
         private void prefetchPNCArtifacts(Collection<Build> builds) {
@@ -753,6 +781,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         private void prefetchBrewArtifacts(Collection<Build> builds) {
             Set<IdentifierSha256> identifierSha256Set = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
+                    .filter(b -> !b.isImport())
                     .flatMap(this::prefetchBrewBuild)
                     .collect(Collectors.toSet());
 
@@ -764,8 +793,29 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
                     .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
             groupedByIdentifierSha256.forEach(
-                    (key, matchedArtifacts) -> brewCache.put(key, getBestMatchingArtifact(matchedArtifacts).get()));
+                    (key, matchedArtifacts) -> brewCache
+                            .put(key, getBestMatchingArtifact(matchedArtifacts, false).get()));
             log.debug("Preloaded {} brew artifacts to cache.", brewCache.size());
+        }
+
+        private void prefetchBrewImportedArtifacts(Collection<Build> builds) {
+            Set<IdentifierSha256> identifierSha256Set = builds.stream()
+                    .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
+                    .filter(b -> b.isImport())
+                    .flatMap(this::prefetchBrewBuild)
+                    .collect(Collectors.toSet());
+
+            Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                    .withIdentifierAndSha256(identifierSha256Set);
+            // Search for all artifacts with the provided SHA-256 and identifiers.
+            // If more than one artifact is found for the same SHA-256 and identifier (should not happen for Maven
+            // artifacts!), find a best match.
+            Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
+                    .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
+            groupedByIdentifierSha256.forEach(
+                    (key, matchedArtifacts) -> brewCache
+                            .put(key, getBestMatchingArtifact(matchedArtifacts, true).get()));
+            log.debug("Preloaded {} brew imported artifacts to cache.", brewCache.size());
         }
 
         public Stream<IdentifierSha256> prefetchBrewBuild(Build build) {
