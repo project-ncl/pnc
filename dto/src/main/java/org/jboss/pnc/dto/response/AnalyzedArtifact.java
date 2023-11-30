@@ -20,6 +20,9 @@ package org.jboss.pnc.dto.response;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+
+import java.util.Collection;
+
 import org.jboss.pnc.dto.Artifact;
 
 /**
@@ -44,4 +47,19 @@ public class AnalyzedArtifact {
      * Artifact's actual data.
      */
     Artifact artifact;
+
+    /**
+     * The list of archive filenames associated with this artifact
+     */
+    Collection<String> archiveFilenames;
+
+    /**
+     * The list of archive unmatched filenames inside this artifact
+     */
+    Collection<String> archiveUnmatchedFilenames;
+
+    /**
+     * The distribution which was analyzed and is associated with this analyzed artifact
+     */
+    AnalyzedDistribution distribution;
 }
