@@ -378,7 +378,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             case DELETED:
                 return -4;
             default:
-                log.warn("Unsupported ArtifactQuality! Got: {}", quality);
+                log.warn("Unsupported ArtifactQuality! Got: {} for artifact: {}", quality, artifact);
                 return -100;
         }
     }
@@ -402,7 +402,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             case DELETED:
                 return -4;
             default:
-                log.warn("Unsupported ArtifactQuality! Got: {}", quality);
+                log.warn("Unsupported ArtifactQuality! Got: {} for artifact: {}", quality, artifact);
                 return -100;
         }
     }
