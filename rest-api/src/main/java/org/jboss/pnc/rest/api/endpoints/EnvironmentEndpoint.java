@@ -126,7 +126,7 @@ public interface EnvironmentEndpoint {
      * @return
      */
     @Operation(
-            summary = "[role:pnc-users-environment-admin, pnc-users-admin] " + CREATE_NEW_DESC,
+            summary = "[role:pnc-app-environment-user, pnc-users-admin] " + CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -153,7 +153,7 @@ public interface EnvironmentEndpoint {
      *
      */
     @Operation(
-            summary = "[role:pnc-users-environment-admin, pnc-users-admin] " + DEPRECATE_DESC,
+            summary = "[role:pnc-app-environment-user, pnc-users-admin] " + DEPRECATE_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
