@@ -162,10 +162,12 @@ public class DeliverableAnalyzerReportProviderImpl extends
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {
-        AnalyzedDistribution distribution = AnalyzedDistribution.builder()
-                .distributionUrl(deliverableArtifact.getDistribution().getDistributionUrl())
-                .creationTime(deliverableArtifact.getDistribution().getCreationTime())
-                .build();
+        AnalyzedDistribution distribution = deliverableArtifact.getDistribution() != null
+                ? AnalyzedDistribution.builder()
+                        .distributionUrl(deliverableArtifact.getDistribution().getDistributionUrl())
+                        .creationTime(deliverableArtifact.getDistribution().getCreationTime())
+                        .build()
+                : null;
         return AnalyzedArtifact.builder()
                 .builtFromSource(deliverableArtifact.isBuiltFromSource())
                 .brewId(deliverableArtifact.getBrewBuildId())
