@@ -74,14 +74,12 @@ public class DeliverableAnalyzerDistribution implements GenericEntity<Base32Long
             artifacts = new HashSet<DeliverableArtifact>();
         }
         artifacts.add(deliverableArtifact);
-        deliverableArtifact.setDistribution(this);
     }
 
     public void removeDeliverableArtifact(DeliverableArtifact deliverableArtifact) {
         if (artifacts != null) {
             artifacts.remove(deliverableArtifact);
         }
-        deliverableArtifact.setDistribution(null);
     }
 
     @Override
