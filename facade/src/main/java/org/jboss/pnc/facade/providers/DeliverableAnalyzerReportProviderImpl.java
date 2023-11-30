@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
+import org.jboss.pnc.dto.response.AnalyzedDistribution;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerLabelSaver;
@@ -161,10 +162,17 @@ public class DeliverableAnalyzerReportProviderImpl extends
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {
+        AnalyzedDistribution distribution = AnalyzedDistribution.builder()
+                .distributionUrl(deliverableArtifact.getDistribution().getDistributionUrl())
+                .creationTime(deliverableArtifact.getDistribution().getCreationTime())
+                .build();
         return AnalyzedArtifact.builder()
                 .builtFromSource(deliverableArtifact.isBuiltFromSource())
                 .brewId(deliverableArtifact.getBrewBuildId())
                 .artifact(artifactMapper.toDTO(deliverableArtifact.getArtifact()))
+                .archiveFilenames(deliverableArtifact.getArchiveFilenames())
+                .archiveUnmatchedFilenames(deliverableArtifact.getArchiveUnmatchedFilenames())
+                .distribution(distribution)
                 .build();
     }
 }
