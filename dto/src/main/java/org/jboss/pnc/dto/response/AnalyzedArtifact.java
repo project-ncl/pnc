@@ -21,7 +21,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.jboss.pnc.dto.Artifact;
 
@@ -51,12 +51,12 @@ public class AnalyzedArtifact {
     /**
      * The list of archive filenames associated with this artifact
      */
-    Collection<String> archiveFilenames;
+    List<String> archiveFilenames;
 
     /**
      * The list of archive unmatched filenames inside this artifact
      */
-    Collection<String> archiveUnmatchedFilenames;
+    List<String> archiveUnmatchedFilenames;
 
     /**
      * The distribution which was analyzed and is associated with this analyzed artifact

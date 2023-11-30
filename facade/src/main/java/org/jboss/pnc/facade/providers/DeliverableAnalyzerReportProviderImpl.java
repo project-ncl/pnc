@@ -42,6 +42,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -172,8 +174,16 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 .builtFromSource(deliverableArtifact.isBuiltFromSource())
                 .brewId(deliverableArtifact.getBrewBuildId())
                 .artifact(artifactMapper.toDTO(deliverableArtifact.getArtifact()))
-                .archiveFilenames(deliverableArtifact.getArchiveFilenames())
-                .archiveUnmatchedFilenames(deliverableArtifact.getArchiveUnmatchedFilenames())
+                .archiveFilenames(
+                        new ArrayList<>(
+                                deliverableArtifact.getArchiveFilenames() != null
+                                        ? deliverableArtifact.getArchiveFilenames()
+                                        : List.of()))
+                .archiveUnmatchedFilenames(
+                        new ArrayList<>(
+                                deliverableArtifact.getArchiveUnmatchedFilenames() != null
+                                        ? deliverableArtifact.getArchiveUnmatchedFilenames()
+                                        : List.of()))
                 .distribution(distribution)
                 .build();
     }
