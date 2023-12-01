@@ -204,8 +204,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             Collection<Build> builds,
             String distributionUrl,
             Collection<Artifact> notFoundArtifacts) {
-        // Set containing all the PNC builds found in the deliverable analysis
-        Set<Base32LongID> pncBuiltRecordIds = new HashSet<>();
 
         log.debug("Processing deliverables in {} builds. Distribution URL: {}", builds.size(), distributionUrl);
         User user = report.getOperation().getUser();
@@ -290,9 +288,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .report(report)
                 .builtFromSource(builtFromSource)
                 .brewBuildId(brewBuildId)
-                .archiveFilenames(archiveFilenames)
-                .archiveUnmatchedFilenames(archiveUnmatchedFilenames)
-                .distribution(distribution)
+                .archiveFilenames(StringUtils.joinArray(archiveFilenames))
+                .archiveUnmatchedFilenames(StringUtils.joinArray(archiveUnmatchedFilenames))
+                // .distribution(distribution)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
         distribution.addDeliverableArtifact(deliverableArtifact);
