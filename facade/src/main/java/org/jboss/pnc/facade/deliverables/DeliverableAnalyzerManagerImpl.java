@@ -290,10 +290,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .brewBuildId(brewBuildId)
                 .archiveFilenames(archiveFilenames)
                 .archiveUnmatchedFilenames(archiveUnmatchedFilenames)
-                //.distribution(distribution)
+                // .distribution(distribution)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
-        //distribution.addDeliverableArtifact(deliverableArtifact);
+        // distribution.addDeliverableArtifact(deliverableArtifact);
         deliverableArtifactRepository.save(deliverableArtifact);
     }
 
