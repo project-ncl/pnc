@@ -25,7 +25,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -37,6 +40,8 @@ import java.util.stream.Collectors;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
  */
 public class StringUtils {
+
+    private static final String DELIMITER = ";";
 
     /**
      * Replace environment variables in string. Environment variables are expected in format ${env.ENV_PROPERTY}, where
@@ -267,6 +272,26 @@ public class StringUtils {
             return null;
         }
         return string;
+    }
+
+    public static String joinArray(Collection<String> strings) {
+        if (strings == null || strings.isEmpty()) {
+            return null;
+        }
+
+        StringJoiner joiner = new StringJoiner(DELIMITER);
+        strings.forEach(joiner::add);
+
+        return joiner.toString();
+    }
+
+    public static List<String> splitString(String myString) {
+        if (myString == null || myString.isEmpty()) {
+            return new ArrayList<String>();
+        }
+
+        String[] elements = myString.split(DELIMITER);
+        return new ArrayList<String>(List.of(elements));
     }
 
 }

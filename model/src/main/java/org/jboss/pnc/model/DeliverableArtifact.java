@@ -22,7 +22,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.Id;
@@ -30,10 +29,9 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.jboss.pnc.model.utils.DeliverableArtifactArchiveFilenamesToStringConverter;
+import org.hibernate.annotations.Type;
 
 import java.util.Objects;
-import java.util.Collection;
 
 /**
  * Join table between {@link DeliverableAnalyzerReport} and {@link Artifact} with some additional information.
@@ -71,14 +69,14 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     /**
      * The list of archive filenames associated with this artifact
      */
-    @Convert(converter = DeliverableArtifactArchiveFilenamesToStringConverter.class)
-    private Collection<String> archiveFilenames;
+    @Type(type = "org.hibernate.type.TextType")
+    private String archiveFilenames;
 
     /**
      * The list of archive unmatched filenames inside this artifact
      */
-    @Convert(converter = DeliverableArtifactArchiveFilenamesToStringConverter.class)
-    private Collection<String> archiveUnmatchedFilenames;
+    @Type(type = "org.hibernate.type.TextType")
+    private String archiveUnmatchedFilenames;
 
     @ManyToOne
     @JoinColumn(name = "distribution_id", foreignKey = @ForeignKey(name = "fk_deliverableartifact_distribution"))
