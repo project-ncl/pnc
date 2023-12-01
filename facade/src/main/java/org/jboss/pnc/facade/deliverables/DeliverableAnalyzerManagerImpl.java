@@ -288,8 +288,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .report(report)
                 .builtFromSource(builtFromSource)
                 .brewBuildId(brewBuildId)
-                .archiveFilenames(archiveFilenames)
-                .archiveUnmatchedFilenames(archiveUnmatchedFilenames)
+                .archiveFilenames(StringUtils.joinArray(archiveFilenames))
+                .archiveUnmatchedFilenames(StringUtils.joinArray(archiveUnmatchedFilenames))
                 // .distribution(distribution)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);

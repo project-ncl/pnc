@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.AnalyzedDistribution;
@@ -174,16 +175,8 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 .builtFromSource(deliverableArtifact.isBuiltFromSource())
                 .brewId(deliverableArtifact.getBrewBuildId())
                 .artifact(artifactMapper.toDTO(deliverableArtifact.getArtifact()))
-                .archiveFilenames(
-                        new ArrayList<>(
-                                deliverableArtifact.getArchiveFilenames() != null
-                                        ? deliverableArtifact.getArchiveFilenames()
-                                        : List.of()))
-                .archiveUnmatchedFilenames(
-                        new ArrayList<>(
-                                deliverableArtifact.getArchiveUnmatchedFilenames() != null
-                                        ? deliverableArtifact.getArchiveUnmatchedFilenames()
-                                        : List.of()))
+                .archiveFilenames(StringUtils.splitString(deliverableArtifact.getArchiveFilenames()))
+                .archiveUnmatchedFilenames(StringUtils.splitString(deliverableArtifact.getArchiveUnmatchedFilenames()))
                 .distribution(distribution)
                 .build();
     }
