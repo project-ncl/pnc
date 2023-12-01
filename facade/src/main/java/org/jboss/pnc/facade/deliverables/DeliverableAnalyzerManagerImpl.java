@@ -295,6 +295,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         report.addDeliverableArtifact(deliverableArtifact);
         // distribution.addDeliverableArtifact(deliverableArtifact);
         deliverableArtifactRepository.save(deliverableArtifact);
+        log.debug("Added delivered artifact {} to the report: {}", deliverableArtifact, report);
     }
 
     private DeliverableAnalyzerReport createReportForCompletedAnalysis(
