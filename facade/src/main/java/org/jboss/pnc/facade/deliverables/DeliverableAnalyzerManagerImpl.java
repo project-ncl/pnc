@@ -290,10 +290,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .brewBuildId(brewBuildId)
                 .archiveFilenames(archiveFilenames)
                 .archiveUnmatchedFilenames(archiveUnmatchedFilenames)
-                .distribution(distribution)
+                //.distribution(distribution)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
-        distribution.addDeliverableArtifact(deliverableArtifact);
+        //distribution.addDeliverableArtifact(deliverableArtifact);
         deliverableArtifactRepository.save(deliverableArtifact);
     }
 
@@ -757,7 +757,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         private void prefetchPNCArtifacts(Collection<Build> builds) {
-            log.debug("Preloading PNC artifacts");
+            log.debug("Preloading PNC artifacts...");
+
             Set<Integer> ids = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.PNC)
                     .flatMap(b -> b.getArtifacts().stream())
@@ -768,10 +769,12 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             pncCache = artifactRepository.queryWithPredicates(ArtifactPredicates.withIds(ids))
                     .stream()
                     .collect(Collectors.toMap(org.jboss.pnc.model.Artifact::getId, Function.identity()));
-            log.debug("Preloaded {} artifacts to cache.", pncCache.size());
+            log.debug("Preloaded {} PNC artifacts to cache.", pncCache.size());
         }
 
         private void prefetchTargetRepos(Collection<Build> builds) {
+            log.debug("Preloading target repos...");
+
             Set<TargetRepository.IdentifierPath> queries = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
                     .map(this::getKojiPath)
@@ -782,10 +785,12 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             for (TargetRepository targetRepository : targetRepositories) {
                 targetRepositoryCache.put(targetRepository.getRepositoryPath(), targetRepository);
             }
-            log.debug("Preloaded {} target repos.", targetRepositoryCache.size());
+            log.debug("Preloaded {} target repos to cache.", targetRepositoryCache.size());
         }
 
         private void prefetchBrewArtifacts(Collection<Build> builds) {
+            log.debug("Preloading brew artifacts...");
+
             Set<IdentifierSha256> identifierSha256Set = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
                     .filter(b -> !b.isImport())
@@ -806,6 +811,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         private void prefetchBrewImportedArtifacts(Collection<Build> builds) {
+            log.debug("Preloading brew imported artifacts...");
+
             Set<IdentifierSha256> identifierSha256Set = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
                     .filter(b -> b.isImport())
