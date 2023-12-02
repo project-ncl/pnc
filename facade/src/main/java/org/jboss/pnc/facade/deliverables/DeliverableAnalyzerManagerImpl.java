@@ -290,11 +290,12 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .brewBuildId(brewBuildId)
                 .archiveFilenames(StringUtils.joinArray(archiveFilenames))
                 .archiveUnmatchedFilenames(StringUtils.joinArray(archiveUnmatchedFilenames))
-                // .distribution(distribution)
+                .distribution(distribution)
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
         distribution.addDeliverableArtifact(deliverableArtifact);
         deliverableArtifactRepository.save(deliverableArtifact);
+        log.debug("Added delivered artifact {}", deliverableArtifact);
     }
 
     private DeliverableAnalyzerReport createReportForCompletedAnalysis(
@@ -777,6 +778,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         private void prefetchBrewArtifacts(Collection<Build> builds) {
+            log.debug("Preloading brew artifacts...");
+            int initialCacheSize = brewCache.size();
+
             Set<IdentifierSha256> identifierSha256Set = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
                     .filter(b -> !b.isImport())
@@ -793,10 +797,16 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             groupedByIdentifierSha256.forEach(
                     (key, matchedArtifacts) -> brewCache
                             .put(key, getBestMatchingArtifact(matchedArtifacts, false).get()));
-            log.debug("Preloaded {} brew artifacts to cache.", brewCache.size());
+            log.debug(
+                    "Preloaded {} brew artifacts to cache, total cache size: {}.",
+                    brewCache.size() - initialCacheSize,
+                    brewCache.size());
         }
 
         private void prefetchBrewImportedArtifacts(Collection<Build> builds) {
+            log.debug("Preloading brew imported artifacts...");
+            int initialCacheSize = brewCache.size();
+
             Set<IdentifierSha256> identifierSha256Set = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
                     .filter(b -> b.isImport())
@@ -813,7 +823,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             groupedByIdentifierSha256.forEach(
                     (key, matchedArtifacts) -> brewCache
                             .put(key, getBestMatchingArtifact(matchedArtifacts, true).get()));
-            log.debug("Preloaded {} brew imported artifacts to cache.", brewCache.size());
+            log.debug(
+                    "Preloaded {} brew imported artifacts to cache, total cache size: {}.",
+                    brewCache.size() - initialCacheSize,
+                    brewCache.size());
         }
 
         public Stream<IdentifierSha256> prefetchBrewBuild(Build build) {
