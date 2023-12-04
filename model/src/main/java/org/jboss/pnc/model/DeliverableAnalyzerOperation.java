@@ -46,7 +46,7 @@ public class DeliverableAnalyzerOperation extends Operation {
     /**
      * The report assigned to this operation.
      */
-    @OneToOne
+    @OneToOne(mappedBy = "operation")
     private DeliverableAnalyzerReport report;
 
     public DeliverableAnalyzerOperation() {
