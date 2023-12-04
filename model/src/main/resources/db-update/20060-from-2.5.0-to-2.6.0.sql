@@ -104,6 +104,7 @@ COMMIT;
 BEGIN transaction;
    ALTER TABLE deliverableartifact ADD COLUMN archiveFilenames TEXT;
    ALTER TABLE deliverableartifact ADD COLUMN archiveUnmatchedFilenames TEXT;
+   ALTER TABLE deliverableartifact ADD COLUMN distribution_id BIGINT;
 
    ALTER TABLE deliverableartifact
    ADD CONSTRAINT fk_deliverableartifact_distribution
@@ -111,4 +112,7 @@ BEGIN transaction;
            REFERENCES deliverableanalyzerdistribution(id);
 COMMIT;
 
+BEGIN transaction;
+   ALTER TABLE deliverableanalyzerlabelentry ALTER COLUMN id TYPE BIGINT;
+END;
 
