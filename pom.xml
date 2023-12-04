@@ -880,7 +880,7 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.10.20</version> <!-- force version provided by mockito to override hibernate version -->
+        <version>1.14.7.redhat-00002</version> <!-- force version provided by mockito to override hibernate version -->
       </dependency>
 
       <dependency>
