@@ -767,9 +767,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .map(artifactMapper.getIdMapper()::toEntity)
                     .collect(Collectors.toSet());
 
-            pncCache = artifactRepository.queryWithPredicates(ArtifactPredicates.withIds(ids))
-                    .stream()
-                    .collect(Collectors.toMap(org.jboss.pnc.model.Artifact::getId, Function.identity()));
+            if (!ids.isEmpty()) {
+                pncCache = artifactRepository.queryWithPredicates(ArtifactPredicates.withIds(ids))
+                        .stream()
+                        .collect(Collectors.toMap(org.jboss.pnc.model.Artifact::getId, Function.identity()));
+            }
             log.debug("Preloaded {} PNC artifacts to cache.", pncCache.size());
         }
 
@@ -782,9 +784,12 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .map(path -> new TargetRepository.IdentifierPath(INDY_MAVEN, path))
                     .collect(Collectors.toSet());
 
-            List<TargetRepository> targetRepositories = targetRepositoryRepository.queryByIdentifiersAndPaths(queries);
-            for (TargetRepository targetRepository : targetRepositories) {
-                targetRepositoryCache.put(targetRepository.getRepositoryPath(), targetRepository);
+            if (!queries.isEmpty()) {
+                List<TargetRepository> targetRepositories = targetRepositoryRepository
+                        .queryByIdentifiersAndPaths(queries);
+                for (TargetRepository targetRepository : targetRepositories) {
+                    targetRepositoryCache.put(targetRepository.getRepositoryPath(), targetRepository);
+                }
             }
             log.debug("Preloaded {} target repos to cache.", targetRepositoryCache.size());
         }
@@ -799,16 +804,18 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .flatMap(this::prefetchBrewBuild)
                     .collect(Collectors.toSet());
 
-            Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
-                    .withIdentifierAndSha256(identifierSha256Set);
-            // Search for all artifacts with the provided SHA-256 and identifiers.
-            // If more than one artifact is found for the same SHA-256 and identifier (should not happen for Maven
-            // artifacts!), find a best match.
-            Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
-                    .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
-            groupedByIdentifierSha256.forEach(
-                    (key, matchedArtifacts) -> brewCache
-                            .put(key, getBestMatchingArtifact(matchedArtifacts, false).get()));
+            if (!identifierSha256Set.isEmpty()) {
+                Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                        .withIdentifierAndSha256(identifierSha256Set);
+                // Search for all artifacts with the provided SHA-256 and identifiers.
+                // If more than one artifact is found for the same SHA-256 and identifier (should not happen for Maven
+                // artifacts!), find a best match.
+                Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
+                        .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
+                groupedByIdentifierSha256.forEach(
+                        (key, matchedArtifacts) -> brewCache
+                                .put(key, getBestMatchingArtifact(matchedArtifacts, false).get()));
+            }
             log.debug(
                     "Preloaded {} brew artifacts to cache, total cache size: {}.",
                     brewCache.size() - initialCacheSize,
@@ -825,16 +832,18 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .flatMap(this::prefetchBrewBuild)
                     .collect(Collectors.toSet());
 
-            Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
-                    .withIdentifierAndSha256(identifierSha256Set);
-            // Search for all artifacts with the provided SHA-256 and identifiers.
-            // If more than one artifact is found for the same SHA-256 and identifier (should not happen for Maven
-            // artifacts!), find a best match.
-            Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
-                    .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
-            groupedByIdentifierSha256.forEach(
-                    (key, matchedArtifacts) -> brewCache
-                            .put(key, getBestMatchingArtifact(matchedArtifacts, true).get()));
+            if (!identifierSha256Set.isEmpty()) {
+                Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                        .withIdentifierAndSha256(identifierSha256Set);
+                // Search for all artifacts with the provided SHA-256 and identifiers.
+                // If more than one artifact is found for the same SHA-256 and identifier (should not happen for Maven
+                // artifacts!), find a best match.
+                Map<IdentifierSha256, List<org.jboss.pnc.model.Artifact>> groupedByIdentifierSha256 = artifacts.stream()
+                        .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getIdentifierSha256));
+                groupedByIdentifierSha256.forEach(
+                        (key, matchedArtifacts) -> brewCache
+                                .put(key, getBestMatchingArtifact(matchedArtifacts, true).get()));
+            }
             log.debug(
                     "Preloaded {} brew imported artifacts to cache, total cache size: {}.",
                     brewCache.size() - initialCacheSize,
