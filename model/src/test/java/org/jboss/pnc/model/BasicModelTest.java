@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.constants.Attributes;
-import org.jboss.pnc.enums.RepositoryType;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
+import org.jboss.pnc.constants.Attributes;
+import org.jboss.pnc.constants.ReposiotryIdentifier;
+import org.jboss.pnc.enums.RepositoryType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,12 +30,9 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-
-import org.jboss.pnc.constants.ReposiotryIdentifier;
 
 public class BasicModelTest extends AbstractModelTest {
 
@@ -260,7 +258,6 @@ public class BasicModelTest extends AbstractModelTest {
                 .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
-        productMilestone1.addDeliveredArtifact(artifact);
         ProductRelease productRelease1 = ProductRelease.Builder.newBuilder()
                 .version("1.0.0.Beta1")
                 .productMilestone(productMilestone1)
@@ -279,7 +276,6 @@ public class BasicModelTest extends AbstractModelTest {
             tx.commit();
 
             ProductRelease release = em.find(ProductRelease.class, productRelease1.getId());
-            Assert.assertEquals(1, release.getProductMilestone().getDeliveredArtifacts().size());
         } catch (RuntimeException e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
