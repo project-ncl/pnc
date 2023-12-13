@@ -1040,169 +1040,160 @@ public class DatabaseDataInitializer {
         BuildConfigurationAudited buildConfig1ThirdAudit = buildConfig1Revisions
                 .get(buildConfig1RevisionsCount - THIRD_REVISION);
 
-        if (buildConfig6InitialAudit != null && buildConfig6SecondAudit != null) {
-            nextId = Sequence.nextBase32Id();
-            log.info("####nextId: " + nextId);
+        nextId = Sequence.nextBase32Id();
+        log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord4 = BuildRecord.Builder.newBuilder()
-                    .id(nextId)
-                    .buildConfigurationAudited(buildConfig6InitialAudit)
-                    .productMilestone(demoProductMilestone5)
-                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
-                    .startTime(Timestamp.from(Instant.now().minus(7, ChronoUnit.MINUTES)))
-                    .endTime(Timestamp.from(Instant.now().minus(6, ChronoUnit.MINUTES)))
-                    .user(demoUser)
-                    .buildLog("")
-                    .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfig6InitialAudit.getBuildEnvironment())
-                    .executionRootName("org.jboss.eap:parent")
-                    .executionRootVersion("7.0.3")
-                    .temporaryBuild(false)
-                    .build();
+        BuildRecord buildRecord4 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfig6InitialAudit)
+                .productMilestone(demoProductMilestone5)
+                .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(7, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now().minus(6, ChronoUnit.MINUTES)))
+                .user(demoUser)
+                .buildLog("")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfig6InitialAudit.getBuildEnvironment())
+                .executionRootName("org.jboss.eap:parent")
+                .executionRootVersion("7.0.3")
+                .temporaryBuild(false)
+                .build();
 
-            nextId = Sequence.nextBase32Id();
-            log.info("####nextId: " + nextId);
+        nextId = Sequence.nextBase32Id();
+        log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord5 = BuildRecord.Builder.newBuilder()
-                    .id(nextId)
-                    .buildConfigurationAudited(buildConfig6SecondAudit)
-                    .productMilestone(demoProductMilestone6)
-                    .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
-                    .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
-                    .endTime(Timestamp.from(Instant.now()))
-                    .user(demoUser)
-                    .buildLog("Everything's just fine")
-                    .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfig6SecondAudit.getBuildEnvironment())
-                    .executionRootName("org.jboss.eap:parent")
-                    .executionRootVersion("7.0.4")
-                    .temporaryBuild(false)
-                    .build();
+        BuildRecord buildRecord5 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfig6SecondAudit)
+                .productMilestone(demoProductMilestone6)
+                .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now()))
+                .user(demoUser)
+                .buildLog("Everything's just fine")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfig6SecondAudit.getBuildEnvironment())
+                .executionRootName("org.jboss.eap:parent")
+                .executionRootVersion("7.0.4")
+                .temporaryBuild(false)
+                .build();
 
-            nextId = Sequence.nextBase32Id();
-            log.info("####nextId: " + nextId);
+        nextId = Sequence.nextBase32Id();
+        log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord6 = BuildRecord.Builder.newBuilder()
-                    .id(nextId)
-                    .productMilestone(demoProductMilestone7)
-                    .buildConfigurationAudited(buildConfig1SecondAudit)
-                    .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
-                    .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
-                    .endTime(Timestamp.from(Instant.now()))
-                    .user(demoUser)
-                    .buildLog("Everything's just fine")
-                    .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfig1SecondAudit.getBuildEnvironment())
-                    .executionRootName("org.jboss.pnc:parent")
-                    .executionRootVersion("1.2.3")
-                    .temporaryBuild(false)
-                    .build();
+        BuildRecord buildRecord6 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .productMilestone(demoProductMilestone7)
+                .buildConfigurationAudited(buildConfig1SecondAudit)
+                .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now()))
+                .user(demoUser)
+                .buildLog("Everything's just fine")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfig1SecondAudit.getBuildEnvironment())
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.3")
+                .temporaryBuild(false)
+                .build();
 
-            nextId = Sequence.nextBase32Id();
-            log.info("####nextId: " + nextId);
+        nextId = Sequence.nextBase32Id();
+        log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord7 = BuildRecord.Builder.newBuilder()
-                    .id(nextId)
-                    .buildConfigurationAudited(buildConfig1ThirdAudit)
-                    .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
-                    .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
-                    .endTime(Timestamp.from(Instant.now()))
-                    .user(demoUser)
-                    .buildLog("Naaah, is it even needed?")
-                    .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfig1ThirdAudit.getBuildEnvironment())
-                    .executionRootName("org.jboss.pnc:parent")
-                    .executionRootVersion("1.2.3")
-                    .temporaryBuild(false)
-                    .build();
+        BuildRecord buildRecord7 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfig1ThirdAudit)
+                .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now()))
+                .user(demoUser)
+                .buildLog("Naaah, is it even needed?")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfig1ThirdAudit.getBuildEnvironment())
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.3")
+                .temporaryBuild(false)
+                .build();
 
-            buildRecord4 = buildRecordRepository.save(buildRecord4);
-            buildRecord5 = buildRecordRepository.save(buildRecord5);
-            buildRecord6 = buildRecordRepository.save(buildRecord6);
-            buildRecord7 = buildRecordRepository.save(buildRecord7);
+        buildRecord4 = buildRecordRepository.save(buildRecord4);
+        buildRecord5 = buildRecordRepository.save(buildRecord5);
+        buildRecord6 = buildRecordRepository.save(buildRecord6);
+        buildRecord7 = buildRecordRepository.save(buildRecord7);
 
-            Artifact builtArtifact11 = Artifact.Builder.newBuilder()
-                    .buildRecord(buildRecord4)
-                    .identifier("demo:built-artifact11:jar:1.1")
-                    .targetRepository(targetRepository)
-                    .filename("demo built artifact 11")
-                    .md5("md5-fake-abc123")
-                    .sha1("sha1-fake-abc123")
-                    .sha256("sha256-fake-abc123")
-                    .size(10L)
-                    .artifactQuality(ArtifactQuality.NEW)
-                    .deployPath("/built11")
-                    .build();
+        Artifact builtArtifact11 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord4)
+                .identifier("demo:built-artifact11:jar:1.1")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 11")
+                .md5("md5-fake-abc123")
+                .sha1("sha1-fake-abc123")
+                .sha256("sha256-fake-abc123")
+                .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built11")
+                .build();
 
-            Artifact builtArtifact12 = Artifact.Builder.newBuilder()
-                    .buildRecord(buildRecord5)
-                    .identifier("demo:built-artifact12:jar:1.0")
-                    .targetRepository(targetRepository)
-                    .filename("demo built artifact 12")
-                    .md5("md5-fake-123abc")
-                    .sha1("sha1-fake-123abc")
-                    .sha256("sha256-fake-123abc")
-                    .size(11L)
-                    .artifactQuality(ArtifactQuality.VERIFIED)
-                    .deployPath("/built12")
-                    .build();
+        Artifact builtArtifact12 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord5)
+                .identifier("demo:built-artifact12:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 12")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(11L)
+                .artifactQuality(ArtifactQuality.VERIFIED)
+                .deployPath("/built12")
+                .build();
 
-            Artifact builtArtifact13 = Artifact.Builder.newBuilder()
-                    .buildRecord(buildRecord6)
-                    .identifier("demo:built-artifact13:jar:1.0")
-                    .targetRepository(targetRepository)
-                    .filename("demo built artifact 13")
-                    .md5("md5-fake-123abc")
-                    .sha1("sha1-fake-123abc")
-                    .sha256("sha256-fake-123abc")
-                    .size(13L)
-                    .artifactQuality(ArtifactQuality.NEW)
-                    .deployPath("/built13")
-                    .build();
+        Artifact builtArtifact13 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord6)
+                .identifier("demo:built-artifact13:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 13")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(13L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built13")
+                .build();
 
-            Artifact builtArtifact14 = Artifact.Builder.newBuilder()
-                    .buildRecord(buildRecord7)
-                    .identifier("demo:built-artifact14:jar:1.0")
-                    .targetRepository(targetRepository)
-                    .filename("demo built artifact 14")
-                    .md5("md5-fake-123abc")
-                    .sha1("sha1-fake-123abc")
-                    .sha256("sha256-fake-123abc")
-                    .size(14L)
-                    .artifactQuality(ArtifactQuality.NEW)
-                    .deployPath("/built14")
-                    .build();
+        Artifact builtArtifact14 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord7)
+                .identifier("demo:built-artifact14:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 14")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(14L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built14")
+                .build();
 
-            Artifact builtArtifact15 = Artifact.Builder.newBuilder()
-                    .buildRecord(buildRecord7)
-                    .identifier("demo:built-artifact15:jar:1.0")
-                    .targetRepository(targetRepository)
-                    .filename("demo built artifact 15")
-                    .md5("md5-fake-123abc")
-                    .sha1("sha1-fake-123abc")
-                    .sha256("sha256-fake-123abc")
-                    .size(15L)
-                    .artifactQuality(ArtifactQuality.NEW)
-                    .deployPath("/built15")
-                    .build();
+        Artifact builtArtifact15 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord7)
+                .identifier("demo:built-artifact15:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 15")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(15L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built15")
+                .build();
 
-            builtArtifact11 = artifactRepository.save(builtArtifact11);
-            builtArtifact12 = artifactRepository.save(builtArtifact12);
-            builtArtifact13 = artifactRepository.save(builtArtifact13);
-            builtArtifact14 = artifactRepository.save(builtArtifact14);
-            builtArtifact15 = artifactRepository.save(builtArtifact15);
+        builtArtifact11 = artifactRepository.save(builtArtifact11);
+        builtArtifact12 = artifactRepository.save(builtArtifact12);
+        builtArtifact13 = artifactRepository.save(builtArtifact13);
+        builtArtifact14 = artifactRepository.save(builtArtifact14);
+        builtArtifact15 = artifactRepository.save(builtArtifact15);
 
-            demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
-            demoProductMilestone3 = productMilestoneRepository.queryById(demoProductMilestone3.getId());
-            demoProductMilestone7 = productMilestoneRepository.queryById(demoProductMilestone7.getId());
-
-            demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
-            demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
-            demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
-            demoProductMilestone3.addDeliveredArtifact(builtArtifact13);
-            demoProductMilestone7.addDeliveredArtifact(builtArtifact14);
-            demoProductMilestone7.addDeliveredArtifact(builtArtifact15);
-        }
+        demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
+        demoProductMilestone3 = productMilestoneRepository.queryById(demoProductMilestone3.getId());
+        demoProductMilestone7 = productMilestoneRepository.queryById(demoProductMilestone7.getId());
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet1)
@@ -1240,11 +1231,16 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord3);
 
+        demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
+        demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
+        demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact1);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact5);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact9);
         demoProductMilestone1.addDeliveredArtifact(importedArtifact2);
-        demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
+        demoProductMilestone3.addDeliveredArtifact(builtArtifact13);
+        demoProductMilestone7.addDeliveredArtifact(builtArtifact14);
+        demoProductMilestone7.addDeliveredArtifact(builtArtifact15);
 
         Map<String, String> operationParameters = new HashMap<>();
         operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
