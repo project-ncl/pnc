@@ -81,6 +81,7 @@ public class ProductVersionEndpointTest {
     private static Product product;
     private static String productVersionsId;
     private static String productVersionsId2;
+    private static final String nonExistentProductVersionId = "-1";
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -431,7 +432,7 @@ public class ProductVersionEndpointTest {
     }
 
     @Test
-    public void testGetStatistics() throws ClientException {
+    public void testGetStatisticsForExistingProductVersion() throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
@@ -475,7 +476,33 @@ public class ProductVersionEndpointTest {
     }
 
     @Test
-    public void testGetArtifactQualitiesStatistics() throws ClientException {
+    public void testGetStatisticsForNonexistingProductVersion() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
+                .milestones(0L)
+                .productDependencies(0L)
+                .milestoneDependencies(0L)
+                .artifactsInVersion(0L)
+                .deliveredArtifactsSource(
+                        ProductVersionDeliveredArtifactsStatistics.builder()
+                                .thisVersion(0L)
+                                .otherVersions(0L)
+                                .otherProducts(0L)
+                                .noMilestone(0L)
+                                .noBuild(0L)
+                                .build())
+                .build();
+
+        // when
+        ProductVersionStatistics actualStats = client.getStatistics(nonExistentProductVersionId);
+
+        // then
+        assertThat(actualStats).isEqualTo(expectedStats);
+    }
+
+    @Test
+    public void testGetArtifactQualitiesStatisticsForExistingProductVersion() throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
@@ -511,7 +538,20 @@ public class ProductVersionEndpointTest {
     }
 
     @Test
-    public void testGetRepositoryTypesStatistics() throws ClientException {
+    public void testGetArtifactQualitiesStatisticsForNonexistingProductVersion() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        // when
+        RemoteCollection<ProductMilestoneArtifactQualityStatistics> all = client
+                .getArtifactQualitiesStatistics(nonExistentProductVersionId);
+
+        // then
+        assertThat(all).isEmpty();
+    }
+
+    @Test
+    public void testGetRepositoryTypesStatisticsForExistingProductVersion() throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
@@ -543,6 +583,19 @@ public class ProductVersionEndpointTest {
         assertThat(actualRepoTypeStats.getProductMilestone().getVersion())
                 .isEqualTo(expectedRepoTypeStats.getProductMilestone().getVersion());
         assertThat(actualRepoTypeStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
+    }
+
+    @Test
+    public void testGetRepositoryTypesStatisticsForNonexistingProductVersion() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        // when
+        RemoteCollection<ProductMilestoneArtifactQualityStatistics> all = client
+                .getArtifactQualitiesStatistics(nonExistentProductVersionId);
+
+        // then
+        assertThat(all).isEmpty();
     }
 
 }

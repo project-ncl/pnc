@@ -39,6 +39,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -235,6 +236,11 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
 
     @Override
     public List<Tuple> getArtifactQualityStatistics(Set<Integer> ids) {
+        // In case ids = {}, we want to return [], since GROUP BY () is SQL error
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
@@ -252,6 +258,11 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
 
     @Override
     public List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids) {
+        // In case ids = {}, we want to return [], since GROUP BY () is SQL error
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
