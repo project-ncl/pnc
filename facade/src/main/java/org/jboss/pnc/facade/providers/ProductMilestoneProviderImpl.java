@@ -302,17 +302,19 @@ public class ProductMilestoneProviderImpl extends
                         ProductMilestoneDeliveredArtifactsStatistics.builder()
                                 .thisMilestone(
                                         deliverableArtifactRepository
-                                                .countDeliveredArtifactsBuiltInThisMilestone(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltInThisMilestone(entityId))
                                 .otherMilestones(
                                         deliverableArtifactRepository
-                                                .countDeliveredArtifactsBuiltInOtherMilestones(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltInOtherMilestones(entityId))
                                 .otherProducts(
                                         deliverableArtifactRepository
-                                                .countDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltByOtherProducts(entityId))
                                 .noMilestone(
                                         deliverableArtifactRepository
-                                                .countDeliveredArtifactsBuiltInNoMilestone(entityId))
-                                .noBuild(deliverableArtifactRepository.countDeliveredArtifactsNotBuilt(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltInNoMilestone(entityId))
+                                .noBuild(
+                                        deliverableArtifactRepository
+                                                .countMilestoneDeliveredArtifactsNotBuilt(entityId))
                                 .build())
                 .artifactQuality(deliverableArtifactRepository.getArtifactQualitiesCounts(entityId))
                 .repositoryType(deliverableArtifactRepository.getRepositoryTypesCounts(entityId))

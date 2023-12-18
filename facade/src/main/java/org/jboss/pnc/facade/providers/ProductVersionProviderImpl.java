@@ -39,8 +39,8 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -72,9 +72,9 @@ public class ProductVersionProviderImpl extends
     private final ProductVersionRepository versionRepository;
     private final ProductRepository productRepository;
     private final ProductMilestoneRepository milestoneRepository;
+    private final DeliverableArtifactRepository deliverableArtifactRepository;
     private final BuildConfigurationSetRepository groupConfigRepository;
     private final SystemConfig systemConfig;
-    private final BuildConfigurationRepository buildConfigurationRepository;
     private final ProductMilestoneMapper milestoneMapper;
 
     @Inject
@@ -84,8 +84,8 @@ public class ProductVersionProviderImpl extends
             ProductMilestoneMapper milestoneMapper,
             ProductRepository productRepository,
             ProductMilestoneRepository milestoneRepository,
+            DeliverableArtifactRepository deliverableArtifactRepository,
             BuildConfigurationSetRepository groupConfigRepository,
-            BuildConfigurationRepository buildConfigurationRepository,
             SystemConfig systemConfig) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
@@ -95,8 +95,8 @@ public class ProductVersionProviderImpl extends
         this.productRepository = productRepository;
         this.groupConfigRepository = groupConfigRepository;
         this.systemConfig = systemConfig;
-        this.buildConfigurationRepository = buildConfigurationRepository;
         this.milestoneRepository = milestoneRepository;
+        this.deliverableArtifactRepository = deliverableArtifactRepository;
     }
 
     @Override
@@ -222,17 +222,27 @@ public class ProductVersionProviderImpl extends
         Integer entityId = mapper.getIdMapper().toEntity(id);
 
         return ProductVersionStatistics.builder()
-                .milestones(versionRepository.countMilestonesInVersion(entityId))
-                .productDependencies(versionRepository.countProductDependenciesInVersion(entityId))
-                .milestoneDependencies(versionRepository.countMilestoneDependenciesInVersion(entityId))
-                .artifactsInVersion(versionRepository.countBuiltArtifactsInVersion(entityId))
+                .milestones(versionRepository.countMilestones(entityId))
+                .productDependencies(
+                        deliverableArtifactRepository.countVersionDeliveredArtifactsProductDependencies(entityId))
+                .milestoneDependencies(
+                        deliverableArtifactRepository.countVersionDeliveredArtifactsMilestoneDependencies(entityId))
+                .artifactsInVersion(versionRepository.countBuiltArtifacts(entityId))
                 .deliveredArtifactsSource(
                         ProductVersionDeliveredArtifactsStatistics.builder()
-                                .thisVersion(versionRepository.countDeliveredArtifactsBuiltInThisVersion(entityId))
-                                .otherVersions(versionRepository.countDeliveredArtifactsBuiltInOtherVersions(entityId))
-                                .otherProducts(versionRepository.countDeliveredArtifactsBuiltByOtherProducts(entityId))
-                                .noMilestone(versionRepository.countDeliveredArtifactsBuiltInNoMilestone(entityId))
-                                .noBuild(versionRepository.countDeliveredArtifactsNotBuilt(entityId))
+                                .thisVersion(
+                                        deliverableArtifactRepository
+                                                .countVersionDeliveredArtifactsBuiltInThisVersion(entityId))
+                                .otherVersions(
+                                        deliverableArtifactRepository
+                                                .countVersionDeliveredArtifactsBuiltInOtherVersions(entityId))
+                                .otherProducts(
+                                        deliverableArtifactRepository
+                                                .countVersionDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                .noMilestone(
+                                        deliverableArtifactRepository
+                                                .countVersionDeliveredArtifactsBuiltInNoMilestone(entityId))
+                                .noBuild(deliverableArtifactRepository.countVersionDeliveredArtifactsNotBuilt(entityId))
                                 .build())
                 .build();
     }
@@ -246,7 +256,7 @@ public class ProductVersionProviderImpl extends
             String id) {
         Integer entityId = mapper.getIdMapper().toEntity(id);
         List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
-        List<Tuple> artifactQualities = versionRepository.getArtifactQualityStatistics(
+        List<Tuple> artifactQualities = deliverableArtifactRepository.getArtifactQualityStatistics(
                 productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet()));
         Map<Integer, EnumMap<ArtifactQuality, Long>> artifactQualityStatsById = transformToMapByIds(
                 artifactQualities,
@@ -271,7 +281,7 @@ public class ProductVersionProviderImpl extends
             String id) {
         Integer entityId = mapper.getIdMapper().toEntity(id);
         List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
-        List<Tuple> repositoryTypes = versionRepository.getRepositoryTypesStatistics(
+        List<Tuple> repositoryTypes = deliverableArtifactRepository.getRepositoryTypesStatistics(
                 productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet()));
         Map<Integer, EnumMap<RepositoryType, Long>> repositoryTypesStatsById = transformToMapByIds(
                 repositoryTypes,
