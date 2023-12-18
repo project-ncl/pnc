@@ -52,6 +52,7 @@ import org.jboss.pnc.model.ProductRelease_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,12 +101,15 @@ public class ProductMilestoneProviderImpl extends
 
     private final ProductMilestoneRepository milestoneRepository;
 
+    private final DeliverableArtifactRepository deliverableArtifactRepository;
+
     @Inject
     private EntityManager em;
 
     @Inject
     public ProductMilestoneProviderImpl(
             ProductMilestoneRepository repository,
+            DeliverableArtifactRepository deliverableArtifactRepository,
             ProductMilestoneMapper mapper,
             ProductMilestoneReleaseManager releaseManager,
             ProductMilestoneCloseResultMapper milestoneReleaseMapper) {
@@ -115,6 +119,7 @@ public class ProductMilestoneProviderImpl extends
         this.releaseManager = releaseManager;
         this.milestoneReleaseMapper = milestoneReleaseMapper;
         this.milestoneRepository = repository;
+        this.deliverableArtifactRepository = deliverableArtifactRepository;
     }
 
     @Override
@@ -296,16 +301,21 @@ public class ProductMilestoneProviderImpl extends
                 .deliveredArtifactsSource(
                         ProductMilestoneDeliveredArtifactsStatistics.builder()
                                 .thisMilestone(
-                                        milestoneRepository.countDeliveredArtifactsBuiltInThisMilestone(entityId))
+                                        deliverableArtifactRepository
+                                                .countDeliveredArtifactsBuiltInThisMilestone(entityId))
                                 .otherMilestones(
-                                        milestoneRepository.countDeliveredArtifactsBuiltInOtherMilestones(entityId))
+                                        deliverableArtifactRepository
+                                                .countDeliveredArtifactsBuiltInOtherMilestones(entityId))
                                 .otherProducts(
-                                        milestoneRepository.countDeliveredArtifactsBuiltByOtherProducts(entityId))
-                                .noMilestone(milestoneRepository.countDeliveredArtifactsBuiltInNoMilestone(entityId))
-                                .noBuild(milestoneRepository.countDeliveredArtifactsNotBuilt(entityId))
+                                        deliverableArtifactRepository
+                                                .countDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                .noMilestone(
+                                        deliverableArtifactRepository
+                                                .countDeliveredArtifactsBuiltInNoMilestone(entityId))
+                                .noBuild(deliverableArtifactRepository.countDeliveredArtifactsNotBuilt(entityId))
                                 .build())
-                .artifactQuality(milestoneRepository.getArtifactQualitiesCounts(entityId))
-                .repositoryType(milestoneRepository.getRepositoryTypesCounts(entityId))
+                .artifactQuality(deliverableArtifactRepository.getArtifactQualitiesCounts(entityId))
+                .repositoryType(deliverableArtifactRepository.getRepositoryTypesCounts(entityId))
                 .build();
     }
 
