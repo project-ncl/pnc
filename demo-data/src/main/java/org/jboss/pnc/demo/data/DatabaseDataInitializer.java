@@ -1231,17 +1231,6 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord3);
 
-        demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
-        demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
-        demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
-        demoProductMilestone1.addDeliveredArtifact(builtArtifact1);
-        demoProductMilestone1.addDeliveredArtifact(builtArtifact5);
-        demoProductMilestone1.addDeliveredArtifact(builtArtifact9);
-        demoProductMilestone1.addDeliveredArtifact(importedArtifact2);
-        demoProductMilestone3.addDeliveredArtifact(builtArtifact13);
-        demoProductMilestone7.addDeliveredArtifact(builtArtifact14);
-        demoProductMilestone7.addDeliveredArtifact(builtArtifact15);
-
         Map<String, String> operationParameters = new HashMap<>();
         operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
         DeliverableAnalyzerOperation operation1 = DeliverableAnalyzerOperation.Builder.newBuilder()
@@ -1264,11 +1253,43 @@ public class DatabaseDataInitializer {
                 .build();
         operation2 = deliverableAnalyzerOperationRepository.save(operation2);
 
+        DeliverableAnalyzerOperation operation3 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000003l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone3)
+                .build();
+        operation3 = deliverableAnalyzerOperationRepository.save(operation3);
+
+        DeliverableAnalyzerOperation operation4 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000004l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone7)
+                .build();
+        operation4 = deliverableAnalyzerOperationRepository.save(operation4);
+
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
                 .build();
         report1 = deliverableAnalyzerReportRepository.save(report1);
+
+        DeliverableAnalyzerReport report2 = DeliverableAnalyzerReport.builder()
+                .operation(operation3)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report2 = deliverableAnalyzerReportRepository.save(report2);
+
+        DeliverableAnalyzerReport report3 = DeliverableAnalyzerReport.builder()
+                .operation(operation4)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report3 = deliverableAnalyzerReportRepository.save(report3);
 
         DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
@@ -1281,21 +1302,77 @@ public class DatabaseDataInitializer {
                 .build();
         deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry1);
 
-        DeliverableArtifact report1analyzedArtifact1 = DeliverableArtifact.builder()
+        DeliverableArtifact analyzedArtifact1 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact1)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
-        deliverableArtifactRepository.save(report1analyzedArtifact1);
-
-        DeliverableArtifact report1analyzedArtifact2 = DeliverableArtifact.builder()
+        DeliverableArtifact analyzedArtifact2 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(builtArtifact5)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact3 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(builtArtifact9)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact4 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(builtArtifact10)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact5 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(builtArtifact11)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact6 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(builtArtifact12)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact7 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(importedArtifact2)
                 .builtFromSource(false)
                 .brewBuildId(null)
                 .build();
-        deliverableArtifactRepository.save(report1analyzedArtifact2);
+        DeliverableArtifact analyzedArtifact8 = DeliverableArtifact.builder()
+                .report(report2)
+                .artifact(builtArtifact13)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact9 = DeliverableArtifact.builder()
+                .report(report3)
+                .artifact(builtArtifact14)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact10 = DeliverableArtifact.builder()
+                .report(report3)
+                .artifact(builtArtifact15)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        deliverableArtifactRepository.save(analyzedArtifact1);
+        deliverableArtifactRepository.save(analyzedArtifact2);
+        deliverableArtifactRepository.save(analyzedArtifact3);
+        deliverableArtifactRepository.save(analyzedArtifact4);
+        deliverableArtifactRepository.save(analyzedArtifact5);
+        deliverableArtifactRepository.save(analyzedArtifact6);
+        deliverableArtifactRepository.save(analyzedArtifact7);
+        deliverableArtifactRepository.save(analyzedArtifact8);
+        deliverableArtifactRepository.save(analyzedArtifact9);
+        deliverableArtifactRepository.save(analyzedArtifact10);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {

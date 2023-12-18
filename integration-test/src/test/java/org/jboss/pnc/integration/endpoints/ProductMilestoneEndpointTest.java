@@ -341,7 +341,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(2);
+        assertThat(all).hasSize(7);
         RemoteCollection<Artifact> built = client.getDeliveredArtifacts(
                 milestoneId,
                 Optional.empty(),
