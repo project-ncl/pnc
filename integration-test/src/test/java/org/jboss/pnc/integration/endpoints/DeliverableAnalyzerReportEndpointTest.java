@@ -73,7 +73,7 @@ public class DeliverableAnalyzerReportEndpointTest {
                 RestClientConfiguration.asAnonymous());
         RemoteCollection<DeliverableAnalyzerReport> all = client.getAll();
 
-        assertThat(all).hasSize(1);
+        assertThat(all).hasSize(3);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client.getAnalyzedArtifacts(operationId);
 
         // then
-        assertThat(analyzedArtifacts.size()).isEqualTo(2);
+        assertThat(analyzedArtifacts.size()).isEqualTo(7);  // analyzedArtifact1-7 (from DatabaseDataInitializer)
 
         Iterator<AnalyzedArtifact> it = analyzedArtifacts.iterator();
 
