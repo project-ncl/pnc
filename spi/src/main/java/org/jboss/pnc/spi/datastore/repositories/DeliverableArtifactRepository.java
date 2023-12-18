@@ -23,7 +23,10 @@ import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.DeliverableArtifactPK;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import javax.persistence.Tuple;
 import java.util.EnumMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Interface for manipulating with {@link DeliverableArtifact} entity
@@ -33,29 +36,29 @@ public interface DeliverableArtifactRepository extends Repository<DeliverableArt
     /**
      * Number of artifacts delivered in product milestone given by id, **which were also built in that milestone**.
      */
-    long countDeliveredArtifactsBuiltInThisMilestone(Integer productMilestoneId);
+    long countMilestoneDeliveredArtifactsBuiltInThisMilestone(Integer productMilestoneId);
 
     /**
      * Number of artifacts delivered in product milestone given by id, **which were built in another milestone (but same
      * product)**.
      */
-    long countDeliveredArtifactsBuiltInOtherMilestones(Integer productMilestoneId);
+    long countMilestoneDeliveredArtifactsBuiltInOtherMilestones(Integer productMilestoneId);
 
     /**
      * Number of artifacts delivered in product milestone given by id, **which were built in any milestone of different
      * product**.
      */
-    long countDeliveredArtifactsBuiltByOtherProducts(Integer productMilestoneId);
+    long countMilestoneDeliveredArtifactsBuiltByOtherProducts(Integer productMilestoneId);
 
     /**
      * Number of artifacts delivered in product milestone given by id, **whose build does not belong to any milestone**.
      */
-    long countDeliveredArtifactsBuiltInNoMilestone(Integer productMilestoneId);
+    long countMilestoneDeliveredArtifactsBuiltInNoMilestone(Integer productMilestoneId);
 
     /**
      * Number of artifacts delivered in product milestone given by id, **which were not built, i.e. were imported**.
      */
-    long countDeliveredArtifactsNotBuilt(Integer productMilestoneId);
+    long countMilestoneDeliveredArtifactsNotBuilt(Integer productMilestoneId);
 
     /**
      * Artifact qualities of **all delivered artifacts in the milestone given by id**.
@@ -66,4 +69,53 @@ public interface DeliverableArtifactRepository extends Repository<DeliverableArt
      * Repository types of **all delivered artifacts in the milestone given by id**.
      */
     EnumMap<RepositoryType, Long> getRepositoryTypesCounts(Integer productMilestoneId);
+
+    /**
+     * Number of product dependencies of artifacts delivered in any milestone assigned to product version given by id.
+     * Note: Product dependency = any of our delivered artifacts was built in any milestone under this product.
+     */
+    long countVersionDeliveredArtifactsProductDependencies(Integer productVersionId);
+
+    /**
+     * Number of milestone dependencies of artifacts delivered in any milestone assigned to product version given by id.
+     * Note: Milestone dependency = any of our delivered artifacts was built this milestone. Note 2: Also milestones
+     * assigned to the product version given by id are counted to this number.
+     */
+    long countVersionDeliveredArtifactsMilestoneDependencies(Integer productVersionId);
+
+    /**
+     * Number of artifacts delivered in any product milestone from product version given by id, **which were also built
+     * in one of these milestones**.
+     */
+    long countVersionDeliveredArtifactsBuiltInThisVersion(Integer productVersionId);
+
+    /**
+     * Number of artifacts delivered in any product milestone from product version given by id, **which were built in
+     * any milestone of another product version (but same product)**.
+     */
+    long countVersionDeliveredArtifactsBuiltInOtherVersions(Integer productVersionId);
+
+    /**
+     * Number of artifacts delivered in any product milestone from product version given by id, **which were built in
+     * any milestone of another product**.
+     */
+    long countVersionDeliveredArtifactsBuiltByOtherProducts(Integer productVersionId);
+
+    /**
+     * Number of artifacts delivered in any product milestone from product version given by id, **whose build does not
+     * belong to any milestone**.
+     */
+    long countVersionDeliveredArtifactsBuiltInNoMilestone(Integer productVersionId);
+
+    /**
+     * Number of artifacts delivered in any product milestone from product version given by id, **which were not built,
+     * i.e. were imported**.
+     */
+    long countVersionDeliveredArtifactsNotBuilt(Integer productVersionId);
+
+    // TODO
+    List<Tuple> getArtifactQualityStatistics(Set<Integer> ids);
+
+    // TODO
+    List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids);
 }

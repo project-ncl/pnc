@@ -33,6 +33,7 @@ import org.jboss.pnc.model.DeliverableArtifactPK;
 import org.jboss.pnc.model.DeliverableArtifact_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
@@ -45,8 +46,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.SetJoin;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 
 @Stateless
 public class DeliverableArtifactRepositoryImpl extends AbstractRepository<DeliverableArtifact, DeliverableArtifactPK>
@@ -57,7 +61,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
     }
 
     @Override
-    public long countDeliveredArtifactsBuiltInThisMilestone(Integer productMilestoneId) {
+    public long countMilestoneDeliveredArtifactsBuiltInThisMilestone(Integer productMilestoneId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
@@ -82,7 +86,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
     }
 
     @Override
-    public long countDeliveredArtifactsBuiltInOtherMilestones(Integer productMilestoneId) {
+    public long countMilestoneDeliveredArtifactsBuiltInOtherMilestones(Integer productMilestoneId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
@@ -113,7 +117,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
     }
 
     @Override
-    public long countDeliveredArtifactsBuiltByOtherProducts(Integer productMilestoneId) {
+    public long countMilestoneDeliveredArtifactsBuiltByOtherProducts(Integer productMilestoneId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
@@ -142,7 +146,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
     }
 
     @Override
-    public long countDeliveredArtifactsBuiltInNoMilestone(Integer productMilestoneId) {
+    public long countMilestoneDeliveredArtifactsBuiltInNoMilestone(Integer productMilestoneId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
@@ -167,7 +171,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
     }
 
     @Override
-    public long countDeliveredArtifactsNotBuilt(Integer productMilestoneId) {
+    public long countMilestoneDeliveredArtifactsNotBuilt(Integer productMilestoneId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
@@ -244,5 +248,247 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         }
 
         return enumMap;
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsProductDependencies(Integer productVersionId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersions = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+
+        query.select(
+                // Take distinct products, since one product can build more than one delivered artifact
+                cb.countDistinct(
+                        deliverableArtifacts.join(DeliverableArtifact_.artifact)
+                                .join(Artifact_.buildRecord)
+                                .join(BuildRecord_.productMilestone)
+                                .join(ProductMilestone_.productVersion)
+                                .join(ProductVersion_.product)));
+        query.where(cb.equal(deliverableArtifactsProductVersions.get(ProductVersion_.id), productVersionId));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsMilestoneDependencies(Integer id) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersions = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+
+        query.select(
+                // Take distinct milestones, since one milestone can build more than one delivered artifact
+                cb.countDistinct(
+                        deliverableArtifacts.join(DeliverableArtifact_.artifact)
+                                .join(Artifact_.buildRecord)
+                                .join(BuildRecord_.productMilestone)));
+        query.where(cb.equal(deliverableArtifactsProductVersions.get(ProductVersion_.id), id));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsBuiltInThisVersion(Integer productVersionId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersions = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+
+        query.select(cb.count(deliverableArtifactsProductVersions));
+        query.where(
+                // 1) only delivered artifacts from this version
+                // 2) delivered built artifacts, which were built in this version
+                // Note: Same version id implies same product
+                cb.equal(deliverableArtifactsProductVersions.get(ProductVersion_.id), productVersionId),
+                cb.equal(
+                        deliverableArtifacts.join(DeliverableArtifact_.artifact)
+                                .join(Artifact_.buildRecord)
+                                .join(BuildRecord_.productMilestone)
+                                .join(ProductMilestone_.productVersion)
+                                .get(ProductVersion_.id),
+                        productVersionId));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsBuiltInOtherVersions(Integer productVersionId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersions = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+        Join<ProductMilestone, ProductVersion> deliveredArtifactsBuildProductVersion = deliverableArtifacts
+                .join(DeliverableArtifact_.artifact)
+                .join(Artifact_.buildRecord)
+                .join(BuildRecord_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+
+        query.select(cb.count(deliverableArtifactsProductVersions));
+        query.where(
+                // 1) only delivered artifacts from this version
+                // 2) delivered built artifacts, which are of the same product
+                // 3) delivered built artifacts, which are from other version
+                cb.equal(deliverableArtifactsProductVersions.get(ProductVersion_.id), productVersionId),
+                cb.equal(
+                        deliveredArtifactsBuildProductVersion.get(ProductVersion_.product),
+                        deliverableArtifactsProductVersions.get(ProductVersion_.product)),
+                cb.notEqual(deliveredArtifactsBuildProductVersion.get(ProductVersion_.id), productVersionId));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsBuiltByOtherProducts(Integer productVersionId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+        Join<ProductMilestone, ProductVersion> deliveredArtifactsBuildProductVersion = deliverableArtifacts
+                .join(DeliverableArtifact_.artifact)
+                .join(Artifact_.buildRecord)
+                .join(BuildRecord_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+
+        query.select(cb.count(deliverableArtifactsProductVersion));
+        query.where(
+                // 1) only artifacts from this version
+                // 2) delivered built artifacts, which were built by other products
+                cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
+                cb.notEqual(
+                        deliveredArtifactsBuildProductVersion.get(ProductVersion_.product),
+                        deliverableArtifactsProductVersion.get(ProductVersion_.product))); // TODO: Check this one
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsBuiltInNoMilestone(Integer productVersionId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+        Join<Artifact, BuildRecord> deliveredArtifactsBuild = deliverableArtifacts.join(DeliverableArtifact_.artifact)
+                .join(Artifact_.buildRecord);
+
+        query.select(cb.count(deliverableArtifactsProductVersion));
+        query.where(
+                // 1) only artifacts from this version
+                // 2) delivered built artifacts, which were built in no milestone
+                cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
+                cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countVersionDeliveredArtifactsNotBuilt(Integer productVersionId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone)
+                .join(ProductMilestone_.productVersion);
+        Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
+                .join(DeliverableArtifact_.artifact);
+
+        query.select(cb.count(deliverableArtifactsProductVersion));
+        query.where(
+                // 1) only artifacts from this version
+                // 2) delivered artifacts, which were not built
+                cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
+                cb.isNull(deliveredArtifacts.get(Artifact_.buildRecord)));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public List<Tuple> getArtifactQualityStatistics(Set<Integer> milestoneIds) {
+        // In case ids = {}, we want to return [], since GROUP BY () is SQL error
+        if (milestoneIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone);
+        Path<ArtifactQuality> artifactQuality = deliverableArtifacts.join(DeliverableArtifact_.artifact)
+                .get(Artifact_.artifactQuality);
+
+        query.multiselect(
+                deliverableArtifactsMilestone.get(ProductMilestone_.id),
+                artifactQuality,
+                cb.count(artifactQuality));
+        query.where(deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds));
+        query.groupBy(deliverableArtifactsMilestone.get(ProductMilestone_.id), artifactQuality);
+
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids) {
+        // In case ids = {}, we want to return [], since GROUP BY () is SQL error
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
+                .join(DeliverableArtifact_.report)
+                .join(DeliverableAnalyzerReport_.operation)
+                .join(DeliverableAnalyzerOperation_.productMilestone);
+        Path<RepositoryType> repositoryType = deliverableArtifacts.join(DeliverableArtifact_.artifact)
+                .join(Artifact_.targetRepository)
+                .get(TargetRepository_.repositoryType);
+
+        query.multiselect(
+                deliverableArtifactsMilestone.get(ProductMilestone_.id),
+                repositoryType,
+                cb.count(repositoryType));
+        query.where(deliverableArtifactsMilestone.get(ProductMilestone_.id).in(ids));
+        query.groupBy(deliverableArtifactsMilestone.get(ProductMilestone_.id), repositoryType);
+
+        return entityManager.createQuery(query).getResultList();
     }
 }
