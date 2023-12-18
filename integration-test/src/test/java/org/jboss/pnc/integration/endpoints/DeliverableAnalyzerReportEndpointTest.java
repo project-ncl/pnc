@@ -99,7 +99,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client.getAnalyzedArtifacts(operationId);
 
         // then
-        assertThat(analyzedArtifacts.size()).isEqualTo(7);  // analyzedArtifact1-7 (from DatabaseDataInitializer)
+        assertThat(analyzedArtifacts.size()).isEqualTo(7); // analyzedArtifact1-7 (from DatabaseDataInitializer)
 
         Iterator<AnalyzedArtifact> it = analyzedArtifacts.iterator();
 

@@ -17,12 +17,8 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-
-import java.util.EnumMap;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.ProductMilestone} entity.
@@ -30,18 +26,4 @@ import java.util.EnumMap;
 public interface ProductMilestoneRepository extends Repository<ProductMilestone, Integer> {
 
     long countBuiltArtifactsInMilestone(Integer id);
-
-    long countDeliveredArtifactsBuiltInThisMilestone(Integer id);
-
-    long countDeliveredArtifactsBuiltInOtherMilestones(Integer id);
-
-    long countDeliveredArtifactsBuiltByOtherProducts(Integer id);
-
-    long countDeliveredArtifactsBuiltInNoMilestone(Integer id);
-
-    long countDeliveredArtifactsNotBuilt(Integer id);
-
-    EnumMap<ArtifactQuality, Long> getArtifactQualitiesCounts(Integer id);
-
-    EnumMap<RepositoryType, Long> getRepositoryTypesCounts(Integer id);
 }
