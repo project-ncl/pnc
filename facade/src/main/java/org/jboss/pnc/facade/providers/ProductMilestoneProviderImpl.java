@@ -294,30 +294,30 @@ public class ProductMilestoneProviderImpl extends
 
     @Override
     public ProductMilestoneStatistics getStatistics(String id) {
-        Integer entityId = mapper.getIdMapper().toEntity(id);
+        Integer milestoneId = mapper.getIdMapper().toEntity(id);
 
         return ProductMilestoneStatistics.builder()
-                .artifactsInMilestone(milestoneRepository.countBuiltArtifactsInMilestone(entityId))
+                .artifactsInMilestone(milestoneRepository.countBuiltArtifactsInMilestone(milestoneId))
                 .deliveredArtifactsSource(
                         ProductMilestoneDeliveredArtifactsStatistics.builder()
                                 .thisMilestone(
                                         deliverableArtifactRepository
-                                                .countMilestoneDeliveredArtifactsBuiltInThisMilestone(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltInThisMilestone(milestoneId))
                                 .otherMilestones(
                                         deliverableArtifactRepository
-                                                .countMilestoneDeliveredArtifactsBuiltInOtherMilestones(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltInOtherMilestones(milestoneId))
                                 .otherProducts(
                                         deliverableArtifactRepository
-                                                .countMilestoneDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltByOtherProducts(milestoneId))
                                 .noMilestone(
                                         deliverableArtifactRepository
-                                                .countMilestoneDeliveredArtifactsBuiltInNoMilestone(entityId))
+                                                .countMilestoneDeliveredArtifactsBuiltInNoMilestone(milestoneId))
                                 .noBuild(
                                         deliverableArtifactRepository
-                                                .countMilestoneDeliveredArtifactsNotBuilt(entityId))
+                                                .countMilestoneDeliveredArtifactsNotBuilt(milestoneId))
                                 .build())
-                .artifactQuality(deliverableArtifactRepository.getArtifactQualitiesCounts(entityId))
-                .repositoryType(deliverableArtifactRepository.getRepositoryTypesCounts(entityId))
+                .artifactQuality(deliverableArtifactRepository.getArtifactQualitiesCounts(milestoneId))
+                .repositoryType(deliverableArtifactRepository.getRepositoryTypesCounts(milestoneId))
                 .build();
     }
 
