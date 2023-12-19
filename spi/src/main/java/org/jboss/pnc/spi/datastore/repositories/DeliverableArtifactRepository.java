@@ -113,9 +113,19 @@ public interface DeliverableArtifactRepository extends Repository<DeliverableArt
      */
     long countVersionDeliveredArtifactsNotBuilt(Integer productVersionId);
 
-    // TODO
-    List<Tuple> getArtifactQualityStatistics(Set<Integer> ids);
+    /**
+     * Computes artifact qualities of milestones given by ids.
+     *
+     * @return list of these qualities in the form (<milestoneId>, <artifactQuality>, <count per this
+     *         milestoneId-artifactQuality pair>), e.g. [(42, NEW, 3), (100, IMPORTED, 2), (100, BLACKLISTED, 1)]
+     */
+    List<Tuple> getArtifactQualityStatistics(Set<Integer> milestoneIds);
 
-    // TODO
-    List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids);
+    /**
+     * Computes repository types statistics of milestones given by ids.
+     *
+     * @return list of these repository types in the form (<milestoneId>, <repositoryType>, <count per this
+     *         milestoneId-repositoryType pair>), e.g. [(42, MAVEN, 3), (100, DISTRIBUTION_ARCHIVE, 3)]
+     */
+    List<Tuple> getRepositoryTypesStatistics(Set<Integer> milestoneIds);
 }

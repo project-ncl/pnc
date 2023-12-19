@@ -219,30 +219,34 @@ public class ProductVersionProviderImpl extends
 
     @Override
     public ProductVersionStatistics getStatistics(String id) {
-        Integer entityId = mapper.getIdMapper().toEntity(id);
+        Integer productVersionId = mapper.getIdMapper().toEntity(id);
 
         return ProductVersionStatistics.builder()
-                .milestones(versionRepository.countMilestones(entityId))
+                .milestones(versionRepository.countMilestonesInThisVersion(productVersionId))
                 .productDependencies(
-                        deliverableArtifactRepository.countVersionDeliveredArtifactsProductDependencies(entityId))
+                        deliverableArtifactRepository
+                                .countVersionDeliveredArtifactsProductDependencies(productVersionId))
                 .milestoneDependencies(
-                        deliverableArtifactRepository.countVersionDeliveredArtifactsMilestoneDependencies(entityId))
-                .artifactsInVersion(versionRepository.countBuiltArtifacts(entityId))
+                        deliverableArtifactRepository
+                                .countVersionDeliveredArtifactsMilestoneDependencies(productVersionId))
+                .artifactsInVersion(versionRepository.countBuiltArtifactsInThisVersion(productVersionId))
                 .deliveredArtifactsSource(
                         ProductVersionDeliveredArtifactsStatistics.builder()
                                 .thisVersion(
                                         deliverableArtifactRepository
-                                                .countVersionDeliveredArtifactsBuiltInThisVersion(entityId))
+                                                .countVersionDeliveredArtifactsBuiltInThisVersion(productVersionId))
                                 .otherVersions(
                                         deliverableArtifactRepository
-                                                .countVersionDeliveredArtifactsBuiltInOtherVersions(entityId))
+                                                .countVersionDeliveredArtifactsBuiltInOtherVersions(productVersionId))
                                 .otherProducts(
                                         deliverableArtifactRepository
-                                                .countVersionDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                                .countVersionDeliveredArtifactsBuiltByOtherProducts(productVersionId))
                                 .noMilestone(
                                         deliverableArtifactRepository
-                                                .countVersionDeliveredArtifactsBuiltInNoMilestone(entityId))
-                                .noBuild(deliverableArtifactRepository.countVersionDeliveredArtifactsNotBuilt(entityId))
+                                                .countVersionDeliveredArtifactsBuiltInNoMilestone(productVersionId))
+                                .noBuild(
+                                        deliverableArtifactRepository
+                                                .countVersionDeliveredArtifactsNotBuilt(productVersionId))
                                 .build())
                 .build();
     }

@@ -29,12 +29,12 @@ public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVer
         implements ProductVersionRepository {
 
     @Override
-    public long countMilestones(Integer id) {
+    public long countMilestonesInThisVersion(Integer id) {
         return 0;
     }
 
     @Override
-    public long countBuiltArtifacts(Integer id) {
+    public long countBuiltArtifactsInThisVersion(Integer id) {
         return 0;
     }
 }
