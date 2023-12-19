@@ -18,6 +18,8 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
@@ -29,6 +31,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
 @Stateless
@@ -41,7 +44,7 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
     }
 
     @Override
-    public long countMilestones(Integer id) {
+    public long countMilestonesInThisVersion(Integer id) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
@@ -54,18 +57,17 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
     }
 
     @Override
-    public long countBuiltArtifacts(Integer id) {
+    public long countBuiltArtifactsInThisVersion(Integer id) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
-        Root<ProductVersion> versions = query.from(ProductVersion.class);
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        Join<ProductMilestone, ProductVersion> builtArtifactsProductVersion = artifacts.join(Artifact_.buildRecord)
+                .join(BuildRecord_.productMilestone)
+                .join(ProductMilestone_.productVersion);
 
-        query.select(
-                cb.count(
-                        versions.join(ProductVersion_.productMilestones)
-                                .join(ProductMilestone_.performedBuilds)
-                                .join(BuildRecord_.builtArtifacts)));
-        query.where(cb.equal(versions.get(ProductVersion_.id), id));
+        query.select(cb.count(artifacts));
+        query.where(cb.equal(builtArtifactsProductVersion.get(ProductVersion_.id), id));
 
         return entityManager.createQuery(query).getSingleResult();
     }

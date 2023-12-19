@@ -25,7 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
  */
 public interface ProductVersionRepository extends Repository<ProductVersion, Integer> {
 
-    long countMilestones(Integer id);
+    long countMilestonesInThisVersion(Integer id);
 
-    long countBuiltArtifacts(Integer id);
+    long countBuiltArtifactsInThisVersion(Integer id);
 }

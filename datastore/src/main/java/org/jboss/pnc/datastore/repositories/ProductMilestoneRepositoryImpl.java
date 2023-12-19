@@ -46,12 +46,12 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<Artifact> artifacts = query.from(Artifact.class);
-        Join<Artifact, BuildRecord> builtArtifacts = artifacts.join(Artifact_.buildRecord);
-        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> builtArtifactsMilestones = builtArtifacts
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> builtArtifactsMilestones = artifacts
+                .join(Artifact_.buildRecord)
                 .join(BuildRecord_.productMilestone);
 
-        query.where(cb.equal(builtArtifactsMilestones.get(ProductMilestone_.id), id));
         query.select(cb.count(artifacts.get(Artifact_.id)));
+        query.where(cb.equal(builtArtifactsMilestones.get(ProductMilestone_.id), id));
 
         return entityManager.createQuery(query).getSingleResult();
     }
