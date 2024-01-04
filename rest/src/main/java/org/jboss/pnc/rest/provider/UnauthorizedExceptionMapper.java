@@ -37,8 +37,15 @@ public class UnauthorizedExceptionMapper implements ExceptionMapper<EJBAccessExc
     public Response toResponse(EJBAccessException exception) {
         log.info("A user is trying to access restricted resource", exception);
 
+        String errorMessage = "Insufficient privileges: the required role to access the resource is missing in the provided JWT.";
         Response.ResponseBuilder builder = Response.status(FORBIDDEN);
-        builder.entity(new ErrorResponse(exception)).type(MediaType.APPLICATION_JSON);
+        builder.entity(
+                ErrorResponse.builder()
+                        .errorType(exception.getClass().getSimpleName())
+                        .errorMessage(errorMessage)
+                        .details(exception.getMessage())
+                        .build())
+                .type(MediaType.APPLICATION_JSON);
 
         return builder.build();
     }
