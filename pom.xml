@@ -106,7 +106,7 @@
     <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.22</version.lombok>
     <version.mapstruct>1.5.3.Final</version.mapstruct>
-    <version.pncmetrics>1.1.3</version.pncmetrics>
+    <version.pncmetrics>1.1.12</version.pncmetrics>
     <version.pnc-api>2.5.0-SNAPSHOT</version.pnc-api>
     <version.pnc-common>2.4.0-SNAPSHOT</version.pnc-common>
     <version.rex-api>1.0.0-SNAPSHOT</version.rex-api>
