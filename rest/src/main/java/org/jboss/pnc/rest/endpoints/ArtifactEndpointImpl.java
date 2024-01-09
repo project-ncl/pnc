@@ -142,7 +142,7 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public Page<ArtifactRevision> getRevisions(String id, @Valid PageParameters pageParams) {
+    public Page<ArtifactRevision> getRevisions(String id, @Valid PaginationParameters pageParams) {
         return artifactProvider.getRevisions(pageParams.getPageIndex(), pageParams.getPageSize(), id);
     }
 

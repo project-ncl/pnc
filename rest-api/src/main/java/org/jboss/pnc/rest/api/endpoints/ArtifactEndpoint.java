@@ -39,8 +39,8 @@ import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactInfoPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactRevisionPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -396,7 +396,7 @@ public interface ArtifactEndpoint {
     @Path("/{id}/revisions")
     Page<ArtifactRevision> getRevisions(
             @Parameter(description = A_ID) @PathParam("id") String id,
-            @Valid @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PaginationParameters pageParams);
 
     static final String GET_ARTIFACT_REVISION_DESC = "Get specific audited revision of this artifact.";
 
