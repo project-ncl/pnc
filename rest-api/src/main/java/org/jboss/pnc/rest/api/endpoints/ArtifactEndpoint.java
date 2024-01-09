@@ -166,7 +166,7 @@ public interface ArtifactEndpoint {
                     description = FILTER_BUILD_CATEGORY_DESC) @QueryParam("buildCategories") Set<BuildCategory> buildCategories,
             @Parameter(description = FETCH_QUALIFIERS_DESC) @QueryParam("qualifiers") Set<QValue> qualifiers);
 
-    static final String GET_SPECIFIC_DESC = "Gets a specific build config.";
+    static final String GET_SPECIFIC_DESC = "Gets a specific artifact.";
 
     /**
      * {@value GET_SPECIFIC_DESC}
@@ -188,16 +188,18 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}")
-    Artifact getSpecific(@Parameter(description = "ID of the Artifact") @PathParam("id") String id);
+    Artifact getSpecific(@Parameter(description = A_ID) @PathParam("id") String id);
+
+    static final String GET_SPECIFIC_BY_PURL_DESC = "Gets a specific artifact by purl of the artifact.";
 
     /**
-     * {@value GET_SPECIFIC_DESC}
+     * {@value GET_SPECIFIC_BY_PURL_DESC}
      *
      * @param purl {@value A_PURL}
      * @return
      */
     @Operation(
-            summary = GET_SPECIFIC_DESC,
+            summary = GET_SPECIFIC_BY_PURL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -210,7 +212,7 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/purl/{purl}")
-    Artifact getSpecificFromPurl(@Parameter(description = "Purl of the Artifact") @PathParam("purl") String purl);
+    Artifact getSpecificFromPurl(@Parameter(description = A_PURL) @PathParam("purl") String purl);
 
     static final String CREATE_DESC = "Creates a new Artifact.";
 
