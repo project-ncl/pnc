@@ -296,6 +296,8 @@ public class RestConnector implements Connector {
                 } catch (Exception e) {
                     throw new RestConnectorException("Cannot read process instance response.", e);
                 }
+            } else if (statusCode == 404) {
+                return Optional.empty();
             } else {
                 throw new RestConnectorException("Cannot query process instance, response status: " + statusCode);
             }
