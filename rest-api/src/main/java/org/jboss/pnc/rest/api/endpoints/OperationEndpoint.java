@@ -195,6 +195,7 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/deliverable-analyzer/start")
-    void startScratchDeliverableAnalysis(@Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
+    DeliverableAnalyzerOperation startScratchDeliverableAnalysis(
+            @Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
 
 }
