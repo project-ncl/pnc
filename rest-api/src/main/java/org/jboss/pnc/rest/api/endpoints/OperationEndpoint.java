@@ -36,6 +36,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
@@ -43,6 +44,7 @@ import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
@@ -195,6 +197,7 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/deliverable-analyzer/start")
+    @RespondWithStatus(Response.Status.ACCEPTED)
     DeliverableAnalyzerOperation startScratchDeliverableAnalysis(
             @Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
 
