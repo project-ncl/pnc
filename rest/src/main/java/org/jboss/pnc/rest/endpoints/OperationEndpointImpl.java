@@ -86,9 +86,9 @@ public class OperationEndpointImpl implements OperationEndpoint {
     }
 
     @Override
-    public void startScratchDeliverableAnalysis(ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest) {
-        deliverableAnalyzerManager
+    public DeliverableAnalyzerOperation startScratchDeliverableAnalysis(
+            ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest) {
+        return deliverableAnalyzerManager
                 .analyzeDeliverables(null, scratchDeliverablesAnalysisRequest.getDeliverablesUrls(), true);
     }
-
 }
