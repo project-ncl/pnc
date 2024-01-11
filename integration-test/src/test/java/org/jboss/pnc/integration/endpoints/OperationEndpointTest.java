@@ -131,7 +131,7 @@ public class OperationEndpointTest {
         assertThat(finishedOperationReturned.getResult()).isEqualTo(OperationResult.SUCCESSFUL);
         assertThat(finishedOperationReturned.getEndTime())
                 .isEqualTo(finishedOperation.getEndTime().truncatedTo(ChronoUnit.MILLIS)); // Date conversion looses
-                                                                                           // microseconds
+        // microseconds
         assertThat(finishedOperationReturned.getParameters()).hasSize(1);
     }
 
@@ -178,5 +178,19 @@ public class OperationEndpointTest {
                         postRequestedFor(urlMatching(".*")).withRequestBody(
                                 matching(".*super-important.jar.*")
                                         .and(matching(".*\"runAsScratchAnalysis\":true.*"))));
+    }
+
+    @Test
+    public void shouldHaveNonNullId() throws ClientException {
+        // when
+        DeliverableAnalyzerOperation startedDelAnOperation = client.startScratchDeliverableAnalysis(
+                ScratchDeliverablesAnalysisRequest.builder()
+                        .deliverablesUrls(
+                                List.of(
+                                        "https://indy.psi.idk.com/api/content/maven/hosted/pnc-builds/com/jboss/super-important.jar"))
+                        .build());
+
+        // then
+        assertThat(startedDelAnOperation.getId()).isNotNull();
     }
 }

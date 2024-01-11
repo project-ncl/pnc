@@ -23,6 +23,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -36,21 +46,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -134,7 +135,7 @@ public interface OperationEndpoint {
 
     /**
      * {@value GET_SPECIFIC_DEL_ANALYZER_DESC}
-     * 
+     *
      * @param id {@value OP_ID}
      * @return
      */
@@ -184,7 +185,11 @@ public interface OperationEndpoint {
 
     @Operation(
             summary = START_DELIVERABLE_ANALYSIS,
-            responses = { @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(
+                            responseCode = ACCEPTED_CODE,
+                            description = ACCEPTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = DeliverableAnalyzerOperation.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -195,6 +200,8 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/deliverable-analyzer/start")
-    void startScratchDeliverableAnalysis(@Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
+    @RespondWithStatus(Response.Status.ACCEPTED)
+    DeliverableAnalyzerOperation startScratchDeliverableAnalysis(
+            @Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
 
 }
