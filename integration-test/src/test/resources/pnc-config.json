@@ -42,9 +42,9 @@
           "@module-config": "alignment-config",
           "alignmentParameters" : {
             "MVN" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
-            "NPM" : "",
+            "NPM" : "-Dnpm=setup",
             "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true",
-            "SBT" : ""
+            "SBT" : "-Dsbt=setup"
           }
         },
         {

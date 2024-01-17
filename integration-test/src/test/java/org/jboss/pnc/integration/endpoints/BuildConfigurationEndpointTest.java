@@ -201,6 +201,8 @@ public class BuildConfigurationEndpointTest {
 
         assertThat(bc.getCreationTime()).isNotNull();
         assertThat(bc.getModificationTime()).isNotNull();
+
+        assertThat(bc.getDefaultAlignmentParams()).isNotNull();
     }
 
     @Test
@@ -342,6 +344,72 @@ public class BuildConfigurationEndpointTest {
         assertThat(updatedBC.getEnvironment().getId()).isEqualTo(environmentId);
         assertThat(modificationTime).isNotEqualTo(updatedBC.getModificationTime());
         assertThat(updatedBC.getBrewPullActive()).isTrue();
+    }
+
+    /**
+     * When the build type changes, the default alignment parameters should also change to the specific type
+     *
+     * @throws ClientException
+     */
+    @Test
+    @InSequence(40)
+    public void shouldUpdateBuildConfigurationAndDefaultAlignmentParamsOnBuildTypeUpdate() throws ClientException {
+        BuildConfiguration bc = createBuildConfigurationAndValidateResults(
+                projectId,
+                environmentId,
+                repositoryConfigurationId,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+
+        // Make sure original bc is for type Maven
+        assertThat(bc.getBuildType()).isEqualTo(BuildType.MVN);
+
+        String oldDefaultAlignmentParams = bc.getDefaultAlignmentParams();
+
+        // we then change the type to Gradle
+        BuildConfiguration bcToUpdate = bc.toBuilder().buildType(BuildType.GRADLE).build();
+
+        // when
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        client.update(bc.getId(), bcToUpdate);
+
+        BuildConfiguration updatedBC = client.getSpecific(bc.getId());
+        // then
+        assertThat(updatedBC.getDefaultAlignmentParams()).isNotNull();
+        assertThat(updatedBC.getDefaultAlignmentParams()).isNotBlank();
+        assertThat(oldDefaultAlignmentParams).isNotEqualTo(updatedBC.getDefaultAlignmentParams());
+    }
+
+    /**
+     * Check that if the build type is the same on an update, the default alignment params also will not change
+     * 
+     * @throws ClientException
+     */
+    @Test
+    @InSequence(50)
+    public void testUpdateBuildConfigWontChangeDefaultBuildType() throws ClientException {
+        BuildConfiguration bc = createBuildConfigurationAndValidateResults(
+                projectId,
+                environmentId,
+                repositoryConfigurationId,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+
+        // Make sure original bc is for type Maven
+        assertThat(bc.getBuildType()).isEqualTo(BuildType.MVN);
+
+        String oldDefaultAlignmentParams = bc.getDefaultAlignmentParams();
+
+        // we only update the build script, and keep the build type the same
+        BuildConfiguration bcToUpdate = bc.toBuilder().buildScript("mvn mvn my mvn").build();
+
+        // when
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        client.update(bc.getId(), bcToUpdate);
+
+        BuildConfiguration updatedBC = client.getSpecific(bc.getId());
+        // then: since the build type didn't change, the default alignment params should also stay the same
+        assertThat(bc.getDefaultAlignmentParams()).isEqualTo(updatedBC.getDefaultAlignmentParams());
     }
 
     @Test
