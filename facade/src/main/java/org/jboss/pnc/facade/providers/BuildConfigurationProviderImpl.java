@@ -22,6 +22,7 @@ import org.jboss.pnc.common.alignment.ranking.AlignmentRanking;
 import org.jboss.pnc.common.alignment.ranking.exception.ValidationException;
 import org.jboss.pnc.common.alignment.ranking.tokenizer.QualifierToken;
 import org.jboss.pnc.common.alignment.ranking.tokenizer.Token;
+import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.AlignmentStrategy;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -193,6 +194,9 @@ public class BuildConfigurationProviderImpl extends
     @Inject
     private UserMapper userMapper;
 
+    @Inject
+    private AlignmentConfig alignmentConfig;
+
     private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id("-1").build();
 
     @Inject
@@ -232,6 +236,12 @@ public class BuildConfigurationProviderImpl extends
             org.jboss.pnc.model.User currentUser = userService.currentUser();
             dbEntity.setLastModificationUser(currentUser);
             dbEntity.setLastModificationTime(new Date());
+        }
+
+        // NCL-6729: Update the alignment parameters if the build type is changed
+        if (restEntity.getBuildType() != dbEntity.getBuildType()) {
+            dbEntity.setDefaultAlignmentParams(
+                    alignmentConfig.getAlignmentParameters().get(restEntity.getBuildType().toString()));
         }
     }
 
