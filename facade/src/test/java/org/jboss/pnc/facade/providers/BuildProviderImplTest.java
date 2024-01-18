@@ -43,6 +43,7 @@ import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -121,6 +122,9 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
 
     @Mock
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    @Mock
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Mock
     private KeycloakServiceClient keycloakServiceClient;
@@ -453,45 +457,6 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
             assertEquals(BuildMapper.idMapper.toDto(id), it.next().getId());
         }
         assertFalse(it.hasNext());
-    }
-
-    public void testBuildIterator() {
-        SortInfo<BuildRecord> sortInfo = mock(SortInfo.class);
-        Predicate<BuildRecord> predicate = mock(Predicate.class);
-        mockRepository(sortInfo, predicate);
-
-        BuildProviderImpl.BuildIterator bit;
-        List<Integer> ret;
-
-        bit = provider.new BuildIterator(1, 10, 1, sortInfo, predicate);
-        ret = new ArrayList<>();
-        while (bit.hasNext()) {
-            Build next = bit.next();
-            System.out.println("next: " + next);
-            ret.add(Integer.valueOf(next.getId()));
-        }
-        assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
-
-        bit = provider.new BuildIterator(1, 10, 10, sortInfo, predicate);
-        ret = new ArrayList<>();
-        while (bit.hasNext()) {
-            ret.add(Integer.valueOf(bit.next().getId()));
-        }
-        assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
-
-        bit = provider.new BuildIterator(1, 10, 100, sortInfo, predicate);
-        ret = new ArrayList<>();
-        while (bit.hasNext()) {
-            ret.add(Integer.valueOf(bit.next().getId()));
-        }
-        assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
-
-        bit = provider.new BuildIterator(7, 12, 100, sortInfo, predicate);
-        ret = new ArrayList<>();
-        while (bit.hasNext()) {
-            ret.add(Integer.valueOf(bit.next().getId()));
-        }
-        assertEquals(Arrays.asList(7, 8, 9, 10, 11, 12), ret);
     }
 
     @Test
