@@ -34,6 +34,8 @@ import java.util.Map;
 public class BrewNameWorkaround {
 
     @BeforeMapping
+    @BuildHelpers
+    @BuildHelpersNoBCRevision
     public static void mockBrewAttributes(BuildRecord build, @MappingTarget Build.Builder dtoBuilder) {
         Map<String, String> attributes = new HashMap<>(build.getAttributesMap());
 
@@ -47,6 +49,8 @@ public class BrewNameWorkaround {
     }
 
     @BeforeMapping
+    @BuildHelpers
+    @BuildHelpersNoBCRevision
     public static void mockBrewAttributes(Build build, @MappingTarget BuildRecord.Builder entityBuilder) {
         Map<String, String> attributes = new HashMap<>(build.getAttributes());
 

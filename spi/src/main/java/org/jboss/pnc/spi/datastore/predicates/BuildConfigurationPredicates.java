@@ -33,6 +33,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.SetJoin;
+import java.util.Set;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildConfiguration} entity.
@@ -44,6 +45,13 @@ public class BuildConfigurationPredicates {
             Join<BuildConfiguration, Project> project = root.join(BuildConfiguration_.project);
             return cb.equal(project.get(Project_.id), projectId);
         };
+    }
+
+    public static Predicate<BuildConfiguration> withIds(Set<Integer> ids) {
+        if (ids.isEmpty()) {
+            return (root, query, cb) -> cb.or();
+        }
+        return (root, query, cb) -> root.get(BuildConfiguration_.id).in(ids);
     }
 
     public static Predicate<BuildConfiguration> withDependantConfiguration(Integer parentBuildConfigurationId) {

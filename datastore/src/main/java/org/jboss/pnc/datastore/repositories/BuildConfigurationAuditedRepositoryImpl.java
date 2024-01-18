@@ -124,6 +124,9 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
     @Override
     public Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRevs) {
         logger.trace("Querying for BuildConfigurationAudited.idRevs: {}.", idRevs);
+        if (idRevs.isEmpty()) {
+            return Map.of();
+        }
 
         List<String> idRevConcatenated = idRevs.stream()
                 .map(idRev -> idRev.getId() + "-" + idRev.getRev())

@@ -62,6 +62,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.security.PermitAll;
@@ -119,6 +120,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -894,6 +896,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             java.util.function.Predicate<BuildTask> predicate,
             Predicate<BuildRecord> dbPredicate) {
         List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
+        Iterator<BuildWrapper> wrappedRunningBuilds = runningBuilds.stream().map(BuildWrapper::new).iterator();
 
         int firstPossibleDBIndex = pageInfo.getPageIndex() * pageInfo.getPageSize() - runningBuilds.size();
         int lastPossibleDBIndex = (pageInfo.getPageIndex() + 1) * pageInfo.getPageSize() - 1;
@@ -909,20 +912,23 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         }
 
         SortInfo<BuildRecord> sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
-        MergeIterator<Build> builds = new MergeIterator(
-                runningBuilds.iterator(),
+        MergeIterator<BuildWrapper> buildsIT = new MergeIterator<>(
+                wrappedRunningBuilds,
                 new BuildIterator(
                         firstPossibleDBIndex,
                         lastPossibleDBIndex,
                         pageInfo.getPageSize(),
                         sortInfo,
                         predicates),
-                comparing);
-        List<Build> resultList = StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(builds, Spliterator.ORDERED | Spliterator.SORTED), false)
+                wrapperComparator(comparing));
+        List<BuildWrapper> builds = StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(buildsIT, Spliterator.ORDERED | Spliterator.SORTED), false)
                 .skip(toSkip)
                 .limit(pageInfo.getPageSize())
                 .collect(Collectors.toList());
+
+        fetchBuildConfigAudited(builds.stream().flatMap(BuildWrapper::buildRecordStream).collect(Collectors.toSet()));
+        List<Build> resultList = builds.stream().map(BuildWrapper::getBuild).collect(Collectors.toList());
 
         int hits = repository.count(predicates) + runningBuilds.size();
 
@@ -932,6 +938,32 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 (int) Math.ceil((double) hits / pageInfo.getPageSize()),
                 hits,
                 resultList);
+    }
+
+    private void fetchBuildConfigAudited(Set<BuildRecord> buildRecords) {
+        if (buildRecords.isEmpty()) {
+            return;
+        }
+        Set<IdRev> idRevs = buildRecords.stream()
+                .filter(buildRecord -> buildRecord.getBuildConfigurationAudited() == null)
+                .map(BuildRecord::getBuildConfigurationAuditedIdRev)
+                .collect(Collectors.toSet());
+        prefetchFiledsOfBuildConfigs(idRevs);
+        Map<IdRev, BuildConfigurationAudited> buildConfigRevisions = buildConfigurationAuditedRepository
+                .queryById(idRevs);
+        for (BuildRecord buildRecord : buildRecords) {
+            if (buildRecord.getBuildConfigurationAudited() != null) {
+                continue;
+            }
+            IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigRevisions.get(idRev);
+            buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
+        }
+    }
+
+    private void prefetchFiledsOfBuildConfigs(Set<IdRev> idRevs) {
+        Set<Integer> buildConfigIDs = idRevs.stream().map(IdRev::getId).collect(Collectors.toSet());
+        buildConfigurationRepository.queryWithPredicates(BuildConfigurationPredicates.withIds(buildConfigIDs));
     }
 
     private Predicate<BuildRecord>[] preparePredicates(
@@ -1041,7 +1073,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return buildRecords.stream().map(mapper::toDTO).findFirst();
     }
 
-    class BuildIterator implements Iterator<Build> {
+    class BuildIterator implements Iterator<BuildWrapper> {
 
         private List<BuildRecord> builds;
         private Iterator<BuildRecord> it;
@@ -1078,11 +1110,11 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         }
 
         @Override
-        public Build next() {
+        public BuildWrapper next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            return mapper.toDTO(it.next());
+            return new BuildWrapper(it.next());
         }
 
         private void nextPage() {
@@ -1122,5 +1154,41 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                     .map(BuildMapper.idMapper::toDto)
                     .collect(Collectors.toSet());
         }
+    }
+
+    class BuildWrapper {
+        private final BuildRecord buildRecord;
+
+        private final Build mappedBuild;
+
+        public BuildWrapper(BuildRecord buildRecord) {
+            this.buildRecord = buildRecord;
+            this.mappedBuild = buildMapper.toDTOWithoutBCR(buildRecord);
+        }
+
+        public BuildWrapper(Build build) {
+            this.buildRecord = null;
+            this.mappedBuild = build;
+        }
+
+        public Build getBuild() {
+            if (buildRecord == null) {
+                return mappedBuild;
+            } else {
+                return buildMapper.toDTO(buildRecord);
+            }
+        }
+
+        public Stream<BuildRecord> buildRecordStream() {
+            if (buildRecord == null) {
+                return Stream.empty();
+            } else {
+                return Stream.of(buildRecord);
+            }
+        }
+    }
+
+    private static Comparator<BuildWrapper> wrapperComparator(Comparator<Build> comparator) {
+        return (o1, o2) -> (comparator.compare(o1.mappedBuild, o2.mappedBuild));
     }
 }
