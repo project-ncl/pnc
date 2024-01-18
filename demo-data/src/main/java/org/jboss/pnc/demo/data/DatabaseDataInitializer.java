@@ -704,6 +704,7 @@ public class DatabaseDataInitializer {
                     .executionRootName("org.jboss.pnc:parent")
                     .executionRootVersion("1.2.3")
                     .temporaryBuild(false)
+                    .attribute("FOO", "bar")
                     .build();
 
             log.info("Saving buildRecord1: " + buildRecord1);
