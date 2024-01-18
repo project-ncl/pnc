@@ -32,6 +32,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -61,6 +62,7 @@ public class BuildBCRevisionFetcher {
     private BuildConfigurationAuditedRepository bcAuditedRepository;
 
     @BeforeMapping
+    @BuildHelpers
     public void mapFromAuditedBuildConfig(BuildRecord build, @MappingTarget Build.Builder dtoBuilder) {
         Integer id = build.getBuildConfigurationId();
         Integer revision = build.getBuildConfigurationRev();
