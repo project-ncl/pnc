@@ -28,6 +28,8 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
+import org.jboss.pnc.mapper.BuildHelpers;
+import org.jboss.pnc.mapper.BuildHelpersNoBCRevision;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -37,6 +39,7 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 import java.util.Optional;
 
@@ -69,6 +72,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
+            qualifiedBy = BuildHelpers.class,
             ignoreUnmappedSourceProperties = { "buildLog", "buildLogMd5", "buildLogSha256", "buildLogSize",
                     "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
                     "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
@@ -76,6 +80,32 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
                     "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
                     "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
     Build toDTO(BuildRecord dbEntity);
+
+    /**
+     * Returns Build without fetching Build Config Revision.
+     */
+    @Named("withoutBCR")
+    @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
+    @Mapping(target = "environment", ignore = true)
+    @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
+    @Mapping(target = "buildConfigRevision", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "scmRepository", ignore = true)
+    @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
+    @Mapping(target = "user", qualifiedBy = Reference.class)
+    @Mapping(target = "noRebuildCause", resultType = BuildRef.class)
+    @Mapping(target = "scmUrl", source = "scmRepoURL")
+    @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "progress", source = "status")
+    @BeanMapping(
+            qualifiedBy = BuildHelpersNoBCRevision.class,
+            ignoreUnmappedSourceProperties = { "buildLog", "buildLogMd5", "buildLogSha256", "buildLogSize",
+                    "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
+                    "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
+                    "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
+                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
+    Build toDTOWithoutBCR(BuildRecord dbEntity);
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
