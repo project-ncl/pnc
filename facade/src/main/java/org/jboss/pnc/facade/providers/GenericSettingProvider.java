@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.dto.notification.GenericSettingNotification;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.GenericSetting;
@@ -26,6 +27,7 @@ import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ETA;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
@@ -150,6 +152,25 @@ public class GenericSettingProvider {
         }
     }
 
+    public PncStatus getPncStatus() {
+        GenericSetting eta = genericSettingRepository.queryByKey(ETA);
+        GenericSetting maintenanceMode = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
+
+        return PncStatus.builder()
+                .banner(getAnnouncementBanner())
+                .eta(eta == null ? null : eta.getValue())
+                .isMaintenanceMode(transformMaintenanceMode(maintenanceMode))
+                .build();
+    }
+
+    @RolesAllowed(USERS_ADMIN)
+    public void setEta(String eta) {
+        log.info("ETA set to: '{}'", eta);
+        GenericSetting pncEta = createGenericParameterIfNotFound(ETA);
+        pncEta.setValue(eta);
+        genericSettingRepository.save(pncEta);
+    }
+
     private GenericSetting createGenericParameterIfNotFound(String key) {
 
         GenericSetting genericSetting = genericSettingRepository.queryByKey(key);
@@ -160,5 +181,9 @@ public class GenericSettingProvider {
         }
 
         return genericSetting;
+    }
+
+    private Boolean transformMaintenanceMode(GenericSetting maintenanceMode) {
+        return maintenanceMode == null ? null : Boolean.parseBoolean(maintenanceMode.getValue());
     }
 }
