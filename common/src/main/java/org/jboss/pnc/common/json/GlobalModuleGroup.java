@@ -31,12 +31,20 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String delAnalUrl;
 
     private String externalBifrostUrl;
-    private String externalDaUrl;
+    private String externalBuildDriverUrl;
     private String externalCausewayUrl;
+    private String externalCleanerUrl;
+    private String externalDaUrl;
+    private String externalDeliverablesAnalyzerUrl;
+    private String externalEnvironmentDriverUrl;
     private String externalIndyUrl;
     private String externalKafkaStoreUrl;
+    private String externalLogEventDurationUrl;
     private String externalPncUrl;
+    private String externalRepositoryDriverUrl;
     private String externalRepourUrl;
+    private String externalRexUrl;
+    private String externalSbomerUrl;
     private String externalUiLoggerUrl;
     private String brewContentUrl;
 
@@ -96,12 +104,20 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
         this.externalBifrostUrl = externalBifrostUrl;
     }
 
-    public String getExternalDaUrl() {
-        return externalDaUrl;
+    public String getExternalBuildDriverUrl() {
+        return externalBuildDriverUrl;
     }
 
-    public void setExternalDaUrl(String externalDaUrl) {
-        this.externalDaUrl = externalDaUrl;
+    public void setExternalBuildDriverUrl(String externalBuildDriverUrl) {
+        this.externalBuildDriverUrl = externalBuildDriverUrl;
+    }
+
+    public String getExternalCleanerUrl() {
+        return externalCleanerUrl;
+    }
+
+    public void setExternalCleanerUrl(String externalCleanerUrl) {
+        this.externalCleanerUrl = externalCleanerUrl;
     }
 
     public String getExternalCausewayUrl() {
@@ -110,6 +126,30 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalCausewayUrl(String externalCausewayUrl) {
         this.externalCausewayUrl = externalCausewayUrl;
+    }
+
+    public String getExternalDaUrl() {
+        return externalDaUrl;
+    }
+
+    public String getExternalDeliverablesAnalyzerUrl() {
+        return externalDeliverablesAnalyzerUrl;
+    }
+
+    public void setExternalDeliverablesAnalyzerUrl(String externalDeliverablesAnalyzerUrl) {
+        this.externalDeliverablesAnalyzerUrl = externalDeliverablesAnalyzerUrl;
+    }
+
+    public void setExternalDaUrl(String externalDaUrl) {
+        this.externalDaUrl = externalDaUrl;
+    }
+
+    public String getExternalEnvironmentDriverUrl() {
+        return externalEnvironmentDriverUrl;
+    }
+
+    public void setExternalEnvironmentDriverUrl(String externalEnvironmentDriverUrl) {
+        this.externalEnvironmentDriverUrl = externalEnvironmentDriverUrl;
     }
 
     public String getExternalIndyUrl() {
@@ -158,6 +198,38 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalUiLoggerUrl(String externalUiLoggerUrl) {
         this.externalUiLoggerUrl = externalUiLoggerUrl;
+    }
+
+    public String getExternalLogEventDurationUrl() {
+        return externalLogEventDurationUrl;
+    }
+
+    public void setExternalLogEventDurationUrl(String externalLogEventDurationUrl) {
+        this.externalLogEventDurationUrl = externalLogEventDurationUrl;
+    }
+
+    public String getExternalRepositoryDriverUrl() {
+        return externalRepositoryDriverUrl;
+    }
+
+    public void setExternalRepositoryDriverUrl(String externalRepositoryDriverUrl) {
+        this.externalRepositoryDriverUrl = externalRepositoryDriverUrl;
+    }
+
+    public String getExternalRexUrl() {
+        return externalRexUrl;
+    }
+
+    public void setExternalRexUrl(String externalRexUrl) {
+        this.externalRexUrl = externalRexUrl;
+    }
+
+    public String getExternalSbomerUrl() {
+        return externalSbomerUrl;
+    }
+
+    public void setExternalSbomerUrl(String externalSbomerUrl) {
+        this.externalSbomerUrl = externalSbomerUrl;
     }
 
     public String getBrewContentUrl() {
