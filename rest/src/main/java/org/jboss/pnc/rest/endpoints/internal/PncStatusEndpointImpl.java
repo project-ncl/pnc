@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.rest.api.endpoints.PncStatusEndpoint;
+import org.jboss.util.Strings;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,16 +40,17 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
         }
 
         // activate maintenance mode
-        if (pncStatus.getEta() != null && Boolean.TRUE.equals(pncStatus.getIsMaintenanceMode())) {
+        if (Boolean.TRUE.equals(pncStatus.getIsMaintenanceMode()) && pncStatus.getEta() != null) {
             genericSettingProvider.activateMaintenanceMode(pncStatus.getBanner());
             genericSettingProvider.setEta(pncStatus.getEta());
             return;
         }
 
         // deactivate maintenance mode
-        if (Boolean.FALSE.equals(pncStatus.getIsMaintenanceMode())) {
+        if (Boolean.FALSE.equals(pncStatus.getIsMaintenanceMode()) && pncStatus.getEta() == null) {
             genericSettingProvider.deactivateMaintenanceMode();
-            genericSettingProvider.setEta(pncStatus.getEta());
+            genericSettingProvider.setAnnouncementBanner(pncStatus.getBanner());
+            genericSettingProvider.setEta(Strings.EMPTY);
             return;
         }
 

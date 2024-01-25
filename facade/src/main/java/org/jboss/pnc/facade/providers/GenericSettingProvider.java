@@ -121,14 +121,7 @@ public class GenericSettingProvider {
     }
 
     public String getPNCVersion() {
-
-        GenericSetting pncVersion = genericSettingRepository.queryByKey(PNC_VERSION);
-
-        if (pncVersion == null) {
-            return Strings.EMPTY;
-        } else {
-            return pncVersion.getValue();
-        }
+        return getValueByKey(PNC_VERSION);
     }
 
     @RolesAllowed(USERS_ADMIN)
@@ -142,23 +135,15 @@ public class GenericSettingProvider {
     }
 
     public String getAnnouncementBanner() {
-
-        GenericSetting announcementBanner = genericSettingRepository.queryByKey(ANNOUNCEMENT_BANNER);
-
-        if (announcementBanner == null) {
-            return Strings.EMPTY;
-        } else {
-            return announcementBanner.getValue();
-        }
+        return getValueByKey(ANNOUNCEMENT_BANNER);
     }
 
     public PncStatus getPncStatus() {
-        GenericSetting eta = genericSettingRepository.queryByKey(ETA);
         GenericSetting maintenanceMode = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
 
         return PncStatus.builder()
                 .banner(getAnnouncementBanner())
-                .eta(eta == null ? null : eta.getValue())
+                .eta(getEta())
                 .isMaintenanceMode(transformMaintenanceMode(maintenanceMode))
                 .build();
     }
@@ -169,6 +154,16 @@ public class GenericSettingProvider {
         GenericSetting pncEta = createGenericParameterIfNotFound(ETA);
         pncEta.setValue(eta);
         genericSettingRepository.save(pncEta);
+    }
+
+    private String getEta() {
+        return getValueByKey(ETA);
+    }
+
+    private String getValueByKey(String key) {
+        GenericSetting value = genericSettingRepository.queryByKey(key);
+
+        return value == null ? Strings.EMPTY : value.getValue();
     }
 
     private GenericSetting createGenericParameterIfNotFound(String key) {
