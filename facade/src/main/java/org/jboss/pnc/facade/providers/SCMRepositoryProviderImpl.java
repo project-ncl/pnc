@@ -300,7 +300,13 @@ public class SCMRepositoryProviderImpl
         if (StringUtils.isEmpty(internalRepoUrl) || internalScmAuthority == null) {
             throw new IllegalArgumentException("InternalScmAuthority and internalRepoUrl parameters must be set.");
         }
-        String internalRepoUrlNoProto = UrlUtils.stripProtocol(internalRepoUrl);
+        String internalRepoUrlNoProto;
+        if (internalRepoUrl.startsWith("git@")) {
+            internalRepoUrlNoProto = internalRepoUrl.substring(4);
+        } else {
+            internalRepoUrlNoProto = UrlUtils.stripProtocol(internalRepoUrl);
+        }
+
         String internalRepoName;
         internalRepoName = internalRepoUrlNoProto.replace(internalScmAuthority, "");
 

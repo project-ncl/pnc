@@ -50,6 +50,6 @@ public class Patterns {
     /**
      * Internal repository name pattern. The name is part following the SCM authority (hostname) in the repository URL.
      */
-    public static final String INTERNAL_REPOSITORY_NAME = "(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$";
+    public static final String INTERNAL_REPOSITORY_NAME = "([\\/:][\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$";
 
 }
