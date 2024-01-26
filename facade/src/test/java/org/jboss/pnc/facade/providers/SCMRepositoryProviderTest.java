@@ -42,6 +42,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.jboss.pnc.facade.util.RepourClient;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import static org.mockito.ArgumentMatchers.any;
@@ -405,4 +408,48 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
                 .preBuildSyncEnabled(presync)
                 .build();
     }
+
+    /**
+     * Tests correct evaluation of internal repository based various combinations of primary and secondary internal SCM
+     * authority.
+     */
+    @Test
+    public void testIsInternalRepository() {
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("git.example.com", null, "git+ssh://git.example.com/group/repo.git"));
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("git.example.com", null, "git@git.example.com:group/repo.git"));
+
+        assertTrue(
+                SCMRepositoryProviderImpl.isInternalRepository(
+                        "git.primary.com",
+                        "git.secondary.com",
+                        "git+ssh://git.primary.com/group/repo.git"));
+        assertTrue(
+                SCMRepositoryProviderImpl.isInternalRepository(
+                        "git.primary.com",
+                        "git.secondary.com",
+                        "git@git.primary.com:group/repo.git"));
+
+        assertTrue(
+                SCMRepositoryProviderImpl.isInternalRepository(
+                        "git.primary.com",
+                        "git.secondary.com",
+                        "git+ssh://git.secondary.com/group/repo.git"));
+        assertTrue(
+                SCMRepositoryProviderImpl.isInternalRepository(
+                        "git.primary.com",
+                        "git.secondary.com",
+                        "git@git.secondary.com:group/repo.git"));
+
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("git.example.com", null, "git+ssh://git.another.com/group.repo.git"));
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("git.example.com", null, "git@git.another.com:group/repo.git"));
+    }
+
 }
