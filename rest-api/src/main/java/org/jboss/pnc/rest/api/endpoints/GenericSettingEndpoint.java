@@ -105,6 +105,9 @@ public interface GenericSettingEndpoint {
     /**
      * {@value GET_PNC_VERSION_DESC}
      *
+     * @deprecated Use {@link VersionEndpoint#getCurrentVersion()} instead. Can be removed at earliest in the following
+     *             major version, i.e. "3.0.0", since it breaks the backwards compatibility.
+     *
      * @return
      */
     @Operation(
@@ -124,6 +127,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("pnc-version")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
     public String getPNCVersion();
 
     static final String PNC_VERSION = "Current PNC System Version";
@@ -131,6 +135,8 @@ public interface GenericSettingEndpoint {
 
     /**
      * {@value SET_PNC_VERSION_DESC}
+     *
+     * @deprecated This endpoint gets deprecated without any compensation.
      *
      * @param version {@value PNC_VERSION}
      */
@@ -147,6 +153,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("pnc-version")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
     public void setPNCVersion(@Parameter(description = PNC_VERSION, required = true) String version);
 
     static final String IS_IN_MAINTENANCE_MODE_DESC = "Get status of maintenance mode";
