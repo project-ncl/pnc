@@ -53,25 +53,15 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface PncStatusEndpoint {
 
     static final String SET_PNC_STATUS_SUMMARY = "Set the PNC status.";
-    static final String SET_PNC_STATUS_DESC = "There are 3 possible types of requests:\n"
-            + "1) Setting the generic banner: Only the field banner is filled.\n"
-            + "2) Activating the maintenance mode: All the fields of the DTO are required.\n"
-            + "3) Deactivating the maintenance mode: Fields banner and isMaintenanceMode are filled.\n"
-            + "Note: banner set to empty string is correct.";
     static final String PNC_STATUS = "PNC status";
 
     /**
-     * There are 3 possible types of requests:<br>
-     * 1) Setting the generic banner: Only the field banner is filled<br>
-     * 2) Activating the maintenance mode: All the fields of the DTO are required.<br>
-     * 3) Deactivating the maintenance mode: Field 'banner' is expected to be non-null (empty is correct though) and
-     * 'isMaintenanceMode' is expected to be false.
-     *
-     * @param genericSettingInfo {@value PNC_STATUS}
+     * {@value SET_PNC_STATUS_SUMMARY}
+     * 
+     * @param pncStatus {@value PNC_STATUS}
      */
     @Operation(
             summary = "[role:pnc-users-admin]: " + SET_PNC_STATUS_SUMMARY,
-            description = SET_PNC_STATUS_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -82,7 +72,7 @@ public interface PncStatusEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
-    void setPncStatus(@Parameter(description = PNC_STATUS) @Valid PncStatus genericSettingInfo);
+    void setPncStatus(@Parameter(description = PNC_STATUS) @Valid PncStatus pncStatus);
 
     static final String GET_PNC_STATUS = "Get the PNC status information.";
 

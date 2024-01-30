@@ -56,16 +56,14 @@ public class GenericSettingProvider {
     }
 
     @RolesAllowed(USERS_ADMIN)
-    public void activateMaintenanceMode(String reason) {
+    public void activateMaintenanceMode() {
 
-        log.info("Activating Maintenance mode, with reason: '{}'", reason);
+        log.info("Activating Maintenance mode");
         GenericSetting maintenanceMode = createGenericParameterIfNotFound(MAINTENANCE_MODE);
 
         maintenanceMode.setValue(Boolean.TRUE.toString());
         genericSettingRepository.save(maintenanceMode);
         notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(true));
-
-        setAnnouncementBanner(reason);
     }
 
     @RolesAllowed(USERS_ADMIN)

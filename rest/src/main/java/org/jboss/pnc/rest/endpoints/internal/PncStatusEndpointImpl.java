@@ -20,9 +20,11 @@ package org.jboss.pnc.rest.endpoints.internal;
 import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.rest.api.endpoints.PncStatusEndpoint;
+import org.jboss.util.Strings;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 
 @ApplicationScoped
 public class PncStatusEndpointImpl implements PncStatusEndpoint {
@@ -32,27 +34,27 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
 
     @Override
     public void setPncStatus(PncStatus pncStatus) {
-        // banner
-        if (pncStatus.getEta() == null && pncStatus.getIsMaintenanceMode() == null) {
+        // The request is invalid when:
+        // - banner is null
+        // - maintenance mode is false
+        // - ETA is set
+        if (pncStatus.getBanner() == null && !pncStatus.isMaintenanceMode() && pncStatus.getEta() != null) {
+            throw new BadRequestException("Can't set ETA when maintenance mode is off and banner is null.");
+        }
+
+        if (pncStatus.getBanner() != null) {
             genericSettingProvider.setAnnouncementBanner(pncStatus.getBanner());
-            return;
         }
 
-        // activate maintenance mode
-        if (pncStatus.getEta() != null && Boolean.TRUE.equals(pncStatus.getIsMaintenanceMode())) {
-            genericSettingProvider.activateMaintenanceMode(pncStatus.getBanner());
+        if (pncStatus.getEta() != null) {
             genericSettingProvider.setEta(pncStatus.getEta());
-            return;
         }
 
-        // deactivate maintenance mode
-        if (Boolean.FALSE.equals(pncStatus.getIsMaintenanceMode())) {
+        if (pncStatus.isMaintenanceMode()) {
+            genericSettingProvider.activateMaintenanceMode();
+        } else {
             genericSettingProvider.deactivateMaintenanceMode();
-            genericSettingProvider.setEta(pncStatus.getEta());
-            return;
         }
-
-        // TODO: Handle invalid request, ask Mr. who's sitting by the window on the door side in your office
     }
 
     @Override

@@ -29,11 +29,11 @@ import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+import java.time.Instant;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +46,7 @@ import static org.junit.Assert.assertTrue;
 public class PncStatusEndpointTest {
 
     private final static String TEST_BANNER = "Test banner";
+    private final static String ETA = Instant.now().toString();
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -86,6 +87,22 @@ public class PncStatusEndpointTest {
         assertTrue(
                 Stream.of("Invocation on method", "GenericSettingProvider.setAnnouncementBanner", "is not allowed")
                         .allMatch(details::contains));
+    }
+
+    @Test
+    public void setBannerWhenBadRequest() {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asSystem());
+        var pncStatus = PncStatus.builder().isMaintenanceMode(false).eta(ETA).build();
+
+        // when + then
+        RemoteResourceException remoteResourceException = assertThrows(
+                RemoteResourceException.class,
+                () -> client.setPncStatus(pncStatus));
+        ErrorResponse errorResponse = remoteResourceException.getResponse().get();
+        assertThat(errorResponse.getErrorType()).isEqualTo("BadRequestException");
+        assertThat(errorResponse.getErrorMessage())
+                .isEqualTo("Can't set ETA when maintenance mode is off and banner is null.");
     }
 
     @Test

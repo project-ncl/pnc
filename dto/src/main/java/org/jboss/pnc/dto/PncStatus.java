@@ -18,14 +18,11 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * DTO for information about the actual status of the PNC: announcement banner, ETA and maintenance mode.
@@ -39,9 +36,8 @@ import javax.validation.constraints.NotNull;
 public class PncStatus {
 
     /**
-     * Announcement banner. Required for every type of request.
+     * Announcement banner.
      */
-    @NotNull
     String banner;
 
     /**
@@ -51,8 +47,6 @@ public class PncStatus {
 
     /**
      * Is the maintenance mode active?
-     * <p/>
-     * Note: When we're setting only the banner, do not specify maintenance mode. Hence, it's nullable (=Boolean).
      */
-    Boolean isMaintenanceMode;
+    boolean isMaintenanceMode;
 }

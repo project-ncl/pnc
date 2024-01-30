@@ -65,7 +65,8 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
 
     @Override
     public void activateMaintenanceMode(String reason) {
-        genericSettingProvider.activateMaintenanceMode(reason);
+        genericSettingProvider.activateMaintenanceMode();
+        genericSettingProvider.setAnnouncementBanner(reason); // For backwards-compatibility
 
     }
 
