@@ -60,6 +60,9 @@ public class UrlUtilsTest {
         url = "git@github.com:project-ncl/pnc.git";
         Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
+        url = "git@github.com:project-ncl/subgroup/pnc.git";
+        Assert.assertEquals("github.com/project-ncl/subgroup/pnc.git", UrlUtils.keepHostAndPathOnly(url));
+
         url = "project-ncl";
         Assert.assertEquals("project-ncl", UrlUtils.keepHostAndPathOnly(url));
 

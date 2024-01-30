@@ -141,8 +141,6 @@ public class GitSCPUrlTest {
 
     @Test
     public void shouldNotParseInvalidFormat() throws Exception {
-        assertThatThrownBy(() -> GitSCPUrl.parse("git@github.com:project-ncl/pnc/not/valid"))
-                .isInstanceOf(MalformedURLException.class);
         assertThatThrownBy(() -> GitSCPUrl.parse("git@:project-ncl/pnc")).isInstanceOf(MalformedURLException.class);
         assertThatThrownBy(() -> GitSCPUrl.parse(":project-ncl/pnc/")).isInstanceOf(MalformedURLException.class);
         assertThatThrownBy(() -> GitSCPUrl.parse("")).isInstanceOf(MalformedURLException.class);

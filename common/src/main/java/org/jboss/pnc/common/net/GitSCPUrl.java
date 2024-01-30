@@ -34,7 +34,7 @@ public class GitSCPUrl {
     private String repositoryName;
 
     private static Pattern scpPattern = Pattern.compile(
-            "^((?<user>\\w+)@)?(?<host>[-.\\w]+)[:/]{1,2}(?<path>((?<owner>[-\\w]+)/)?((?<reponame>[-\\w]+)(.git)?)?)[/]?$");
+            "^((?<user>\\w+)@)?(?<host>[-.\\w]+)[:/]{1,2}(?<path>((?<owner>[-\\w]+)/)*((?<reponame>[-\\w]+)(.git)?))[/]?$");
 
     private GitSCPUrl(String user, String host, String path, String owner, String repositoryName) {
         this.user = user;
