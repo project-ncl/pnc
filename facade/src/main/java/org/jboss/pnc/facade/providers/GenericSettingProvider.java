@@ -147,10 +147,11 @@ public class GenericSettingProvider {
     }
 
     public PncStatus getPncStatus() {
+        GenericSetting banner = genericSettingRepository.queryByKey(ANNOUNCEMENT_BANNER);
         GenericSetting eta = genericSettingRepository.queryByKey(ANNOUNCEMENT_ETA);
 
         return PncStatus.builder()
-                .banner(getAnnouncementBanner().equals(Strings.EMPTY) ? null : getAnnouncementBanner())
+                .banner(banner == null ? null : banner.getValue())
                 .eta(eta == null ? null : Instant.parse(eta.getValue()))
                 .isMaintenanceMode(isInMaintenanceMode())
                 .build();

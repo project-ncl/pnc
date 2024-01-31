@@ -52,16 +52,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface PncStatusEndpoint {
 
-    static final String SET_PNC_STATUS_SUMMARY = "Set the PNC status.";
+    static final String SET_PNC_STATUS = "Set the PNC status.";
     static final String PNC_STATUS = "PNC status";
 
     /**
-     * {@value SET_PNC_STATUS_SUMMARY}
+     * {@value SET_PNC_STATUS}
      * 
      * @param pncStatus {@value PNC_STATUS}
      */
     @Operation(
-            summary = "[role:pnc-users-admin]: " + SET_PNC_STATUS_SUMMARY,
+            summary = "[role:pnc-users-admin]: " + SET_PNC_STATUS,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,

@@ -119,7 +119,7 @@ public class PncStatusEndpointTest {
                 () -> client.setPncStatus(pncStatus));
         ErrorResponse errorResponse = remoteResourceException.getResponse().get();
         assertThat(errorResponse.getErrorType()).isEqualTo("BadRequestException");
-        assertThat(errorResponse.getErrorMessage()).isEqualTo("Banner cannot be empty.");
+        assertThat(errorResponse.getErrorMessage()).isEqualTo("Banner cannot be blank.");
     }
 
     @Test

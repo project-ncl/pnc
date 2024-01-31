@@ -38,8 +38,8 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
             throw new BadRequestException("Can't set ETA when maintenance mode is off and banner is null.");
         }
 
-        if (pncStatus.getBanner() != null && pncStatus.getBanner().isEmpty()) {
-            throw new BadRequestException("Banner cannot be empty.");
+        if (pncStatus.getBanner() != null && pncStatus.getBanner().isBlank()) {
+            throw new BadRequestException("Banner cannot be blank.");
         }
 
         if (pncStatus.getBanner() != null) {
