@@ -72,11 +72,6 @@ public class GenericSettingProvider {
         log.info("Deactivating Maintenance mode");
         GenericSetting maintenanceMode = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
 
-        if (maintenanceMode != null && Boolean.parseBoolean(maintenanceMode.getValue())) {
-            // reset announcement banner if we switch from maintenance mode on -> off
-            setAnnouncementBanner(Strings.EMPTY);
-        }
-
         if (maintenanceMode == null) {
             maintenanceMode = new GenericSetting();
             maintenanceMode.setKey(MAINTENANCE_MODE);
