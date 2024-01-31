@@ -47,6 +47,10 @@ public class GenericSettingEndpointTest {
         return Deployments.testEar();
     }
 
+    /**
+     * TODO: Remove once {@link org.jboss.pnc.rest.api.endpoints.GenericSettingEndpoint#setAnnouncementBanner(String)}
+     * is removed
+     */
     @Test
     public void testSetBannerWhenUnauthorized() {
         // given
