@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.response.Banner;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -34,7 +35,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -56,6 +56,9 @@ public interface GenericSettingEndpoint {
     /**
      * {@value GET_ANNOUNCEMENT_BANNER_DESC}
      * 
+     * @deprecated use {@link PncStatusEndpoint} instead. Can be removed at earliest in the following major version,
+     *             i.e. "3.0.0", since it breaks the backwards compatibility.
+     *
      * @return
      */
     @Operation(
@@ -75,6 +78,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("announcement-banner")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further info
     public Banner getAnnouncementBanner();
 
     static final String BANNER_TEXT = "Announcement Banner text";
@@ -82,6 +86,8 @@ public interface GenericSettingEndpoint {
 
     /**
      * {@value SET_ANNOUNCEMENT_BANNER_DESC}
+     * 
+     * @deprecated use {@link PncStatusEndpoint} instead.
      * 
      * @param banner {@value BANNER_TEXT}
      */
@@ -98,6 +104,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("announcement-banner")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further info
     public void setAnnouncementBanner(@Parameter(description = BANNER_TEXT, required = true) String banner);
 
     static final String GET_PNC_VERSION_DESC = "Get PNC System version";

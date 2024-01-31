@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.dto.notification.GenericSettingNotification;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.GenericSetting;
@@ -25,21 +26,28 @@ import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.time.Instant;
+
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.time.Instant;
 
 @PermitAll
 @Stateless
 @Slf4j
 public class GenericSettingProvider {
-
     public static final String ANNOUNCEMENT_BANNER = "ANNOUNCEMENT_BANNER";
     public static final String MAINTENANCE_MODE = "MAINTENANCE_MODE";
     public static final String PNC_VERSION = "PNC_VERSION";
+    public static final String ANNOUNCEMENT_ETA = "ANNOUNCEMENT_ETA";
 
     @Inject
     private GenericSettingRepository genericSettingRepository;
@@ -55,16 +63,14 @@ public class GenericSettingProvider {
     }
 
     @RolesAllowed(USERS_ADMIN)
-    public void activateMaintenanceMode(String reason) {
+    public void activateMaintenanceMode() {
 
-        log.info("Activating Maintenance mode, with reason: '{}'", reason);
+        log.info("Activating Maintenance mode");
         GenericSetting maintenanceMode = createGenericParameterIfNotFound(MAINTENANCE_MODE);
 
         maintenanceMode.setValue(Boolean.TRUE.toString());
         genericSettingRepository.save(maintenanceMode);
         notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(true));
-
-        setAnnouncementBanner(reason);
     }
 
     @RolesAllowed(USERS_ADMIN)
@@ -72,11 +78,6 @@ public class GenericSettingProvider {
 
         log.info("Deactivating Maintenance mode");
         GenericSetting maintenanceMode = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
-
-        if (maintenanceMode != null && Boolean.parseBoolean(maintenanceMode.getValue())) {
-            // reset announcement banner if we switch from maintenance mode on -> off
-            setAnnouncementBanner(Strings.EMPTY);
-        }
 
         if (maintenanceMode == null) {
             maintenanceMode = new GenericSetting();
@@ -149,6 +150,25 @@ public class GenericSettingProvider {
         } else {
             return announcementBanner.getValue();
         }
+    }
+
+    public PncStatus getPncStatus() {
+        GenericSetting banner = genericSettingRepository.queryByKey(ANNOUNCEMENT_BANNER);
+        GenericSetting eta = genericSettingRepository.queryByKey(ANNOUNCEMENT_ETA);
+
+        return PncStatus.builder()
+                .banner(banner == null ? null : banner.getValue())
+                .eta(eta == null ? null : Instant.parse(eta.getValue()))
+                .isMaintenanceMode(isInMaintenanceMode())
+                .build();
+    }
+
+    @RolesAllowed(USERS_ADMIN)
+    public void setEta(String eta) {
+        log.info("ETA set to: '{}'", eta);
+        GenericSetting pncEta = createGenericParameterIfNotFound(ANNOUNCEMENT_ETA);
+        pncEta.setValue(eta);
+        genericSettingRepository.save(pncEta);
     }
 
     private GenericSetting createGenericParameterIfNotFound(String key) {
