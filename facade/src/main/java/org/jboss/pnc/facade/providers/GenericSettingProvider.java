@@ -27,7 +27,7 @@ import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ETA;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
@@ -151,7 +151,7 @@ public class GenericSettingProvider {
     }
 
     public PncStatus getPncStatus() {
-        GenericSetting eta = genericSettingRepository.queryByKey(ETA);
+        GenericSetting eta = genericSettingRepository.queryByKey(ANNOUNCEMENT_ETA);
         GenericSetting maintenanceMode = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
 
         return PncStatus.builder()
@@ -164,7 +164,7 @@ public class GenericSettingProvider {
     @RolesAllowed(USERS_ADMIN)
     public void setEta(String eta) {
         log.info("ETA set to: '{}'", eta);
-        GenericSetting pncEta = createGenericParameterIfNotFound(ETA);
+        GenericSetting pncEta = createGenericParameterIfNotFound(ANNOUNCEMENT_ETA);
         pncEta.setValue(eta);
         genericSettingRepository.save(pncEta);
     }
