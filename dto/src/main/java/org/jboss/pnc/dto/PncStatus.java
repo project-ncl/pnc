@@ -24,6 +24,10 @@ import lombok.ToString;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
+
 /**
  * DTO for information about the actual status of the PNC: announcement banner, ETA and maintenance mode.
  */
@@ -41,12 +45,14 @@ public class PncStatus {
     String banner;
 
     /**
-     * ETA of maintenance mode being ended.
+     * ETA of maintenance mode being ended or extending announcement banner.
      */
-    String eta;
+    @Future
+    Instant eta;
 
     /**
      * Is the maintenance mode active?
      */
-    boolean isMaintenanceMode;
+    @NotNull
+    Boolean isMaintenanceMode;
 }

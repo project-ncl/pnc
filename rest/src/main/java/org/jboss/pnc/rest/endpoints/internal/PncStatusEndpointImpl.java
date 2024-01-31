@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.endpoints.internal;
 import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.rest.api.endpoints.PncStatusEndpoint;
-import org.jboss.util.Strings;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,12 +33,13 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
 
     @Override
     public void setPncStatus(PncStatus pncStatus) {
-        // The request is invalid when:
-        // - banner is null
-        // - maintenance mode is false
-        // - ETA is set
-        if (pncStatus.getBanner() == null && !pncStatus.isMaintenanceMode() && pncStatus.getEta() != null) {
+        if (pncStatus.getBanner() == null && Boolean.FALSE.equals(pncStatus.getIsMaintenanceMode())
+                && pncStatus.getEta() != null) {
             throw new BadRequestException("Can't set ETA when maintenance mode is off and banner is null.");
+        }
+
+        if (pncStatus.getBanner() != null && pncStatus.getBanner().isEmpty()) {
+            throw new BadRequestException("Banner cannot be empty.");
         }
 
         if (pncStatus.getBanner() != null) {
@@ -47,10 +47,10 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
         }
 
         if (pncStatus.getEta() != null) {
-            genericSettingProvider.setEta(pncStatus.getEta());
+            genericSettingProvider.setEta(pncStatus.getEta().toString());
         }
 
-        if (pncStatus.isMaintenanceMode()) {
+        if (pncStatus.getIsMaintenanceMode()) {
             genericSettingProvider.activateMaintenanceMode();
         } else {
             genericSettingProvider.deactivateMaintenanceMode();

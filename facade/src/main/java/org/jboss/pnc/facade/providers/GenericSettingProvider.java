@@ -36,6 +36,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.time.Instant;
 
 @PermitAll
 @Stateless
@@ -147,12 +148,11 @@ public class GenericSettingProvider {
 
     public PncStatus getPncStatus() {
         GenericSetting eta = genericSettingRepository.queryByKey(ANNOUNCEMENT_ETA);
-        GenericSetting maintenanceMode = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
 
         return PncStatus.builder()
-                .banner(getAnnouncementBanner())
-                .eta(eta == null ? null : eta.getValue())
-                .isMaintenanceMode(transformMaintenanceMode(maintenanceMode))
+                .banner(getAnnouncementBanner().equals(Strings.EMPTY) ? null : getAnnouncementBanner())
+                .eta(eta == null ? null : Instant.parse(eta.getValue()))
+                .isMaintenanceMode(isInMaintenanceMode())
                 .build();
     }
 
@@ -174,9 +174,5 @@ public class GenericSettingProvider {
         }
 
         return genericSetting;
-    }
-
-    private Boolean transformMaintenanceMode(GenericSetting maintenanceMode) {
-        return maintenanceMode == null ? null : Boolean.parseBoolean(maintenanceMode.getValue());
     }
 }
