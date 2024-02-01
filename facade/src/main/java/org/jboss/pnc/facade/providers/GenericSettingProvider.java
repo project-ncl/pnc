@@ -26,17 +26,17 @@ import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.time.Instant;
+
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 @PermitAll
 @Stateless
@@ -132,7 +132,7 @@ public class GenericSettingProvider {
         GenericSetting announcementBanner = createGenericParameterIfNotFound(ANNOUNCEMENT_BANNER);
         announcementBanner.setValue(banner);
         genericSettingRepository.save(announcementBanner);
-        notifier.sendMessage(GenericSettingNotification.newAnnoucement(banner));
+        notifier.sendMessage(GenericSettingNotification.newAnnouncement(banner));
     }
 
     public String getAnnouncementBanner() {
@@ -144,6 +144,12 @@ public class GenericSettingProvider {
         } else {
             return announcementBanner.getValue();
         }
+    }
+
+    @RolesAllowed(USERS_ADMIN)
+    public void clearAnnouncementBanner() {
+        clearByKey(ANNOUNCEMENT_BANNER);
+        notifier.sendMessage(GenericSettingNotification.newAnnouncement(Strings.EMPTY));
     }
 
     public PncStatus getPncStatus() {
@@ -163,6 +169,13 @@ public class GenericSettingProvider {
         GenericSetting pncEta = createGenericParameterIfNotFound(ANNOUNCEMENT_ETA);
         pncEta.setValue(eta);
         genericSettingRepository.save(pncEta);
+        notifier.sendMessage(GenericSettingNotification.etaChanged(eta));
+    }
+
+    @RolesAllowed(USERS_ADMIN)
+    public void clearEta() {
+        clearByKey(ANNOUNCEMENT_ETA);
+        notifier.sendMessage(GenericSettingNotification.etaChanged(Strings.EMPTY));
     }
 
     private GenericSetting createGenericParameterIfNotFound(String key) {
@@ -175,5 +188,12 @@ public class GenericSettingProvider {
         }
 
         return genericSetting;
+    }
+
+    private void clearByKey(String key) {
+        GenericSetting dbEntry = genericSettingRepository.queryByKey(key);
+        if (dbEntry != null) {
+            genericSettingRepository.delete(dbEntry.getId());
+        }
     }
 }

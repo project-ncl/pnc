@@ -21,12 +21,15 @@ package org.jboss.pnc.dto.notification;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
+import java.time.Instant;
+
 public class GenericSettingNotification extends Notification {
 
     public static final String ANNOUNCEMENT_BANNER_CHANGED = "NEW_ANNOUNCEMENT";
     public static final String MAINTENANCE_STATUS_CHANGED = "MAINTENANCE_STATUS_CHANGED";
+    public static final String ANNOUNCEMENT_ETA_CHANGED = "ANNOUNCEMENT_ETA_CHANGED";
 
-    public static GenericSettingNotification newAnnoucement(String message) {
+    public static GenericSettingNotification newAnnouncement(String message) {
         return new GenericSettingNotification(ANNOUNCEMENT_BANNER_CHANGED, "{\"banner\": \"" + message + "\"}");
     }
 
@@ -34,6 +37,10 @@ public class GenericSettingNotification extends Notification {
         return new GenericSettingNotification(
                 MAINTENANCE_STATUS_CHANGED,
                 "{\"maintenanceModeEnabled\": " + maintenanceMode + "}");
+    }
+
+    public static GenericSettingNotification etaChanged(String eta) {
+        return new GenericSettingNotification(ANNOUNCEMENT_ETA_CHANGED, "{\"eta\": \"" + eta + "\"}");
     }
 
     private GenericSettingNotification(String typeChanged, String message) {
