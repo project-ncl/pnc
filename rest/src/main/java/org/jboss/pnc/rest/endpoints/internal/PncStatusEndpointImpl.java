@@ -59,6 +59,9 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
         } else {
             genericSettingProvider.deactivateMaintenanceMode();
         }
+
+        // Notify listeners now, when everything is set to the latest value
+        genericSettingProvider.notifyListeners();
     }
 
     @Override

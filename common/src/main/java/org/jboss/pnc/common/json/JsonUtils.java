@@ -31,5 +31,4 @@ public class JsonUtils {
     public static String toJson(Object objectToBeMapped) throws JsonProcessingException {
         return new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(objectToBeMapped);
     }
-
 }

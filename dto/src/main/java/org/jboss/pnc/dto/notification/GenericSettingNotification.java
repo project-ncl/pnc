@@ -18,35 +18,28 @@
  */
 package org.jboss.pnc.dto.notification;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.jboss.pnc.common.json.JsonUtils;
+import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
-import java.time.Instant;
-
 public class GenericSettingNotification extends Notification {
 
-    public static final String ANNOUNCEMENT_BANNER_CHANGED = "NEW_ANNOUNCEMENT";
-    public static final String MAINTENANCE_STATUS_CHANGED = "MAINTENANCE_STATUS_CHANGED";
-    public static final String ANNOUNCEMENT_ETA_CHANGED = "ANNOUNCEMENT_ETA_CHANGED";
+    public static final String PNC_STATUS_CHANGED = "PNC_STATUS_CHANGED";
 
-    public static GenericSettingNotification newAnnouncement(String message) {
-        return new GenericSettingNotification(ANNOUNCEMENT_BANNER_CHANGED, "{\"banner\": \"" + message + "\"}");
+    public static GenericSettingNotification pncStatusChanged(PncStatus pncStatus) {
+        try {
+            return new GenericSettingNotification(JsonUtils.toJson(pncStatus));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot serialize PNC Status: " + pncStatus, e);
+        }
     }
 
-    public static GenericSettingNotification maintenanceModeChanged(boolean maintenanceMode) {
-        return new GenericSettingNotification(
-                MAINTENANCE_STATUS_CHANGED,
-                "{\"maintenanceModeEnabled\": " + maintenanceMode + "}");
-    }
-
-    public static GenericSettingNotification etaChanged(String eta) {
-        return new GenericSettingNotification(ANNOUNCEMENT_ETA_CHANGED, "{\"eta\": \"" + eta + "\"}");
-    }
-
-    private GenericSettingNotification(String typeChanged, String message) {
+    private GenericSettingNotification(String message) {
         super(
                 JobNotificationType.GENERIC_SETTING,
-                typeChanged,
+                PNC_STATUS_CHANGED,
                 JobNotificationProgress.FINISHED,
                 JobNotificationProgress.PENDING,
                 message);

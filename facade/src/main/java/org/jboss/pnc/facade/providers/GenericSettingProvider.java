@@ -64,7 +64,6 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.TRUE.toString());
         genericSettingRepository.save(maintenanceMode);
-        notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(true));
     }
 
     @RolesAllowed(USERS_ADMIN)
@@ -80,7 +79,6 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.FALSE.toString());
         genericSettingRepository.save(maintenanceMode);
-        notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(false));
     }
 
     public boolean isInMaintenanceMode() {
@@ -132,7 +130,6 @@ public class GenericSettingProvider {
         GenericSetting announcementBanner = createGenericParameterIfNotFound(ANNOUNCEMENT_BANNER);
         announcementBanner.setValue(banner);
         genericSettingRepository.save(announcementBanner);
-        notifier.sendMessage(GenericSettingNotification.newAnnouncement(banner));
     }
 
     public String getAnnouncementBanner() {
@@ -149,7 +146,6 @@ public class GenericSettingProvider {
     @RolesAllowed(USERS_ADMIN)
     public void clearAnnouncementBanner() {
         clearByKey(ANNOUNCEMENT_BANNER);
-        notifier.sendMessage(GenericSettingNotification.newAnnouncement(Strings.EMPTY));
     }
 
     public PncStatus getPncStatus() {
@@ -169,13 +165,15 @@ public class GenericSettingProvider {
         GenericSetting pncEta = createGenericParameterIfNotFound(ANNOUNCEMENT_ETA);
         pncEta.setValue(eta);
         genericSettingRepository.save(pncEta);
-        notifier.sendMessage(GenericSettingNotification.etaChanged(eta));
     }
 
     @RolesAllowed(USERS_ADMIN)
     public void clearEta() {
         clearByKey(ANNOUNCEMENT_ETA);
-        notifier.sendMessage(GenericSettingNotification.etaChanged(Strings.EMPTY));
+    }
+
+    public void notifyListeners() {
+        notifier.sendMessage(GenericSettingNotification.pncStatusChanged(getPncStatus()));
     }
 
     private GenericSetting createGenericParameterIfNotFound(String key) {
