@@ -17,7 +17,8 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ENVIRONMENT_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.replacedBy;
 import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.withEnvironmentNameAndActive;
 
@@ -50,7 +51,7 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
     }
 
     @Override
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     public Environment store(Environment restEntity) throws DTOValidationException {
         Environment storedEntity = super.store(restEntity);
         deprecateActiveEnvironmentsWithSameName(storedEntity);
@@ -92,7 +93,7 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
     }
 
     @Override
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     public Environment deprecateEnvironment(String id, String replacementId) {
         BuildEnvironment deprecatedEnvironment = repository.queryById(mapper.getIdMapper().toEntity(id));
         if (deprecatedEnvironment == null) {

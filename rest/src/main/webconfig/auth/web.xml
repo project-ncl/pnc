@@ -31,12 +31,18 @@
     </login-config>
 
     <security-role>
-        <role-name>admin</role-name>
+        <role-name>pnc-users-build-delete</role-name>
     </security-role>
     <security-role>
-        <role-name>user</role-name>
+        <role-name>pnc-users-build-admin</role-name>
     </security-role>
     <security-role>
-        <role-name>system-user</role-name>
+        <role-name>pnc-users-artifact-admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>pnc-users-environment-admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>pnc-users-admin</role-name>
     </security-role>
 </web-app>
