@@ -33,7 +33,9 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.TargetRepositoryPredicates.withIdentifierAndPathIn;
 
 @PermitAll
@@ -48,7 +50,7 @@ public class TargetRepositoryProviderImpl
     }
 
     @Override
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public TargetRepository store(TargetRepository restEntity) throws DTOValidationException {
         return super.store(restEntity);
     }
