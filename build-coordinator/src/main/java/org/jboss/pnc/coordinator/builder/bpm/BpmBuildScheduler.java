@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder.bpm;
 
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -43,15 +44,22 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private Connector connector;
 
+    private KeycloakServiceClient keycloakServiceClient;
+
     @Deprecated
     public BpmBuildScheduler() { // CDI workaround
     }
 
     @Inject
-    public BpmBuildScheduler(BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig, Connector connector) {
+    public BpmBuildScheduler(
+            BpmModuleConfig bpmConfig,
+            GlobalModuleGroup globalConfig,
+            Connector connector,
+            KeycloakServiceClient keycloakServiceClient) {
         this.bpmConfig = bpmConfig;
         this.globalConfig = globalConfig;
         this.connector = connector;
+        this.keycloakServiceClient = keycloakServiceClient;
     }
 
     @Override
@@ -62,7 +70,7 @@ public class BpmBuildScheduler implements BuildScheduler {
                     bpmConfig.getBpmNewBuildProcessName(),
                     Collections.singletonMap("processParameters", task.getProcessParameters()),
                     buildTask.getId(),
-                    buildTask.getUser().getLoginToken());
+                    keycloakServiceClient.getAuthToken());
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
         }
@@ -75,6 +83,6 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public boolean cancel(BuildTask buildTask) {
-        return connector.cancelByCorrelation(buildTask.getId(), buildTask.getUser().getLoginToken());
+        return connector.cancelByCorrelation(buildTask.getId(), keycloakServiceClient.getAuthToken());
     }
 }
