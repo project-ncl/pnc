@@ -42,6 +42,7 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     @Override
     public void setAnnouncementBanner(String banner) {
         genericSettingProvider.setAnnouncementBanner(banner);
+        genericSettingProvider.notifyListeners();
     }
 
     @Override
@@ -52,6 +53,7 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     @Override
     public void setPNCVersion(String version) {
         genericSettingProvider.setPNCVersion(version);
+        genericSettingProvider.notifyListeners();
     }
 
     @Override
@@ -68,6 +70,7 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     public void activateMaintenanceMode(String reason) {
         genericSettingProvider.activateMaintenanceMode();
         genericSettingProvider.setAnnouncementBanner(reason); // For backwards-compatibility
+        genericSettingProvider.notifyListeners();
 
     }
 
@@ -75,5 +78,6 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     public void deactivateMaintenanceMode() {
         genericSettingProvider.deactivateMaintenanceMode();
         genericSettingProvider.setAnnouncementBanner(Strings.EMPTY); // For backwards-compatibility
+        genericSettingProvider.notifyListeners();
     }
 }
