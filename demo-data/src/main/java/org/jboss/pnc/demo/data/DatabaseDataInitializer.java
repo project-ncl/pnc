@@ -94,6 +94,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -803,77 +804,75 @@ public class DatabaseDataInitializer {
 
         BuildConfigurationAudited buildConfigAudited1 = buildConfig1Revisions
                 .get(buildConfig1RevisionsCount - INITIAL_REVISION);
-        if (buildConfigAudited1 != null) {
+        Objects.requireNonNull(buildConfigAudited1, "couldn't get buildConfigAudited1");
 
-            String nextId = Sequence.nextBase32Id();
-            log.info("####nextId: " + nextId);
+        String nextId = Sequence.nextBase32Id();
+        log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
-                    .id(nextId)
-                    .buildConfigurationAudited(buildConfigAudited1)
-                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
-                    .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
-                    .endTime(Timestamp.from(Instant.now()))
-                    .dependency(importedArtifact1)
-                    .dependency(importedArtifact2)
-                    .user(pncAdminUser)
-                    .repourLog("This is a wannabe alignment log.")
-                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog. 📦")
-                    .status(BuildStatus.SUCCESS)
-                    .productMilestone(demoProductMilestone1)
-                    .sshCommand("ssh worker@localhost -P 9999")
-                    .sshPassword("dontchangeme")
-                    .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
-                    .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
-                    .scmRevision(buildConfigAudited1.getScmRevision())
-                    .executionRootName("org.jboss.pnc:parent")
-                    .executionRootVersion("1.2.3")
-                    .temporaryBuild(false)
-                    .attribute("FOO", "bar")
-                    .build();
+        BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfigAudited1)
+                .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now()))
+                .dependency(importedArtifact1)
+                .dependency(importedArtifact2)
+                .user(pncAdminUser)
+                .repourLog("This is a wannabe alignment log.")
+                .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog. 📦")
+                .status(BuildStatus.SUCCESS)
+                .productMilestone(demoProductMilestone1)
+                .sshCommand("ssh worker@localhost -P 9999")
+                .sshPassword("dontchangeme")
+                .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
+                .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
+                .scmRevision(buildConfigAudited1.getScmRevision())
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.3")
+                .temporaryBuild(false)
+                .attribute("FOO", "bar")
+                .build();
 
-            log.info("Saving buildRecord1: " + buildRecord1);
-            BuildRecord savedBuildRecord1 = buildRecordRepository.save(buildRecord1);
-            builtArtifact1.setBuildRecord(savedBuildRecord1);
-            builtArtifact2.setBuildRecord(savedBuildRecord1);
-            builtArtifact9.setBuildRecord(savedBuildRecord1);
+        log.info("Saving buildRecord1: " + buildRecord1);
+        BuildRecord savedBuildRecord1 = buildRecordRepository.save(buildRecord1);
+        builtArtifact1.setBuildRecord(savedBuildRecord1);
+        builtArtifact2.setBuildRecord(savedBuildRecord1);
+        builtArtifact9.setBuildRecord(savedBuildRecord1);
 
-            log.info(
-                    "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
-                            + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
-            buildRecords.add(buildRecord1);
+        log.info(
+                "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
+                        + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
+        buildRecords.add(buildRecord1);
 
-            nextId = Sequence.nextBase32Id();
-            log.info("####nextId: " + nextId);
+        nextId = Sequence.nextBase32Id();
+        log.info("####nextId: " + nextId);
 
-            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
-                    .id(nextId)
-                    .buildConfigurationAudited(buildConfigAudited1)
-                    .submitTime(Timestamp.from(Instant.now()))
-                    .startTime(Timestamp.from(Instant.now()))
-                    .endTime(Timestamp.from(Instant.now()))
-                    .user(pncAdminUser)
-                    .repourLog("This is a wannabe alignment log.")
-                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
-                    .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
-                    .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
-                    .scmRevision(buildConfigAudited1.getScmRevision())
-                    .executionRootName("org.jboss.pnc:parent")
-                    .executionRootVersion("1.2.3")
-                    .temporaryBuild(true)
-                    .build();
+        BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfigAudited1)
+                .submitTime(Timestamp.from(Instant.now()))
+                .startTime(Timestamp.from(Instant.now()))
+                .endTime(Timestamp.from(Instant.now()))
+                .user(pncAdminUser)
+                .repourLog("This is a wannabe alignment log.")
+                .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
+                .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
+                .scmRevision(buildConfigAudited1.getScmRevision())
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.3")
+                .temporaryBuild(true)
+                .build();
 
-            log.info("Saving tempRecord1: " + tempRecord1);
-            BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
-            builtArtifact3.setBuildRecord(savedTempRecord1);
-            builtArtifact4.setBuildRecord(savedTempRecord1);
-            log.info(
-                    "Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: "
-                            + savedTempRecord1.getBuildConfigurationAuditedIdRev());
-            buildRecords.add(tempRecord1);
-
-        }
+        log.info("Saving tempRecord1: " + tempRecord1);
+        BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
+        builtArtifact3.setBuildRecord(savedTempRecord1);
+        builtArtifact4.setBuildRecord(savedTempRecord1);
+        log.info(
+                "Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: "
+                        + savedTempRecord1.getBuildConfigurationAuditedIdRev());
+        buildRecords.add(tempRecord1);
 
         Artifact builtArtifact5 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact3:jar:1.0")
@@ -956,7 +955,7 @@ public class DatabaseDataInitializer {
 
         if (buildConfig2InitialAudit != null && buildConfig2SecondAudit != null) {
 
-            String nextId = Sequence.nextBase32Id();
+            nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
@@ -984,7 +983,7 @@ public class DatabaseDataInitializer {
             builtArtifact6.setBuildRecord(savedBuildRecord2);
             buildRecords.add(buildRecord2);
 
-            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
+            BuildRecord tempRecord2 = BuildRecord.Builder.newBuilder()
                     .id(nextId)
                     .buildConfigurationAudited(buildConfig2InitialAudit)
                     .submitTime(Timestamp.from(calendar.toInstant().minus(8, ChronoUnit.HOURS)))
@@ -999,7 +998,10 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(true)
                     .build();
 
-            BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
+            BuildRecord savedTempRecord2 = buildRecordRepository.save(tempRecord2);
+            builtArtifact7.setBuildRecord(savedTempRecord2);
+            builtArtifact8.setBuildRecord(savedTempRecord2);
+            buildRecords.add(tempRecord2);
 
             nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
@@ -1021,11 +1023,7 @@ public class DatabaseDataInitializer {
                     .build();
 
             BuildRecord savedBuildRecord3 = buildRecordRepository.save(buildRecord3);
-
-            builtArtifact7.setBuildRecord(savedTempRecord1);
-            builtArtifact8.setBuildRecord(savedTempRecord1);
             builtArtifact10.setBuildRecord(savedBuildRecord3);
-            buildRecords.add(tempRecord1);
         }
 
         List<BuildConfigurationAudited> buildConfig6Revisions = buildConfigurationAuditedRepository
@@ -1043,7 +1041,7 @@ public class DatabaseDataInitializer {
                 .get(buildConfig1RevisionsCount - THIRD_REVISION);
 
         if (buildConfig6InitialAudit != null && buildConfig6SecondAudit != null) {
-            String nextId = Sequence.nextBase32Id();
+            nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord4 = BuildRecord.Builder.newBuilder()
@@ -1212,8 +1210,10 @@ public class DatabaseDataInitializer {
                 .endTime(Timestamp.from(Instant.now()))
                 .user(demoUser)
                 .status(BuildStatus.FAILED)
+                .buildRecords(Set.of(savedBuildRecord1))
                 .temporaryBuild(false)
                 .build();
+        savedBuildRecord1.setBuildConfigSetRecord(buildConfigSetRecord1);
         buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
         BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
