@@ -42,11 +42,15 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
             throw new BadRequestException("Banner cannot be blank.");
         }
 
-        if (pncStatus.getBanner() != null) {
+        if (pncStatus.getBanner() == null) {
+            genericSettingProvider.clearAnnouncementBanner();
+        } else {
             genericSettingProvider.setAnnouncementBanner(pncStatus.getBanner());
         }
 
-        if (pncStatus.getEta() != null) {
+        if (pncStatus.getEta() == null) {
+            genericSettingProvider.clearEta();
+        } else {
             genericSettingProvider.setEta(pncStatus.getEta().toString());
         }
 
@@ -55,6 +59,9 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
         } else {
             genericSettingProvider.deactivateMaintenanceMode();
         }
+
+        // Notify listeners now, when everything is set to the latest value
+        genericSettingProvider.notifyListeners();
     }
 
     @Override

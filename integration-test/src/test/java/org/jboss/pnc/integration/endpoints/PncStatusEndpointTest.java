@@ -46,7 +46,8 @@ import static org.junit.Assert.assertTrue;
 @Category(ContainerTest.class)
 public class PncStatusEndpointTest {
 
-    private final static String TEST_BANNER = "Test banner";
+    private final static String BEFORE_MAINTENANCE_BANNER = "There will be a maintenance. Noone knows when.";
+    private final static String MAINTENANCE_BANNER = "We're doing some nasty stuff outta here, you better watch out.";
     private final static long SECONDS_IN_DAY = 60 * 60 * 12;
     private final static Instant END_OF_MAINTENANCE_ETA = Instant.now().plusSeconds(SECONDS_IN_DAY);
 
@@ -59,7 +60,7 @@ public class PncStatusEndpointTest {
     public void shouldFailWhenNotAuthenticated() {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asAnonymous());
-        var pncStatus = PncStatus.builder().banner(TEST_BANNER).isMaintenanceMode(false).build();
+        var pncStatus = PncStatus.builder().banner(BEFORE_MAINTENANCE_BANNER).isMaintenanceMode(false).build();
 
         // when + then
         RemoteResourceException remoteResourceException = assertThrows(
@@ -108,7 +109,7 @@ public class PncStatusEndpointTest {
     }
 
     @Test
-    public void shouldFailOnEmptyBanner() {
+    public void shouldFailOnBlankBanner() {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asSystem());
         var pncStatus = PncStatus.builder().banner(Strings.EMPTY).isMaintenanceMode(false).build();
@@ -127,7 +128,7 @@ public class PncStatusEndpointTest {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asSystem());
         var pncStatus = PncStatus.builder()
-                .banner(TEST_BANNER)
+                .banner(BEFORE_MAINTENANCE_BANNER)
                 .eta(Instant.now().minusSeconds(SECONDS_IN_DAY))
                 .isMaintenanceMode(false)
                 .build();
@@ -147,7 +148,7 @@ public class PncStatusEndpointTest {
     public void shouldFailWhenMaintenanceModeNotPresent() {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asSystem());
-        var pncStatus = PncStatus.builder().banner(TEST_BANNER).build();
+        var pncStatus = PncStatus.builder().banner(BEFORE_MAINTENANCE_BANNER).build();
 
         // when + then
         RemoteResourceException remoteResourceException = assertThrows(
@@ -178,7 +179,7 @@ public class PncStatusEndpointTest {
     public void setBannerWhenAuthorized() throws RemoteResourceException {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asSystem());
-        var pncStatus = PncStatus.builder().banner(TEST_BANNER).isMaintenanceMode(false).build();
+        var pncStatus = PncStatus.builder().banner(BEFORE_MAINTENANCE_BANNER).isMaintenanceMode(false).build();
 
         // when
         client.setPncStatus(pncStatus);
@@ -189,7 +190,69 @@ public class PncStatusEndpointTest {
     public void getBanner() throws RemoteResourceException {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asAnonymous());
-        var expectedPncStatus = PncStatus.builder().banner(TEST_BANNER).isMaintenanceMode(false).build();
+        var expectedPncStatus = PncStatus.builder().banner(BEFORE_MAINTENANCE_BANNER).isMaintenanceMode(false).build();
+
+        // when
+        PncStatus actualPncStatus = client.getPncStatus();
+
+        // then
+        assertThat(actualPncStatus).isEqualTo(expectedPncStatus);
+    }
+
+    @Test
+    @InSequence(30)
+    public void activateMaintenanceMode() throws RemoteResourceException {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asSystem());
+        var pncStatus = PncStatus.builder()
+                .banner(MAINTENANCE_BANNER)
+                .eta(END_OF_MAINTENANCE_ETA)
+                .isMaintenanceMode(true)
+                .build();
+
+        // when
+        client.setPncStatus(pncStatus);
+    }
+
+    @Test
+    @InSequence(40)
+    public void getBannerDuringMaintenance() throws RemoteResourceException {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asAnonymous());
+        var expectedPncStatus = PncStatus.builder()
+                .banner(MAINTENANCE_BANNER)
+                .eta(END_OF_MAINTENANCE_ETA)
+                .isMaintenanceMode(true)
+                .build();
+
+        // when
+        PncStatus actualPncStatus = client.getPncStatus();
+
+        // then
+        assertThat(actualPncStatus).isEqualTo(expectedPncStatus);
+    }
+
+    @Test
+    @InSequence(50)
+    public void deactivateMaintenanceModeWhenAuthorized() throws RemoteResourceException {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asSystem());
+        var pncStatus = PncStatus.builder().isMaintenanceMode(false).build();
+
+        // when
+        client.setPncStatus(pncStatus);
+    }
+
+    @Test
+    @InSequence(60)
+    public void getBannerAfterMaintenance() throws RemoteResourceException {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asSystem());
+        var expectedPncStatus = PncStatus.builder()
+                // banner should be cleared
+                // eta should be cleared
+                .isMaintenanceMode(false)
+                .build();
 
         // when
         PncStatus actualPncStatus = client.getPncStatus();

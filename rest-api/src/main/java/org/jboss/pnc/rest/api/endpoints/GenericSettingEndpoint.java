@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.dto.response.Banner;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.processor.annotation.Client;
@@ -168,6 +169,9 @@ public interface GenericSettingEndpoint {
     /**
      * {@value IS_IN_MAINTENANCE_MODE_DESC}
      * 
+     * @deprecated use {@link PncStatusEndpoint#getPncStatus()} instead. Can be removed at earliest in the following
+     *             major version, i.e. "3.0.0", since it breaks the backwards compatibility.
+     *
      * @return
      */
     @Operation(
@@ -187,6 +191,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("in-maintenance-mode")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
     Boolean isInMaintenanceMode();
 
     static final String IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC = "Provides information whether the current user is allowed to trigger builds (pnc-users-admin are always allowed, other users only if maintenance mode is off)";
@@ -221,6 +226,8 @@ public interface GenericSettingEndpoint {
     /**
      * {@value ACTIVATE_MAINTENANCE_MODE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
      * 
+     * @deprecated use {@link PncStatusEndpoint#setPncStatus(PncStatus)} instead.
+     * 
      * @param reason {@value MAINTENANCE_REASON}
      */
     @Operation(
@@ -236,12 +243,15 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("activate-maintenance-mode")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
     public void activateMaintenanceMode(@Parameter(description = MAINTENANCE_REASON, required = true) String reason);
 
     static final String DEACTIVATE_MAINTENANCE_MODE_DESC = "Deactivate maintenance mode. needs to be admin";
 
     /**
      * {@value DEACTIVATE_MAINTENANCE_MODE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     * 
+     * @deprecated use {@link PncStatusEndpoint#setPncStatus(PncStatus)} instead.
      */
     @Operation(
             summary = "[role:pnc-users-admin] " + DEACTIVATE_MAINTENANCE_MODE_DESC,
@@ -256,5 +266,6 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("deactivate-maintenance-mode")
+    @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
     public void deactivateMaintenanceMode();
 }
