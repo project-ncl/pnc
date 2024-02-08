@@ -332,6 +332,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
         Root<T> root = query.from(entityClass);
 
         if (predicates.length == 0) {
+            joinFetch(root);
             return root;
         }
 
@@ -342,8 +343,19 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
                 .collect(Collectors.toList())
                 .toArray(new javax.persistence.criteria.Predicate[predicates.length]);
 
+        if (query.getGroupList().isEmpty()) { // don't add join fetch when group by is used
+            joinFetch(root);
+        }
+
         query.where(builder.and(jpaPredicates));
         return root;
+    }
+
+    /**
+     * Used to add root.fetch(field, JoinType.LEFT) calls to fetch join the fields optimize the number of queries.
+     * Implementations should override this method with implementations relevant to their entity.
+     */
+    protected void joinFetch(Root<T> root) {
     }
 
     private <S> Root<T> applySpecificationToCriteria(
