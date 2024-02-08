@@ -26,17 +26,17 @@ import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.time.Instant;
+
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 @PermitAll
 @Stateless
@@ -64,7 +64,6 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.TRUE.toString());
         genericSettingRepository.save(maintenanceMode);
-        notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(true));
     }
 
     @RolesAllowed(USERS_ADMIN)
@@ -80,7 +79,6 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.FALSE.toString());
         genericSettingRepository.save(maintenanceMode);
-        notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(false));
     }
 
     public boolean isInMaintenanceMode() {
@@ -132,7 +130,6 @@ public class GenericSettingProvider {
         GenericSetting announcementBanner = createGenericParameterIfNotFound(ANNOUNCEMENT_BANNER);
         announcementBanner.setValue(banner);
         genericSettingRepository.save(announcementBanner);
-        notifier.sendMessage(GenericSettingNotification.newAnnoucement(banner));
     }
 
     public String getAnnouncementBanner() {
@@ -144,6 +141,11 @@ public class GenericSettingProvider {
         } else {
             return announcementBanner.getValue();
         }
+    }
+
+    @RolesAllowed(USERS_ADMIN)
+    public void clearAnnouncementBanner() {
+        clearByKey(ANNOUNCEMENT_BANNER);
     }
 
     public PncStatus getPncStatus() {
@@ -165,6 +167,15 @@ public class GenericSettingProvider {
         genericSettingRepository.save(pncEta);
     }
 
+    @RolesAllowed(USERS_ADMIN)
+    public void clearEta() {
+        clearByKey(ANNOUNCEMENT_ETA);
+    }
+
+    public void notifyListeners() {
+        notifier.sendMessage(GenericSettingNotification.pncStatusChanged(getPncStatus()));
+    }
+
     private GenericSetting createGenericParameterIfNotFound(String key) {
 
         GenericSetting genericSetting = genericSettingRepository.queryByKey(key);
@@ -175,5 +186,12 @@ public class GenericSettingProvider {
         }
 
         return genericSetting;
+    }
+
+    private void clearByKey(String key) {
+        GenericSetting dbEntry = genericSettingRepository.queryByKey(key);
+        if (dbEntry != null) {
+            genericSettingRepository.delete(dbEntry.getId());
+        }
     }
 }
