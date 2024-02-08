@@ -35,6 +35,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,9 @@ public class PncStatusEndpointTest {
     private final static String BEFORE_MAINTENANCE_BANNER = "There will be a maintenance. Noone knows when.";
     private final static String MAINTENANCE_BANNER = "We're doing some nasty stuff outta here, you better watch out.";
     private final static long SECONDS_IN_DAY = 60 * 60 * 12;
-    private final static Instant END_OF_MAINTENANCE_ETA = Instant.now().plusSeconds(SECONDS_IN_DAY);
+    private final static Instant END_OF_MAINTENANCE_ETA = Instant.now()
+            .truncatedTo(ChronoUnit.MILLIS)
+            .plusSeconds(SECONDS_IN_DAY);
 
     @Deployment
     public static EnterpriseArchive deploy() {
