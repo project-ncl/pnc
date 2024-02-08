@@ -20,10 +20,13 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -38,6 +41,9 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
@@ -296,5 +302,16 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
         BigInteger count = ((BigInteger) query.getSingleResult());
 
         return count.intValue();
+    }
+
+    @Override
+    protected void joinFetch(Root<BuildRecord> root) {
+        root.fetch(BuildRecord_.user, JoinType.LEFT);
+        root.fetch(BuildRecord_.buildEnvironment, JoinType.LEFT);
+        Fetch<BuildRecord, ProductMilestone> milestone = root.fetch(BuildRecord_.productMilestone, JoinType.LEFT);
+        milestone.fetch(ProductMilestone_.productRelease, JoinType.LEFT);
+        milestone.fetch(ProductMilestone_.productVersion, JoinType.LEFT);
+        root.fetch(BuildRecord_.buildConfigSetRecord, JoinType.LEFT)
+                .fetch(BuildConfigSetRecord_.buildConfigurationSet, JoinType.LEFT);
     }
 }
