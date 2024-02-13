@@ -73,6 +73,7 @@
     <module>ear-package</module>
     <module>build-coordinator</module>
     <module>remote-build-coordinator</module>
+    <module>rest-client-jakarta</module>
     <module>model</module>
     <module>dto</module>
     <module>facade</module>
