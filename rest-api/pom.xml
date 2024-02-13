@@ -207,7 +207,49 @@
               <classesDirectory>${project.build.outputDirectory}</classesDirectory>
             </configuration>
           </plugin>
-        </plugins>
+          <plugin>
+              <groupId>org.eclipse.transformer</groupId>
+              <artifactId>transformer-maven-plugin</artifactId>
+              <version>0.5.0</version>
+              <extensions>true</extensions>
+              <configuration>
+                  <rules>
+                      <jakartaDefaults>true</jakartaDefaults>
+                  </rules>
+              </configuration>
+              <executions>
+                  <execution>
+                      <id>with-client</id>
+                      <goals>
+                          <goal>jar</goal>
+                      </goals>
+                      <configuration>
+                          <artifact>
+                              <groupId>${project.groupId}</groupId>
+                              <artifactId>${project.artifactId}</artifactId>
+                              <version>${project.version}</version>
+                              <classifier>java-client</classifier>
+                          </artifact>
+                          <classifier>java-client-jakarta</classifier>
+                      </configuration>
+                  </execution>
+                  <execution>
+                      <id>default-jar</id>
+                      <goals>
+                          <goal>jar</goal>
+                      </goals>
+                      <configuration>
+                          <classifier>jakarta</classifier>
+                          <artifact>
+                              <groupId>${project.groupId}</groupId>
+                              <artifactId>${project.artifactId}</artifactId>
+                              <version>${project.version}</version>
+                          </artifact>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
     </build>
   
 </project>
