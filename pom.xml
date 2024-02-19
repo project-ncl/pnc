@@ -134,7 +134,7 @@
     <version.mockito>3.9.0</version.mockito>
     <version.wiremock>2.35.0</version.wiremock>
     <version.dbunit>2.7.0</version.dbunit>
-    <version.hsqldb>2.7.1</version.hsqldb>
+    <version.hsqldb>2.7.2</version.hsqldb>
     <version.rest-assured>4.3.1</version.rest-assured>
     <version.weld-in-tests>3.1.4.Final</version.weld-in-tests>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
