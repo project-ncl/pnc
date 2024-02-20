@@ -409,7 +409,7 @@ public class BuildConfigurationEndpointTest {
 
         BuildConfiguration updatedBC = client.getSpecific(bc.getId());
         // then: since the build type didn't change, the default alignment params should also stay the same
-        assertThat(bc.getDefaultAlignmentParams()).isEqualTo(updatedBC.getDefaultAlignmentParams());
+        assertThat(oldDefaultAlignmentParams).isEqualTo(updatedBC.getDefaultAlignmentParams());
     }
 
     @Test
