@@ -64,7 +64,6 @@ public class User implements GenericEntity<Integer> {
     private Integer id;
 
     // [NCLSUP-598] Do not use email validation @Email since emails used for Krb service account are malformed emails
-    @Column(unique = true)
     @Size(max = 255)
     private String email;
 
