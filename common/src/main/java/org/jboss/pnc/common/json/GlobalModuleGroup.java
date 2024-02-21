@@ -46,6 +46,8 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalRexUrl;
     private String externalSbomerUrl;
     private String externalUiLoggerUrl;
+
+    private String externalEttUrl;
     private String brewContentUrl;
 
     public String getBpmUrl() {
@@ -230,6 +232,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalSbomerUrl(String externalSbomerUrl) {
         this.externalSbomerUrl = externalSbomerUrl;
+    }
+
+    public String getExternalEttUrl() {
+        return externalEttUrl;
+    }
+
+    public void setExternalEttUrl(String externalEttUrl) {
+        this.externalEttUrl = externalEttUrl;
     }
 
     public String getBrewContentUrl() {
