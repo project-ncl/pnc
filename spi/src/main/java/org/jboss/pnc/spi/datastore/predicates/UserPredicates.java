@@ -30,8 +30,4 @@ public class UserPredicates {
         return (root, query, cb) -> cb.equal(root.get(User_.username), name);
     }
 
-    public static Predicate<User> withEmail(String email) {
-        return (root, query, cb) -> cb.equal(root.get(User_.email), email);
-    }
-
 }
