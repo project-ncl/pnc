@@ -25,7 +25,7 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
-    <version>2.6.13</version>
+    <version>2.6.14-SNAPSHOT</version>
   </parent>
 
   <artifactId>pnc-mock</artifactId>
