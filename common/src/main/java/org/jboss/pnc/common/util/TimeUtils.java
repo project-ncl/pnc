@@ -125,8 +125,7 @@ public class TimeUtils {
      * @return New Date object representing a timestamp X days before now
      */
     public static Date getDateXDaysAgo(int numberOfDays) {
-        long unixMilisecondsExpirationThreshold = new Date().getTime() - (1000 * 60 * 60 * 24 * numberOfDays);
-        return new Date(unixMilisecondsExpirationThreshold);
+        return new Date(Instant.now().minus(numberOfDays, ChronoUnit.DAYS).toEpochMilli());
     }
 
     public static Instant toInstant(Date date) {
