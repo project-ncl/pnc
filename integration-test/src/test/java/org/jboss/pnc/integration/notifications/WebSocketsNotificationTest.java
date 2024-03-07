@@ -20,23 +20,31 @@ package org.jboss.pnc.integration.notifications;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.auth.JaasAuthenticationProvider;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.integration.notifications.auth.JaasAuthenticationProviderMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.mock.dto.BuildMock;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -50,8 +58,12 @@ import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -66,15 +78,24 @@ public class WebSocketsNotificationTest {
 
     private static NotificationCollector notificationCollector;
     private final JacksonProvider mapperProvider = new JacksonProvider();
-
-    @Inject
-    Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
-
-    @Inject
-    Event<BuildSetStatusChangedEvent> buildSetStatusNotificationEvent;
+    private static DeliverableAnalyzerOperation OPERATION;
+    private static String PRODUCT_MILESTONE_ID;
+    private static String MILESTONE_START_DATE;
+    private static String MILESTONE_END_DATE;
+    private static String MILESTONE_PLANNED_END_DATE;
 
     @Inject
     Notifier notifier;
+    @Inject
+    Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
+    @Inject
+    Event<BuildSetStatusChangedEvent> buildSetStatusNotificationEvent;
+    @Inject
+    OperationsManager operationsManager;
+    @Inject
+    Event<OperationChangedEvent> operationChangedEventEvent;
+    @Inject
+    ProductMilestoneRepository productMilestoneRepository;
 
     @Deployment(name = "WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
@@ -83,8 +104,15 @@ public class WebSocketsNotificationTest {
                 Collections.singletonList(BuildMock.class.getPackage()),
                 WebSocketsNotificationTest.class,
                 NotificationCollector.class);
+        replaceRealJaasByFake(ear);
         logger.info("Deployment:" + ear.toString(true));
         return ear;
+    }
+
+    private static void replaceRealJaasByFake(EnterpriseArchive ear) {
+        JavaArchive authJar = ear.getAsType(JavaArchive.class, "/auth.jar");
+        authJar.deleteClass(JaasAuthenticationProvider.class);
+        authJar.addClass(JaasAuthenticationProviderMock.class);
     }
 
     @Test
@@ -97,6 +125,12 @@ public class WebSocketsNotificationTest {
         waitForWSClientConnection();
         logger.info("Connected to notification client.");
         notificationCollector.clear();
+
+        ProductMilestone productMilestone = productMilestoneRepository.queryAll().get(0);
+        PRODUCT_MILESTONE_ID = productMilestone.getId().toString();
+        MILESTONE_START_DATE = getIso8601FormatFromDate(productMilestone.getStartingDate());
+        MILESTONE_END_DATE = getIso8601FormatFromDate(productMilestone.getEndDate());
+        MILESTONE_PLANNED_END_DATE = getIso8601FormatFromDate(productMilestone.getPlannedEndDate());
     }
 
     @Test
@@ -150,6 +184,23 @@ public class WebSocketsNotificationTest {
         Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
     }
 
+    @Test
+    @InSequence(2)
+    public void shouldReceiveOperationChangedNotification() throws Exception {
+        // when
+        OPERATION = operationsManager.newDeliverableAnalyzerOperation(PRODUCT_MILESTONE_ID, Collections.emptyMap());
+        String expectedJsonResponse = "{\"job\":\"OPERATION\",\"notificationType\":\"DELIVERABLES_ANALYSIS\",\"progress\":\"PENDING\",\"oldProgress\":null,\"message\":null,\"operationId\":\""
+                + OPERATION.getId() + "\",\"result\":null,\"operation\":{\"id\":\"" + OPERATION.getId()
+                + "\",\"submitTime\":\"" + getIso8601FormatFromDate(OPERATION.getSubmitTime())
+                + "\",\"startTime\":null,\"endTime\":null,\"progressStatus\":\"NEW\",\"result\":null,\"user\":{\"id\":\"100\",\"username\":\"demo-user\"},\"parameters\":{},\"productMilestone\":{\"id\":\"100\",\"version\":\"1.0.0.Build1\",\"endDate\":"
+                + asJsonValue(MILESTONE_END_DATE) + ",\"startingDate\":" + asJsonValue(MILESTONE_START_DATE)
+                + ",\"plannedEndDate\":" + asJsonValue(MILESTONE_PLANNED_END_DATE) + "}}}";
+        System.out.println("expected json: " + expectedJsonResponse);
+
+        // then
+        Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
+    }
+
     private boolean isReceived(String expectedJsonResponse) {
         logger.debug("notificationCollector: {}.", notificationCollector);
         List<String> messages = notificationCollector.getMessages();
@@ -170,5 +221,19 @@ public class WebSocketsNotificationTest {
             Thread.currentThread().yield();
         }
         throw new AssertionError("Timeout when waiting for condition");
+    }
+
+    private static String getIso8601FormatFromDate(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
+    }
+
+    private String asJsonValue(String json) {
+        if (json == null) {
+            return "null";
+        }
+        return "\"" + json + "\"";
     }
 }
