@@ -1275,7 +1275,7 @@
         <plugin>
           <groupId>org.wildfly.plugins</groupId>
           <artifactId>wildfly-maven-plugin</artifactId>
-          <version>1.2.0.Final</version>
+          <version>4.1.5.Final-redhat-00001</version>
         </plugin>
 
         <plugin>
