@@ -22,6 +22,7 @@
     <alternatives>
         <class>org.jboss.pnc.coordinator.test.BuildCoordinatorFactory$LocalBuildSchedulerMock</class>
         <class>org.jboss.pnc.mock.mapper.AlignStratMapperMock</class>
+        <class>org.jboss.pnc.coordinator.test.mock.BifrostLogUploaderMock</class>
     </alternatives>
     <scan>
         <!-- Brings a lot of unnecessary beans -->

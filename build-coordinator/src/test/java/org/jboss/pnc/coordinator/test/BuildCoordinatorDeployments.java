@@ -30,6 +30,7 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.coordinator.test.mock.BifrostLogUploaderMock;
 import org.jboss.pnc.coordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.coordinator.test.mock.KeycloakServiceClientMock;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -103,6 +104,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
+                .addClass(BifrostLogUploaderMock.class)
                 .addClass(EntityManagerMock.class)
                 .addClass(KeycloakServiceClientMock.class)
                 .addPackages(false, BuildResultMapper.class.getPackage())

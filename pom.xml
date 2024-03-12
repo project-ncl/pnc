@@ -644,6 +644,11 @@
         <artifactId>pnc-common</artifactId>
         <version>${version.pnc-common}</version>
       </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>bifrost-upload-client</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
 
       <!-- We need to have these keycloaks here becasue they are not provided
            by the BOM and are needed by indy-embedder dependency -->

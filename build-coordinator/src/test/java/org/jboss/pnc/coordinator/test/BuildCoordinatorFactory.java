@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
@@ -40,6 +41,8 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -58,7 +61,7 @@ public class BuildCoordinatorFactory {
     private BuildMapper buildMapper;
 
     public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) {
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, mock(BifrostLogUploader.class));
 
         SystemConfig systemConfig = createConfiguration();
         BuildQueue queue = new BuildQueue(systemConfig);
@@ -114,7 +117,9 @@ public class BuildCoordinatorFactory {
                 null,
                 "true",
                 null,
-                "false");
+                "false",
+                null,
+                null);
     }
 
     @Alternative

@@ -46,6 +46,7 @@ import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.test.mock.GenericSettingsRepositoryMock;
+import org.jboss.pnc.remotecoordinator.test.mock.KeycloakServiceClientMock;
 import org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock;
 import org.jboss.pnc.remotecoordinator.builder.RexFacade;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
@@ -110,6 +111,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
                 .addClass(GenericSettingsRepositoryMock.class)
+                .addClass(KeycloakServiceClientMock.class)
                 .addClass(EntityManagerMock.class)
                 .addClass(RexHttpClientMock.class)
                 .addClass(RexQueueHttpClientMock.class)

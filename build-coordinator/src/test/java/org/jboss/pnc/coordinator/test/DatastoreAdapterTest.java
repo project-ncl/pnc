@@ -19,7 +19,9 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.test.mock.BifrostLogUploaderMock;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.spi.EnvironmentDriverResultMock;
@@ -44,6 +46,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Date;
 import java.util.List;
@@ -64,7 +67,7 @@ public class DatastoreAdapterTest {
     public void shouldStoreRepositoryManagerSuccessResult() throws DatastoreException {
         // given
         DatastoreMock datastore = new DatastoreMock();
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         BuildStatus buildStatus = BuildStatus.SUCCESS;
         CompletionStatus completionStatus = CompletionStatus.SUCCESS;
@@ -78,15 +81,13 @@ public class DatastoreAdapterTest {
         BuildRecord buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
-        Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
-        Assert.assertTrue(buildRecord.getBuildLog().contains(REPOSITORY_MANAGER_LOG));
     }
 
     @Test
     public void shouldStoreRepositoryManagerError() throws DatastoreException {
         // given
         DatastoreMock datastore = new DatastoreMock();
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         BuildStatus buildStatus = BuildStatus.SUCCESS;
         CompletionStatus completionStatus = CompletionStatus.FAILED;
@@ -100,15 +101,13 @@ public class DatastoreAdapterTest {
         BuildRecord buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(BuildStatus.FAILED, buildRecord.getStatus());
-        Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
-        Assert.assertTrue(buildRecord.getBuildLog().contains(REPOSITORY_MANAGER_LOG));
     }
 
     @Test
     public void shouldStoreNoRequiredRebuild() throws DatastoreException {
         // given
         DatastoreMock datastore = new DatastoreMock();
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         // when
         datastoreAdapter.storeRecordForNoRebuild(mockBuildTask());
@@ -125,7 +124,7 @@ public class DatastoreAdapterTest {
     public void shouldStoreRepourResult() throws DatastoreException {
         // given
         DatastoreMock datastore = new DatastoreMock();
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         RepourResult repourResult = RepourResultMock.mock();
 
@@ -159,7 +158,6 @@ public class DatastoreAdapterTest {
         Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
         Assert.assertEquals(repourResult.getExecutionRootName(), buildRecord.getExecutionRootName());
         Assert.assertEquals(repourResult.getExecutionRootVersion(), buildRecord.getExecutionRootVersion());
-        Assert.assertEquals(repourResult.getLog(), buildRecord.getRepourLog());
     }
 
     private void storeResult(

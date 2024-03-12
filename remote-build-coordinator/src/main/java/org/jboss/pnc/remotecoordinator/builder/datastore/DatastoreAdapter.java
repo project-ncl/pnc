@@ -17,7 +17,13 @@
  */
 package org.jboss.pnc.remotecoordinator.builder.datastore;
 
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
+import org.jboss.pnc.bifrost.upload.BifrostUploadException;
+import org.jboss.pnc.bifrost.upload.LogMetadata;
+import org.jboss.pnc.bifrost.upload.TagOption;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
@@ -49,6 +55,7 @@ import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -73,14 +80,17 @@ public class DatastoreAdapter {
     private static final Logger log = LoggerFactory.getLogger(DatastoreAdapter.class);
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-result");
 
+    private BifrostLogUploader bifrostLogUploader;
+
     // needed for EJB/CDI
     @Deprecated
     public DatastoreAdapter() {
     }
 
     @Inject
-    public DatastoreAdapter(Datastore datastore) {
+    public DatastoreAdapter(Datastore datastore, BifrostLogUploader bifrostLogUploader) {
         this.datastore = datastore;
+        this.bifrostLogUploader = bifrostLogUploader;
     }
 
     public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord)
@@ -129,11 +139,12 @@ public class DatastoreAdapter {
         try {
             BuildStatus buildRecordStatus = NEW;
 
+            StringBuilder errorLog = new StringBuilder();
+
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTaskRef);
 
             if (buildResult.getRepourResult().isPresent()) {
                 RepourResult repourResult = buildResult.getRepourResult().get();
-                buildRecordBuilder.repourLog(repourResult.getLog());
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
                 CompletionStatus repourCompletionStatus = repourResult.getCompletionStatus();
@@ -147,32 +158,32 @@ public class DatastoreAdapter {
                             message = "Build failed during the alignment phase, please check the "
                                     + "'Alignment Log' tab for more information.";
                             userLog.warn(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = FAILED;
                             break;
                         case CANCELLED:
                             message = "Build cancelled during alignment phase.";
                             userLog.info(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = CANCELLED;
                             break;
                         case TIMED_OUT:
                             message = "Build timed-out during alignment phase.";
                             userLog.error(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                         case SYSTEM_ERROR:
                             message = "Build failed with SYSTEM_ERROR during the alignment phase, "
                                     + "please check the 'Alignment Log' tab for more information.";
                             userLog.error(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                         default:
                             message = "Invalid status during the alignment phase, failing with SYSTEM_ERROR.";
                             userLog.error(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                     }
@@ -184,8 +195,7 @@ public class DatastoreAdapter {
 
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
-                buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
-                buildDriverResult.getOutputChecksum().ifPresent(buildRecordBuilder::buildOutputChecksum);
+                errorLog.append(buildDriverResult.getBuildLog());
                 buildRecordStatus = buildDriverResult.getBuildStatus(); // TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
                 return storeResult(
@@ -197,7 +207,7 @@ public class DatastoreAdapter {
 
             if (buildResult.getEnvironmentDriverResult().isPresent()) {
                 EnvironmentDriverResult environmentDriverResult = buildResult.getEnvironmentDriverResult().get();
-                buildRecordBuilder.appendLog(environmentDriverResult.getLog());
+                errorLog.append(environmentDriverResult.getLog());
 
                 environmentDriverResult.getSshCredentials().ifPresent(c -> {
                     buildRecordBuilder.sshCommand(c.getCommand());
@@ -222,7 +232,7 @@ public class DatastoreAdapter {
                         default:
                             String message = "Invalid status during the environment setup phase, failing with SYSTEM_ERROR.";
                             userLog.error(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                     }
@@ -234,7 +244,7 @@ public class DatastoreAdapter {
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
-                buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
+                errorLog.append(repositoryManagerResult.getLog());
                 if (repositoryManagerResult.getCompletionStatus() != null) {
                     switch (repositoryManagerResult.getCompletionStatus()) { // TODO, do not mix statuses
                         case SUCCESS:
@@ -253,7 +263,7 @@ public class DatastoreAdapter {
                         default:
                             String message = "Invalid status during the promotion phase, failing with SYSTEM_ERROR.";
                             userLog.error(message);
-                            buildRecordBuilder.appendLog("\n" + message + "\n");
+                            errorLog.append("\n" + message + "\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                     }
@@ -296,12 +306,12 @@ public class DatastoreAdapter {
                     case TIMED_OUT:
                         message = "Operation TIMED-OUT.";
                         userLog.warn(message);
-                        buildRecordBuilder.appendLog("-- " + message + " --");
+                        errorLog.append("-- " + message + " --");
                         break;
                     default:
                         message = "Invalid status detected in the final completion status, failing with SYSTEM_ERROR.";
                         userLog.error(message);
-                        buildRecordBuilder.appendLog("\n" + message + "\n");
+                        errorLog.append("\n" + message + "\n");
                         break;
                 }
             }
@@ -327,7 +337,9 @@ public class DatastoreAdapter {
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTaskRef.getId());
             userLog.info("Successfully completed.");
-            return datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
+            BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
+            uploadLogs(errorLog.toString());
+            return buildRecord;
         } catch (Exception e) {
             return storeResult(buildTaskRef, Optional.of(buildResult), e);
         }
@@ -344,7 +356,6 @@ public class DatastoreAdapter {
             result.getRepourResult().ifPresent(repourResult -> {
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
-                buildRecordBuilder.repourLog(repourResult.getLog());
             });
 
             result.getBuildDriverResult().ifPresent(buildDriverResult -> {
@@ -381,14 +392,13 @@ public class DatastoreAdapter {
         StringWriter stackTraceWriter = new StringWriter();
         e.printStackTrace(new PrintWriter(stackTraceWriter));
         errorLog.append(stackTraceWriter.getBuffer());
-        buildRecordBuilder.buildLog(errorLog.toString());
-        userLog.error(errorLog.toString());
 
         if (getBuildStatus(buildResult) != null) {
             String message;
             switch (getBuildStatus(buildResult)) {
                 case SUCCESS:
                 case NO_REBUILD_REQUIRED:
+                    message = "";
                     break;
                 case FAILED:
                     buildRecordBuilder.status(FAILED);
@@ -416,12 +426,35 @@ public class DatastoreAdapter {
                     userLog.error(message);
                     break;
             }
+            errorLog.append(message);
         } else {
             buildRecordBuilder.status(SYSTEM_ERROR);
-            userLog.error("Build status: Missing Build Result!");
+            String message = "Build status: Missing Build Result!";
+            errorLog.append(message);
+            userLog.error(message);
         }
         log.debug("Storing ERROR result of BCA: " + buildTask.getIdRev().toString() + " to datastore.", e);
-        return datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        BuildRecord buildRecord = datastore
+                .storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        uploadLogs(errorLog.toString());
+        return buildRecord;
+    }
+
+    private void uploadLogs(String errorLog) {
+        try {
+            Map<String, String> headersFromMDC = MDCUtils.getHeadersFromMDC();
+
+            LogMetadata logMetadata = LogMetadata.builder()
+                    .tag(TagOption.BUILD_LOG)
+                    .endTime(OffsetDateTime.now())
+                    .loggerName("org.jboss.pnc._userlog_.orch")
+                    .headers(MDCUtils.getHeadersFromMDC())
+                    .build();
+            bifrostLogUploader.uploadString(errorLog, logMetadata);
+        } catch (BifrostUploadException ex) {
+            log.error("Unable to upload logs to bifrost. Log was:\n" + errorLog, ex);
+            // We don't want to fail the build when we couldn't upload to bifrost, because the orch log is not critical.
+        }
     }
 
     public BuildRecord storeRecordForNoRebuild(BuildTaskRef buildTask) throws DatastoreException {
@@ -430,9 +463,7 @@ public class DatastoreAdapter {
 
             String message = "No rebuild was required.";
             userLog.info(message);
-            BuildRecord buildRecord = initBuildRecordBuilder(buildTask).status(BuildStatus.NO_REBUILD_REQUIRED)
-                    .appendLog(message)
-                    .build();
+            BuildRecord buildRecord = initBuildRecordBuilder(buildTask).status(BuildStatus.NO_REBUILD_REQUIRED).build();
 
             BuildRecord storedRecord = datastore.storeRecordForNoRebuild(buildRecord);
             userLog.info("Successfully completed.");
@@ -464,9 +495,7 @@ public class DatastoreAdapter {
 
     public void storeRejected(BuildTaskRef buildTask, String statusDescription) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
-
         buildRecordBuilder.status(BuildStatus.fromBuildCoordinationStatus(buildTask.getStatus()));
-        buildRecordBuilder.buildLog(statusDescription);
 
         userLog.warn(statusDescription);
 
@@ -476,6 +505,7 @@ public class DatastoreAdapter {
                                                                                         // keep?
                 statusDescription);
         datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        uploadLogs(statusDescription);
     }
 
     /**

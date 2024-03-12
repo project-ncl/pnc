@@ -98,7 +98,9 @@ public class DefaultObserverTest {
                 null,
                 "true",
                 null,
-                "false");
+                "false",
+                null,
+                null);
     }
 
     private SystemConfig createKafkaConfiguration() {
@@ -129,7 +131,9 @@ public class DefaultObserverTest {
                 null,
                 "true",
                 null,
-                "false");
+                "false",
+                null,
+                null);
     }
 
     private SystemConfig createInfinispanConfiguration() {
@@ -160,7 +164,9 @@ public class DefaultObserverTest {
                 null,
                 "true",
                 null,
-                "false");
+                "false",
+                null,
+                null);
     }
 
 }
