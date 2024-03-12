@@ -49,6 +49,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.remotecoordinator.builder.BifrostLogUploaderMock;
 import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
 import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
@@ -163,7 +164,7 @@ public abstract class AbstractDependentBuildTest {
                 buildConfigSetRecordRepository,
                 new UserRepositoryMock(),
                 targetRepositoryRepository);
-        datastoreAdapter = new DatastoreAdapter(datastore);
+        datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         if (buildScheduler == null) {
             buildScheduler = new MockBuildScheduler();

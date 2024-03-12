@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import lombok.RequiredArgsConstructor;
+import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -152,7 +153,7 @@ public abstract class AbstractDependentBuildTest {
                 new BuildConfigSetRecordRepositoryMock(),
                 new UserRepositoryMock(),
                 targetRepositoryRepository);
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, mock(BifrostLogUploader.class));
 
         if (buildSchedulerFactory == null) {
             buildSchedulerFactory = new MockBuildSchedulerFactory();

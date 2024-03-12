@@ -23,6 +23,7 @@ import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.remotecoordinator.builder.BifrostLogUploaderMock;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -49,7 +50,7 @@ public class BuildCoordinatorFactory {
     private BuildMapper buildMapper;
 
     public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) {
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         SystemConfig systemConfig = createConfiguration();
 

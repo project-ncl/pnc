@@ -95,8 +95,8 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         Assert.assertEquals("Wrong datastore results count.", 5, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
-        String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
+        BuildStatus status = buildRecord.getStatus();
+        Assert.assertEquals("Invalid build status: " + status, BuildStatus.SUCCESS, status);
 
         assertArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertArtifactsPresent(buildRecord.getDependencies());

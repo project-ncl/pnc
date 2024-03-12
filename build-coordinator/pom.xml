@@ -80,6 +80,10 @@
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-folo-client-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>bifrost-upload-client</artifactId>
+    </dependency>
 
 
     <dependency>

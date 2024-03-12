@@ -105,6 +105,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private final boolean recordUpdateJobEnabled;
 
+    private final int bifrostLogUploadMaxRetries;
+
+    private final int bifrostLogUploadRetryDelay;
+
     public SystemConfig(
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
@@ -132,7 +136,9 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties,
             @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator,
             @JsonProperty("recordUpdateJobMillisDelay") String recordUpdateJobMillisDelay,
-            @JsonProperty("recordUpdateJobEnabled") String recordUpdateJobEnabled) {
+            @JsonProperty("recordUpdateJobEnabled") String recordUpdateJobEnabled,
+            @JsonProperty("bifrostLogUploadMaxRetries") String bifrostLogUploadMaxRetries,
+            @JsonProperty("bifrostLogUploadRetryDelay") String bifrostLogUploadRetryDelay) {
         this.authenticationProviderId = authenticationProviderId;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
@@ -173,6 +179,8 @@ public class SystemConfig extends AbstractModuleConfig {
                 recordUpdateJobMillisDelay,
                 30000);
         this.recordUpdateJobEnabled = Boolean.parseBoolean(recordUpdateJobEnabled);
+        this.bifrostLogUploadMaxRetries = toIntWithDefault("bifrostLogUploadMaxRetries", bifrostLogUploadMaxRetries, 3);
+        this.bifrostLogUploadRetryDelay = toIntWithDefault("bifrostLogUploadRetryDelay", messagingInternalQueueSize, 2);
     }
 
     public static Properties readProperties(String file) {
@@ -289,6 +297,14 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public long getRecordUpdateJobMillisDelay() {
         return recordUpdateJobMillisDelay;
+    }
+
+    public int getBifrostLogUploadMaxRetries() {
+        return bifrostLogUploadMaxRetries;
+    }
+
+    public int getBifrostLogUploadRetryDelay() {
+        return bifrostLogUploadRetryDelay;
     }
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {

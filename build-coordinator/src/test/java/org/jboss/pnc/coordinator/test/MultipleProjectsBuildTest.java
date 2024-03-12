@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -103,8 +104,8 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
         Assert.assertEquals("Wrong datastore results count.", N_PROJECTS, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
-        String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log: " + buildLog, buildLog.contains("Finished: SUCCESS"));
+        BuildStatus status = buildRecord.getStatus();
+        Assert.assertEquals("Invalid build status: " + status, BuildStatus.SUCCESS, status);
 
         assertArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertArtifactsPresent(buildRecord.getDependencies());

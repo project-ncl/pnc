@@ -88,7 +88,7 @@ public class RemoteBuildCoordinatorTest {
     public void setUp() {
         datastoreMock.clear();
         buildScheduler.reset();
-        datastoreAdapter = new DatastoreAdapter(datastoreMock);
+        datastoreAdapter = new DatastoreAdapter(datastoreMock, new BifrostLogUploaderMock());
         USER.setId(1);
     }
 

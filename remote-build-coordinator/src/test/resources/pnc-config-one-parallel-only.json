@@ -9,7 +9,7 @@
             "indyUrl": "${env.PNC_APROX_URL}",
             "pncUrl": "${env.PNC_URL}",
             "repourUrl": "${env.PNC_REPOUR_URL}",
-
+            "bifrostUrl": "example.com",
             "externalDaUrl": "${env.PNC_UI_DA_URL}",
             "externalIndyUrl": "${env.EXTERNAL_REPOSITORY_MVN_PATH}"
         },

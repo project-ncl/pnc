@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
@@ -70,8 +71,8 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
-        String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log.", buildLog.contains(BuildDriverResultMock.BUILD_LOG));
+        BuildStatus status = buildRecord.getStatus();
+        Assert.assertEquals("Invalid build status: " + status, BuildStatus.SUCCESS, status);
 
         assertArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertArtifactsPresent(buildRecord.getDependencies());
