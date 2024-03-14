@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -55,6 +56,7 @@ import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -124,6 +126,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private GenericSettingRepository genericSettingRepository;
 
     private BuildConfigurationAuditedRepository bcaRepository;
+    private BuildConfigSetRecordRepository groupBuildRepository;
 
     @Deprecated
     public RemoteBuildCoordinator() {
@@ -137,6 +140,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             RexBuildScheduler buildScheduler,
             BuildTaskRepository taskRepository,
             BuildConfigurationAuditedRepository bcaRepository,
+            BuildConfigSetRecordRepository groupBuildRepository,
             SystemConfig systemConfig,
             GroupBuildMapper groupBuildMapper,
             BuildMapper buildMapper,
@@ -150,6 +154,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         this.systemConfig = systemConfig;
         this.taskRepository = taskRepository;
         this.bcaRepository = bcaRepository;
+        this.groupBuildRepository = groupBuildRepository;
         this.buildTasksInitializer = buildTasksInitializer;
         this.groupBuildMapper = groupBuildMapper;
         this.buildMapper = buildMapper;
@@ -473,10 +478,15 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildTaskRef task,
             BuildCoordinationStatus previousState,
             BuildCoordinationStatus newState) {
-        Build build = buildMapper.fromBuildTask(taskMappers.toBuildTask(task));
+        BuildTask buildTask = taskMappers.toBuildTask(task);
+        Build build = buildMapper.fromBuildTask(buildTask);
         BuildStatus oldStatus = BuildStatus.fromBuildCoordinationStatus(previousState);
         BuildStatus newStatus = BuildStatus.fromBuildCoordinationStatus(newState);
 
+        Long groupBuildId = buildTask.getBuildConfigSetRecordId();
+        GroupBuildRef groupBuild = (groupBuildId == null || task.isTemporaryBuild()) ? null
+                : groupBuildMapper.toRef(groupBuildRepository.queryById(groupBuildId));
+        Build.Builder buildBuilder = build.toBuilder().groupBuild(groupBuild);
         if (!build.getStatus().equals(newStatus)) {
             // This can happen if we have a FAILED build in Rex that internally failed with SYSTEM_ERROR
             log.warn(
@@ -485,7 +495,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     build.getStatus(),
                     newStatus,
                     newStatus);
-            build = build.toBuilder().status(newStatus).build();
+            build = buildBuilder.status(newStatus).build();
         }
 
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(build, oldStatus, newStatus);
