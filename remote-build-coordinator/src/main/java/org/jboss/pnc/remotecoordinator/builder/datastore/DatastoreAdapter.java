@@ -307,11 +307,13 @@ public class DatastoreAdapter {
                         message = "Operation TIMED-OUT.";
                         userLog.warn(message);
                         errorLog.append("-- " + message + " --");
+                        buildRecordStatus = SYSTEM_ERROR;
                         break;
                     default:
                         message = "Invalid status detected in the final completion status, failing with SYSTEM_ERROR.";
                         userLog.error(message);
                         errorLog.append("\n" + message + "\n");
+                        buildRecordStatus = SYSTEM_ERROR;
                         break;
                 }
             }
