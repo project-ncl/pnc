@@ -37,6 +37,7 @@ import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildConfigurationSetRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.TargetRepositoryRepositoryMock;
 import org.jboss.pnc.mock.repository.UserRepositoryMock;
@@ -177,6 +178,7 @@ public abstract class AbstractDependentBuildTest {
                 buildScheduler,
                 taskRepository,
                 buildConfigurationAuditedRepository,
+                buildConfigSetRecordRepository,
                 systemConfig,
                 mock(GroupBuildMapper.class),
                 mock(BuildMapper.class),
