@@ -478,15 +478,16 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildTaskRef task,
             BuildCoordinationStatus previousState,
             BuildCoordinationStatus newState) {
-        BuildTask buildTask = taskMappers.toBuildTask(task);
-        Build build = buildMapper.fromBuildTask(buildTask);
+        Build build = buildMapper.fromBuildTask(taskMappers.toBuildTask(task));
         BuildStatus oldStatus = BuildStatus.fromBuildCoordinationStatus(previousState);
         BuildStatus newStatus = BuildStatus.fromBuildCoordinationStatus(newState);
 
-        Long groupBuildId = buildTask.getBuildConfigSetRecordId();
-        GroupBuildRef groupBuild = (groupBuildId == null || task.isTemporaryBuild()) ? null
-                : groupBuildMapper.toRef(groupBuildRepository.queryById(groupBuildId));
-        Build.Builder buildBuilder = build.toBuilder().groupBuild(groupBuild);
+        if (task.getBuildConfigSetRecordId() != null) {
+            var groupBuild = groupBuildRepository.queryById(task.getBuildConfigSetRecordId());
+
+            build = build.toBuilder().groupBuild(groupBuildMapper.toRef(groupBuild)).build();
+        }
+
         if (!build.getStatus().equals(newStatus)) {
             // This can happen if we have a FAILED build in Rex that internally failed with SYSTEM_ERROR
             log.warn(
@@ -495,7 +496,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     build.getStatus(),
                     newStatus,
                     newStatus);
-            build = buildBuilder.status(newStatus).build();
+            build = build.toBuilder().status(newStatus).build();
         }
 
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(build, oldStatus, newStatus);
