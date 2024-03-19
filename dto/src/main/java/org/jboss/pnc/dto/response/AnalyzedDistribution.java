@@ -41,4 +41,19 @@ public class AnalyzedDistribution {
      */
     Date creationTime;
 
+    /**
+     * MD5 checksum of the distribution.
+     */
+    String md5;
+
+    /**
+     * SHA-1 checksum of the distribution.
+     */
+    String sha1;
+
+    /**
+     * SHA-256 checksum of the distribution.
+     */
+    String sha256;
+
 }

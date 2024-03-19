@@ -169,6 +169,9 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 ? AnalyzedDistribution.builder()
                         .distributionUrl(deliverableArtifact.getDistribution().getDistributionUrl())
                         .creationTime(deliverableArtifact.getDistribution().getCreationTime())
+                        .md5(deliverableArtifact.getDistribution().getMd5())
+                        .sha1(deliverableArtifact.getDistribution().getSha1())
+                        .sha256(deliverableArtifact.getDistribution().getSha256())
                         .build()
                 : null;
         return AnalyzedArtifact.builder()
