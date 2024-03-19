@@ -29,4 +29,6 @@ public interface DeliverableAnalyzerDistributionRepository
 
     DeliverableAnalyzerDistribution queryByUrl(String url);
 
+    DeliverableAnalyzerDistribution queryByUrlAndSha256(String url, String sha256);
+
 }
