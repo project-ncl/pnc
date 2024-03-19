@@ -28,6 +28,12 @@ public class DeliverableAnalyzerDistributionPredicates {
 
     public static Predicate<DeliverableAnalyzerDistribution> withUrl(String url) {
         return (root, query, cb) -> cb.equal(root.get(DeliverableAnalyzerDistribution_.distributionUrl), url);
+    }
 
+    public static Predicate<DeliverableAnalyzerDistribution> withUrlAndSha256(String url, String sha256) {
+
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get(DeliverableAnalyzerDistribution_.distributionUrl), url),
+                cb.equal(root.get(DeliverableAnalyzerDistribution_.sha256), sha256));
     }
 }

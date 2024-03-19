@@ -47,4 +47,9 @@ public class DeliverableAnalyzerDistributionRepositoryImpl
     public DeliverableAnalyzerDistribution queryByUrl(String url) {
         return queryByPredicates(DeliverableAnalyzerDistributionPredicates.withUrl(url));
     }
+
+    @Override
+    public DeliverableAnalyzerDistribution queryByUrlAndSha256(String url, String sha256) {
+        return queryByPredicates(DeliverableAnalyzerDistributionPredicates.withUrlAndSha256(url, sha256));
+    }
 }
