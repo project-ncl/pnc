@@ -29,6 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 
@@ -60,6 +61,15 @@ public class DeliverableAnalyzerDistribution implements GenericEntity<Base32Long
     @NotNull
     @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date creationTime;
+
+    @Size(max = 32)
+    private String md5;
+
+    @Size(max = 40)
+    private String sha1;
+
+    @Size(max = 64)
+    private String sha256;
 
     @OneToMany(mappedBy = "distribution", cascade = CascadeType.PERSIST)
     private Set<DeliverableArtifact> artifacts;

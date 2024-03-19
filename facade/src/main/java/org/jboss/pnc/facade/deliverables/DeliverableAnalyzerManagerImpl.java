@@ -75,6 +75,8 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -194,15 +196,37 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             processDeliverables(
                     report,
                     finderResult.getBuilds(),
-                    finderResult.getUrl().toString(),
+                    finderResult.getUrl(),
                     finderResult.getNotFoundArtifacts());
         }
+    }
+
+    private Artifact findDistributionUrlAssociatedArtifact(
+            URL distributionUrl,
+            Collection<Build> builds,
+            Collection<Artifact> notFoundArtifacts) {
+        // Find the url filename
+        String urlFilename = Paths.get(distributionUrl.getPath()).getFileName().toString();
+
+        // Loop in the builds to find the artifact associated with the url
+        Optional<Artifact> distributionArtifact = builds.stream()
+                .flatMap(b -> b.getArtifacts().stream())
+                .filter(a -> a.getFilename().equals(urlFilename))
+                .findFirst();
+
+        if (distributionArtifact.isPresent()) {
+            return distributionArtifact.get();
+        }
+
+        // If the artifact was not found among the matched builds (meaning the zip was built in PNC or Brew), then look
+        // in the not found artifacts list (meaning the zip was built in e.g. Jenkins)
+        return notFoundArtifacts.stream().filter(a -> a.getFilename().equals(urlFilename)).findFirst().orElse(null);
     }
 
     private void processDeliverables(
             DeliverableAnalyzerReport report,
             Collection<Build> builds,
-            String distributionUrl,
+            URL distributionUrl,
             Collection<Artifact> notFoundArtifacts) {
 
         log.debug("Processing deliverables in {} builds. Distribution URL: {}", builds.size(), distributionUrl);
@@ -210,7 +234,19 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds, user);
-        DeliverableAnalyzerDistribution distribution = getDistribution(distributionUrl);
+
+        // Find the artifact associated with the deliverable URL
+        Artifact urlAssociatedArtifact = findDistributionUrlAssociatedArtifact(
+                distributionUrl,
+                builds,
+                notFoundArtifacts);
+        if (urlAssociatedArtifact == null) {
+            log.warn("The local archive associated with the deliverableUrl was not found!");
+        }
+
+        DeliverableAnalyzerDistribution distribution = getDistribution(
+                distributionUrl.toString(),
+                urlAssociatedArtifact);
 
         for (Build build : builds) {
             log.debug("Processing build {}", build);
@@ -255,7 +291,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
          * imported)
          */
         if (!notFoundArtifacts.isEmpty()) {
-            TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
+            TargetRepository distributionRepository = getDistributionRepository(distributionUrl.toString());
             Iterator<Artifact> iterator = notFoundArtifacts.iterator();
             while (iterator.hasNext()) {
                 Artifact art = iterator.next();
@@ -272,7 +308,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             }
         }
 
-        stats.log(distributionUrl);
+        stats.log(distributionUrl.toString());
     }
 
     private void addDeliveredArtifact(
@@ -616,18 +652,23 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return targetRepositoryRepository.save(tr);
     }
 
-    private DeliverableAnalyzerDistribution getDistribution(String distURL) {
-        DeliverableAnalyzerDistribution distribution = deliverableAnalyzerDistributionRepository.queryByUrl(distURL);
+    private DeliverableAnalyzerDistribution getDistribution(String distURL, Artifact artifact) {
+        DeliverableAnalyzerDistribution distribution = (artifact == null)
+                ? deliverableAnalyzerDistributionRepository.queryByUrl(distURL)
+                : deliverableAnalyzerDistributionRepository.queryByUrlAndSha256(distURL, artifact.getSha256());
         if (distribution == null) {
-            distribution = createDistribution(distURL);
+            distribution = createDistribution(distURL, artifact);
         }
         return distribution;
     }
 
-    private DeliverableAnalyzerDistribution createDistribution(String url) {
+    private DeliverableAnalyzerDistribution createDistribution(String url, Artifact artifact) {
         DeliverableAnalyzerDistribution distro = DeliverableAnalyzerDistribution.builder()
                 .distributionUrl(url)
                 .artifacts(new HashSet<>())
+                .md5(artifact != null ? artifact.getMd5() : null)
+                .sha1(artifact != null ? artifact.getSha1() : null)
+                .sha256(artifact != null ? artifact.getSha256() : null)
                 .build();
         return deliverableAnalyzerDistributionRepository.save(distro);
     }

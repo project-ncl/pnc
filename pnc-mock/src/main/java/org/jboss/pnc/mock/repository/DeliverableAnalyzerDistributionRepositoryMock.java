@@ -29,4 +29,11 @@ public class DeliverableAnalyzerDistributionRepositoryMock
         return data.stream().filter(d -> d.getDistributionUrl().equals(url)).findAny().orElse(null);
     }
 
+    @Override
+    public DeliverableAnalyzerDistribution queryByUrlAndSha256(String url, String sha256) {
+        return data.stream().filter(d -> {
+            return d.getDistributionUrl().equals(url) && d.getSha256().equals(sha256);
+        }).findAny().orElse(null);
+    }
+
 }
