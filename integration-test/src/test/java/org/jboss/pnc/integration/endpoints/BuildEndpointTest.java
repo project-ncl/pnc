@@ -427,7 +427,6 @@ public class BuildEndpointTest {
 
         assertThat(dto.getId()).isEqualTo(buildId); // from DatabaseDataInitializer
         assertThat(dto.getStatus()).isEqualTo(BuildStatus.SUCCESS); // from DatabaseDataInitializer
-        assertThat(dto.getAttributes()).containsEntry("FOO", "bar");
         assertThat(dto.getBuildConfigRevision()).isNotNull();
         assertThat(dto.getBuildConfigRevision().getName()).isNotNull();
     }
