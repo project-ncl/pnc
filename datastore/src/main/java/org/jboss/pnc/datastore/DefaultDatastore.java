@@ -147,9 +147,6 @@ public class DefaultDatastore implements Datastore {
                     "When trying to save build " + buildRecord + " previously saved build with status "
                             + previouslySavedBuild.getStatus() + " was found.");
         }
-        if (logger.isTraceEnabled()) {
-            logger.trace("Build Log: {}.", buildRecord.getBuildLog());
-        }
 
         Map<TargetRepository.IdentifierPath, TargetRepository> repositoriesCache = new HashMap<>();
         Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();

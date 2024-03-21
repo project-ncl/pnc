@@ -721,37 +721,6 @@ public interface BuildEndpoint {
     static final String GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC = "Gets the Builds by given status and with specific"
             + " string in the build logs.";
 
-    /**
-     * {@value GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC}
-     *
-     * @param status {@value BUILD_STATUS}
-     * @param search {@value LOG_SEARCH}
-     * @param pageParameters
-     * @return
-     */
-    @Operation(
-            summary = GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("/with-status-and-log")
-    @TimedMetric
-    Page<Build> getAllByStatusAndLogContaining(
-            @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
-            @Parameter(description = LOG_SEARCH) @QueryParam("search") String search,
-            @Valid @BeanParam PageParameters pageParameters);
-
     static final String GET_RUNNING_COUNT_DESC = "Get count of running builds in their stages: running, waiting for dependencies, or enqueued";
 
     /**

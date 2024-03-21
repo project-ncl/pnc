@@ -18,6 +18,7 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.jboss.pnc.api.bifrost.rest.Bifrost;
 import org.jboss.pnc.api.causeway.dto.push.Build;
 import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.push.BuildRoot;
@@ -94,6 +95,8 @@ public class BuildResultPushManager {
 
     private Gerrit gerrit;
 
+    private Bifrost bifrost;
+
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
     @Deprecated // required by EJB
@@ -109,7 +112,8 @@ public class BuildResultPushManager {
             Event<BuildPushResult> buildPushResultEvent,
             ArtifactRepository artifactRepository,
             Gerrit gerrit,
-            CausewayClient causewayClient) {
+            CausewayClient causewayClient,
+            Bifrost bifrost) {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.mapper = mapper;
@@ -118,6 +122,7 @@ public class BuildResultPushManager {
         this.artifactRepository = artifactRepository;
         this.gerrit = gerrit;
         this.causewayClient = causewayClient;
+        this.bifrost = bifrost;
     }
 
     public Result push(BuildPushOperation buildPushOperation, String authToken) {
@@ -338,24 +343,26 @@ public class BuildResultPushManager {
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {
         String externalBuildID = buildRecord.getId().toString();
-        if (buildRecord.getBuildLogSize() != null && buildRecord.getBuildLogSize() > 0) {
+        long buildLogSize = bifrost.getFinalLogSize(buildRecord.getId().toString(), "build-log");
+        if (buildLogSize > 0) {
             logs.add(
                     Logfile.builder()
                             .filename("build.log")
                             .deployPath(getBuildLogPath(externalBuildID))
-                            .size(buildRecord.getBuildLogSize())
-                            .md5(buildRecord.getBuildLogMd5())
+                            .size((int) buildLogSize)
+                            .md5(buildRecord.getbuildOutputChecksum())
                             .build());
         } else {
             logger.warn("Missing build log for BR.id: {}.", externalBuildID);
         }
-        if (buildRecord.getRepourLogSize() != null && buildRecord.getRepourLogSize() > 0) {
+        long alignmentLogSize = bifrost.getFinalLogSize(buildRecord.getId().toString(), "alignment-log");
+        if (alignmentLogSize > 0) {
             logs.add(
                     Logfile.builder()
                             .filename("repour.log")
                             .deployPath(getRepourLogPath(externalBuildID))
-                            .size(buildRecord.getRepourLogSize())
-                            .md5(buildRecord.getRepourLogMd5())
+                            .size((int) alignmentLogSize)
+                            .md5(buildRecord.getbuildOutputChecksum())
                             .build());
         } else {
             logger.warn("Missing repour log for BR.id: {}.", externalBuildID);
