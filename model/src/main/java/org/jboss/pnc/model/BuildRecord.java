@@ -17,8 +17,7 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -300,8 +299,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     // TODO: re-enable cache once NCLSUP-444 is resolved
     // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT) // Note: FetchType.LAZY + FetchMode.SUBSELECT with Hibernate 5.3 leads to triggering
-                                // @UpdateTimestamp and an extra UPDATE in DB
+    @BatchSize(size = 200)
     private Set<BuildRecordAttribute> attributes = new HashSet<>();
 
     @Lob
