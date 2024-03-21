@@ -42,9 +42,6 @@ public class BuildResult {
     private final Optional<ProcessException> processException;
 
     @Getter
-    private final String processLog;
-
-    @Getter
     private final Optional<BuildExecutionConfiguration> buildExecutionConfiguration;
 
     @Getter

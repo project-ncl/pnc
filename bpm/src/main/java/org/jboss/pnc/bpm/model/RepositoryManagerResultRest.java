@@ -36,7 +36,6 @@ public class RepositoryManagerResultRest implements Serializable {
     private List<org.jboss.pnc.dto.Artifact> builtArtifacts;
     private List<org.jboss.pnc.dto.Artifact> dependencies;
     private String buildContentId;
-    private String log;
     private CompletionStatus completionStatus;
 
     public RepositoryManagerResultRest() {
@@ -54,10 +53,6 @@ public class RepositoryManagerResultRest implements Serializable {
         return buildContentId;
     }
 
-    public String getLog() {
-        return log;
-    }
-
     public CompletionStatus getCompletionStatus() {
         return completionStatus;
     }
@@ -65,12 +60,11 @@ public class RepositoryManagerResultRest implements Serializable {
     @Override
     public String toString() {
         return "RepositoryManagerResultRest{" + "builtArtifacts=" + builtArtifacts + ", dependencies=" + dependencies
-                + ", buildContentId='" + buildContentId + '\'' + ", log='" + log + '\'' + ", completionStatus="
-                + completionStatus + '}';
+                + ", buildContentId='" + buildContentId + '\'' + ", completionStatus=" + completionStatus + '}';
     }
 
     public String toStringLimited() {
-        return "RepositoryManagerResultRest{" + ", buildContentId='" + buildContentId + '\'' + ", completionStatus="
+        return "RepositoryManagerResultRest{" + "buildContentId='" + buildContentId + '\'' + ", completionStatus="
                 + completionStatus + '}';
     }
 
@@ -78,19 +72,16 @@ public class RepositoryManagerResultRest implements Serializable {
         private final List<Artifact> builtArtifacts;
         private final List<Artifact> dependencies;
         private final String buildContentId;
-        private final String log;
         private final CompletionStatus status;
 
         public GenericRepositoryManagerResult(
                 List<Artifact> builtArtifacts,
                 List<Artifact> dependencies,
                 String buildContentId,
-                String log,
                 CompletionStatus status) {
             this.builtArtifacts = builtArtifacts;
             this.dependencies = dependencies;
             this.buildContentId = buildContentId;
-            this.log = log;
             this.status = status;
         }
 
@@ -107,11 +98,6 @@ public class RepositoryManagerResultRest implements Serializable {
         @Override
         public String getBuildContentId() {
             return buildContentId;
-        }
-
-        @Override
-        public String getLog() {
-            return log;
         }
 
         @Override

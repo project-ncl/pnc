@@ -547,7 +547,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildResult result = new BuildResult(
                 CompletionStatus.CANCELLED,
                 Optional.empty(),
-                "",
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
@@ -783,9 +782,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                             if (repourResult.getCompletionStatus().isFailed()) {
                                 exception = new ProcessException("Repour completed with system error.");
                                 log.debug(
-                                        "[buildTaskId: {}] Storing build result with system error from repour: {}.",
-                                        buildTaskId,
-                                        repourResult.getLog());
+                                        "[buildTaskId: {}] Storing build result with system error from repour.",
+                                        buildTaskId);
                             } else {
                                 exception = new ProcessException("Build completed with system error but no exception.");
                                 log.error(

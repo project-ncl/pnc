@@ -64,7 +64,6 @@ public class BuildResultMapper {
         return new BuildResult(
                 buildResultRest.getCompletionStatus(),
                 ofNullable(buildResultRest.getProcessException()),
-                buildResultRest.getProcessLog(),
                 ofNullable(bec),
                 ofNullable(buildResultRest.getBuildDriverResult()),
                 ofNullable(repositoryManagerResult),
@@ -75,7 +74,6 @@ public class BuildResultMapper {
     public BuildResultRest toDTO(BuildResult buildResult) {
         CompletionStatus completionStatus = buildResult.getCompletionStatus();
         ProcessException processException = buildResult.getProcessException().orElse(null);
-        String processLog = buildResult.getProcessLog();
 
         BuildExecutionConfigurationRest buildExecutionConfiguration;
         if (buildResult.getBuildExecutionConfiguration().isPresent()) {
@@ -113,7 +111,6 @@ public class BuildResultMapper {
         return new BuildResultRest(
                 completionStatus,
                 processException,
-                processLog,
                 buildExecutionConfiguration,
                 buildDriverResult,
                 repositoryManagerResult,

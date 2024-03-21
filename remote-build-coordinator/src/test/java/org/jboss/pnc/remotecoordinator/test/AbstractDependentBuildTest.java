@@ -349,7 +349,6 @@ public abstract class AbstractDependentBuildTest {
         return new BuildResult(
                 status,
                 Optional.empty(),
-                "",
                 Optional.of(mock(BuildExecutionConfiguration.class)),
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),

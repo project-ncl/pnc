@@ -27,8 +27,6 @@ import java.util.Optional;
  */
 public interface BuildDriverResult extends Serializable {
 
-    String getBuildLog();
-
     BuildStatus getBuildStatus();
 
     Optional<String> getOutputChecksum();

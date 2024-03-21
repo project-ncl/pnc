@@ -31,7 +31,6 @@ public class EnvironmentDriverResultMock {
     public static EnvironmentDriverResult mock() {
         return new EnvironmentDriverResult(
                 CompletionStatus.SUCCESS,
-                "Environment driver log.",
                 Optional.of(new SshCredentials("command", "password")));
     }
 

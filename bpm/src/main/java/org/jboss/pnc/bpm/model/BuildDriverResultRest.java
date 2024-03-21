@@ -30,7 +30,6 @@ import java.util.Optional;
 @XmlRootElement(name = "buildDriverResult")
 public class BuildDriverResultRest implements BuildDriverResult {
 
-    private String buildLog;
     private BuildStatus buildStatus;
     Optional<String> outputChecksum;
 
@@ -39,14 +38,8 @@ public class BuildDriverResultRest implements BuildDriverResult {
     }
 
     public BuildDriverResultRest(BuildDriverResult buildDriverResult) {
-        this.buildLog = buildDriverResult.getBuildLog();
         this.buildStatus = buildDriverResult.getBuildStatus();
         this.outputChecksum = buildDriverResult.getOutputChecksum();
-    }
-
-    @Override
-    public String getBuildLog() {
-        return buildLog;
     }
 
     @Override
@@ -63,16 +56,12 @@ public class BuildDriverResultRest implements BuildDriverResult {
         this.buildStatus = buildStatus;
     }
 
-    public void setBuildLog(String buildLog) {
-        this.buildLog = buildLog;
-    }
-
     @Override
     public String toString() {
-        return "BuildDriverResultRest{" + "buildLog='" + buildLog + '\'' + ", buildStatus=" + buildStatus + '}';
+        return toStringLimited();
     }
 
     public String toStringLimited() {
-        return "BuildDriverResultRest{" + ", buildStatus=" + buildStatus + '}';
+        return "BuildDriverResultRest{" + "buildStatus=" + buildStatus + '}';
     }
 }

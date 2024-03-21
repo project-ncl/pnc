@@ -33,11 +33,6 @@ public class BuildDriverResultMock {
     public static BuildDriverResult mockResult(BuildStatus status) {
         return new BuildDriverResult() {
             @Override
-            public String getBuildLog() {
-                return BUILD_LOG;
-            }
-
-            @Override
             public BuildStatus getBuildStatus() {
                 return status;
             }

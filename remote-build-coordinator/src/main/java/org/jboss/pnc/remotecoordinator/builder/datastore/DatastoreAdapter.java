@@ -195,7 +195,6 @@ public class DatastoreAdapter {
 
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
-                errorLog.append(buildDriverResult.getBuildLog());
                 buildRecordStatus = buildDriverResult.getBuildStatus(); // TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
                 return storeResult(
@@ -207,7 +206,6 @@ public class DatastoreAdapter {
 
             if (buildResult.getEnvironmentDriverResult().isPresent()) {
                 EnvironmentDriverResult environmentDriverResult = buildResult.getEnvironmentDriverResult().get();
-                errorLog.append(environmentDriverResult.getLog());
 
                 environmentDriverResult.getSshCredentials().ifPresent(c -> {
                     buildRecordBuilder.sshCommand(c.getCommand());
@@ -244,7 +242,6 @@ public class DatastoreAdapter {
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
-                errorLog.append(repositoryManagerResult.getLog());
                 if (repositoryManagerResult.getCompletionStatus() != null) {
                     switch (repositoryManagerResult.getCompletionStatus()) { // TODO, do not mix statuses
                         case SUCCESS:
@@ -360,23 +357,10 @@ public class DatastoreAdapter {
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
             });
 
-            result.getBuildDriverResult().ifPresent(buildDriverResult -> {
-                errorLog.append(buildDriverResult.getBuildLog());
-                errorLog.append("\n---- End Build Log ----\n");
-            });
-
             result.getRepositoryManagerResult().ifPresent(rmr -> {
-                errorLog.append(rmr.getLog());
-                errorLog.append("\n---- End Repository Manager Log ----\n");
                 errorLog.append("\n---- Start Built Artifacts List ----\n");
                 rmr.getBuiltArtifacts().forEach(b -> errorLog.append(b).append('\n'));
                 errorLog.append("\n---- End Built Artifacts List ----\n");
-            });
-
-            result.getEnvironmentDriverResult().ifPresent(r -> {
-                if (r.getLog() != null && !r.getLog().equals(""))
-                    errorLog.append(r.getLog());
-                errorLog.append("\n---- End Environment Driver Log ----\n");
             });
 
             // store scm information of failed build if present
