@@ -33,8 +33,6 @@ public interface RepositoryManagerResult extends Serializable {
 
     String getBuildContentId();
 
-    String getLog();
-
     CompletionStatus getCompletionStatus();
 
 }

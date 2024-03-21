@@ -76,7 +76,6 @@ public class BPMResultsMock {
         BuildResult result = new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.of(BuildExecutionConfigurationMock.mockConfig()),
                 Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
                 Optional.empty(),
@@ -102,7 +101,6 @@ public class BPMResultsMock {
         BuildResult result = new BuildResult(
                 CompletionStatus.FAILED,
                 Optional.empty(),
-                "",
                 Optional.of(BuildExecutionConfigurationMock.mockConfig()),
                 Optional.empty(),
                 Optional.empty(),
@@ -128,10 +126,9 @@ public class BPMResultsMock {
                 mockImportedArtifact(buildID + "-12"),
                 mockArtifact(buildID + "-3"));
         String buildContentId = "build-" + buildID;
-        String log = "Success";
         CompletionStatus completionStatus = CompletionStatus.SUCCESS;
 
-        return new RepositoryManagerResultRest(builtArtifacts, dependencies, buildContentId, log, completionStatus);
+        return new RepositoryManagerResultRest(builtArtifacts, dependencies, buildContentId, completionStatus);
     }
 
     public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";

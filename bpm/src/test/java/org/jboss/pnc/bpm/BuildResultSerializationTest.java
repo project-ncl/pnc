@@ -153,10 +153,6 @@ public class BuildResultSerializationTest {
 
         Assert.assertEquals(
                 message,
-                buildResult.getBuildDriverResult().get().getBuildLog(),
-                buildResultFromJson.getBuildDriverResult().get().getBuildLog());
-        Assert.assertEquals(
-                message,
                 buildResult.getBuildDriverResult().get().getBuildStatus(),
                 buildResultFromJson.getBuildDriverResult().get().getBuildStatus());
 
