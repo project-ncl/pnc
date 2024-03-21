@@ -634,15 +634,6 @@ public class BuildEndpointTest {
     }
 
     @Test
-    public void shouldGetByStatusAndLog() throws RemoteResourceException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<Build> builds = client.getAllByStatusAndLogContaining(BuildStatus.SUCCESS, "fox");
-        assertThat(builds.size()).isGreaterThan(0);
-        Build build = builds.iterator().next();
-        logger.info("Found build:" + build.toString());
-    }
-
-    @Test
     public void shouldFailAsRegularUser() {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 

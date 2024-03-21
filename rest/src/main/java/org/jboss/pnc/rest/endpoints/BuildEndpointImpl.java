@@ -120,20 +120,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Page<Build> getAllByStatusAndLogContaining(
-            BuildStatus status,
-            String search,
-            PageParameters pageParameters) {
-        return provider.getAllByStatusAndLogContaining(
-                pageParameters.getPageIndex(),
-                pageParameters.getPageSize(),
-                pageParameters.getSort(),
-                pageParameters.getQ(),
-                status,
-                search);
-    }
-
-    @Override
     public Build getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
