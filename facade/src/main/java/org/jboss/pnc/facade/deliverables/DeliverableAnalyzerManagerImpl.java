@@ -477,7 +477,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         artifact.setTargetRepository(targetRepo);
         artifact.setPurl(
                 createGenericPurl(
-                        targetRepo.getRepositoryPath(),
                         artifact.getFilename().toString(),
                         artifact.getSha256()));
         org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
@@ -591,17 +590,15 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
      * Compute the purl string for a generic download, that does not match package type specific files structure. See
      * https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#generic
      *
-     * @param downloadUrl url where the artifact was downloaded from
      * @param filename the artifact filename
      * @param sha256 the SHA-256 of the artifact
      * @return the generated purl
      */
-    private String createGenericPurl(String downloadUrl, String filename, String sha256) {
+    private String createGenericPurl(String filename, String sha256) {
         try {
             PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
                     .withType(PackageURL.StandardTypes.GENERIC)
                     .withName(filename)
-                    .withQualifier("download_url", downloadUrl)
                     .withQualifier("checksum", "sha256:" + sha256);
             return purlBuilder.build().toString();
         } catch (MalformedPackageURLException e) {
