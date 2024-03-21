@@ -71,7 +71,6 @@ public class MockBuildScheduler implements RexBuildScheduler {
         return new BuildResult(
                 status,
                 Optional.empty(),
-                "",
                 Optional.of(mock(BuildExecutionConfiguration.class)),
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),

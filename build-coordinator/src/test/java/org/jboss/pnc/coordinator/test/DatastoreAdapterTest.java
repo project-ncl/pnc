@@ -141,7 +141,6 @@ public class DatastoreAdapterTest {
         BuildResult buildResult = new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.of(buildExecutionConfiguration),
                 Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
                 Optional.of(RepositoryManagerResultMock.mockResult()),
@@ -166,18 +165,15 @@ public class DatastoreAdapterTest {
             CompletionStatus completionStatus) throws DatastoreException {
         BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
         when(buildDriverResult.getBuildStatus()).thenReturn(buildStatus);
-        when(buildDriverResult.getBuildLog()).thenReturn(BUILD_LOG);
 
         RepositoryManagerResult repositoryManagerResult = mock(RepositoryManagerResult.class);
         when(repositoryManagerResult.getCompletionStatus()).thenReturn(completionStatus);
-        when(repositoryManagerResult.getLog()).thenReturn(REPOSITORY_MANAGER_LOG);
 
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
         BuildResult buildResult = new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.of(buildExecutionConfiguration),
                 Optional.of(buildDriverResult),
                 Optional.of(repositoryManagerResult),

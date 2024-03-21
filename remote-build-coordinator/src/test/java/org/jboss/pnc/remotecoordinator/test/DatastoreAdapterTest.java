@@ -139,7 +139,6 @@ public class DatastoreAdapterTest {
         BuildResult buildResult = new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.of(buildExecutionConfiguration),
                 Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
                 Optional.of(RepositoryManagerResultMock.mockResult()),
@@ -178,13 +177,11 @@ public class DatastoreAdapterTest {
 
         EnvironmentDriverResult environmentDriverResult = new EnvironmentDriverResult(
                 CompletionStatus.FAILED,
-                "",
                 Optional.of(sshCredentials));
 
         BuildResult buildResult = new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.of(buildExecutionConfiguration),
                 Optional.of(buildDriverResult),
                 Optional.of(repoManagerResult),
@@ -217,7 +214,6 @@ public class DatastoreAdapterTest {
         BuildResult buildResult = new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.of(buildExecutionConfiguration),
                 Optional.of(buildDriverResult),
                 Optional.of(repositoryManagerResult),

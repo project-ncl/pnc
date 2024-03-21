@@ -139,7 +139,6 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
         if (debugData != null && debugData.isDebugEnabled()) {
             environmentDriverResult = new EnvironmentDriverResult(
                     CompletionStatus.SUCCESS,
-                    "",
                     Optional.of(debugData.getSshCredentials()));
         }
 
@@ -179,7 +178,6 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
         return new BuildResult(
                 completionStatus,
                 Optional.ofNullable(processException),
-                "",
                 Optional.ofNullable(buildExecutionConfiguration),
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),

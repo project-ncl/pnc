@@ -207,11 +207,6 @@ public class StatusUpdatesTest {
     private BuildResult createBuildResult() {
         BuildDriverResult driverResult = new BuildDriverResult() {
             @Override
-            public String getBuildLog() {
-                return "";
-            }
-
-            @Override
             public BuildStatus getBuildStatus() {
                 return BuildStatus.SUCCESS;
             }
@@ -224,7 +219,6 @@ public class StatusUpdatesTest {
         return new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
-                "",
                 Optional.empty(),
                 Optional.of(driverResult),
                 Optional.of(RepositoryManagerResultMock.mockResult(false)),

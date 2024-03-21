@@ -197,7 +197,7 @@ public class DefaultBuildCoordinatorTest {
         sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
 
         when(buildResult.getEnvironmentDriverResult()).thenReturn(
-                Optional.of(new EnvironmentDriverResult(CompletionStatus.FAILED, "", Optional.of(sshCredentials))));
+                Optional.of(new EnvironmentDriverResult(CompletionStatus.FAILED, Optional.of(sshCredentials))));
 
         when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
 

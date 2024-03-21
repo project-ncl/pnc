@@ -65,15 +65,6 @@ public class RepositoryManagerResultMock {
             }
 
             @Override
-            public String getLog() {
-                if (failed) {
-                    return "MOCK: Validation of org.jboss.pnc:pnc-mock:1.0 failed due to: invalid pom file.";
-                } else {
-                    return "MOCK: Repository manager has promoted all collected artifacts.";
-                }
-            }
-
-            @Override
             public CompletionStatus getCompletionStatus() {
                 if (failed) {
                     return CompletionStatus.FAILED;
