@@ -62,7 +62,7 @@ public class UserEndpointTest {
         params.setLatest(false);
         params.setRunning(false);
 
-        RemoteCollection<Build> remoteBuilds = buildClient.getAllByStatusAndLogContaining(BuildStatus.SUCCESS, "fox");
+        RemoteCollection<Build> remoteBuilds = buildClient.getAll(null, null);
 
         User user = remoteBuilds.iterator().next().getUser();
 

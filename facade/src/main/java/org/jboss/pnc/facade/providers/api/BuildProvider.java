@@ -53,10 +53,6 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
 
     BuildConfigurationRevision getBuildConfigurationRevision(String buildId);
 
-    String getRepourLog(String buildId);
-
-    String getBuildLog(String buildId);
-
     boolean delete(String buildId, String callback);
 
     SSHCredentials getSshCredentials(String buildId);
@@ -100,14 +96,6 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
      * @throws EmptyEntityException when there is no record for given id
      */
     Graph<Build> getDependencyGraph(String buildId);
-
-    Page<Build> getAllByStatusAndLogContaining(
-            int pageIndex,
-            int pageSize,
-            String sortingRsql,
-            String query,
-            BuildStatus status,
-            String search);
 
     void setBuiltArtifacts(String buildId, List<String> artifactIds);
 

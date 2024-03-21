@@ -327,16 +327,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     }
 
     @Override
-    public String getRepourLog(String buildId) {
-        return getBuildRecord(buildId).getRepourLog();
-    }
-
-    @Override
-    public String getBuildLog(String buildId) {
-        return getBuildRecord(buildId).getBuildLog();
-    }
-
-    @Override
     public SSHCredentials getSshCredentials(String buildId) {
         BuildRecord buildRecord = getBuildRecord(buildId);
         User user = null;
@@ -627,23 +617,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         }
 
         return build;
-    }
-
-    @Override
-    public Page<Build> getAllByStatusAndLogContaining(
-            int pageIndex,
-            int pageSize,
-            String sortingRsql,
-            String query,
-            BuildStatus status,
-            String search) {
-        return queryForCollection(
-                pageIndex,
-                pageSize,
-                sortingRsql,
-                query,
-                BuildRecordPredicates.withStatus(status),
-                BuildRecordPredicates.withBuildLogContains(search));
     }
 
     @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
