@@ -747,6 +747,7 @@ public interface BuildEndpoint {
     @GET
     @Path("/with-status-and-log")
     @TimedMetric
+    @Deprecated(forRemoval = true, since = "2.7.0")
     Page<Build> getAllByStatusAndLogContaining(
             @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
             @Parameter(description = LOG_SEARCH) @QueryParam("search") String search,
