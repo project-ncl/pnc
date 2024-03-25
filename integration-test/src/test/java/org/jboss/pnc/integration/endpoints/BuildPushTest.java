@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.bpm.causeway.BifrostProducer;
 import org.jboss.pnc.causewayclient.DefaultCausewayClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
@@ -29,6 +30,7 @@ import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.integration.mock.client.BifrostMock;
 import org.jboss.pnc.integration.mock.client.CausewayClientMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -47,7 +49,6 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,9 +66,13 @@ public class BuildPushTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.testEar();
 
-        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, Deployments.CAUSEWAY_CLIENT_JAR);
-        processManager.deleteClass(DefaultCausewayClient.class);
-        processManager.addClass(CausewayClientMock.class);
+        JavaArchive causewayClientJar = enterpriseArchive.getAsType(JavaArchive.class, Deployments.CAUSEWAY_CLIENT_JAR);
+        causewayClientJar.deleteClass(DefaultCausewayClient.class);
+        causewayClientJar.addClass(CausewayClientMock.class);
+
+        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, Deployments.BPM_JAR);
+        processManager.deleteClass(BifrostProducer.class);
+        processManager.addClass(BifrostMock.class);
 
         processManager.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
