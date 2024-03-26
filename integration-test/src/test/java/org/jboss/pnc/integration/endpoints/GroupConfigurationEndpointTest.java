@@ -39,6 +39,7 @@ import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -54,15 +55,18 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.ClientErrorException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -94,6 +98,26 @@ public class GroupConfigurationEndpointTest {
 
         assertThat(updated.getProductVersion().getVersion()).isEqualTo(newProductVersion.getVersion());
 
+    }
+
+    @Test
+    public void shouldGetConflictWhenPatchingWithExistingName() throws ClientException {
+        var client = new GroupConfigurationClient(RestClientConfiguration.asUser());
+        Iterator<GroupConfiguration> it = client.getAll().iterator();
+        GroupConfiguration groupConfig1 = it.next();
+        GroupConfiguration groupConfig2 = it.next();
+
+        RemoteResourceException remoteException = assertThrows(
+                RemoteResourceException.class,
+                () -> client.patch(
+                        groupConfig2.getId(),
+                        new GroupConfigurationPatchBuilder().replaceName(groupConfig1.getName())));
+
+        assertThat(remoteException.getStatus()).isEqualTo(CONFLICT.getStatusCode());
+        ErrorResponse errorResponse = remoteException.getResponse().get();
+        assertThat(errorResponse.getErrorType()).isEqualTo("ConflictedEntryException");
+        assertThat(errorResponse.getErrorMessage()).contains("Group configuration with the same name already exists");
+        assertThat(errorResponse.getDetails().toString()).contains(groupConfig1.getId());
     }
 
     private ProductVersion createProductVersion() throws ClientException {

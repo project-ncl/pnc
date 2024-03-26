@@ -30,6 +30,7 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -85,6 +86,23 @@ public class GroupConfigurationProviderImpl
         if (dbEntity.isArchived()) {
             throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
         }
+
+        ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
+            BuildConfigurationSet groupConfigurationFromDB = repository.queryByPredicates(
+                    BuildConfigurationSetPredicates.withName(restEntity.getName()),
+                    BuildConfigurationSetPredicates.isNotArchived());
+
+            // don't validate against myself
+            if (groupConfigurationFromDB != null && (restEntity.getId() == null
+                    || !groupConfigurationFromDB.getId().equals(Integer.valueOf(restEntity.getId())))) {
+
+                return new ConflictedEntryValidator.ConflictedEntryValidationError(
+                        groupConfigurationFromDB.getId(),
+                        BuildConfigurationSet.class,
+                        "Group configuration with the same name already exists");
+            }
+            return null;
+        });
     }
 
     @Override
