@@ -53,9 +53,8 @@ public class RepositoryManagerResultMapper {
                 .map(artifact -> artifactMapper.toDTO(artifact))
                 .collect(Collectors.toList());
         String buildContentId = entity.getBuildContentId();
-        String log = entity.getLog();
         CompletionStatus completionStatus = entity.getCompletionStatus();
-        return new RepositoryManagerResultRest(builtArtifacts, dependencies, buildContentId, log, completionStatus);
+        return new RepositoryManagerResultRest(builtArtifacts, dependencies, buildContentId, completionStatus);
     }
 
     public RepositoryManagerResult toEntity(RepositoryManagerResultRest dto) {
@@ -68,8 +67,7 @@ public class RepositoryManagerResultMapper {
                 .map(artifactRest -> artifactMapper.toEntityWithTransientTargetRepository(artifactRest))
                 .collect(Collectors.toList());
         String buildContentId = dto.getBuildContentId();
-        String log = dto.getLog();
         CompletionStatus completionStatus = dto.getCompletionStatus();
-        return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId, log, completionStatus);
+        return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId, completionStatus);
     }
 }

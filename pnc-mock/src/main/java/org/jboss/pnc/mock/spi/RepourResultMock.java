@@ -26,11 +26,11 @@ import org.jboss.pnc.spi.repour.RepourResult;
 public class RepourResultMock {
 
     public static RepourResult mock() {
-        return new RepourResult(CompletionStatus.SUCCESS, "Some log from Repour.", "rootName", "rootVersion");
+        return new RepourResult(CompletionStatus.SUCCESS, "rootName", "rootVersion");
     }
 
     public static RepourResult mockFailed() {
-        return new RepourResult(CompletionStatus.FAILED, "Some log from Repour.", "rootName", "rootVersion");
+        return new RepourResult(CompletionStatus.FAILED, "rootName", "rootVersion");
     }
 
 }

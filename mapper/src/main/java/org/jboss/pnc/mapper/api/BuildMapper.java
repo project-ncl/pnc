@@ -73,12 +73,11 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
             qualifiedBy = BuildHelpers.class,
-            ignoreUnmappedSourceProperties = { "buildLog", "buildLogMd5", "buildLogSha256", "buildLogSize",
-                    "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-                    "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
-                    "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
+            ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
+                    "builtArtifacts", "dependencies", "buildRecordPushResults", "buildConfigurationId",
+                    "buildConfigurationRev", "buildConfigurationAuditedIdRev", "buildEnvironment",
+                    "buildConfigurationAudited", "buildOutputChecksum", "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds", "attributesMap" })
     Build toDTO(BuildRecord dbEntity);
 
     /**
@@ -99,12 +98,11 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
             qualifiedBy = BuildHelpersNoBCRevision.class,
-            ignoreUnmappedSourceProperties = { "buildLog", "buildLogMd5", "buildLogSha256", "buildLogSize",
-                    "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-                    "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
-                    "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
+            ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
+                    "builtArtifacts", "dependencies", "buildRecordPushResults", "buildConfigurationId",
+                    "buildConfigurationRev", "buildConfigurationAuditedIdRev", "buildEnvironment",
+                    "buildConfigurationAudited", "buildOutputChecksum", "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds", "attributesMap" })
     Build toDTOWithoutBCR(BuildRecord dbEntity);
 
     @Override
@@ -112,14 +110,12 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
-                    "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
-                    "builtArtifacts", "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog",
-                    "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
-                    "buildConfigurationId", "buildConfigurationRev", "buildEnvironment", "buildConfigurationAudited",
-                    "dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
-                    "buildConfigurationAuditedIdRev", "buildOutputChecksum", "scmBuildConfigRevision",
-                    "scmBuildConfigRevisionInternal" })
+            ignoreUnmappedSourceProperties = { "scmRevision", "scmTag", "sshCommand", "sshPassword",
+                    "executionRootName", "executionRootVersion", "builtArtifacts", "dependencies", "productMilestone",
+                    "buildConfigSetRecord", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
+                    "buildEnvironment", "buildConfigurationAudited", "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds", "user", "attributes", "attributesMap", "buildConfigurationAuditedIdRev",
+                    "buildOutputChecksum", "scmBuildConfigRevision", "scmBuildConfigRevisionInternal" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -131,23 +127,15 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "buildConfigSetRecord", source = "groupBuild")
     @Mapping(target = "scmRepoURL", source = "scmUrl")
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
-    @Mapping(target = "repourLog", ignore = true)
-    @Mapping(target = "buildLog", ignore = true)
     @Mapping(target = "builtArtifacts", ignore = true)
     @Mapping(target = "dependencies", ignore = true)
     @Mapping(target = "buildConfigurationId", source = "buildConfigRevision.id")
     @Mapping(target = "buildConfigurationRev", source = "buildConfigRevision.rev")
     @Mapping(target = "productMilestone", ignore = true)
-    @Mapping(target = "buildLogMd5", ignore = true)
-    @Mapping(target = "buildLogSha256", ignore = true)
-    @Mapping(target = "buildLogSize", ignore = true)
     @Mapping(target = "sshCommand", ignore = true)
     @Mapping(target = "sshPassword", ignore = true)
     @Mapping(target = "executionRootName", ignore = true)
     @Mapping(target = "executionRootVersion", ignore = true)
-    @Mapping(target = "repourLogMd5", ignore = true)
-    @Mapping(target = "repourLogSha256", ignore = true)
-    @Mapping(target = "repourLogSize", ignore = true)
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @Mapping(target = "buildRecordPushResults", ignore = true)
     @Mapping(target = "attributes", ignore = true)
@@ -187,15 +175,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "productMilestone", ignore = true)
     @Mapping(target = "buildConfigSetRecord", ignore = true)
     @Mapping(target = "noRebuildCause", ignore = true)
-    // logs
-    @Mapping(target = "buildLog", ignore = true)
-    @Mapping(target = "buildLogMd5", ignore = true)
-    @Mapping(target = "buildLogSha256", ignore = true)
-    @Mapping(target = "buildLogSize", ignore = true)
-    @Mapping(target = "repourLog", ignore = true)
-    @Mapping(target = "repourLogMd5", ignore = true)
-    @Mapping(target = "repourLogSha256", ignore = true)
-    @Mapping(target = "repourLogSize", ignore = true)
     // not in DTO
     @Mapping(target = "dependentBuildRecordIds", ignore = true)
     @Mapping(target = "dependencyBuildRecordIds", ignore = true)

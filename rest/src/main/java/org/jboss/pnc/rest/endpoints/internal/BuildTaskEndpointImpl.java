@@ -425,7 +425,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         return new BuildResult(
                 CompletionStatus.SYSTEM_ERROR,
                 Optional.of(exception),
-                null,
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),

@@ -191,18 +191,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @Column(updatable = false)
     protected Boolean scmBuildConfigRevisionInternal;
 
-    @Lob
-    @Type(type = "org.hibernate.type.TextType")
-    @Basic(fetch = FetchType.LAZY)
-    @LazyGroup("buildLog")
-    private String buildLog;
-
-    private String buildLogMd5;
-
-    private String buildLogSha256;
-
-    private Integer buildLogSize;
-
     /**
      * Checksum of build logs. Used to verify the integrity of the logs in the remote storage eg. Elasticsearch
      */
@@ -301,22 +289,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @BatchSize(size = 200)
     private Set<BuildRecordAttribute> attributes = new HashSet<>();
-
-    @Lob
-    @Type(type = "org.hibernate.type.TextType")
-    @Basic(fetch = FetchType.LAZY)
-    @LazyGroup("repourLog")
-    @Column(updatable = false)
-    private String repourLog;
-
-    @Column(updatable = false)
-    private String repourLogMd5;
-
-    @Column(updatable = false)
-    private String repourLogSha256;
-
-    @Column(updatable = false)
-    private Integer repourLogSize;
 
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.REMOVE)
     private Set<BuildRecordPushResult> buildRecordPushResults;
@@ -488,40 +460,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
     public void setScmBuildConfigRevisionInternal(Boolean scmBuildConfigRevisionInternal) {
         this.scmBuildConfigRevisionInternal = scmBuildConfigRevisionInternal;
-    }
-
-    public String getRepourLog() {
-        return repourLog;
-    }
-
-    /**
-     *
-     * @deprecated use builder instead
-     */
-    @Deprecated
-    public void setRepourLog(String repourLog) {
-        this.repourLog = repourLog;
-    }
-
-    /**
-     * Gets the builds the log.
-     *
-     * @return the builds the log
-     */
-    public String getBuildLog() {
-        return buildLog;
-    }
-
-    /**
-     * Sets the builds the log.
-     *
-     * @param buildLog the new builds the log
-     *
-     * @deprecated use builder instead
-     */
-    @Deprecated
-    public void setBuildLog(String buildLog) {
-        this.buildLog = buildLog;
     }
 
     /**
@@ -744,30 +682,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
         this.alignmentPreference = alignmentPreference;
     }
 
-    public String getBuildLogMd5() {
-        return buildLogMd5;
-    }
-
-    public void setBuildLogMd5(String buildLogMd5) {
-        this.buildLogMd5 = buildLogMd5;
-    }
-
-    public String getBuildLogSha256() {
-        return buildLogSha256;
-    }
-
-    public void setBuildLogSha256(String buildLogSha256) {
-        this.buildLogSha256 = buildLogSha256;
-    }
-
-    public Integer getBuildLogSize() {
-        return buildLogSize;
-    }
-
-    public void setBuildLogSize(Integer buildLogSize) {
-        this.buildLogSize = buildLogSize;
-    }
-
     public String getbuildOutputChecksum() {
         return buildOutputChecksum;
     }
@@ -806,30 +720,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
     public void setExecutionRootVersion(String executionRootVersion) {
         this.executionRootVersion = executionRootVersion;
-    }
-
-    public String getRepourLogMd5() {
-        return repourLogMd5;
-    }
-
-    public void setRepourLogMd5(String repourLogMd5) {
-        this.repourLogMd5 = repourLogMd5;
-    }
-
-    public String getRepourLogSha256() {
-        return repourLogSha256;
-    }
-
-    public void setRepourLogSha256(String repourLogSha256) {
-        this.repourLogSha256 = repourLogSha256;
-    }
-
-    public Integer getRepourLogSize() {
-        return repourLogSize;
-    }
-
-    public void setRepourLogSize(Integer repourLogSize) {
-        this.repourLogSize = repourLogSize;
     }
 
     public Set<BuildRecordPushResult> getBuildRecordPushResults() {
@@ -958,10 +848,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         private String scmTag;
 
-        private String repourLog = "";
-
-        private String buildLog = "";
-
         private String buildOutputChecksum;
 
         private BuildStatus status;
@@ -1034,7 +920,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             buildRecord.setExecutionRootVersion(executionRootVersion);
             buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
             buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
-            setLogs(buildRecord, sanitizeLogs);
             buildRecord.setbuildOutputChecksum(buildOutputChecksum);
             buildRecord.setScmBuildConfigRevision(scmBuildConfigRevision);
             buildRecord.setScmBuildConfigRevisionInternal(scmBuildConfigRevisionInternal);
@@ -1074,34 +959,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             buildRecord.setNoRebuildCause(noRebuildCause);
 
             return buildRecord;
-        }
-
-        private void setLogs(BuildRecord buildRecord, boolean sanitizeLogs) {
-            try {
-                if (repourLog != null) {
-                    if (sanitizeLogs) {
-                        buildRecord.setRepourLog(repourLog.replaceAll("\u0000", ""));
-                    } else {
-                        buildRecord.setRepourLog(repourLog);
-                    }
-                    buildRecord.setRepourLogSize(buildRecord.repourLog.getBytes(UTF_8).length);
-                    buildRecord.setRepourLogMd5(Md5.digest(buildRecord.repourLog));
-                    buildRecord.setRepourLogSha256(Sha256.digest(buildRecord.repourLog));
-                }
-                if (buildLog != null) {
-                    if (sanitizeLogs) {
-                        buildRecord.setBuildLog(buildLog.replaceAll("\u0000", ""));
-                    } else {
-                        buildRecord.setBuildLog(buildLog);
-                    }
-                    buildRecord.setBuildLogSize(buildRecord.buildLog.getBytes(UTF_8).length);
-                    buildRecord.setBuildLogMd5(Md5.digest(buildRecord.buildLog));
-                    buildRecord.setBuildLogSha256(Sha256.digest(buildRecord.buildLog));
-                }
-            } catch (NoSuchAlgorithmException | IOException e) {
-                logger.error("Cannot compute log checksum.", e);
-                throw new RuntimeException("Cannot compute log checksum.", e);
-            }
         }
 
         public Builder id(Base32LongID id) {
@@ -1179,16 +1036,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             return this;
         }
 
-        public Builder buildLog(String buildLog) {
-            this.buildLog = buildLog;
-            return this;
-        }
-
-        public Builder appendLog(String buildLog) {
-            this.buildLog += buildLog;
-            return this;
-        }
-
         public Builder buildOutputChecksum(String buildOutputChecksum) {
             this.buildOutputChecksum = buildOutputChecksum;
             return this;
@@ -1257,11 +1104,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         public BuildRecord.Builder attribute(String key, String value) {
             this.attributes.put(key, value);
-            return this;
-        }
-
-        public BuildRecord.Builder repourLog(String log) {
-            this.repourLog = log;
             return this;
         }
 
