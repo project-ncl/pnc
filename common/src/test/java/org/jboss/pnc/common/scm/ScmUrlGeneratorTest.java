@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.common.gerrit;
+package org.jboss.pnc.common.scm;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
-import static org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider.SCMProvider.GITLAB;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GITLAB;
 
 public class ScmUrlGeneratorTest {
 

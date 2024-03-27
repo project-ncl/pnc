@@ -34,8 +34,8 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
-import org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider;
-import org.jboss.pnc.common.gerrit.ScmException;
+import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
+import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
@@ -71,7 +71,6 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
-import static org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
