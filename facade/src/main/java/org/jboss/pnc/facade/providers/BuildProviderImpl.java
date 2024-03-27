@@ -21,8 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.common.gerrit.Gerrit;
-import org.jboss.pnc.common.gerrit.GerritException;
+import org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider;
+import org.jboss.pnc.common.gerrit.ScmException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
@@ -158,7 +158,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
-    private Gerrit gerrit;
+    private ScmUrlGeneratorProvider scmUrlGenerator;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
     private BuildMapper buildMapper;
 
@@ -180,7 +180,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             BuildConfigurationRepository buildConfigurationRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            Gerrit gerrit,
+            ScmUrlGeneratorProvider scmUrlGenerator,
             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
             BuildCoordinator buildCoordinator,
             UserService userService,
@@ -194,7 +194,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
-        this.gerrit = gerrit;
+        this.scmUrlGenerator = scmUrlGenerator;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
@@ -544,18 +544,22 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public URI getInternalScmArchiveLink(String buildId) {
 
-        BuildRecord buildRecord = repository.queryById(parseId(buildId));
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(parseId(buildId));
 
         if (buildRecord.getScmRevision() == null) {
             return null;
         } else {
-
             try {
+                var provider = scmUrlGenerator.determineScmProvider(
+                        buildRecord.getScmRepoURL(),
+                        buildRecord.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl());
+
                 return new URI(
-                        gerrit.generateDownloadUrlWithGerritGitweb(
-                                buildRecord.getScmRepoURL(),
-                                buildRecord.getScmRevision()));
-            } catch (GerritException | URISyntaxException e) {
+                        scmUrlGenerator.getScmUrlGenerator(provider)
+                                .generateDownloadUrlWithGitweb(
+                                        buildRecord.getScmRepoURL(),
+                                        buildRecord.getScmRevision()));
+            } catch (ScmException | URISyntaxException e) {
                 throw new RepositoryViolationException(e);
             }
         }

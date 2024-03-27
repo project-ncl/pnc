@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.common.gerrit;
 
-public class GerritException extends Exception {
+public class ScmException extends Exception {
 
-    public GerritException(String message) {
+    public ScmException(String message) {
         super(message);
     }
 
-    public GerritException(String message, Throwable e) {
+    public ScmException(String message, Throwable e) {
         super(message, e);
     }
 }
