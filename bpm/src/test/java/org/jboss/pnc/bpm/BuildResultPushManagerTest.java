@@ -23,8 +23,9 @@ import org.jboss.pnc.bpm.causeway.InProgress;
 import org.jboss.pnc.bpm.causeway.Result;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.gerrit.Gerrit;
-import org.jboss.pnc.common.gerrit.GerritException;
+import org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider;
+import org.jboss.pnc.common.gerrit.ScmException;
+import org.jboss.pnc.common.gerrit.ScmUrlGenerator;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
@@ -36,6 +37,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -50,7 +52,9 @@ import java.util.Collections;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -76,7 +80,7 @@ public class BuildResultPushManagerTest {
     private ArtifactRepository artifactRepository;
 
     @Mock
-    private Gerrit gerrit;
+    private ScmUrlGeneratorProvider scmUrlGenerator;
 
     private BuildResultPushManager releaseManager;
 
@@ -84,20 +88,28 @@ public class BuildResultPushManagerTest {
     private int buildRecordIdSequence = 0;
 
     private static final BuildEnvironment be = new BuildEnvironment();
+    private static final RepositoryConfiguration rc = new RepositoryConfiguration();
     private static final BuildConfigurationAudited bca = new BuildConfigurationAudited();
+
     @Mock
     private BuildConfigurationAudited buildConfigurationAudited;
 
     static {
         bca.setBuildEnvironment(be);
+        bca.setRepositoryConfiguration(rc);
         bca.setBuildType(BuildType.MVN);
     }
 
     @Before
-    public void setUp() throws CoreException, GerritException {
+    public void setUp() throws CoreException, ScmException {
         when(buildConfigurationAuditedRepository.queryById(any(IdRev.class))).thenReturn(buildConfigurationAudited);
         when(causewayClient.importBuild(any(), any())).thenReturn(true);
-        when(gerrit.generateDownloadUrlWithGerritGitweb(any(), any())).thenReturn("https://example.com/foo.tar.gz");
+
+        var mockGenerator = mock(ScmUrlGenerator.class);
+        when(scmUrlGenerator.getScmUrlGenerator(any())).thenReturn(mockGenerator);
+        when(scmUrlGenerator.determineScmProvider(any(), any())).thenReturn(GERRIT);
+        when(mockGenerator.generateDownloadUrlWithGitweb(any(), any())).thenReturn("https://example.com/foo.tar.gz");
+
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
@@ -108,7 +120,7 @@ public class BuildResultPushManagerTest {
                 new InProgress(),
                 buildRecordPushResultRestEvent,
                 artifactRepository,
-                gerrit,
+                scmUrlGenerator,
                 causewayClient);
     }
 
