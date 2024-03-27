@@ -83,14 +83,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
      * Param 1: build-id
      * <p>
      * Param 2: build-log/alignment-log
-     * <p>
-     * Param 3: lines per batch
-     * <p>
-     * Param 4: rate of batches (in ms)
-     * <p>
-     * Param 5: line format (PLAIN/LEVEL) {@see org.jboss.pnc.api.bifrost.enums.Format} for options
      */
-    private static final String BIFROST_LOGS_ENDPOINT = "/text?matchFilters=mdc.processContext:build-{0},loggerName:org.jboss.pnc._userlog_.{1}&batchSize={2}&batchDelay={3}&format={4}&direction=ASC";
+    private static final String BIFROST_LOGS_ENDPOINT = "/final-log/{0}/{1}";
 
     public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsFilterParameters builds) {
         return new BuildPageInfo(
@@ -319,20 +313,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     private URI createBifrostRedirectURL(String buildID, String logType, Format format) {
-        int batchDelay = 500;
-        int batchSize = 10000;
-
         String bifrostURL = stripEndingSlash(globalConfig.getExternalBifrostUrl());
-
-        return URI.create(
-                bifrostURL.concat(
-                        format(
-                                BIFROST_LOGS_ENDPOINT,
-                                buildID,
-                                logType,
-                                String.valueOf(batchSize),
-                                String.valueOf(batchDelay),
-                                format.toString())));
+        return URI.create(bifrostURL.concat(format(BIFROST_LOGS_ENDPOINT, buildID, logType)));
     }
 
     @Override

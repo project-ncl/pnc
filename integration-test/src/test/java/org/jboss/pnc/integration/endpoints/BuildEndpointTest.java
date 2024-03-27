@@ -555,11 +555,11 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldGetAlignLogsByRedirect() throws Exception {
-        AtomicReference<String> redirectedQuery = new AtomicReference<>();
+        AtomicReference<String> redirectedPath = new AtomicReference<>();
         String logMessage = "This is the log from the redirected endpoint, the alignment log.";
-        // http client should redirect to `externalBifrostUrl` which is set in the pnc-config to point to localhost:8080
+        // http client should redirect to `externalBifrostUrl` which is set in the pnc-config
         Undertow server = Undertow.builder().addHttpListener(8081, "localhost").setHandler(exchange -> {
-            redirectedQuery.set(exchange.getQueryString());
+            redirectedPath.set(exchange.getRequestPath());
             exchange.getResponseHeaders()
                     .add(HttpString.tryFromString("Content-Type"), ContentType.TEXT_PLAIN.getMimeType());
             exchange.getResponseChannel().writeFinal(ByteBuffer.wrap(logMessage.getBytes(StandardCharsets.UTF_8)));
@@ -579,17 +579,17 @@ public class BuildEndpointTest {
         } finally {
             server.stop();
         }
-        assertThat(redirectedQuery.get()).contains("org.jboss.pnc._userlog_.alignment-log");
-        assertThat(redirectedQuery.get()).contains(buildId);
+        assertThat(redirectedPath.get()).contains("alignment-log");
+        assertThat(redirectedPath.get()).contains(buildId);
     }
 
     @Test
     public void shouldGetBuildLogsByRedirect() throws Exception {
-        AtomicReference<String> redirectedQuery = new AtomicReference<>();
+        AtomicReference<String> redirectedPath = new AtomicReference<>();
         String logMessage = "This is the log from the redirected endpoint, the build log.";
-        // http client should redirect to `externalBifrostUrl` which is set in the pnc-config to point to localhost:8081
+        // http client should redirect to `externalBifrostUrl` which is set in the pnc-config
         Undertow server = Undertow.builder().addHttpListener(8081, "localhost").setHandler(exchange -> {
-            redirectedQuery.set(exchange.getQueryString());
+            redirectedPath.set(exchange.getRequestPath());
             exchange.getResponseHeaders()
                     .add(HttpString.tryFromString("Content-Type"), ContentType.TEXT_PLAIN.getMimeType());
             exchange.getResponseChannel().writeFinal(ByteBuffer.wrap(logMessage.getBytes(StandardCharsets.UTF_8)));
@@ -609,8 +609,8 @@ public class BuildEndpointTest {
         } finally {
             server.stop();
         }
-        assertThat(redirectedQuery.get()).contains("org.jboss.pnc._userlog_.build-log");
-        assertThat(redirectedQuery.get()).contains(buildId);
+        assertThat(redirectedPath.get()).contains("build-log");
+        assertThat(redirectedPath.get()).contains(buildId);
     }
 
     @Test
