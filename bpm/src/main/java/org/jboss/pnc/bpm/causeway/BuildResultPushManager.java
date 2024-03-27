@@ -34,8 +34,8 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
-import org.jboss.pnc.common.gerrit.Gerrit;
-import org.jboss.pnc.common.gerrit.GerritException;
+import org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider;
+import org.jboss.pnc.common.gerrit.ScmException;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
+import static org.jboss.pnc.common.gerrit.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -93,7 +94,7 @@ public class BuildResultPushManager {
 
     private Event<BuildPushResult> buildPushResultEvent;
 
-    private Gerrit gerrit;
+    private ScmUrlGeneratorProvider scmUrlGenerator;
 
     private FinalLogRest finalLog;
 
@@ -111,7 +112,7 @@ public class BuildResultPushManager {
             InProgress inProgress,
             Event<BuildPushResult> buildPushResultEvent,
             ArtifactRepository artifactRepository,
-            Gerrit gerrit,
+            ScmUrlGeneratorProvider scmUrlGenerator,
             CausewayClient causewayClient,
             FinalLogRest finalLog) {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -120,7 +121,7 @@ public class BuildResultPushManager {
         this.inProgress = inProgress;
         this.buildPushResultEvent = buildPushResultEvent;
         this.artifactRepository = artifactRepository;
-        this.gerrit = gerrit;
+        this.scmUrlGenerator = scmUrlGenerator;
         this.causewayClient = causewayClient;
         this.finalLog = finalLog;
     }
@@ -263,9 +264,12 @@ public class BuildResultPushManager {
 
     private String getSourcesUrl(BuildRecord buildRecord) {
         try {
-            return gerrit
-                    .generateDownloadUrlWithGerritGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
-        } catch (GerritException e) {
+            var provider = scmUrlGenerator.determineScmProvider(
+                    buildRecord.getScmRepoURL(),
+                    buildRecord.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl());
+            return scmUrlGenerator.getScmUrlGenerator(provider)
+                    .generateDownloadUrlWithGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
+        } catch (ScmException e) {
             throw new RuntimeException("Failed to get SCM url from gerrit", e);
         }
     }
