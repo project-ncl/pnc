@@ -15,15 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.common.gerrit;
+package org.jboss.pnc.common.scm;
 
-public class GerritException extends Exception {
+import org.junit.Test;
 
-    public GerritException(String message) {
-        super(message);
+import static org.junit.Assert.assertEquals;
+
+public class GitlabUrlGeneratorTest {
+
+    private final ScmUrlGenerator scmUrlGenerator = new GitlabScmUrlGenerator();
+
+    @Test
+    public void downloadUrlShouldHandleHttpCloneLink() throws ScmException {
+        String url = "https://localhost.com/workspace/project/repository.git";
+        String downloadUrl = "https://localhost.com/workspace/project/repository/-/archive/abcde/sources.tar.gz";
+        String ref = "abcde";
+
+        assertEquals(scmUrlGenerator.generateDownloadUrlWithGitweb(url, ref), downloadUrl);
     }
 
-    public GerritException(String message, Throwable e) {
-        super(message, e);
-    }
 }

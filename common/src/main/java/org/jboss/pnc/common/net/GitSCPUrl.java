@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
  * e.g. git@github.com:project-ncl/pnc.git
  */
 public class GitSCPUrl {
-    private String user;
-    private String host;
-    private String path;
-    private String owner;
-    private String repositoryName;
+    private final String user;
+    private final String host;
+    private final String path;
+    private final String owner;
+    private final String repositoryName;
 
     private static Pattern scpPattern = Pattern.compile(
             "^((?<user>\\w+)@)?(?<host>[-.\\w]+)[:/]{1,2}(?<path>((?<owner>[-\\w]+)/)*((?<reponame>[-\\w]+)(.git)?))[/]?$");
