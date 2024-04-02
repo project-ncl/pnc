@@ -71,6 +71,8 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.determineScmProvider;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.getScmUrlGenerator;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -263,10 +265,10 @@ public class BuildResultPushManager {
 
     private String getSourcesUrl(BuildRecord buildRecord) {
         try {
-            var provider = scmUrlGenerator.determineScmProvider(
+            var provider = determineScmProvider(
                     buildRecord.getScmRepoURL(),
                     buildRecord.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl());
-            return scmUrlGenerator.getScmUrlGenerator(provider)
+            return getScmUrlGenerator(provider)
                     .generateDownloadUrlWithGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
         } catch (ScmException e) {
             throw new RuntimeException("Failed to get SCM url from gerrit", e);

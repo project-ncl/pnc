@@ -144,6 +144,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 import static org.jboss.pnc.spi.datastore.repositories.api.OrderInfo.SortingDirection.DESC;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.determineScmProvider;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.getScmUrlGenerator;
 
 @PermitAll
 @Stateless
@@ -158,7 +160,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
-    private ScmUrlGeneratorProvider scmUrlGenerator;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
     private BuildMapper buildMapper;
 
@@ -180,7 +181,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             BuildConfigurationRepository buildConfigurationRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            ScmUrlGeneratorProvider scmUrlGenerator,
             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
             BuildCoordinator buildCoordinator,
             UserService userService,
@@ -194,7 +194,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
-        this.scmUrlGenerator = scmUrlGenerator;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
@@ -550,15 +549,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             return null;
         } else {
             try {
-                var provider = scmUrlGenerator.determineScmProvider(
+                var provider = determineScmProvider(
                         buildRecord.getScmRepoURL(),
                         buildRecord.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl());
 
                 return new URI(
-                        scmUrlGenerator.getScmUrlGenerator(provider)
-                                .generateDownloadUrlWithGitweb(
-                                        buildRecord.getScmRepoURL(),
-                                        buildRecord.getScmRevision()));
+                        getScmUrlGenerator(provider).generateDownloadUrlWithGitweb(
+                                buildRecord.getScmRepoURL(),
+                                buildRecord.getScmRevision()));
             } catch (ScmException | URISyntaxException e) {
                 throw new RepositoryViolationException(e);
             }
