@@ -46,7 +46,7 @@ public class ScmUrlGeneratorProvider {
      * @return generator of urls specific to the type of provider
      * @throws ScmException throws if provider is unknown
      */
-    public ScmUrlGenerator getScmUrlGenerator(@NotNull SCMProvider provider) throws ScmException {
+    public static ScmUrlGenerator getScmUrlGenerator(@NotNull SCMProvider provider) throws ScmException {
         var generator = scmUrlProviders.get(provider);
         if (generator == null) {
             throw new ScmException("Unknown SCM provider: " + provider);
@@ -63,7 +63,7 @@ public class ScmUrlGeneratorProvider {
      * @return SCMProvider that is likely to have been used
      * @throws ScmException if the arguments are not appropriate URLs
      */
-    public SCMProvider determineScmProvider(String scmUrl, String internalScmUrl) throws ScmException {
+    public static SCMProvider determineScmProvider(String scmUrl, String internalScmUrl) throws ScmException {
         URI scmUri;
         try {
             scmUri = new URI(scmUrl);
@@ -120,7 +120,7 @@ public class ScmUrlGeneratorProvider {
         }
     }
 
-    private boolean isScpLike(String internalScmUrl) {
+    private static boolean isScpLike(String internalScmUrl) {
         try {
             GitSCPUrl.parse(internalScmUrl);
         } catch (MalformedURLException e) {

@@ -23,9 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
 import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GITLAB;
 
-public class ScmUrlGeneratorTest {
-
-    private final ScmUrlGeneratorProvider provider = new ScmUrlGeneratorProvider();
+public class ScmUrlGeneratorProviderTest {
 
     @Test
     public void shouldReturnGITLAB() throws ScmException {
@@ -36,19 +34,19 @@ public class ScmUrlGeneratorTest {
         scmUrl = "https://gitlab.com/workspace/project/repository.git";
         internalUrl = "git+ssh://git@localhost.com/workspace/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITLAB);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITLAB);
 
         // internalUrl contains gitlab
         scmUrl = "https://localhost.com/workspace/project/repository.git";
         internalUrl = "git+ssh://git@gitlab.com/workspace/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITLAB);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITLAB);
 
         // internal is scp-like
         scmUrl = "https://localhost.com/workspace/project/repository.git";
         internalUrl = "git@localhost.com:workspace/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITLAB);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITLAB);
     }
 
     @Test
@@ -60,30 +58,30 @@ public class ScmUrlGeneratorTest {
         scmUrl = "https://gerrit.com/workspace/project/repository.git";
         internalUrl = "git+ssh://git@localhost.com/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
 
         // scmUrl contains gerrit path
         scmUrl = "https://localhost.com/gerrit/project/repository.git";
         internalUrl = "git+ssh://git@localhost.com/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
 
         // internalUrl contains gerrit
         scmUrl = "https://localhost.com/workspace/project/repository.git";
         internalUrl = "git+ssh://git@gerrit.com/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
 
         // internal is scp-like but contains gerrit
         scmUrl = "https://localhost.com/workspace/project/repository.git";
         internalUrl = "git@gerrit.com:workspace/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
 
         // internal is non-scp + no other indicator should default to GERRIT
         scmUrl = "https://localhost.com/workspace/project/repository.git";
         internalUrl = "git+ssh://git@localhost.com/workspace/project/repository.git";
 
-        assertThat(provider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
     }
 }
