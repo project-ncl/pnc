@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 
 public class GerritUrlGeneratorTest {
 
-    private final ScmUrlGenerator scmUrlGenerator = new GerritScmUrlGenerator();
+    private final GerritScmUrlGenerator scmUrlGenerator = new GerritScmUrlGenerator();
 
     @Test
     public void downloadUrlShouldHandleHttpCloneLink() throws ScmException {
