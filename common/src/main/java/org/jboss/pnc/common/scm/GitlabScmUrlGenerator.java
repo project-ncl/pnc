@@ -31,7 +31,7 @@ public class GitlabScmUrlGenerator implements ScmUrlGenerator {
         return MessageFormat.format(GITLAB_DOWNLOAD_URL_TEMPLATE, preProcess(scmUrl), ref);
     }
 
-    private String preProcess(String scmUrl) throws ScmException {
+    private static String preProcess(String scmUrl) throws ScmException {
         String path;
         String host;
         try {
@@ -52,17 +52,5 @@ public class GitlabScmUrlGenerator implements ScmUrlGenerator {
         }
 
         return uri.getPath();
-    }
-
-    @Override
-    public String generateGitwebLogUrl(String scmUrl, String ref) throws ScmException {
-        // TODO do we need to even implement this?
-        throw new UnsupportedOperationException("Log gitweb url is not yet implemented for GITLAB scm type.");
-    }
-
-    @Override
-    public String generateGitwebCommitUrl(String scmUrl, String ref) throws ScmException {
-        // TODO do we need to even implement this?
-        throw new UnsupportedOperationException("Commit gitweb url is not yet implemented for GITLAB scm type.");
     }
 }

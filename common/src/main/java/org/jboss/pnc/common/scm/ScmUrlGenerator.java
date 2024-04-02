@@ -29,27 +29,4 @@ public interface ScmUrlGenerator {
      * @throws ScmException thrown if the Url is not valid
      */
     String generateDownloadUrlWithGitweb(@NotNull String scmUrl, @NotNull String ref) throws ScmException;
-
-    /**
-     * Generate a https URL generated from the 'git clone' Gitweb url. If ref is specified, URL will point to it The url
-     * generated points to the git log based on the ref
-     * <p>
-     * Useful to list the repository's gitweb if we don't know the ref
-     *
-     * @param scmUrl 'git clone' gerrit url. Can be http or git+ssh
-     * @param ref if not null or empty, this is used to generate a Gerrit gitweb url to the ref
-     * @return Gitweb URL
-     */
-    String generateGitwebLogUrl(@NotNull String scmUrl, String ref) throws ScmException;
-
-    /**
-     * Generate a https URL generated from the 'git clone' Gitweb url. The url generated points to the specific commit
-     * based on the ref. If ref is a branch, it'll point to the latest commit
-     *
-     * @param scmUrl 'git clone' gitweb url. Can be http or git+ssh
-     * @param ref this is used to generate a gitweb url to the ref
-     * @return Gitweb URL
-     */
-    String generateGitwebCommitUrl(@NotNull String scmUrl, @NotNull String ref) throws ScmException;
-
 }
