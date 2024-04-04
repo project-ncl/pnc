@@ -27,7 +27,7 @@ public class GitlabScmUrlGenerator implements ScmUrlGenerator {
     private static final String GITLAB_DOWNLOAD_URL_TEMPLATE = "https://{0}/-/archive/{1}/sources.tar.gz";
 
     @Override
-    public String generateDownloadUrlWithGitweb(@NotNull String scmUrl, @NotNull String ref) throws ScmException {
+    public String generateTarballDownloadUrl(@NotNull String scmUrl, @NotNull String ref) throws ScmException {
         return MessageFormat.format(GITLAB_DOWNLOAD_URL_TEMPLATE, preProcess(scmUrl), ref);
     }
 

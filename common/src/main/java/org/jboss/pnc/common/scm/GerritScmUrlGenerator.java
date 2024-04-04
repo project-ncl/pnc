@@ -30,14 +30,14 @@ public class GerritScmUrlGenerator implements ScmUrlGenerator {
     private static final String GERRIT_GITWEB_URL_TEMPLATE = "https://{0}/gerrit/gitweb?p={1};a=summary";
 
     @Override
-    public String generateDownloadUrlWithGitweb(@NotNull String scmUrl, @NotNull String ref) throws ScmException {
+    public String generateTarballDownloadUrl(@NotNull String scmUrl, @NotNull String ref) throws ScmException {
 
         return MessageFormat.format(GERRIT_DOWNLOAD_URL_TEMPLATE, getHost(scmUrl), getGerritProject(scmUrl), ref);
     }
 
     /**
-     * Generate a https URL generated from the 'git clone' Gitweb url. If ref is specified, URL will point to it The url
-     * generated points to the git log based on the ref
+     * Generate an https URL generated from the 'git clone' Gitweb url. If ref is specified, URL will point to it The
+     * url generated points to the git log based on the ref
      * <p>
      * Useful to list the repository's gitweb if we don't know the ref
      *
@@ -58,7 +58,7 @@ public class GerritScmUrlGenerator implements ScmUrlGenerator {
     }
 
     /**
-     * Generate a https URL generated from the 'git clone' Gitweb url. The url generated points to the specific commit
+     * Generate an https URL generated from the 'git clone' Gitweb url. The url generated points to the specific commit
      * based on the ref. If ref is a branch, it'll point to the latest commit
      *
      * @param scmUrl 'git clone' gitweb url. Can be http or git+ssh
