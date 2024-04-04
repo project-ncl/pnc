@@ -94,8 +94,6 @@ public class BuildResultPushManager {
 
     private Event<BuildPushResult> buildPushResultEvent;
 
-    private ScmUrlGeneratorProvider scmUrlGenerator;
-
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
     @Deprecated // required by EJB
@@ -110,7 +108,6 @@ public class BuildResultPushManager {
             InProgress inProgress,
             Event<BuildPushResult> buildPushResultEvent,
             ArtifactRepository artifactRepository,
-            ScmUrlGeneratorProvider scmUrlGenerator,
             CausewayClient causewayClient) {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
@@ -118,7 +115,6 @@ public class BuildResultPushManager {
         this.inProgress = inProgress;
         this.buildPushResultEvent = buildPushResultEvent;
         this.artifactRepository = artifactRepository;
-        this.scmUrlGenerator = scmUrlGenerator;
         this.causewayClient = causewayClient;
     }
 
