@@ -95,8 +95,6 @@ public class BuildResultPushManager {
 
     private Event<BuildPushResult> buildPushResultEvent;
 
-    private ScmUrlGeneratorProvider scmUrlGenerator;
-
     private FinalLogRest finalLog;
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
@@ -113,7 +111,6 @@ public class BuildResultPushManager {
             InProgress inProgress,
             Event<BuildPushResult> buildPushResultEvent,
             ArtifactRepository artifactRepository,
-            ScmUrlGeneratorProvider scmUrlGenerator,
             CausewayClient causewayClient,
             FinalLogRest finalLog) {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -122,7 +119,6 @@ public class BuildResultPushManager {
         this.inProgress = inProgress;
         this.buildPushResultEvent = buildPushResultEvent;
         this.artifactRepository = artifactRepository;
-        this.scmUrlGenerator = scmUrlGenerator;
         this.causewayClient = causewayClient;
         this.finalLog = finalLog;
     }
