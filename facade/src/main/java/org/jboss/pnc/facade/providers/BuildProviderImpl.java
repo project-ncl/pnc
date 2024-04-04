@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
 import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
@@ -554,9 +553,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                         buildRecord.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl());
 
                 return new URI(
-                        getScmUrlGenerator(provider).generateDownloadUrlWithGitweb(
-                                buildRecord.getScmRepoURL(),
-                                buildRecord.getScmRevision()));
+                        getScmUrlGenerator(provider)
+                                .generateTarballDownloadUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
             } catch (ScmException | URISyntaxException e) {
                 throw new RepositoryViolationException(e);
             }

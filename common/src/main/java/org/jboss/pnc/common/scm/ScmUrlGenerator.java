@@ -21,12 +21,12 @@ import javax.validation.constraints.NotNull;
 
 public interface ScmUrlGenerator {
     /**
-     * Generate a download url for a Gitweb snapshot using the scm provider url of the project and the ref
+     * Generate a compatible tarball url using the scm provider url of the project and the ref
      *
      * @param scmUrl URL has to be the 'git clone' link (either http or git+ssh)
      * @param ref The ref to generate a snapshot. It can be a sha, branch, tag. If left empty, master is used
      * @return Download url
      * @throws ScmException thrown if the Url is not valid
      */
-    String generateDownloadUrlWithGitweb(@NotNull String scmUrl, @NotNull String ref) throws ScmException;
+    String generateTarballDownloadUrl(@NotNull String scmUrl, @NotNull String ref) throws ScmException;
 }

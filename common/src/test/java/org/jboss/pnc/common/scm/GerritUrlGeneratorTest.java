@@ -30,7 +30,7 @@ public class GerritUrlGeneratorTest {
         String url = "https://localhost/gerrit/project/repository.git";
         String downloadUrl = "https://localhost/gerrit/gitweb?p=project/repository.git;a=snapshot;h=abcde;sf=tgz";
 
-        assertEquals(scmUrlGenerator.generateDownloadUrlWithGitweb(url, "abcde"), downloadUrl);
+        assertEquals(scmUrlGenerator.generateTarballDownloadUrl(url, "abcde"), downloadUrl);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class GerritUrlGeneratorTest {
         String url = "git+ssh://localhost/gerrit/project/repository.git";
         String downloadUrl = "https://localhost/gerrit/gitweb?p=project/repository.git;a=snapshot;h=master;sf=tgz";
 
-        assertEquals(scmUrlGenerator.generateDownloadUrlWithGitweb(url, "master"), downloadUrl);
+        assertEquals(scmUrlGenerator.generateTarballDownloadUrl(url, "master"), downloadUrl);
     }
 
     @Test
@@ -48,19 +48,19 @@ public class GerritUrlGeneratorTest {
         String url = "git+ssh://localhost/gerrit/project/repository";
         String downloadUrl = "https://localhost/gerrit/gitweb?p=project/repository.git;a=snapshot;h=master;sf=tgz";
 
-        assertEquals(scmUrlGenerator.generateDownloadUrlWithGitweb(url, "master"), downloadUrl);
+        assertEquals(scmUrlGenerator.generateTarballDownloadUrl(url, "master"), downloadUrl);
     }
 
     @Test(expected = ScmException.class)
     public void downloadUrlShouldThrowGerritExceptionOnEmptyProject() throws ScmException {
 
-        scmUrlGenerator.generateDownloadUrlWithGitweb("http://localhost", "master");
+        scmUrlGenerator.generateTarballDownloadUrl("http://localhost", "master");
     }
 
     @Test(expected = ScmException.class)
     public void downloadUrlShouldThrowGerritExceptionOnEmptyGerritUrl() throws ScmException {
 
-        scmUrlGenerator.generateDownloadUrlWithGitweb("", "master");
+        scmUrlGenerator.generateTarballDownloadUrl("", "master");
     }
 
     @Test

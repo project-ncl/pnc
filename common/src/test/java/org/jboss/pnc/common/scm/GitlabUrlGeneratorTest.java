@@ -31,7 +31,7 @@ public class GitlabUrlGeneratorTest {
         String downloadUrl = "https://localhost.com/workspace/project/repository/-/archive/abcde/sources.tar.gz";
         String ref = "abcde";
 
-        assertEquals(scmUrlGenerator.generateDownloadUrlWithGitweb(url, ref), downloadUrl);
+        assertEquals(scmUrlGenerator.generateTarballDownloadUrl(url, ref), downloadUrl);
     }
 
 }
