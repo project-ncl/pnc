@@ -26,7 +26,6 @@ import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
 import org.jboss.pnc.common.scm.ScmException;
-import org.jboss.pnc.common.scm.ScmUrlGenerator;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
@@ -53,9 +52,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -80,8 +77,8 @@ public class BuildResultPushManagerTest {
     @Mock
     private ArtifactRepository artifactRepository;
 
-    @Mock
-    private ScmUrlGeneratorProvider scmUrlGenerator;
+    private ScmUrlGeneratorProvider scmUrlGeneratorProvider;
+
     @Mock
     private FinalLogRest finalLogRest;
 
@@ -108,11 +105,6 @@ public class BuildResultPushManagerTest {
         when(buildConfigurationAuditedRepository.queryById(any(IdRev.class))).thenReturn(buildConfigurationAudited);
         when(causewayClient.importBuild(any(), any())).thenReturn(true);
 
-        var mockGenerator = mock(ScmUrlGenerator.class);
-        when(scmUrlGenerator.getScmUrlGenerator(any())).thenReturn(mockGenerator);
-        when(scmUrlGenerator.determineScmProvider(any(), any())).thenReturn(GERRIT);
-        when(mockGenerator.generateDownloadUrlWithGitweb(any(), any())).thenReturn("https://example.com/foo.tar.gz");
-
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
@@ -123,7 +115,6 @@ public class BuildResultPushManagerTest {
                 new InProgress(),
                 buildRecordPushResultRestEvent,
                 artifactRepository,
-                scmUrlGenerator,
                 causewayClient,
                 finalLogRest);
     }
@@ -186,7 +177,7 @@ public class BuildResultPushManagerTest {
         record.setDependencies(Collections.emptySet());
         record.setStartTime(new Date());
         record.setEndTime(new Date());
-        record.setScmRepoURL("https://example.com/foo.git");
+        record.setScmRepoURL("https://gitlab.example.com/foo.git");
         record.setScmRevision("abcdef012345");
         if (withExecutionRootName) {
             record.setExecutionRootName("execution:root");
