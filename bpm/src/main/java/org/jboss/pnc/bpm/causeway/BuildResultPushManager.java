@@ -33,7 +33,6 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
-import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
 import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
@@ -260,7 +259,7 @@ public class BuildResultPushManager {
                     buildRecord.getScmRepoURL(),
                     buildRecord.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl());
             return getScmUrlGenerator(provider)
-                    .generateDownloadUrlWithGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
+                    .generateTarballDownloadUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
         } catch (ScmException e) {
             throw new RuntimeException("Failed to get SCM url from gerrit", e);
         }
