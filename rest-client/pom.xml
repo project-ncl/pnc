@@ -96,5 +96,36 @@
     </dependency>
 
   </dependencies>
+  <build>
+        <plugins>
+              <plugin>
+                <groupId>org.eclipse.transformer</groupId>
+                <artifactId>transformer-maven-plugin</artifactId>
+                <version>0.5.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <rules>
+                        <jakartaDefaults>true</jakartaDefaults>
+                    </rules>
+                    <classifier>jakarta</classifier>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <artifact>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>${project.artifactId}</artifactId>
+                                <version>${project.version}</version>
+                            </artifact>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
