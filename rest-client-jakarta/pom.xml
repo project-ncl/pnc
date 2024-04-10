@@ -47,6 +47,10 @@
           <groupId>org.jboss.pnc</groupId>
           <artifactId>pnc-api</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>pnc-common</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -81,6 +85,12 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-api</artifactId>
       <version>${version.pnc-api}</version>
+      <classifier>jakarta</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-common</artifactId>
+      <version>${version.pnc-common}</version>
       <classifier>jakarta</classifier>
     </dependency>
   </dependencies>
