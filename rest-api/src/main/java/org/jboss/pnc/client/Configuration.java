@@ -43,6 +43,7 @@ public class Configuration {
 
     private final BasicAuth basicAuth;
 
+    @Deprecated
     private final String bearerToken;
 
     /**
