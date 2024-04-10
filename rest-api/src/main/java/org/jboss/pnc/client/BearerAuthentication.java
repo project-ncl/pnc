@@ -21,6 +21,7 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -28,18 +29,38 @@ import java.io.IOException;
  */
 public class BearerAuthentication implements ClientRequestFilter {
 
-    private String token;
+    private Supplier<String> tokenSupplier;
 
+    /**
+     * Not used anymore in pnc-rest-client. Candidate for removal in PNC 3.0+
+     * 
+     * @param token
+     */
+    @Deprecated
     public BearerAuthentication(String token) {
-        this.token = token;
+        this.tokenSupplier = () -> token;
     }
 
+    public BearerAuthentication(Supplier<String> tokenSupplier) {
+        this.tokenSupplier = tokenSupplier;
+    }
+
+    /**
+     * Not used anymore in pnc-rest-client. Candidate for removal in PNC 3.0+
+     * 
+     * @param token
+     */
+    @Deprecated
     public void setToken(String token) {
-        this.token = token;
+        this.tokenSupplier = () -> token;
+    }
+
+    public void setTokenSupplier(Supplier<String> tokenSupplier) {
+        this.tokenSupplier = tokenSupplier;
     }
 
     @Override
     public void filter(ClientRequestContext requestContext) throws IOException {
-        requestContext.getHeaders().putSingle(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        requestContext.getHeaders().putSingle(HttpHeaders.AUTHORIZATION, "Bearer " + tokenSupplier.get());
     }
 }

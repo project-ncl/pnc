@@ -85,20 +85,6 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldGenerateTokenUsingSupplier() {
-        final TokenGenerator tokenGenerator = new TokenGenerator();
-
-        // given
-        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(tokenGenerator::getToken).build();
-
-        // when
-        new BuildClient(configuration);
-
-        // then
-        Assert.assertEquals(1, tokenGenerator.getInvocationCount());
-    }
-
-    @Test
     public void shouldRefreshTokenIfNotAuthorized() throws RemoteResourceException {
         final TokenGenerator tokenGenerator = new TokenGenerator();
 

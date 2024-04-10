@@ -362,7 +362,7 @@ public class ClientGenerator extends AbstractProcessor {
         methodBuilder = methodBuilder.nextControlFlow("catch ($T e)", NotAuthorizedException.class)
                 .beginControlFlow("if (configuration.getBearerTokenSupplier() != null)")
                 .beginControlFlow("try")
-                .addStatement("bearerAuthentication.setToken(configuration.getBearerTokenSupplier().get())");
+                .addStatement("bearerAuthentication.setTokenSupplier(configuration.getBearerTokenSupplier())");
 
         coreStatementConsumer.accept(methodBuilder);
 

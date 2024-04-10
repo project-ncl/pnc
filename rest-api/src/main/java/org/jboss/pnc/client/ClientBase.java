@@ -87,12 +87,12 @@ public abstract class ClientBase<T> implements Closeable {
             target.register(new BasicAuthentication(basicAuth.getUsername(), basicAuth.getPassword()));
         } else {
             if (configuration.getBearerTokenSupplier() != null) {
-                bearerAuthentication = new BearerAuthentication(configuration.getBearerTokenSupplier().get());
+                bearerAuthentication = new BearerAuthentication(configuration.getBearerTokenSupplier());
                 target.register(bearerAuthentication);
             } else {
                 String bearerToken = configuration.getBearerToken();
                 if (bearerToken != null && !bearerToken.isEmpty()) {
-                    bearerAuthentication = new BearerAuthentication(bearerToken);
+                    bearerAuthentication = new BearerAuthentication(() -> bearerToken);
                     target.register(bearerAuthentication);
                 }
             }
