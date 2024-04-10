@@ -37,6 +37,10 @@
       <exclusions>
         <exclusion>
           <groupId>org.jboss.pnc</groupId>
+          <artifactId>common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
           <artifactId>rest-api</artifactId>
         </exclusion>
         <exclusion>
@@ -46,6 +50,10 @@
         <exclusion>
           <groupId>org.jboss.pnc</groupId>
           <artifactId>pnc-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>pnc-common</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -70,6 +78,34 @@
       <artifactId>dto</artifactId>
       <version>${project.version}</version>
       <classifier>patch-builders-jakarta</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>pnc-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+      <classifier>jakarta</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>pnc-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>pnc-common</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-common</artifactId>
+      <version>${version.pnc-common}</version>
+      <classifier>jakarta</classifier>
       <exclusions>
         <exclusion>
           <groupId>org.jboss.pnc</groupId>
