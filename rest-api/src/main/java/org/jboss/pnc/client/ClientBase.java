@@ -91,7 +91,7 @@ public abstract class ClientBase<T> implements Closeable {
                 target.register(bearerAuthentication);
             } else {
                 String bearerToken = configuration.getBearerToken();
-                if (bearerToken != null && !bearerToken.equals("")) {
+                if (bearerToken != null && !bearerToken.isEmpty()) {
                     bearerAuthentication = new BearerAuthentication(bearerToken);
                     target.register(bearerAuthentication);
                 }
