@@ -47,10 +47,6 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>pnc-common</artifactId>
-        </dependency>
         <!-- REST dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
