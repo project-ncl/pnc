@@ -15,30 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.bpm.causeway;
+package org.jboss.pnc.integration.mock.client;
 
-import org.jboss.pnc.api.bifrost.rest.Bifrost;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.pnc.api.bifrost.rest.FinalLogRest;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 @ApplicationScoped
-public class BifrostProducer {
-    @Inject
-    private GlobalModuleGroup config;
-
-    @Produces
-    public Bifrost produce() {
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target(config.getExternalBifrostUrl());
-        ResteasyWebTarget rtarget = (ResteasyWebTarget) target;
-
-        return rtarget.proxy(Bifrost.class);
+public class FinalLogRestMock implements FinalLogRest {
+    @Override
+    public Response getFinalLog(String processContext, String tag) {
+        return null;
     }
+
+    @Override
+    public long getFinalLogSize(String buildId, String tag) {
+        return 0;
+    }
+
 }

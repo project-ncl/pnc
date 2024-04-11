@@ -18,7 +18,7 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
-import org.jboss.pnc.api.bifrost.rest.Bifrost;
+import org.jboss.pnc.api.bifrost.rest.FinalLogRest;
 import org.jboss.pnc.api.causeway.dto.push.Build;
 import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.push.BuildRoot;
@@ -95,7 +95,7 @@ public class BuildResultPushManager {
 
     private Gerrit gerrit;
 
-    private Bifrost bifrost;
+    private FinalLogRest finalLog;
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
@@ -113,7 +113,7 @@ public class BuildResultPushManager {
             ArtifactRepository artifactRepository,
             Gerrit gerrit,
             CausewayClient causewayClient,
-            Bifrost bifrost) {
+            FinalLogRest finalLog) {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.mapper = mapper;
@@ -122,7 +122,7 @@ public class BuildResultPushManager {
         this.artifactRepository = artifactRepository;
         this.gerrit = gerrit;
         this.causewayClient = causewayClient;
-        this.bifrost = bifrost;
+        this.finalLog = finalLog;
     }
 
     public Result push(BuildPushOperation buildPushOperation, String authToken) {
@@ -343,7 +343,7 @@ public class BuildResultPushManager {
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {
         String externalBuildID = buildRecord.getId().toString();
-        long buildLogSize = bifrost.getFinalLogSize(buildRecord.getId().toString(), "build-log");
+        long buildLogSize = finalLog.getFinalLogSize(buildRecord.getId().toString(), "build-log");
         if (buildLogSize > 0) {
             logs.add(
                     Logfile.builder()
@@ -355,7 +355,7 @@ public class BuildResultPushManager {
         } else {
             logger.warn("Missing build log for BR.id: {}.", externalBuildID);
         }
-        long alignmentLogSize = bifrost.getFinalLogSize(buildRecord.getId().toString(), "alignment-log");
+        long alignmentLogSize = finalLog.getFinalLogSize(buildRecord.getId().toString(), "alignment-log");
         if (alignmentLogSize > 0) {
             logs.add(
                     Logfile.builder()
