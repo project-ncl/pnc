@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.bpm;
 
-import org.jboss.pnc.api.bifrost.rest.Bifrost;
+import org.jboss.pnc.api.bifrost.rest.FinalLogRest;
 import org.jboss.pnc.bpm.causeway.BuildPushOperation;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.InProgress;
@@ -79,7 +79,7 @@ public class BuildResultPushManagerTest {
     @Mock
     private Gerrit gerrit;
     @Mock
-    private Bifrost bifrost;
+    private FinalLogRest finalLogRest;
 
     private BuildResultPushManager releaseManager;
 
@@ -113,7 +113,7 @@ public class BuildResultPushManagerTest {
                 artifactRepository,
                 gerrit,
                 causewayClient,
-                bifrost);
+                finalLogRest);
     }
 
     @Test

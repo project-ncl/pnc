@@ -62,16 +62,6 @@ public class BifrostMock implements Bifrost {
     }
 
     @Override
-    public Response getFinalLog(String processContext, String tag) {
-        return null;
-    }
-
-    @Override
-    public long getFinalLogSize(String buildId, String tag) {
-        return 0;
-    }
-
-    @Override
     public MetaData getMetaData(
             String matchFilters,
             String prefixFilters,
