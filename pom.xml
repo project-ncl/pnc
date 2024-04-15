@@ -133,7 +133,7 @@
     <version.assertj-core>3.25.3</version.assertj-core>
     <version.mockito>5.1.1</version.mockito>
     <version.wiremock>2.35.0</version.wiremock>
-    <version.dbunit>2.7.0</version.dbunit>
+    <version.dbunit>2.7.3</version.dbunit>
     <version.hsqldb>2.7.1</version.hsqldb>
     <version.rest-assured>4.3.1</version.rest-assured>
     <version.weld-in-tests>3.1.4.Final</version.weld-in-tests>
