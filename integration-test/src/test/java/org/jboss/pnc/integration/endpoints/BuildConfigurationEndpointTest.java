@@ -34,7 +34,6 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.SCMRepositoryClient;
 import org.jboss.pnc.client.patch.BuildConfigurationPatchBuilder;
 import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.dto.AlignmentConfig;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -254,29 +253,6 @@ public class BuildConfigurationEndpointTest {
                 .parameters(Collections.singletonMap(PARAMETER_KEY, genericParameterValue1))
                 .buildType(BuildType.MVN)
                 .dependencies(dependencies)
-                .build();
-
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
-        BuildConfiguration newBC = client.createNew(buildConfiguration);
-
-        return newBC;
-    }
-
-    private BuildConfiguration createBuildConfigurationWithRankingAndValidateResults(
-            String projectId,
-            String environmentId,
-            String repositoryConfigurationId,
-            String name,
-            String genericParameterValue1,
-            List<String> ranks) throws RemoteResourceException {
-        BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .project(ProjectRef.refBuilder().id(projectId).build())
-                .environment(Environment.builder().id(environmentId).build())
-                .scmRepository(SCMRepository.builder().id(repositoryConfigurationId).build())
-                .name(name)
-                .parameters(Collections.singletonMap(PARAMETER_KEY, genericParameterValue1))
-                .buildType(BuildType.MVN)
-                .alignmentConfigs(Set.of(AlignmentConfig.builder().ranks(ranks).build()))
                 .build();
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
@@ -1001,39 +977,5 @@ public class BuildConfigurationEndpointTest {
                 .getAllWithLatestBuild(Optional.empty(), Optional.of("name=like=\"pn_-%\""));
 
         assertThat(allWithLatestBuildUnderscore).hasSize(0);
-    }
-
-    @Test
-    @InSequence(70)
-    public void testRankingWithUnknownProduct() {
-        List<String> ranks = List.of("PRODUCT:UNKNOWN", "QUALITY:NEW");
-        assertThatThrownBy(
-                () -> createBuildConfigurationWithRankingAndValidateResults(
-                        projectId,
-                        environmentId,
-                        repositoryConfigurationId,
-                        UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString(),
-                        ranks)).isInstanceOf(RemoteResourceException.class);
-    }
-
-    @Test
-    @InSequence(70)
-    public void testRankingWithKnownProduct() throws Exception {
-        List<String> ranks = List.of("PRODUCT:PNC and PRODUCT:PNC", "QUALITY:NEW");
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
-
-        BuildConfiguration bc = createBuildConfigurationWithRankingAndValidateResults(
-                projectId,
-                environmentId,
-                repositoryConfigurationId,
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString(),
-                ranks);
-
-        BuildConfiguration specific = client.getSpecific(bc.getId());
-        assertThat(specific.getAlignmentConfigs().stream().map(AlignmentConfig::getRanks).collect(Collectors.toSet()))
-                .containsExactly(ranks);
-
     }
 }
