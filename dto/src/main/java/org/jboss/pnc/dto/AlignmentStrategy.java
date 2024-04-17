@@ -20,7 +20,6 @@ package org.jboss.pnc.dto;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
@@ -30,7 +29,6 @@ import java.util.List;
 
 @Getter
 @Builder(toBuilder = true)
-@ToString
 @EqualsAndHashCode
 @Jacksonized
 public class AlignmentStrategy {
