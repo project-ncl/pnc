@@ -22,15 +22,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
-import lombok.ToString;
-import org.jboss.pnc.api.enums.Qualifier;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Really basic Artifact info for optimized queries.
@@ -41,7 +35,6 @@ import java.util.Set;
 @Builder(builderClassName = "Builder")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(builder = ArtifactInfo.Builder.class)
-@ToString
 public class ArtifactInfo {
 
     /**
@@ -71,11 +64,6 @@ public class ArtifactInfo {
      * Category of the build denoting its support and usage
      */
     protected final BuildCategory buildCategory;
-
-    /**
-     * Extra metadata about artifacts.
-     */
-    protected final Map<Qualifier, Set<String>> qualifiers;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
