@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.requests.QValue;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.MilestoneInfo;
@@ -125,9 +124,6 @@ public interface ArtifactEndpoint {
     static final String FILTER_QUALITY_DESC = "List of artifact qualities to include in result.";
     static final String FILTER_BUILD_CATEGORY_DESC = "List of artifact build categories to include in result.";
     static final String FILTER_REPOSITORY_TYPE_DESC = "Type of target repository.";
-    static final String FETCH_QUALIFIERS_DESC = "List of Qualifiers with values. Returned artifacts will be enhanced"
-            + " with these values if they are qualified. Endpoint DOES NOT return a Qualifier with value if it is not"
-            + " listed in the request even though an artifact may have additional values for the Qualifier.";
 
     /**
      * {@value GET_ALL_FILTERED_DESC}
@@ -136,8 +132,6 @@ public interface ArtifactEndpoint {
      * @param identifier {@value FILTER_IDENTIFIER_DESC}
      * @param qualities {@value FILTER_QUALITY_DESC}
      * @param repoType {@value FILTER_REPOSITORY_TYPE_DESC}
-     * @param buildCategories {@value FILTER_BUILD_CATEGORY_DESC}
-     * @param {@value FILTER_BUILD_CATEGORY_DESC}
      * @return
      */
     @Operation(
@@ -163,8 +157,7 @@ public interface ArtifactEndpoint {
             @Parameter(description = FILTER_QUALITY_DESC) @QueryParam("qualities") Set<ArtifactQuality> qualities,
             @Parameter(description = FILTER_REPOSITORY_TYPE_DESC) @QueryParam("repoType") RepositoryType repoType,
             @Parameter(
-                    description = FILTER_BUILD_CATEGORY_DESC) @QueryParam("buildCategories") Set<BuildCategory> buildCategories,
-            @Parameter(description = FETCH_QUALIFIERS_DESC) @QueryParam("qualifiers") Set<QValue> qualifiers);
+                    description = FILTER_BUILD_CATEGORY_DESC) @QueryParam("buildCategories") Set<BuildCategory> buildCategories);
 
     static final String GET_SPECIFIC_DESC = "Gets a specific artifact.";
 
