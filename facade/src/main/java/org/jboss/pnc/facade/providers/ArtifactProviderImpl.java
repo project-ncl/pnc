@@ -21,7 +21,7 @@ import org.commonjava.atlas.maven.ident.ref.InvalidRefException;
 import org.jboss.pnc.api.enums.Qualifier;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
-import org.jboss.pnc.facade.util.NativeQueryBuilder;
+import org.jboss.pnc.common.sql.NativeQueryBuilder;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
