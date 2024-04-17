@@ -31,14 +31,13 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
- * A build config contains the information needed to execute a build of a project, i.e. link to the sources, the build
+ * A build config cointains the information needed to execute a build of a project, i.e. link to the sources, the build
  * script, the build system image needed to run.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -107,8 +106,6 @@ public class BuildConfiguration extends BuildConfigurationRef {
      */
     protected final User modificationUser;
 
-    protected final Set<AlignmentConfig> alignmentConfigs;
-
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     protected BuildConfiguration(
             SCMRepository scmRepository,
@@ -129,8 +126,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
             User creationUser,
             User modificationUser,
             String defaultAlignmentParams,
-            Boolean brewPullActive,
-            Set<AlignmentConfig> alignmentConfigs) {
+            Boolean brewPullActive) {
         super(
                 id,
                 name,
@@ -151,7 +147,6 @@ public class BuildConfiguration extends BuildConfigurationRef {
         this.parameters = parameters;
         this.creationUser = creationUser;
         this.modificationUser = modificationUser;
-        this.alignmentConfigs = alignmentConfigs;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

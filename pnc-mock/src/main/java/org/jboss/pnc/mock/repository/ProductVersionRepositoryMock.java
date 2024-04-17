@@ -20,11 +20,6 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-
-@Alternative
-@ApplicationScoped
 public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
         implements ProductVersionRepository {
 

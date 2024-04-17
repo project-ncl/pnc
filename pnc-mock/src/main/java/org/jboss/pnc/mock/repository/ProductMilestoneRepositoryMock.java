@@ -20,14 +20,9 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:24 PM
  */
-@Alternative
-@ApplicationScoped
 public class ProductMilestoneRepositoryMock extends IntIdRepositoryMock<ProductMilestone>
         implements ProductMilestoneRepository {
 
