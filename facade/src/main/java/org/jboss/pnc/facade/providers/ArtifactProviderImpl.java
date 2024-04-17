@@ -204,6 +204,7 @@ public class ArtifactProviderImpl
         List<Tuple> list = doNativeQuery(outerQuery, queryParams);
 
         List<ArtifactInfo> artifacts = list.stream()
+                .peek((object) -> log.debug(object.toString()))
                 .collect(groupingBy(tuple -> tuple.get("identifier", String.class)))
                 .values()
                 .stream()
