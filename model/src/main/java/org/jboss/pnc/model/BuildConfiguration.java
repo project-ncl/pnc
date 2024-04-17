@@ -217,7 +217,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             joinColumns = @JoinColumn(
                     name = "buildconfiguration_id",
                     foreignKey = @ForeignKey(name = "fk_align_strats_bc")))
-    @MapKeyColumn(name = "dependencyscope", nullable = false)
+    @MapKeyColumn(name = "dependencyscope", nullable = true)
     private Map<String, AlignStrategy> alignStrategies;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

@@ -18,14 +18,14 @@
 package org.jboss.pnc.model.utils;
 
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
-import org.hibernate.type.descriptor.sql.LongVarcharTypeDescriptor;
+import org.hibernate.type.descriptor.sql.VarcharTypeDescriptor;
 
 import java.util.List;
 
 public class DelimitedStringListType extends AbstractSingleColumnStandardBasicType<List> {
 
     public DelimitedStringListType() {
-        super(LongVarcharTypeDescriptor.INSTANCE, new DelimitedStringListTypeDescriptor());
+        super(VarcharTypeDescriptor.INSTANCE, new DelimitedStringListTypeDescriptor());
     }
 
     @Override
