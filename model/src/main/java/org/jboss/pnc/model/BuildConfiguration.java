@@ -211,15 +211,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "build_configuration_align_configs",
-            joinColumns = @JoinColumn(
-                    name = "buildconfiguration_id",
-                    foreignKey = @ForeignKey(name = "fk_align_configs_bc")))
-    @MapKeyColumn(name = "dependencyscope", nullable = true)
-    private Map<String, AlignConfig> alignConfigs;
-
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_creation_user"), updatable = false)
@@ -605,22 +596,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     public void setGenericParameters(Map<String, String> genericParameters) {
         this.genericParameters = genericParameters;
-    }
-
-    public Map<String, AlignConfig> getAlignConfigs() {
-        return alignConfigs;
-    }
-
-    public void setAlignConfigs(Map<String, AlignConfig> alignConfigs) {
-        this.alignConfigs = alignConfigs;
-    }
-
-    public void putAlignConfig(String dependencyOverride, AlignConfig alignConfig) {
-        alignConfigs.put(dependencyOverride, alignConfig);
-    }
-
-    public void removeAlignConfig(String dependencyOverride) {
-        alignConfigs.remove(dependencyOverride);
     }
 
     public BuildType getBuildType() {

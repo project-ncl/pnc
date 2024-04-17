@@ -47,7 +47,6 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "allDependencies", ignore = true)
     @Mapping(target = "genericParameters", source = "parameters")
     @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
-    @Mapping(target = "alignConfigs", source = "alignmentConfigs")
     @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "brewPullActive", source = "brewPullActive", defaultValue = "false")
     BuildConfiguration toEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity);
@@ -61,12 +60,9 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "lastModificationUser", ignore = true) // will be set when updating
     @Mapping(target = "defaultAlignmentParams", ignore = true)
     @Mapping(target = "project", ignore = true)
-    @Mapping(
-            target = "alignConfigs",
-            expression = "java( mapSetMapper.updateAlignConfigs(dtoEntity.getAlignmentConfigs(), target.getAlignConfigs()) )")
     @Mapping(target = "dependencies", expression = "java( cm.updateDependencies(dtoEntity, target) )")
     @Mapping(target = "buildConfigurationSets", expression = "java( cm.updateGroupConfigs(dtoEntity, target) )")
-    void updateEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity, @MappingTarget BuildConfiguration target);
+    public void updateEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity, @MappingTarget BuildConfiguration target);
 
     @Override
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
@@ -89,7 +85,6 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "parameters", source = "genericParameters")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
-    @Mapping(target = "alignmentConfigs", source = "alignConfigs")
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",

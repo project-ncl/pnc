@@ -61,15 +61,4 @@ public class ProductVersionPredicates {
         };
     }
 
-    public static Predicate<ProductVersion> withProductAbbreviation(String abbreviation) {
-        return (root, query, cb) -> {
-            Join<ProductVersion, Product> productJoin = root.join(ProductVersion_.product);
-            return cb.equal(productJoin.get(Product_.abbreviation), abbreviation);
-        };
-    }
-
-    public static Predicate<ProductVersion> withVersion(String version) {
-        return (root, query, cb) -> cb.equal(root.get(ProductVersion_.version), version);
-    }
-
 }

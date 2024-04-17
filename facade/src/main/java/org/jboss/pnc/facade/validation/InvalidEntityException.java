@@ -38,11 +38,6 @@ public class InvalidEntityException extends DTOValidationException {
         this.field = field;
     }
 
-    public InvalidEntityException(String message, String field, Throwable cause) {
-        super(message, cause);
-        this.field = field;
-    }
-
     public InvalidEntityException(Field field) {
         super("Field validation error occurred. Field: " + field.getName());
         this.field = field.getName();
