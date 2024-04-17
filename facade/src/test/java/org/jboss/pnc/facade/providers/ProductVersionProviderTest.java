@@ -28,6 +28,11 @@ import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +53,20 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductVersionProviderTest extends AbstractIntIdProviderTest<ProductVersion> {
+    @Mock
+    private ProductVersionRepository repository;
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private ProductMilestoneRepository milestoneRepository;
+
+    @Mock
+    private BuildConfigurationSetRepository configurationSetRepository;
+
+    @Mock
+    private BuildConfigurationRepository configurationRepository;
 
     @Mock
     SystemConfig systemConfig;
@@ -63,7 +82,7 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
 
     @Override
     protected Repository<ProductVersion, Integer> repository() {
-        return productVersionRepository;
+        return repository;
     }
 
     private ProductVersion pv = prepareProductVersion("2.0", 1);

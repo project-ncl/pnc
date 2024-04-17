@@ -26,6 +26,8 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +50,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class GroupConfigurationProviderTest extends AbstractIntIdProviderTest<BuildConfigurationSet> {
 
+    @Mock
+    protected BuildConfigurationSetRepository repository;
+
+    @Mock
+    private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
+    @Mock
+    private BuildConfigurationRepository buildConfigurationRepository;
+
     @Spy
     @InjectMocks
     protected GroupConfigurationProviderImpl provider;
@@ -59,7 +70,7 @@ public class GroupConfigurationProviderTest extends AbstractIntIdProviderTest<Bu
 
     @Override
     protected Repository<BuildConfigurationSet, Integer> repository() {
-        return configurationSetRepository;
+        return repository;
     }
 
     private BuildConfigurationSet bcs = prepareBuildConfigSet(

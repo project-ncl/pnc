@@ -37,6 +37,7 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,9 @@ public class DeliverableAnalyzerOperationProviderImplTest
 
     @Mock
     private DeliverableAnalyzerOperationRepository repository;
+
+    @Mock
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @Mock
     private KeycloakServiceClient keycloakServiceClient;

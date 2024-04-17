@@ -33,6 +33,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -60,6 +61,9 @@ import static org.mockito.Mockito.when;
 public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConfiguration> {
 
     @Mock
+    private BuildConfigurationRepository repository;
+
+    @Mock
     private BuildEnvironmentRepository buildEnvironmentRepository;
 
     @Mock
@@ -82,7 +86,7 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
 
     @Override
     protected Repository<BuildConfiguration, Integer> repository() {
-        return buildConfigurationRepository;
+        return repository;
     }
 
     private BuildConfiguration bc = prepareBuildConfig("Creative", 4, 4, 4);
