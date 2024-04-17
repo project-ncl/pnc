@@ -45,15 +45,11 @@ public class AlignStrategy {
     @Type(type = "delimited_strings")
     private List<String> idRanks = new ArrayList<>();
 
-    @Type(type = "org.hibernate.type.TextType")
     private String denyList;
 
-    @Type(type = "org.hibernate.type.TextType")
     private String idDenyList;
 
-    @Type(type = "org.hibernate.type.TextType")
     private String allowList;
 
-    @Type(type = "org.hibernate.type.TextType")
     private String idAllowList;
 }
