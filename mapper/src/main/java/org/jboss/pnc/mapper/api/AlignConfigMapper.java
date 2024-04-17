@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.AlignmentStrategy;
-import org.jboss.pnc.model.AlignStrategy;
+import org.jboss.pnc.dto.AlignmentConfig;
+import org.jboss.pnc.model.AlignConfig;
 
-public interface AlignStratMapper {
+public interface AlignConfigMapper {
 
-    AlignStrategy toModel(AlignmentStrategy strat);
+    AlignConfig toModel(AlignmentConfig config);
 
-    AlignmentStrategy toDto(AlignStrategy strat, String dependencyOverride);
+    AlignmentConfig toDto(AlignConfig config, String dependencyOverride);
 
-    void updateEntity(AlignmentStrategy dto, AlignStrategy model);
+    void updateEntity(AlignmentConfig dto, AlignConfig model);
 }

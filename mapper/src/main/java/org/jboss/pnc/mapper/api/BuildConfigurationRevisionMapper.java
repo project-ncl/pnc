@@ -45,7 +45,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @Mapping(target = "parameters", source = "genericParameters")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
-    @Mapping(target = "alignmentStrategies", source = "alignStrategies")
+    @Mapping(target = "alignmentConfigs", source = "alignConfigs")
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
@@ -58,7 +58,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "buildConfiguration", ignore = true)
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "genericParameters", source = "parameters")
-    @Mapping(target = "alignStrategies", source = "alignmentStrategies")
+    @Mapping(target = "alignConfigs", source = "alignmentConfigs")
     @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);

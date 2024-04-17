@@ -23,12 +23,12 @@ import org.jboss.pnc.common.alignment.ranking.AlignmentPredicate;
 import org.jboss.pnc.common.alignment.ranking.AlignmentRanking;
 import org.jboss.pnc.common.alignment.ranking.tokenizer.QualifierToken;
 import org.jboss.pnc.common.alignment.ranking.tokenizer.Token;
-import org.jboss.pnc.dto.AlignmentStrategy;
+import org.jboss.pnc.dto.AlignmentConfig;
 import org.jboss.pnc.mapper.IntIdMapper;
-import org.jboss.pnc.mapper.api.AlignStratMapper;
+import org.jboss.pnc.mapper.api.AlignConfigMapper;
 import org.jboss.pnc.mapper.api.IdMapper;
 import org.jboss.pnc.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.model.AlignStrategy;
+import org.jboss.pnc.model.AlignConfig;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -55,7 +55,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.wi
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withVersion;
 
 @Mapper(config = MapperCentralConfig.class, imports = { Defaults.class })
-public abstract class AbstractAlignStratMapper implements AlignStratMapper {
+public abstract class AbstractAlignConfigMapper implements AlignConfigMapper {
 
     @Inject
     protected BuildConfigurationRepository bcRepository;
@@ -73,8 +73,8 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
     protected ProductVersionRepository productVersionRepository;
 
     @Override
-    public AlignStrategy toModel(AlignmentStrategy strat) {
-        List<String> dtoRanks = strat.getRanks();
+    public AlignConfig toModel(AlignmentConfig dto) {
+        List<String> dtoRanks = dto.getRanks();
         List<List<Token>> dtoRanksTokens = Collections.emptyList();
         if (dtoRanks != null && !dtoRanks.isEmpty()) {
             AlignmentRanking compiledDtoRanks = new AlignmentRanking(dtoRanks, null);
@@ -82,7 +82,7 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
         }
         List<String> idRanks = generateIdVersion_(dtoRanksTokens);
 
-        String dtoDeny = strat.getDenyList();
+        String dtoDeny = dto.getDenyList();
         List<Token> dtoDenyTokens = Collections.emptyList();
         if (dtoDeny != null && !dtoDeny.trim().isEmpty()) {
             AlignmentPredicate compiledDtoDeny = new AlignmentPredicate(dtoDeny);
@@ -90,7 +90,7 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
         }
         String idDenies = generateIdVersion(dtoDenyTokens);
 
-        String dtoAllow = strat.getAllowList();
+        String dtoAllow = dto.getAllowList();
         List<Token> dtoAllowTokens = Collections.emptyList();
         if (dtoAllow != null && !dtoAllow.trim().isEmpty()) {
             AlignmentPredicate compiledDtoAllow = new AlignmentPredicate(dtoAllow);
@@ -98,7 +98,7 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
         }
         String idAllows = generateIdVersion(dtoAllowTokens);
 
-        return AlignStrategy.builder()
+        return AlignConfig.builder()
                 .ranks(dtoRanks)
                 .idRanks(idRanks)
                 .denyList(dtoDeny)
@@ -217,7 +217,7 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
     }
 
     @Override
-    public void updateEntity(AlignmentStrategy dto, AlignStrategy model) {
+    public void updateEntity(AlignmentConfig dto, AlignConfig model) {
 
         // RANKS
         List<String> dtoRanks = dto.getRanks();
@@ -268,7 +268,7 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
             dtoAllowTokens = compiledDtoAllow.getTokens();
         }
 
-        String modelAllow = model.getAllowList();
+        String modelAllow = dto.getAllowList();
         List<Token> modelAllowTokens = Collections.emptyList();
         if (modelAllow != null && !modelAllow.trim().isEmpty()) {
             AlignmentPredicate compiledModelAllow = new AlignmentPredicate(modelAllow);
@@ -297,5 +297,5 @@ public abstract class AbstractAlignStratMapper implements AlignStratMapper {
             target = "dependencyOverride",
             expression = "java( Defaults.GLOBAL_SCOPE.equals(dependencyScope) ? null : dependencyScope )")
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRanks", "idDenyList", "idAllowList" })
-    public abstract AlignmentStrategy toDto(AlignStrategy strat, String dependencyScope);
+    public abstract AlignmentConfig toDto(AlignConfig config, String dependencyScope);
 }

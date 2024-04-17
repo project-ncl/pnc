@@ -82,7 +82,7 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     private Map<String, String> genericParameters = new HashMap<>();
 
-    private Map<String, AlignStrategy> alignStrategies = new HashMap<>();
+    private Map<String, AlignConfig> alignConfigs = new HashMap<>();
 
     public IdRev getIdRev() {
         return idRev;
@@ -220,12 +220,12 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
         this.defaultAlignmentParams = defaultAlignmentParams;
     }
 
-    public Map<String, AlignStrategy> getAlignStrategies() {
-        return alignStrategies;
+    public Map<String, AlignConfig> getAlignConfigs() {
+        return alignConfigs;
     }
 
-    public void setAlignStrategies(Map<String, AlignStrategy> alignStrategies) {
-        this.alignStrategies = alignStrategies;
+    public void setAlignConfigs(Map<String, AlignConfig> alignConfigs) {
+        this.alignConfigs = alignConfigs;
     }
 
     public boolean isBrewPullActive() {
@@ -281,7 +281,7 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
             configurationAudited.setCreationUser(buildConfiguration.getCreationUser());
             configurationAudited.setLastModificationUser(buildConfiguration.getLastModificationUser());
             configurationAudited.setDefaultAlignmentParams(buildConfiguration.getDefaultAlignmentParams());
-            configurationAudited.setAlignStrategies(buildConfiguration.getAlignStrategies());
+            configurationAudited.setAlignConfigs(buildConfiguration.getAlignConfigs());
             configurationAudited.buildConfiguration = buildConfiguration;
             configurationAudited.brewPullActive = buildConfiguration.isBrewPullActive();
             return configurationAudited;
