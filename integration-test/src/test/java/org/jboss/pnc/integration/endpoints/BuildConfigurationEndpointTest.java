@@ -268,9 +268,7 @@ public class BuildConfigurationEndpointTest {
             String repositoryConfigurationId,
             String name,
             String genericParameterValue1,
-            List<String> ranks,
-            String allow,
-            String deny) throws RemoteResourceException {
+            List<String> ranks) throws RemoteResourceException {
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .project(ProjectRef.refBuilder().id(projectId).build())
                 .environment(Environment.builder().id(environmentId).build())
@@ -278,8 +276,7 @@ public class BuildConfigurationEndpointTest {
                 .name(name)
                 .parameters(Collections.singletonMap(PARAMETER_KEY, genericParameterValue1))
                 .buildType(BuildType.MVN)
-                .alignmentStrategies(
-                        Set.of(AlignmentStrategy.builder().ranks(ranks).allowList(allow).denyList(deny).build()))
+                .alignmentStrategies(Set.of(AlignmentStrategy.builder().ranks(ranks).build()))
                 .build();
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
@@ -1017,9 +1014,7 @@ public class BuildConfigurationEndpointTest {
                         repositoryConfigurationId,
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
-                        ranks,
-                        null,
-                        null)).isInstanceOf(RemoteResourceException.class);
+                        ranks)).isInstanceOf(RemoteResourceException.class);
     }
 
     @Test
@@ -1034,49 +1029,12 @@ public class BuildConfigurationEndpointTest {
                 repositoryConfigurationId,
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(),
-                ranks,
-                null,
-                null);
+                ranks);
 
         BuildConfiguration specific = client.getSpecific(bc.getId());
         assertThat(
                 specific.getAlignmentStrategies().stream().map(AlignmentStrategy::getRanks).collect(Collectors.toSet()))
                         .containsExactly(ranks);
 
-    }
-
-    @Test
-    @InSequence(70)
-    public void testCreateAndUpdateStrategy() throws Exception {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
-
-        BuildConfiguration bc = createBuildConfigurationWithRankingAndValidateResults(
-                projectId,
-                environmentId,
-                repositoryConfigurationId,
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString(),
-                List.of(),
-                "PRODUCT:PNC",
-                null);
-
-        BuildConfiguration specific = client.getSpecific(bc.getId());
-        AlignmentStrategy change = bc.getAlignmentStrategies()
-                .iterator()
-                .next()
-                .toBuilder()
-                .denyList("PRODUCT:PNC")
-                .build();
-
-        specific = specific.toBuilder().alignmentStrategies(Set.of(change)).build();
-
-        client.update(specific.getId(), specific);
-
-        BuildConfiguration updated = client.getSpecific(bc.getId());
-        AlignmentStrategy changed = updated.getAlignmentStrategies().iterator().next();
-
-        assertThat(changed.getRanks()).isNull();
-        assertThat(changed.getDenyList()).isEqualTo("PRODUCT:PNC");
-        assertThat(changed.getAllowList()).isEqualTo("PRODUCT:PNC");
     }
 }
