@@ -20,12 +20,17 @@ package org.jboss.pnc.mapper;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jboss.pnc.dto.AlignmentConfig;
 import org.jboss.pnc.dto.GroupConfiguration;
+import org.jboss.pnc.model.AlignConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;

@@ -24,7 +24,7 @@ import org.jboss.pnc.common.alignment.ranking.tokenizer.QualifierToken;
 import org.jboss.pnc.common.alignment.ranking.tokenizer.Token;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.dto.AlignmentStrategy;
+import org.jboss.pnc.dto.AlignmentConfig;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -252,44 +252,44 @@ public class BuildConfigurationProviderImpl extends
 
         validateIfItsNotConflicted(buildConfigurationRest);
         validateEnvironment(buildConfigurationRest);
-        validateAlignStrategy(buildConfigurationRest);
+        validateAlignConfig(buildConfigurationRest);
     }
 
-    private void validateAlignStrategy(BuildConfiguration newConfiguration) {
-        Set<AlignmentStrategy> newStrategies = newConfiguration.getAlignmentStrategies();
-        if (newStrategies == null || newStrategies.isEmpty()) {
+    private void validateAlignConfig(BuildConfiguration newConfiguration) {
+        Set<AlignmentConfig> newConfigs = newConfiguration.getAlignmentConfigs();
+        if (newConfigs == null || newConfigs.isEmpty()) {
             return;
         }
 
-        validateRankings(newStrategies);
-        validateAllowDenyLists(newStrategies);
+        validateRankings(newConfigs);
+        validateAllowDenyLists(newConfigs);
     }
 
-    private void validateAlignStrategy(Integer id, BuildConfiguration buildConfigurationRest) {
-        Set<AlignmentStrategy> newStrategies = buildConfigurationRest.getAlignmentStrategies();
-        if (newStrategies == null || newStrategies.isEmpty()) {
+    private void validateAlignConfig(Integer id, BuildConfiguration buildConfigurationRest) {
+        Set<AlignmentConfig> newConfigs = buildConfigurationRest.getAlignmentConfigs();
+        if (newConfigs == null || newConfigs.isEmpty()) {
             return;
         }
 
-        Set<AlignmentStrategy> oldStrategies = getSpecific(String.valueOf(id)).getAlignmentStrategies();
-        if (oldStrategies == null || oldStrategies.isEmpty()) {
-            validateRankings(newStrategies);
-            validateAllowDenyLists(newStrategies);
+        Set<AlignmentConfig> oldConfigs = getSpecific(String.valueOf(id)).getAlignmentConfigs();
+        if (oldConfigs == null || oldConfigs.isEmpty()) {
+            validateRankings(newConfigs);
+            validateAllowDenyLists(newConfigs);
         } else {
-            validateRankings(newStrategies, oldStrategies);
-            validateAllowDenyLists(newStrategies, oldStrategies);
+            validateRankings(newConfigs, oldConfigs);
+            validateAllowDenyLists(newConfigs, oldConfigs);
         }
     }
 
-    private void validateRankings(Set<AlignmentStrategy> strategies) {
-        List<List<String>> rankings = strategies.stream().map(AlignmentStrategy::getRanks).collect(Collectors.toList());
+    private void validateRankings(Set<AlignmentConfig> configs) {
+        List<List<String>> rankings = configs.stream().map(AlignmentConfig::getRanks).collect(Collectors.toList());
 
         for (List<String> ranks : rankings) {
             AlignmentRanking compiledRanks;
             try {
                 compiledRanks = new AlignmentRanking(ranks, null);
             } catch (Exception e) {
-                throw new InvalidEntityException(e.getMessage(), "alignmentStrategies", e);
+                throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
             }
 
             List<List<Token>> tokenizedRanks = compiledRanks.getRanksAsTokens();
@@ -298,15 +298,15 @@ public class BuildConfigurationProviderImpl extends
         }
     }
 
-    private void validateRankings(Set<AlignmentStrategy> newStrats, Set<AlignmentStrategy> oldStrats) {
+    private void validateRankings(Set<AlignmentConfig> newConfigs, Set<AlignmentConfig> oldConfigs) {
         try {
-            Map<String, List<List<Token>>> newDependencyTokensMap = mapStratToListOfTokensPerRank(newStrats);
-            Map<String, List<List<Token>>> oldDependencyTokensMap = mapStratToListOfTokensPerRank(oldStrats);
+            Map<String, List<List<Token>>> newDependencyTokensMap = mapConfigToListOfTokensPerRank(newConfigs);
+            Map<String, List<List<Token>>> oldDependencyTokensMap = mapConfigToListOfTokensPerRank(oldConfigs);
 
-            Map<String, AlignmentStrategy> mappedByDepOverride = newStrats.stream()
-                    .collect(toMap(AlignmentStrategy::getDependencyOverride, Function.identity()));
+            Map<String, AlignmentConfig> mappedByDepOverride = newConfigs.stream()
+                    .collect(toMap(AlignmentConfig::getDependencyOverride, Function.identity()));
 
-            Set<AlignmentStrategy> toValidate = newDependencyTokensMap.entrySet()
+            Set<AlignmentConfig> toValidate = newDependencyTokensMap.entrySet()
                     .stream()
                     .filter(
                             entry -> !oldDependencyTokensMap.containsKey(entry.getKey()) // validate new entries
@@ -318,31 +318,31 @@ public class BuildConfigurationProviderImpl extends
 
             validateRankings(toValidate);
         } catch (ValidationException e) {
-            throw new InvalidEntityException(e.getMessage(), "alignmentStrategies", e);
+            throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
         }
 
     }
 
-    private void validateAllowDenyLists(Set<AlignmentStrategy> newStrats) {
-        validateAList(newStrats, AlignmentStrategy::getDenyList);
-        validateAList(newStrats, AlignmentStrategy::getAllowList);
+    private void validateAllowDenyLists(Set<AlignmentConfig> newConfigs) {
+        validateAList(newConfigs, AlignmentConfig::getDenyList);
+        validateAList(newConfigs, AlignmentConfig::getAllowList);
     }
 
-    private void validateAllowDenyLists(Set<AlignmentStrategy> newStrats, Set<AlignmentStrategy> oldStrats) {
+    private void validateAllowDenyLists(Set<AlignmentConfig> newConfigs, Set<AlignmentConfig> oldConfigs) {
         try {
-            Map<String, AlignmentStrategy> mappedByDepOverride = newStrats.stream()
-                    .collect(toMap(AlignmentStrategy::getDependencyOverride, Function.identity()));
+            Map<String, AlignmentConfig> mappedByDepOverride = newConfigs.stream()
+                    .collect(toMap(AlignmentConfig::getDependencyOverride, Function.identity()));
 
             // DENY LIST SECTION
-            Map<String, List<Token>> newDenyListTokenMap = mapStratPredicateToListOfTokens(
-                    newStrats,
-                    AlignmentStrategy::getDenyList);
-            Map<String, List<Token>> oldDenyListTokenMap = mapStratPredicateToListOfTokens(
-                    oldStrats,
-                    AlignmentStrategy::getDenyList);
+            Map<String, List<Token>> newDenyListTokenMap = mapConfigPredicateToListOfTokens(
+                    newConfigs,
+                    AlignmentConfig::getDenyList);
+            Map<String, List<Token>> oldDenyListTokenMap = mapConfigPredicateToListOfTokens(
+                    oldConfigs,
+                    AlignmentConfig::getDenyList);
 
             // VALIDATE NEW KEYS AND KEYS THAT HAVE CHANGED QUALIFIERS
-            Set<AlignmentStrategy> toValidate = newDenyListTokenMap.entrySet()
+            Set<AlignmentConfig> toValidate = newDenyListTokenMap.entrySet()
                     .stream()
                     .filter(
                             entry -> !oldDenyListTokenMap.containsKey(entry.getKey()) // validate new entries
@@ -352,15 +352,15 @@ public class BuildConfigurationProviderImpl extends
                     .map(mappedByDepOverride::get)
                     .collect(Collectors.toSet());
 
-            validateAList(toValidate, AlignmentStrategy::getDenyList);
+            validateAList(toValidate, AlignmentConfig::getDenyList);
 
             // ALLOW LIST SECTION
-            Map<String, List<Token>> newAllowListTokenMap = mapStratPredicateToListOfTokens(
-                    newStrats,
-                    AlignmentStrategy::getAllowList);
-            Map<String, List<Token>> oldAllowListTokenMap = mapStratPredicateToListOfTokens(
-                    oldStrats,
-                    AlignmentStrategy::getAllowList);
+            Map<String, List<Token>> newAllowListTokenMap = mapConfigPredicateToListOfTokens(
+                    newConfigs,
+                    AlignmentConfig::getAllowList);
+            Map<String, List<Token>> oldAllowListTokenMap = mapConfigPredicateToListOfTokens(
+                    oldConfigs,
+                    AlignmentConfig::getAllowList);
 
             // VALIDATE NEW KEYS AND KEYS THAT HAVE CHANGED QUALIFIERS
             toValidate = newAllowListTokenMap.entrySet()
@@ -373,17 +373,17 @@ public class BuildConfigurationProviderImpl extends
                     .map(mappedByDepOverride::get)
                     .collect(Collectors.toSet());
 
-            validateAList(toValidate, AlignmentStrategy::getAllowList);
+            validateAList(toValidate, AlignmentConfig::getAllowList);
         } catch (ValidationException e) {
-            throw new InvalidEntityException(e.getMessage(), "alignmentStrategies", e);
+            throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
         }
     }
 
     private void validateAList(
-            Set<AlignmentStrategy> newStrats,
-            Function<AlignmentStrategy, String> allowDenylistFunction) {
+            Set<AlignmentConfig> newConfigs,
+            Function<AlignmentConfig, String> allowDenylistFunction) {
         try {
-            Map<String, List<Token>> newDenies = mapStratPredicateToListOfTokens(newStrats, allowDenylistFunction);
+            Map<String, List<Token>> newDenies = mapConfigPredicateToListOfTokens(newConfigs, allowDenylistFunction);
 
             newDenies.values()
                     .stream()
@@ -392,32 +392,32 @@ public class BuildConfigurationProviderImpl extends
                     .forEach(token -> verifyQualifier((QualifierToken) token));
 
         } catch (ValidationException e) {
-            throw new InvalidEntityException(e.getMessage(), "alignmentStrategies", e);
+            throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
         }
     }
 
     /**
-     * AlignStrategy has multiple ranks (List<String>) where each rank (String) consists of multiple Tokens
-     * (List<Token>). Therefore, multiple ranks of single strategy map to List<List<Token>>.
+     * AlignConfig has multiple ranks (List<String>) where each rank (String) consists of multiple Tokens (List<Token>).
+     * Therefore, multiple ranks of single config map to List<List<Token>>.
      *
-     * @param strats Set of AlignmentStrategies
+     * @param configs Set of AlignmentConfigs
      * @return Map where key is dependencyScope(override) and value is ranks mapped into Tokens
      */
-    private static Map<String, List<List<Token>>> mapStratToListOfTokensPerRank(Set<AlignmentStrategy> strats) {
-        return strats.stream()
+    private static Map<String, List<List<Token>>> mapConfigToListOfTokensPerRank(Set<AlignmentConfig> configs) {
+        return configs.stream()
                 .collect(
                         toMap(
-                                AlignmentStrategy::getDependencyOverride,
+                                AlignmentConfig::getDependencyOverride,
                                 ac -> new AlignmentRanking(ac.getRanks(), null).getRanksAsTokens()));
     }
 
-    private static Map<String, List<Token>> mapStratPredicateToListOfTokens(
-            Set<AlignmentStrategy> strats,
-            Function<AlignmentStrategy, String> allowDenylistFunction) {
-        return strats.stream()
+    private static Map<String, List<Token>> mapConfigPredicateToListOfTokens(
+            Set<AlignmentConfig> configs,
+            Function<AlignmentConfig, String> allowDenylistFunction) {
+        return configs.stream()
                 .collect(
                         toMap(
-                                AlignmentStrategy::getDependencyOverride,
+                                AlignmentConfig::getDependencyOverride,
                                 ac -> new AlignmentPredicate(allowDenylistFunction.apply(ac)).getTokens()));
     }
 
@@ -533,7 +533,7 @@ public class BuildConfigurationProviderImpl extends
         } catch (Exception e) {
             throw new InvalidEntityException(
                     "Could not parse " + clazz.getCanonicalName() + " ID " + value,
-                    "alignmentStrategies",
+                    "alignmentConfigs",
                     e);
         }
     }
@@ -560,7 +560,7 @@ public class BuildConfigurationProviderImpl extends
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(id, buildConfigurationRest.getDependencies());
         validateEnvironment(buildConfigurationRest);
-        validateAlignStrategy(id, buildConfigurationRest);
+        validateAlignConfig(id, buildConfigurationRest);
     }
 
     private void validateDependencies(Integer buildConfigId, Map<String, BuildConfigurationRef> dependencies)

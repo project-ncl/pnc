@@ -72,7 +72,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
             User modificationUser,
             String defaultAlignmentParams,
             Boolean brewPullActive,
-            Set<AlignmentStrategy> alignmentStrategies,
+            Set<AlignmentConfig> alignmentConfigs,
             BuildRef latestBuild,
             String latestBuildUsername) {
         super(
@@ -95,7 +95,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
                 modificationUser,
                 defaultAlignmentParams,
                 brewPullActive,
-                alignmentStrategies);
+                alignmentConfigs);
         this.latestBuild = latestBuild;
         this.latestBuildUsername = latestBuildUsername;
     }
@@ -124,7 +124,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
             this.parameters = buildConfiguration.parameters;
             this.creationUser = buildConfiguration.creationUser;
             this.modificationUser = buildConfiguration.modificationUser;
-            this.alignmentStrategies = buildConfiguration.alignmentStrategies;
+            this.alignmentConfigs = buildConfiguration.alignmentConfigs;
             return this;
         }
     }

@@ -37,7 +37,7 @@ import java.util.List;
 @AllArgsConstructor
 @Embeddable
 @TypeDef(name = "delimited_strings", typeClass = DelimitedStringListType.class, defaultForType = List.class)
-public class AlignStrategy {
+public class AlignConfig {
 
     @Type(type = "delimited_strings")
     private List<String> ranks = new ArrayList<>();

@@ -213,12 +213,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "build_configuration_align_strats",
+            name = "build_configuration_align_configs",
             joinColumns = @JoinColumn(
                     name = "buildconfiguration_id",
-                    foreignKey = @ForeignKey(name = "fk_align_strats_bc")))
+                    foreignKey = @ForeignKey(name = "fk_align_configs_bc")))
     @MapKeyColumn(name = "dependencyscope", nullable = true)
-    private Map<String, AlignStrategy> alignStrategies;
+    private Map<String, AlignConfig> alignConfigs;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
@@ -607,20 +607,20 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.genericParameters = genericParameters;
     }
 
-    public Map<String, AlignStrategy> getAlignStrategies() {
-        return alignStrategies;
+    public Map<String, AlignConfig> getAlignConfigs() {
+        return alignConfigs;
     }
 
-    public void setAlignStrategies(Map<String, AlignStrategy> alignStrategies) {
-        this.alignStrategies = alignStrategies;
+    public void setAlignConfigs(Map<String, AlignConfig> alignConfigs) {
+        this.alignConfigs = alignConfigs;
     }
 
-    public void putAlignStrategy(String dependencyOverride, AlignStrategy alignStrategy) {
-        alignStrategies.put(dependencyOverride, alignStrategy);
+    public void putAlignConfig(String dependencyOverride, AlignConfig alignConfig) {
+        alignConfigs.put(dependencyOverride, alignConfig);
     }
 
     public void removeAlignConfig(String dependencyOverride) {
-        alignStrategies.remove(dependencyOverride);
+        alignConfigs.remove(dependencyOverride);
     }
 
     public BuildType getBuildType() {
@@ -720,7 +720,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.creationUser = null;
         clone.lastModificationUser = null;
         clone.defaultAlignmentParams = defaultAlignmentParams;
-        clone.alignStrategies = alignStrategies;
         return clone;
     }
 
@@ -819,8 +818,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Map<String, String> genericParameters = new HashMap<>();
 
-        private Map<String, AlignStrategy> alignStrategies = new HashMap<>();
-
         private User creationUser;
 
         private User lastModificationUser;
@@ -883,7 +880,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setLastModificationUser(lastModificationUser);
 
             buildConfiguration.setDefaultAlignmentParams(defaultAlignmentParams);
-            buildConfiguration.setAlignStrategies(alignStrategies);
             buildConfiguration.setBrewPullActive(brewPullActive);
 
             return buildConfiguration;
@@ -976,11 +972,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder genericParameters(Map<String, String> genericParameters) {
             this.genericParameters = genericParameters;
-            return this;
-        }
-
-        public Builder alignStrategies(Map<String, AlignStrategy> alignStrategies) {
-            this.alignStrategies = alignStrategies;
             return this;
         }
 

@@ -18,7 +18,6 @@
 package org.jboss.pnc.dto;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.common.validator.NoHtml;
@@ -28,10 +27,9 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import java.util.List;
 
 @Getter
-@Builder(toBuilder = true)
-@EqualsAndHashCode
+@Builder
 @Jacksonized
-public class AlignmentStrategy {
+public class AlignmentConfig {
     private final String dependencyOverride;
     private final List<String> ranks;
 
