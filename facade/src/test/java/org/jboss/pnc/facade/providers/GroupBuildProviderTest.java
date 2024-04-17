@@ -30,6 +30,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
@@ -74,6 +75,9 @@ public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConf
 
     @Mock
     private BuildConfigSetRecordRepository repository;
+
+    @Mock
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Mock
     private BuildCoordinator buildCoordinator;

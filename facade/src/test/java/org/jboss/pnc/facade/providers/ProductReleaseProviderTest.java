@@ -27,7 +27,10 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +52,15 @@ public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<Produc
 
     @Mock
     private ProductReleaseRepository repository;
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private ProductVersionRepository productVersionRepository;
+
+    @Mock
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @InjectMocks
     private ProductReleaseProviderImpl provider;
@@ -206,7 +218,7 @@ public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<Produc
         when(productVersionRepository.queryById(milestone.getProductVersion().getId()))
                 .thenReturn(milestone.getProductVersion());
 
-        when(milestoneRepository.queryById(milestone.getId())).thenReturn(milestone);
+        when(productMilestoneRepository.queryById(milestone.getId())).thenReturn(milestone);
 
         ProductMilestoneRef ref = productMilestoneMapper.toRef(milestone);
         ProductVersionRef productVersionRef = productVersionMapper.toRef(milestone.getProductVersion());

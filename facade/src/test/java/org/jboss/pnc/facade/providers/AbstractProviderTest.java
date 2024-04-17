@@ -22,7 +22,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
-import org.jboss.pnc.mapper.AbstractAlignConfigMapperImpl;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.ArtifactRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
@@ -46,10 +45,8 @@ import org.jboss.pnc.mapper.ResultMapperImpl;
 import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
 import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
-import org.jboss.pnc.mapper.abstracts.AbstractAlignConfigMapper;
 import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.abstracts.AbstractProductVersionMapper;
-import org.jboss.pnc.mapper.api.AlignConfigMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
@@ -70,12 +67,7 @@ import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
@@ -115,21 +107,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Mock
     protected BuildBCRevisionFetcher buildBCRevisionFetcher;
-
-    @Mock
-    protected BuildConfigurationRepository buildConfigurationRepository;
-
-    @Mock
-    protected BuildConfigurationSetRepository configurationSetRepository;
-
-    @Mock
-    protected ProductRepository productRepository;
-
-    @Mock
-    protected ProductMilestoneRepository milestoneRepository;
-
-    @Mock
-    protected ProductVersionRepository productVersionRepository;
 
     @Spy
     protected ArtifactMapper artifactMapper = new AbstractArtifactMapperImpl();
@@ -190,9 +167,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Spy
     protected DeliverableAnalyzerOperationMapper delAnalyzerOperationMapper = new DeliverableAnalyzerOperationMapperImpl();
-
-    @Spy
-    protected AlignConfigMapper alignConfigMapper = new AbstractAlignConfigMapperImpl();
 
     @Spy
     @InjectMocks
@@ -347,7 +321,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
         injectMethod("productVersionMapper", mapSetMapper, productVersionMapper, MapSetMapper.class);
         injectMethod("productMilestoneMapper", mapSetMapper, productMilestoneMapper, MapSetMapper.class);
         injectMethod("productReleaseMapper", mapSetMapper, productReleaseMapper, MapSetMapper.class);
-        injectMethod("alignConfigMapper", mapSetMapper, alignConfigMapper, MapSetMapper.class);
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
@@ -367,21 +340,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 delAnalyzerOperationMapper,
                 refMapper,
                 DeliverableAnalyzerOperationMapperImpl.class);
-
-        injectMethod("bcRepository", alignConfigMapper, buildConfigurationRepository, AbstractAlignConfigMapper.class);
-        injectMethod("bcsRepository", alignConfigMapper, configurationSetRepository, AbstractAlignConfigMapper.class);
-        injectMethod("productRepository", alignConfigMapper, productRepository, AbstractAlignConfigMapper.class);
-        injectMethod(
-                "productMilestoneRepository",
-                alignConfigMapper,
-                milestoneRepository,
-                AbstractAlignConfigMapper.class);
-        injectMethod(
-                "productVersionRepository",
-                alignConfigMapper,
-                productVersionRepository,
-                AbstractAlignConfigMapper.class);
-
     }
 
     protected abstract AbstractProvider provider();
