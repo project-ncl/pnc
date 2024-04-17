@@ -40,7 +40,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 

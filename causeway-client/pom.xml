@@ -79,6 +79,7 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-mock</artifactId>
+      <scope>test</scope>
     </dependency>
 
 

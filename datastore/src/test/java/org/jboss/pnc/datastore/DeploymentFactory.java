@@ -103,7 +103,9 @@ public class DeploymentFactory {
     }
 
     private static boolean extractModelJar(File jar, ObjectWrapper<File> modelJar) {
-        if (jar.getName().matches("model.*\\.jar")) {
+        if (jar.getName().matches("model.*\\.jar")
+                && (jar.getAbsolutePath().contains("org/jboss/pnc/model") || /* if it comes from local repo */
+                        jar.getAbsolutePath().contains("model/target/model"))) /* if it comes from full build */ {
             modelJar.set(jar);
             return false;
         } else {

@@ -37,7 +37,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
- * A build config cointains the information needed to execute a build of a project, i.e. link to the sources, the build
+ * A build config contains the information needed to execute a build of a project, i.e. link to the sources, the build
  * script, the build system image needed to run.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
