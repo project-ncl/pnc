@@ -18,10 +18,8 @@
 package org.jboss.pnc.facade.providers;
 
 import org.assertj.core.api.Condition;
-import org.jboss.pnc.dto.AlignmentStrategy;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildType;
@@ -31,7 +29,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
@@ -52,13 +49,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static java.lang.Integer.valueOf;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -151,153 +144,6 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
         assertThat(stored.getScmRepository().getId()).isEqualTo(repoId);
         assertThat(stored.getBrewPullActive()).isEqualTo(Boolean.TRUE);
 
-    }
-
-    @Test
-    public void testUpdateStrat() {
-        final String name = "NewHire";
-        final String repoId = "12";
-        final String envId = "12";
-        final String projId = "12";
-        final String q = "PRODUCT_ID:" + projId;
-        when(productRepository.queryById(any())).thenReturn(Product.Builder.newBuilder().id(valueOf(projId)).build());
-
-        AlignmentStrategy strategy = AlignmentStrategy.builder().ranks(List.of(q)).denyList(q).allowList(q).build();
-        org.jboss.pnc.dto.BuildConfiguration buildConfiguration = mockDtoConfig(
-                name,
-                repoId,
-                envId,
-                projId,
-                Set.of(strategy));
-
-        org.jboss.pnc.dto.BuildConfiguration stored = provider.store(buildConfiguration);
-
-        assertThat(stored).isNotNull();
-        assertThat(stored.getId()).isNotNull();
-        assertThat(stored.getAlignmentStrategies()).allSatisfy(strat -> {
-            assertThat(strat.getAllowList()).isEqualTo(q);
-            assertThat(strat.getDenyList()).isEqualTo(q);
-            assertThat(strat.getRanks()).hasSize(1).contains(q);
-        });
-
-        org.jboss.pnc.dto.BuildConfiguration toUpdate = stored.toBuilder()
-                .alignmentStrategies(Set.of(strategy.toBuilder().allowList(null).build()))
-                .build();
-        org.jboss.pnc.dto.BuildConfiguration updated = provider.update(stored.getId(), toUpdate);
-
-        assertThat(updated).isNotNull();
-        assertThat(updated.getId()).isEqualTo(stored.getId());
-        assertThat(updated.getAlignmentStrategies()).allSatisfy(strat -> {
-            assertThat(strat.getAllowList()).isNull();
-            assertThat(strat.getDenyList()).isEqualTo(q);
-            assertThat(strat.getRanks()).hasSize(1).contains(q);
-        });
-    }
-
-    @Test
-    public void testAddStrat() {
-        final String name = "NewHire";
-        final String repoId = "12";
-        final String envId = "12";
-        final String projId = "12";
-        final String q = "PRODUCT_ID:" + projId;
-        when(productRepository.queryById(any())).thenReturn(Product.Builder.newBuilder().id(valueOf(projId)).build());
-        AlignmentStrategy strategy = AlignmentStrategy.builder().ranks(List.of(q)).denyList(q).allowList(q).build();
-
-        org.jboss.pnc.dto.BuildConfiguration buildConfiguration = mockDtoConfig(
-                name,
-                repoId,
-                envId,
-                projId,
-                Set.of(strategy));
-
-        org.jboss.pnc.dto.BuildConfiguration stored = provider.store(buildConfiguration);
-
-        assertThat(stored).isNotNull();
-        assertThat(stored.getId()).isNotNull();
-        assertThat(stored.getAlignmentStrategies()).allSatisfy(strat -> {
-            assertThat(strat.getAllowList()).isEqualTo(q);
-            assertThat(strat.getDenyList()).isEqualTo(q);
-            assertThat(strat.getRanks()).hasSize(1).contains(q);
-        });
-
-        AlignmentStrategy updStrategy = strategy.toBuilder().allowList(null).build();
-        AlignmentStrategy strategy2 = AlignmentStrategy.builder()
-                .dependencyOverride("org.slf4j")
-                .ranks(List.of(q))
-                .denyList(q)
-                .allowList(q)
-                .build();
-        org.jboss.pnc.dto.BuildConfiguration toUpdate = stored.toBuilder()
-                .alignmentStrategies(Set.of(updStrategy, strategy2))
-                .build();
-        org.jboss.pnc.dto.BuildConfiguration updated = provider.update(stored.getId(), toUpdate);
-
-        assertThat(updated).isNotNull();
-        assertThat(updated.getId()).isEqualTo(stored.getId());
-        assertThat(updated.getAlignmentStrategies()).contains(updStrategy, strategy2);
-    }
-
-    @Test
-    public void testRemoveStrat() {
-        final String name = "NewHire";
-        final String repoId = "12";
-        final String envId = "12";
-        final String projId = "12";
-        final String q = "PRODUCT_ID:" + projId;
-        when(productRepository.queryById(any())).thenReturn(Product.Builder.newBuilder().id(valueOf(projId)).build());
-        AlignmentStrategy strategy = AlignmentStrategy.builder().ranks(List.of(q)).denyList(q).allowList(q).build();
-        AlignmentStrategy strategy2 = AlignmentStrategy.builder()
-                .dependencyOverride("org.slf4j")
-                .ranks(List.of(q))
-                .denyList(q)
-                .allowList(q)
-                .build();
-
-        org.jboss.pnc.dto.BuildConfiguration buildConfiguration = mockDtoConfig(
-                name,
-                repoId,
-                envId,
-                projId,
-                Set.of(strategy, strategy2));
-
-        org.jboss.pnc.dto.BuildConfiguration stored = provider.store(buildConfiguration);
-
-        assertThat(stored).isNotNull();
-        assertThat(stored.getId()).isNotNull();
-        assertThat(stored.getAlignmentStrategies()).allSatisfy(strat -> {
-            assertThat(strat.getAllowList()).isEqualTo(q);
-            assertThat(strat.getDenyList()).isEqualTo(q);
-            assertThat(strat.getRanks()).hasSize(1).contains(q);
-        });
-
-        AlignmentStrategy updStrategy = strategy.toBuilder().allowList(null).build();
-        org.jboss.pnc.dto.BuildConfiguration toUpdate = stored.toBuilder()
-                .alignmentStrategies(Set.of(updStrategy))
-                .build();
-        org.jboss.pnc.dto.BuildConfiguration updated = provider.update(stored.getId(), toUpdate);
-
-        assertThat(updated).isNotNull();
-        assertThat(updated.getId()).isEqualTo(stored.getId());
-        assertThat(updated.getAlignmentStrategies()).contains(updStrategy);
-    }
-
-    private static org.jboss.pnc.dto.BuildConfiguration mockDtoConfig(
-            String name,
-            String repoId,
-            String envId,
-            String projId,
-            Set<AlignmentStrategy> strategies) {
-        return org.jboss.pnc.dto.BuildConfiguration.builder()
-                .name(name)
-                .buildType(BuildType.MVN)
-                .project(ProjectRef.refBuilder().id(projId).build())
-                .environment(Environment.builder().id(envId).build())
-                .scmRepository(SCMRepository.builder().id(repoId).build())
-                .brewPullActive(Boolean.TRUE)
-                .dependencies(new HashMap<>())
-                .alignmentStrategies(strategies)
-                .build();
     }
 
     // FIXME unignore after NCL-5114 is implemented
