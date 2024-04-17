@@ -462,7 +462,7 @@ public class ArtifactProviderImpl
                     requiresJoinOf(BUILD, builder);
                     requiresJoinOf(MILESTONE, builder);
                     requiresJoinOf(VERSION, builder);
-                    builder.select("pv", ProductVersion_.PRODUCT + ID_SUFFIX, qualifier.name());
+                    builder.select("prod", ProductVersion_.PRODUCT + ID_SUFFIX, PRODUCT_ID.name());
                     break;
                 case VERSION:
                     // 'PRODUCT.abbr PRODUCTVERSION.version' require BUILD,MILESTONE,VERSION,PRODUCT
@@ -472,14 +472,14 @@ public class ArtifactProviderImpl
                     requiresJoinOf(PRODUCT, builder);
 
                     requiresSelect(PRODUCT, builder);
-                    builder.select("pv", ProductVersion_.VERSION, qualifier.name());
+                    builder.select("pv", ProductVersion_.VERSION, VERSION.name());
                     break;
                 case VERSION_ID:
                     // requires BUILD,MILESTONE
                     requiresJoinOf(BUILD, builder);
                     requiresJoinOf(MILESTONE, builder);
 
-                    builder.select("pm", ProductMilestone_.PRODUCT_VERSION + ID_SUFFIX, qualifier.name());
+                    builder.select("pm", ProductMilestone_.VERSION + ID_SUFFIX, VERSION_ID.name());
                     break;
                 case MILESTONE:
                     // 'PRODUCT.abbr PRODUCTVERSION.version' require BUILD,MILESTONE,VERSION,PRODUCT
@@ -495,17 +495,17 @@ public class ArtifactProviderImpl
                     // requires BUILD
                     requiresJoinOf(BUILD, builder);
 
-                    builder.select("br", BuildRecord_.PRODUCT_MILESTONE + ID_SUFFIX, qualifier.name());
+                    builder.select("br", BuildRecord_.PRODUCT_MILESTONE + ID_SUFFIX, MILESTONE_ID.name());
                     break;
                 case GROUP_BUILD:
                     // requires BUILD
                     requiresJoinOf(BUILD, builder);
 
-                    builder.select("br", BuildRecord_.BUILD_CONFIG_SET_RECORD + ID_SUFFIX, qualifier.name());
+                    builder.select("br", BuildRecord_.BUILD_CONFIG_SET_RECORD + ID_SUFFIX, GROUP_BUILD.name());
                     break;
                 case BUILD:
                     // requires <<nothing>>
-                    builder.select("art", Artifact_.BUILD_RECORD + ID_SUFFIX, qualifier.name());
+                    builder.select("art", Artifact_.BUILD_RECORD + ID_SUFFIX, BUILD.name());
                     break;
                 case BUILD_CONFIG:
                     // requires BUILD, BUILD_CONFIG
@@ -513,13 +513,13 @@ public class ArtifactProviderImpl
                     requiresJoinOf(BUILD, builder);
                     requiresJoinOf(BUILD_CONFIG, builder);
 
-                    builder.select("bc", BuildConfiguration_.NAME, qualifier.name());
+                    builder.select("bc", BuildConfiguration_.NAME, BUILD_CONFIG.name());
                     break;
                 case BUILD_CONFIG_ID:
                     // requires BUILD
                     requiresJoinOf(BUILD, builder);
 
-                    builder.select("br", "buildconfiguration_id", qualifier.name());
+                    builder.select("br", BuildRecord_.BUILD_CONFIGURATION_ID + ID_SUFFIX, BUILD_CONFIG_ID.name());
                     break;
                 case GROUP_CONFIG:
                     // requires BUILD, GROUP_BUILD, GROUP_CONFIG
@@ -527,14 +527,17 @@ public class ArtifactProviderImpl
                     requiresJoinOf(GROUP_BUILD, builder);
                     requiresJoinOf(GROUP_CONFIG, builder);
 
-                    builder.select("bcs", BuildConfigurationSet_.NAME, qualifier.name());
+                    builder.select("br", BuildRecord_.BUILD_CONFIGURATION_ID + ID_SUFFIX, BUILD_CONFIG_ID.name());
                     break;
                 case GROUP_CONFIG_ID:
                     // requires BUILD, GROUP_BUILD
                     requiresJoinOf(BUILD, builder);
                     requiresJoinOf(GROUP_BUILD, builder);
 
-                    builder.select("bcsr", BuildConfigSetRecord_.BUILD_CONFIGURATION_SET + ID_SUFFIX, qualifier.name());
+                    builder.select(
+                            "bcsr",
+                            BuildConfigSetRecord_.BUILD_CONFIGURATION_SET + ID_SUFFIX,
+                            GROUP_CONFIG_ID.name());
                     break;
                 case DEPENDENCY: // MULTI-VALUE
                     // requires DEPENDENCY_MAP
@@ -551,7 +554,7 @@ public class ArtifactProviderImpl
                             "depmap",
                             "art.id = depmap.dependency_artifact_id AND depmap.build_record_id IN ("
                                     + String.join(",", parameters) + ")"); // query only dependencies in request
-                    builder.select("depmap", "build_record_id", qualifier.name());
+                    builder.select("depmap", "build_record_id", DEPENDENCY.name());
                     break;
                 case QUALITY: // MULTI-VALUE in the future
                     // requires <<nothing>>
@@ -585,10 +588,10 @@ public class ArtifactProviderImpl
                 break;
             case BUILD_CONFIG:
                 // Join with Audited configuration or Regular one?
-                builder.requiresJoin("LEFT", "BuildConfiguration", "bc", "br.buildconfiguration_id = bc.id");
+                builder.requiresJoin("LEFT", "BuildConfiguration", "bc", "br.buildconfigutation_id = bc.id ");
                 break;
             case GROUP_CONFIG:
-                builder.requiresJoin("LEFT", "BuildConfigurationSet", "bcs", "bcsr.buildconfigurationset_id = bcs.id");
+                builder.requiresJoin("LEFT", "BuildConfigurationSet", "bcs", "bcsr.buildconfigutationset_id = bcsr.id");
                 break;
         }
     }
@@ -777,25 +780,17 @@ public class ArtifactProviderImpl
                 break;
             case BUILD:
             case DEPENDENCY:
-                BigInteger toConvertId = tuple.get(qualifier.name(), BigInteger.class);
-                parsedValue = new String[] {
-                        LongBase32IdConverter.toString(toConvertId == null ? null : toConvertId.longValue()) };
+                parsedValue = new String[] { LongBase32IdConverter.toString(tuple.get(qualifier.name(), Long.class)) };
                 break;
-            case GROUP_BUILD:
-                BigInteger bigIntId = tuple.get(qualifier.name(), BigInteger.class);
-                parsedValue = new String[] { bigIntId == null ? null : String.valueOf(bigIntId.longValue()) };
-                break;
+            case PRODUCT:
             case PRODUCT_ID:
             case VERSION_ID:
             case MILESTONE_ID:
-            case BUILD_CONFIG_ID:
-            case GROUP_CONFIG_ID:
-                Integer intId = tuple.get(qualifier.name(), Integer.class);
-                parsedValue = new String[] { intId == null ? null : intId.toString() };
-                break;
-            case PRODUCT:
+            case GROUP_BUILD:
             case BUILD_CONFIG:
+            case BUILD_CONFIG_ID:
             case GROUP_CONFIG:
+            case GROUP_CONFIG_ID:
             case QUALITY:
                 parsedValue = new String[] { tuple.get(qualifier.name(), String.class) };
                 break;
