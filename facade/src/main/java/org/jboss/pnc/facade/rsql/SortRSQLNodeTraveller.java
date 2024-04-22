@@ -21,6 +21,7 @@ import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.ASC;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.DESC;
 
 import cz.jirutka.rsql.parser.ast.Node;
+import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
@@ -51,10 +52,10 @@ class SortRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeT
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath;
+    private final RSQLMapper<?, DB> mapper;
 
-    public SortRSQLNodeTraveller(BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath) {
-        this.toPath = toPath;
+    public SortRSQLNodeTraveller(RSQLMapper<?, DB> mapper) {
+        this.mapper = mapper;
     }
 
     @Override
@@ -89,7 +90,7 @@ class SortRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeT
                 throw new RSQLException("Sorting by id is not supported.");
             }
 
-            orders.add(new DefaultOrderInfo<>(sortingDirection, root -> toPath.apply(root, path)));
+            orders.add(new DefaultOrderInfo<>(sortingDirection, root -> mapper.toPath(root, path)));
         }
         return new DefaultSortInfo<>(orders);
     }
