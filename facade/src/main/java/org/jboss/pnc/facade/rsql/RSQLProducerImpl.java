@@ -131,9 +131,7 @@ public class RSQLProducerImpl implements RSQLProducer {
         }
 
         Node rootNode = sortParser.parse(preprocessRSQL(rsql));
-        BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath = (from, selector) -> mapper
-                .toPath(type, from, selector);
-        return (SortInfo<DB>) rootNode.accept(new SortRSQLNodeTraveller(toPath));
+        return (SortInfo<DB>) rootNode.accept(new SortRSQLNodeTraveller(mapper.mapper(type)));
     }
 
     @Override
@@ -163,8 +161,7 @@ public class RSQLProducerImpl implements RSQLProducer {
             RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(
                     root,
                     cb,
-                    (BiFunction<From<?, DB>, RSQLSelectorPath, Path>) (from, selector) -> mapper
-                            .toPath(type, from, selector),
+                    mapper.mapper(type),
                     mapper.getConverter());
             return rootNode.accept(visitor);
         };

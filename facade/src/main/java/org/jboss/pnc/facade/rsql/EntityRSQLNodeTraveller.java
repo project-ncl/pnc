@@ -27,6 +27,7 @@ import cz.jirutka.rsql.parser.ast.RSQLOperators;
 import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 import org.jboss.pnc.facade.rsql.converter.Value;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
+import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,17 +63,17 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
 
     private final Root<DB> root;
     private final CriteriaBuilder cb;
-    private final BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath;
+    private final RSQLMapper<?, DB> mapper;
     private ValueConverter valueConverter;
 
     public EntityRSQLNodeTraveller(
             Root<DB> root,
             CriteriaBuilder cb,
-            BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath,
+            RSQLMapper<?, DB> mapper,
             ValueConverter valueConverter) {
         this.root = root;
         this.cb = cb;
-        this.toPath = toPath;
+        this.mapper = mapper;
         this.valueConverter = valueConverter;
     }
 
@@ -90,7 +91,7 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
 
     private javax.persistence.criteria.Predicate proceedSelection(ComparisonNode node) {
         RSQLSelectorPath selector = RSQLSelectorPath.get(node.getSelector());
-        final Path path = toPath.apply(root, selector);
+        final Path path = mapper.toPath(root, selector);
         List<String> arguments = node.getArguments();
         final ComparisonOperator operator = node.getOperator();
         if (RSQLOperators.EQUAL.equals(operator)) {
