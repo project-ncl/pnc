@@ -92,6 +92,9 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -705,25 +708,12 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 predicates.add(withAttribute(key, value));
             }
         }
-
-        Predicate<BuildRecord> queryPredicate = rsqlPredicateProducer
-                .getCriteriaPredicate(BuildRecord.class, buildPageInfo.getQ());
-        predicates.add(queryPredicate);
-
-        Predicate<BuildRecord>[] predicatesArray = predicates.toArray(new Predicate[predicates.size()]);
-
-        PageInfo pageInfo = toPageInfo(buildPageInfo);
-        SortInfo<BuildRecord> sortInfo = rsqlPredicateProducer.getSortInfo(type, buildPageInfo.getSort());
-        List<BuildRecord> resultList = ((BuildRecordRepository) BuildProviderImpl.this.repository)
-                .queryWithPredicates(pageInfo, sortInfo, predicatesArray);
-
-        int hits = repository.count(predicatesArray);
-
-        return new Page<>(
-                buildPageInfo.getPageIndex(),
-                buildPageInfo.getPageSize(),
-                hits,
-                resultList.stream().map(b -> mapper.toDTO(b)).collect(Collectors.toList()));
+        try {
+            java.util.function.Predicate<BuildTask> none = _t -> false; // Running builds don't have attributes
+            return getBuildList(buildPageInfo, none, Predicate.and(predicates));
+        } catch (RemoteRequestException | MissingDataException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
