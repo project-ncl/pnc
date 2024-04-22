@@ -38,6 +38,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String pncNotificationsUrl;
     private final String bifrostWsUrl;
     private final String userGuideUrl;
+    private final String userSupportUrl;
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
     private final Map<String, String> grafana;
@@ -46,12 +47,14 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
             @JsonProperty("bifrostWsUrl") String bifrostWsUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
+            @JsonProperty("userSupportUrl") String userSupportUrl,
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak,
             @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.bifrostWsUrl = bifrostWsUrl;
         this.userGuideUrl = userGuideUrl;
+        this.userSupportUrl = userSupportUrl;
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); // default to 24h
         this.keycloak = keycloak;
         this.grafana = grafana;
@@ -73,10 +76,20 @@ public class UIModuleConfig extends AbstractModuleConfig {
     /**
      * @return String representation of the PNC user guide URL
      */
+    @JsonProperty("userGuideUrl")
     public String getUserGuideUrl() {
         return userGuideUrl;
     }
 
+    /**
+     * @return String representation of the PNC user support URL
+     */
+    @JsonProperty("userSupportUrl")
+    public String getUserSupportUrl() {
+        return userSupportUrl;
+    }
+
+    @JsonProperty("ssoTokenLifespan")
     public Integer getSsoTokenLifespan() {
         return ssoTokenLifespan;
     }
