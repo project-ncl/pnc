@@ -25,6 +25,11 @@ import javax.ws.rs.core.Response;
 @ApplicationScoped
 public class FinalLogRestMock implements FinalLogRest {
     @Override
+    public Response deleteFinalLog(String processContext) {
+        return null;
+    }
+
+    @Override
     public Response getFinalLog(String processContext, String tag) {
         return null;
     }
