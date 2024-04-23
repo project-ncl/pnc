@@ -22,6 +22,7 @@ import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
+import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.StableEmptySortInfo;
 import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
@@ -33,12 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,7 +75,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     static final ComparisonOperator DESC = new ComparisonOperator("=desc=", true);
 
     @Inject
-    UniversalRSQLMapper mapper;
+    UniversalRSQLMapper universalMapper;
 
     public RSQLProducerImpl() {
         Set<ComparisonOperator> predicateOperators = RSQLOperators.defaultOperators();
@@ -96,12 +94,22 @@ public class RSQLProducerImpl implements RSQLProducer {
 
     @Override
     public <DB extends GenericEntity<?>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql) {
+        // TODO: Remove this empty check once NCL-8692, NCL-8693 are fixed
+        if (rsql == null || rsql.isEmpty()) {
+            return new EmptyRSQLPredicate();
+        }
+
+        return getCriteriaPredicate(universalMapper.mapper(type), rsql);
+    }
+
+    @Override
+    public <DB extends GenericEntity<?>> Predicate<DB> getCriteriaPredicate(RSQLMapper<?, DB> mapper, String rsql) {
         if (rsql == null || rsql.isEmpty()) {
             return new EmptyRSQLPredicate();
         }
         try {
             Node rootNode = predicateParser.parse(preprocessRSQL(rsql));
-            return getEntityPredicate(rootNode, type);
+            return getEntityPredicate(rootNode, mapper);
         } catch (RSQLParserException ex) {
             throw new RSQLException("failure parsing RSQL", ex);
         }
@@ -122,6 +130,16 @@ public class RSQLProducerImpl implements RSQLProducer {
 
     @Override
     public <DB extends GenericEntity<?>> SortInfo<DB> getSortInfo(Class<DB> type, String rsql) {
+        // TODO: Remove this empty check once NCL-8692, NCL-8693 are fixed
+        if (rsql == null || rsql.isEmpty()) {
+            return new StableEmptySortInfo<>();
+        }
+
+        return getSortInfo(universalMapper.mapper(type), rsql);
+    }
+
+    @Override
+    public <DB extends GenericEntity<?>> SortInfo<DB> getSortInfo(RSQLMapper<?, DB> mapper, String rsql) {
         if (rsql == null || rsql.isEmpty()) {
             return new StableEmptySortInfo<>();
         }
@@ -131,7 +149,7 @@ public class RSQLProducerImpl implements RSQLProducer {
         }
 
         Node rootNode = sortParser.parse(preprocessRSQL(rsql));
-        return (SortInfo<DB>) rootNode.accept(new SortRSQLNodeTraveller(mapper.mapper(type)));
+        return (SortInfo<DB>) rootNode.accept(new SortRSQLNodeTraveller(mapper));
     }
 
     @Override
@@ -156,13 +174,13 @@ public class RSQLProducerImpl implements RSQLProducer {
         return result;
     }
 
-    private <DB extends GenericEntity<?>> Predicate<DB> getEntityPredicate(Node rootNode, Class<DB> type) {
+    private <DB extends GenericEntity<?>> Predicate<DB> getEntityPredicate(Node rootNode, RSQLMapper<?, DB> mapper) {
         return (root, query, cb) -> {
             RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(
                     root,
                     cb,
-                    mapper.mapper(type),
-                    mapper.getConverter());
+                    mapper,
+                    universalMapper.getConverter());
             return rootNode.accept(visitor);
         };
     }

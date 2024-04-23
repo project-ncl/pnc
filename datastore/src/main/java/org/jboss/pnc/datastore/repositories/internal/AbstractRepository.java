@@ -303,7 +303,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
         query.select(root);
 
         if (sortInfo != null) {
-            query.orderBy(toOrders(sortInfo, root, builder));
+            query.orderBy(SortInfoConverter.toOrders(sortInfo, root, builder));
         }
 
         return entityManager.createQuery(query);
@@ -320,7 +320,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
         query.select(root);
 
         if (sortInfo != null) {
-            query.orderBy(toOrders(sortInfo, root, builder));
+            query.orderBy(SortInfoConverter.toOrders(sortInfo, root, builder));
         }
 
         return entityManager.createQuery(query);
@@ -400,27 +400,5 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
 
         query.where(predicate);
         return root;
-    }
-
-    private List<Order> toOrders(SortInfo<T> sort, Root<T> from, CriteriaBuilder cb) {
-        if (sort == null) {
-            return Collections.emptyList();
-        }
-
-        Objects.requireNonNull(from, "From must not be null");
-        Objects.requireNonNull(cb, "CriteriaBuilder must not be null");
-
-        List<Order> orders = new ArrayList<>();
-
-        for (OrderInfo<T> order : sort.orders()) {
-            orders.add(toJpaOrder(order, from, cb));
-        }
-
-        return orders;
-    }
-
-    private Order toJpaOrder(OrderInfo<T> order, Root<T> from, CriteriaBuilder cb) {
-        Expression<?> expression = order.getExpression(from);
-        return order.getDirection() == OrderInfo.SortingDirection.ASC ? cb.asc(expression) : cb.desc(expression);
     }
 }

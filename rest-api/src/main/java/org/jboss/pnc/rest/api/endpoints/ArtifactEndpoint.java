@@ -361,7 +361,7 @@ public interface ArtifactEndpoint {
     @Path("/{id}/milestones")
     Page<MilestoneInfo> getMilestonesInfo(
             @Parameter(description = A_ID) @PathParam("id") String id,
-            @BeanParam PaginationParameters pageParams);
+            @BeanParam PageParameters pageParams);
 
     static final String GET_ARTIFACT_REVISIONS_DESC = "Gets audited revisions of this artifact.";
 

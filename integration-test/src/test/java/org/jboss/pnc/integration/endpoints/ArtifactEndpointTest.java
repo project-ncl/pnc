@@ -19,6 +19,7 @@ package org.jboss.pnc.integration.endpoints;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ObjectAssert;
+import org.eclipse.jetty.http.HttpStatus;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -31,6 +32,7 @@ import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.response.ArtifactInfo;
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
@@ -40,6 +42,7 @@ import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -54,9 +57,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.wildfly.common.Assert.assertNotNull;
+import static org.wildfly.common.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -313,21 +322,163 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId());
 
-        assertThat(builds).hasSize(2);
+        assertThat(builds).hasSize(3);
     }
 
     @Test
-    public void shouldGetMilestonesInfo() throws RemoteResourceException {
+    public void shouldGetMilestoneInfoWithoutRsql() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<MilestoneInfo> milestonesInfo = client.getMilestonesInfo(artifactRest3.getId());
-        assertThat(milestonesInfo).hasSize(1).first().extracting(MilestoneInfo::isBuilt).isEqualTo(false);
+        assertThat(milestonesInfo).hasSize(2).first().extracting(MilestoneInfo::isBuilt).isEqualTo(false);
 
         RemoteCollection<MilestoneInfo> milestonesInfo2 = client.getMilestonesInfo(artifactRest1.getId());
         ObjectAssert<MilestoneInfo> milestone = assertThat(milestonesInfo2).hasSize(1).first();
         milestone.extracting(MilestoneInfo::isBuilt).isEqualTo(true);
         milestone.extracting(MilestoneInfo::getProductName).isEqualTo("Project Newcastle Demo Product");
         milestone.extracting(MilestoneInfo::getMilestoneVersion).isEqualTo("1.0.0.Build1");
+    }
+
+    @Test
+    public void shouldGetTwoMilestoneInfosWithoutRsqlQuery() throws ClientException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<MilestoneInfo> milestonesInfoCollection = client
+                .getMilestonesInfo(artifactRest3.getId(), Optional.empty(), Optional.empty());
+
+        assertThat(milestonesInfoCollection.size()).isEqualTo(2);
+        var it = milestonesInfoCollection.iterator();
+
+        MilestoneInfo milestoneInfo = it.next();
+        assertThat(milestoneInfo.getProductName()).isEqualTo("Project Newcastle Demo Product");
+        assertThat(milestoneInfo.getProductVersionVersion()).isEqualTo("1.0");
+        assertThat(milestoneInfo.getMilestoneVersion()).isEqualTo("1.0.0.Build1");
+
+        MilestoneInfo milestoneInfo2 = it.next();
+        assertThat(milestoneInfo2.getProductName()).isEqualTo("JBoss EAP Demo Product");
+        assertThat(milestoneInfo2.getProductVersionVersion()).isEqualTo("7.0");
+        assertThat(milestoneInfo2.getMilestoneVersion()).isEqualTo("7.0.0.Build1");
+    }
+
+    @Test
+    public void shouldGetTwoMilestoneInfosWithRsqlQuery() throws ClientException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        String productName = "Project Newcastle Demo Product";
+        String productName2 = "JBoss EAP Demo Product";
+
+        RemoteCollection<MilestoneInfo> milestonesInfoCollection = client.getMilestonesInfo(
+                artifactRest3.getId(),
+                Optional.empty(),
+                Optional.of("productName==\"" + productName + "\" or productName==\"" + productName2 + "\""));
+
+        assertThat(milestonesInfoCollection.size()).isEqualTo(2);
+        var it = milestonesInfoCollection.iterator();
+
+        MilestoneInfo milestoneInfo = it.next();
+        assertThat(milestoneInfo.getProductName()).isEqualTo(productName);
+
+        MilestoneInfo milestoneInfo2 = it.next();
+        assertThat(milestoneInfo2.getProductName()).isEqualTo(productName2);
+    }
+
+    @Test
+    public void shouldGetOneMilestoneInfosWithRsqlQueryOnAll() throws ClientException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        String productName = "Project Newcastle Demo Product";
+        String productVersion = "1.0";
+        String productMilestone = "1.0.0.Build1";
+
+        RemoteCollection<MilestoneInfo> milestonesInfoCollection = client.getMilestonesInfo(
+                artifactRest3.getId(),
+                Optional.empty(),
+                Optional.of(
+                        "productName==\"" + productName + "\"; productVersion==\"" + productVersion
+                                + "\"; milestoneVersion==\"" + productMilestone + "\""));
+
+        assertThat(milestonesInfoCollection.size()).isEqualTo(1);
+
+        MilestoneInfo milestoneInfo = milestonesInfoCollection.iterator().next();
+        assertThat(milestoneInfo.getProductName()).isEqualTo(productName);
+        assertThat(milestoneInfo.getProductVersionVersion()).isEqualTo(productVersion);
+        assertThat(milestoneInfo.getMilestoneVersion()).isEqualTo(productMilestone);
+    }
+
+    @Test
+    public void shouldGetOneMilestoneInfosWithRsqlQueryOnProductName() throws ClientException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        String productName = "Project Newcastle Demo Product";
+
+        RemoteCollection<MilestoneInfo> milestonesInfoCollection = client.getMilestonesInfo(
+                artifactRest3.getId(),
+                Optional.empty(),
+                Optional.of("productName==\"" + productName + "\""));
+
+        assertThat(milestonesInfoCollection.size()).isEqualTo(1);
+
+        MilestoneInfo milestoneInfo = milestonesInfoCollection.iterator().next();
+        assertThat(milestoneInfo.getProductName()).isEqualTo(productName);
+    }
+
+    @Test
+    public void shouldGetNoMilestoneInfoWithRsqlOnlyQuery() throws ClientException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        String productName = "Project Newcastle Demo Product";
+        String productVersion = "1.0";
+        String milestoneVersion = "1.0.0.Nonexistent";
+
+        RemoteCollection<MilestoneInfo> milestonesInfoCollection = client.getMilestonesInfo(
+                artifactRest1.getId(),
+                Optional.empty(),
+                Optional.of(
+                        "productName==\"" + productName + "\";productVersion==\"" + productVersion
+                                + "\" and milestoneVersion==\"" + milestoneVersion + "\""));
+
+        assertTrue(milestonesInfoCollection.getAll().isEmpty());
+    }
+
+    @Test
+    public void shouldGetTwoMilestoneInDescOrderOfEnddate() throws ClientException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        String productName = "Project Newcastle Demo Product";
+        String productName2 = "JBoss EAP Demo Product";
+
+        RemoteCollection<MilestoneInfo> milestonesInfoCollection = client.getMilestonesInfo(
+                artifactRest3.getId(),
+                Optional.of("sort=asc=milestoneEndDate"),
+                Optional.of("productName==\"" + productName + "\" or productName==\"" + productName2 + "\""));
+
+        assertThat(milestonesInfoCollection.size()).isEqualTo(2);
+        var it = milestonesInfoCollection.iterator();
+
+        // Same order, because order by DESC time gives milestones with null at the beginning
+        MilestoneInfo milestoneInfo = it.next();
+        assertThat(milestoneInfo.getProductName()).isEqualTo(productName);
+
+        MilestoneInfo milestoneInfo2 = it.next();
+        assertThat(milestoneInfo2.getProductName()).isEqualTo(productName2);
+
+        assertNull(milestoneInfo.getMilestoneEndDate());
+        assertNotNull(milestoneInfo2.getMilestoneEndDate());
+    }
+
+    @Test
+    public void shouldThrowRsqlException() {
+        var client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        String selector = "nonexistent";
+
+        RemoteResourceException remoteResourceException = assertThrows(
+                RemoteResourceException.class,
+                () -> client.getMilestonesInfo(
+                        artifactRest3.getId(),
+                        Optional.empty(),
+                        Optional.of(selector + "==whatever")));
+
+        ErrorResponse errorResponse = remoteResourceException.getResponse().get();
+        assertThat(remoteResourceException.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+        assertThat(errorResponse.getErrorType()).isEqualTo("RSQLException");
+        assertTrue(
+                Stream.of("Unknown RSQL selector " + selector + " for type", "ProductMilestone")
+                        .allMatch(errorResponse.getErrorMessage()::contains));
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.facade.rsql.converter.Value;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.facade.rsql.mapper.BuildRSQLMapper;
+import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -58,6 +59,7 @@ import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,13 +78,12 @@ public class RSQLPredicateProducerTest {
 
     @Before
     public void setupMocks() {
-        Class<?> foo = BuildRecord.class;
-        when(universalMapper.toPath(ArgumentMatchers.same(BuildRecord.class), any(), any()))
-                .then(callBuildRecordPath());
         ValueConverter valueConverter = mock(ValueConverter.class);
+        RSQLMapper mock = mock(BuildRSQLMapper.class);
+        when(universalMapper.mapper(eq(BuildRecord.class))).thenReturn(mock);
+        when(mock.toPath(any(), any())).then(callBuildRecordPath());
         when(universalMapper.getConverter()).thenReturn(valueConverter);
         when(valueConverter.convert(any(Value.class))).then(callBuildRecordConvert());
-        when(valueConverter.convertComparable(any(Value.class))).then(callBuildRecordConvertComparable());
     }
 
     @Test
@@ -437,7 +438,7 @@ public class RSQLPredicateProducerTest {
     }
 
     private Answer<Path<?>> callBuildRecordPath() {
-        return invocation -> toPath(invocation.getArgument(1), invocation.getArgument(2));
+        return invocation -> toPath(invocation.getArgument(0), invocation.getArgument(1));
     }
 
     private Path<?> toPath(From<?, BuildRecord> from, RSQLSelectorPath selector) {
