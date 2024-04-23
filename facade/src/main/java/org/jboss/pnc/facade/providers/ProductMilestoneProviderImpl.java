@@ -17,11 +17,14 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Patterns;
+import org.jboss.pnc.datastore.repositories.ProductMilestoneRepositoryImpl;
+import org.jboss.pnc.datastore.repositories.internal.SortInfoConverter;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -32,6 +35,7 @@ import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsS
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
+import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -54,6 +58,9 @@ import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +74,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
@@ -79,6 +87,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
 import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
@@ -95,6 +104,7 @@ public class ProductMilestoneProviderImpl extends
 
     private ProductMilestoneReleaseManager releaseManager;
     private final ProductMilestoneCloseResultMapper milestoneReleaseMapper;
+    private final MilestoneInfoRSQLMapper milestoneInfoRSQLMapper;
 
     @Inject
     private KeycloakServiceClient keycloakServiceClient;
@@ -112,7 +122,8 @@ public class ProductMilestoneProviderImpl extends
             DeliverableArtifactRepository deliverableArtifactRepository,
             ProductMilestoneMapper mapper,
             ProductMilestoneReleaseManager releaseManager,
-            ProductMilestoneCloseResultMapper milestoneReleaseMapper) {
+            ProductMilestoneCloseResultMapper milestoneReleaseMapper,
+            MilestoneInfoRSQLMapper milestoneInfoRSQLMapper) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
@@ -120,6 +131,7 @@ public class ProductMilestoneProviderImpl extends
         this.milestoneReleaseMapper = milestoneReleaseMapper;
         this.milestoneRepository = repository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
+        this.milestoneInfoRSQLMapper = milestoneInfoRSQLMapper;
     }
 
     @Override
@@ -240,7 +252,12 @@ public class ProductMilestoneProviderImpl extends
     }
 
     @Override
-    public Page<MilestoneInfo> getMilestonesOfArtifact(String artifactId, int pageIndex, int pageSize) {
+    public Page<MilestoneInfo> getMilestonesOfArtifact(
+            String artifactId,
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String queryRsql) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
         Optional<Integer> builtIn = getMilestoneIdByBuildRecord(cb, artifactId);
@@ -253,7 +270,11 @@ public class ProductMilestoneProviderImpl extends
             return new Page<>();
         }
 
-        CriteriaQuery<Tuple> query = milestoneInfoQuery(cb, milestoneIds);
+        Predicate<org.jboss.pnc.model.ProductMilestone> rsqlPredicate = rsqlPredicateProducer
+                .getCriteriaPredicate(milestoneInfoRSQLMapper, queryRsql);
+        SortInfo<org.jboss.pnc.model.ProductMilestone> sortInfo = rsqlPredicateProducer
+                .getSortInfo(milestoneInfoRSQLMapper, sortingRsql);
+        CriteriaQuery<Tuple> query = milestoneInfoQuery(cb, milestoneIds, rsqlPredicate, sortInfo);
         int offset = pageIndex * pageSize;
         List<MilestoneInfo> milestones = em.createQuery(query)
                 .setMaxResults(pageSize)
@@ -263,7 +284,8 @@ public class ProductMilestoneProviderImpl extends
                 .map(m -> mapTupleToMilestoneInfo(m, builtIn))
                 .collect(Collectors.toList());
 
-        return new Page<>(pageIndex, pageSize, milestoneIds.size(), milestones);
+        int totalHits = getMatchingArtifactMilestonesCount(milestoneIds, rsqlPredicate);
+        return new Page<>(pageIndex, pageSize, totalHits, milestones);
     }
 
     @Override
@@ -321,7 +343,27 @@ public class ProductMilestoneProviderImpl extends
                 .build();
     }
 
-    private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {
+    private int getMatchingArtifactMilestonesCount(
+            Set<Integer> milestoneIds,
+            Predicate<org.jboss.pnc.model.ProductMilestone> rsqlPredicate) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<org.jboss.pnc.model.ProductMilestone> milestone = query.from(org.jboss.pnc.model.ProductMilestone.class);
+
+        query.select(cb.count(milestone.get(ProductMilestone_.id)));
+        query.where(
+                cb.and(
+                        milestone.get(ProductMilestone_.id).in(milestoneIds),
+                        rsqlPredicate.apply(milestone, query, cb)));
+        return em.createQuery(query).getSingleResult().intValue();
+    }
+
+    private CriteriaQuery<Tuple> milestoneInfoQuery(
+            CriteriaBuilder cb,
+            Set<Integer> milestoneIds,
+            Predicate<org.jboss.pnc.model.ProductMilestone> rsqlPredicate,
+            SortInfo<org.jboss.pnc.model.ProductMilestone> sortInfo) {
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
         Root<org.jboss.pnc.model.ProductMilestone> milestone = query.from(org.jboss.pnc.model.ProductMilestone.class);
@@ -330,6 +372,8 @@ public class ProductMilestoneProviderImpl extends
         Join<org.jboss.pnc.model.ProductMilestone, ProductRelease> release = milestone
                 .join(ProductMilestone_.productRelease, JoinType.LEFT);
         Join<ProductVersion, Product> product = version.join(ProductVersion_.product);
+        List<Order> orders = SortInfoConverter.toOrders(sortInfo, milestone, cb);
+
         query.multiselect(
                 product.get(Product_.id),
                 product.get(Product_.name),
@@ -341,8 +385,11 @@ public class ProductMilestoneProviderImpl extends
                 release.get(ProductRelease_.id),
                 release.get(ProductRelease_.version),
                 release.get(ProductRelease_.releaseDate));
-        query.where(milestone.get(ProductMilestone_.id).in(milestoneIds));
-        query.orderBy(cb.desc(milestone.get(ProductMilestone_.endDate)), cb.desc(milestone.get(ProductMilestone_.id)));
+        query.where(
+                cb.and(
+                        milestone.get(ProductMilestone_.id).in(milestoneIds),
+                        rsqlPredicate.apply(milestone, query, cb)));
+        query.orderBy(orders);
         return query;
     }
 

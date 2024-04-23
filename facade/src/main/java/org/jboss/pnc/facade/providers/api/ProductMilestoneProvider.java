@@ -41,7 +41,12 @@ public interface ProductMilestoneProvider
             String query,
             String productVersionId);
 
-    Page<MilestoneInfo> getMilestonesOfArtifact(String id, int pageIndex, int pageSize);
+    Page<MilestoneInfo> getMilestonesOfArtifact(
+            String id,
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String queryRsql);
 
     ValidationResponse validateVersion(String productVersionId, String version);
 

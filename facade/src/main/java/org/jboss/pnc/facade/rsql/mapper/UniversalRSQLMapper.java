@@ -46,7 +46,7 @@ public class UniversalRSQLMapper {
         return mapper(type).toPath(selector);
     }
 
-    public  <DB extends GenericEntity<?>> RSQLMapper<?, DB> mapper(Class<DB> type) {
+    public <DB extends GenericEntity<?>> RSQLMapper<?, DB> mapper(Class<DB> type) {
         for (RSQLMapper<?, ?> mapper : mappers) {
             if (mapper.type() == type) {
                 return (RSQLMapper<?, DB>) mapper;

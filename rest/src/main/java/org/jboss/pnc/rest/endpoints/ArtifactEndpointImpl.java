@@ -133,9 +133,13 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public Page<MilestoneInfo> getMilestonesInfo(String id, PaginationParameters pageParams) {
-        return productMilestoneProvider
-                .getMilestonesOfArtifact(id, pageParams.getPageIndex(), pageParams.getPageSize());
+    public Page<MilestoneInfo> getMilestonesInfo(String id, PageParameters pageParams) {
+        return productMilestoneProvider.getMilestonesOfArtifact(
+                id,
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ());
     }
 
     @Override

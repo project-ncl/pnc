@@ -107,8 +107,9 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
     public void prepareMocks() throws ReflectiveOperationException {
         User currentUser = prepareNewUser();
         when(userService.currentUser()).thenReturn(currentUser);
-        when(rsqlPredicateProducer.getCriteriaPredicate(any(), anyString())).thenReturn(mock(Predicate.class));
-        when(rsqlPredicateProducer.getSortInfo(any(), anyString())).thenReturn(mock(SortInfo.class));
+        when(rsqlPredicateProducer.getCriteriaPredicate(any(Class.class), anyString()))
+                .thenReturn(mock(Predicate.class));
+        when(rsqlPredicateProducer.getSortInfo(any(Class.class), anyString())).thenReturn(mock(SortInfo.class));
     }
 
     private User prepareNewUser() {

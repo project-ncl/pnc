@@ -419,7 +419,7 @@ public class DatabaseDataInitializer {
                 .version(EAP_PRODUCT_MILESTONE_1)
                 .startingDate(ONE_WEEK_BEFORE_TODAY)
                 .plannedEndDate(TODAY)
-                .endDate(TODAY)
+                .endDate(ONE_WEEK_AFTER_TODAY)
                 .productVersion(productVersion3)
                 .build();
         demoProductMilestone5 = productMilestoneRepository.save(demoProductMilestone5);
@@ -1049,6 +1049,7 @@ public class DatabaseDataInitializer {
                 .executionRootName("org.jboss.eap:parent")
                 .executionRootVersion("7.0.3")
                 .temporaryBuild(false)
+                .dependency(importedArtifact1)
                 .build();
 
         nextId = Sequence.nextBase32Id();
