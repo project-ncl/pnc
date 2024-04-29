@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class ReadDependenciesTest extends ProjectBuilder {
+public class ReadDependenciesIT extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {

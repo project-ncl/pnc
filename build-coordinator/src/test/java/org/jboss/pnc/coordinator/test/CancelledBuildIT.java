@@ -48,7 +48,7 @@ import java.util.function.Consumer;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class CancelledBuildTest extends ProjectBuilder {
+public class CancelledBuildIT extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -57,7 +57,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                 BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
-    private static final Logger log = LoggerFactory.getLogger(CancelledBuildTest.class);
+    private static final Logger log = LoggerFactory.getLogger(CancelledBuildIT.class);
 
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;

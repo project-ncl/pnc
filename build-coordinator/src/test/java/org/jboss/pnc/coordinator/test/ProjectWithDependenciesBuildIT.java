@@ -47,9 +47,9 @@ import java.util.stream.Collectors;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
+public class ProjectWithDependenciesBuildIT extends ProjectBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
+    private static final Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildIT.class);
 
     private static final int BUILD_SET_ID = 14352;
 

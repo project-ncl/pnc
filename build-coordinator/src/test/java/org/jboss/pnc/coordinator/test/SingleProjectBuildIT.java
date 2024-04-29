@@ -21,7 +21,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
@@ -43,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class SingleProjectBuildTest extends ProjectBuilder {
+public class SingleProjectBuildIT extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {

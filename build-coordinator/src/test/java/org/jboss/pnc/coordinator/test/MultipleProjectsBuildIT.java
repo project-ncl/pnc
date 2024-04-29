@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class MultipleProjectsBuildTest extends ProjectBuilder {
+public class MultipleProjectsBuildIT extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -47,7 +47,7 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
                 BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
-    private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
+    private static final Logger log = Logger.getLogger(MultipleProjectsBuildIT.class.getName());
     private final int N_PROJECTS = 100;
 
     @Inject

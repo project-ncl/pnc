@@ -67,11 +67,11 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @RunWith(Arquillian.class)
-public class StatusUpdatesTest {
+public class StatusUpdatesIT {
 
     private static final int MIN_TASKS = 3;
 
-    private static final Logger log = LoggerFactory.getLogger(StatusUpdatesTest.class);
+    private static final Logger log = LoggerFactory.getLogger(StatusUpdatesIT.class);
 
     @Inject
     @InMemory
