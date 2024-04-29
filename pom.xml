@@ -131,7 +131,7 @@
     <!-- TEST Dependency properties (CVEs not critical) -->
     <version.junit>4.13.1</version.junit>
     <version.assertj-core>3.25.3</version.assertj-core>
-    <version.mockito>3.9.0</version.mockito>
+    <version.mockito>5.11.0</version.mockito>
     <version.wiremock>2.35.0</version.wiremock>
     <version.dbunit>2.7.0</version.dbunit>
     <version.hsqldb>2.7.1</version.hsqldb>
@@ -886,7 +886,7 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.10.20</version> <!-- force version provided by mockito to override hibernate version -->
+        <version>1.14.12</version> <!-- force version provided by mockito to override hibernate version -->
       </dependency>
 
       <dependency>
