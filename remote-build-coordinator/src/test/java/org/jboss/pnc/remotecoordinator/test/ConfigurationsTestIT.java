@@ -32,7 +32,7 @@ import javax.persistence.PersistenceException;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @RunWith(Arquillian.class)
-public class ConfigurationsTest {
+public class ConfigurationsTestIT {
 
     @Deployment
     public static JavaArchive createDeployment() {

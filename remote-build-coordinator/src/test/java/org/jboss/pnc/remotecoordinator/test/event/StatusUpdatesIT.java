@@ -70,11 +70,11 @@ import java.util.stream.Collectors;
  */
 @Ignore // TODO completion notifications (update or delete)
 @RunWith(Arquillian.class)
-public class StatusUpdatesTest {
+public class StatusUpdatesIT {
 
     private static final int MIN_TASKS = 3;
 
-    private static final Logger log = LoggerFactory.getLogger(StatusUpdatesTest.class);
+    private static final Logger log = LoggerFactory.getLogger(StatusUpdatesIT.class);
 
     @Inject
     @Remote

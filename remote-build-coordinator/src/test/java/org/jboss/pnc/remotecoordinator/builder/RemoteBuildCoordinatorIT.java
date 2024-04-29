@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(Arquillian.class)
-public class RemoteBuildCoordinatorTest {
+public class RemoteBuildCoordinatorIT {
     private DatastoreAdapter datastoreAdapter;
 
     @Deployment

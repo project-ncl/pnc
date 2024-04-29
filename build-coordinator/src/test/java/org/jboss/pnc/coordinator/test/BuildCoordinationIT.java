@@ -68,9 +68,9 @@ import static org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments.Options
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @RunWith(Arquillian.class)
-public class BuildCoordinationTest {
+public class BuildCoordinationIT {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildCoordinationTest.class);
+    private static final Logger log = LoggerFactory.getLogger(BuildCoordinationIT.class);
 
     @Inject
     @InMemory

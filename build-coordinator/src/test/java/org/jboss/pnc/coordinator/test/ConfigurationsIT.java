@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @RunWith(Arquillian.class)
-public class ConfigurationsTest extends ProjectBuilder {
+public class ConfigurationsIT extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
