@@ -69,6 +69,7 @@ import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.mockito.InjectMocks;
@@ -364,8 +365,9 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
             when(mock.getId()).thenReturn(id);
             return mock;
         });
-        when(repository().queryWithPredicates(any(), any(), any())).thenAnswer(new ListAnswer(repositoryList));
-        when(repository().count(any())).thenAnswer(inv -> repositoryList.size());
+        when(repository().queryWithPredicates(any(), any(), any(Predicate[].class)))
+                .thenAnswer(new ListAnswer<>(repositoryList));
+        when(repository().count(any(Predicate[].class))).thenAnswer(inv -> repositoryList.size());
         when(repository().save(any())).thenAnswer(inv -> {
             T entity = inv.getArgument(0);
             if (entity.getId() == null) {
