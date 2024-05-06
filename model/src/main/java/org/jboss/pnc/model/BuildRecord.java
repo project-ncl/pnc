@@ -749,14 +749,14 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
         }
     }
 
-    public Base32LongID[] getDependentBuildRecordIds() {
+    public Set<Base32LongID> getDependentBuildRecordIds() {
         Long[] longIds = StringUtils.deserializeLong(dependentBuildRecordIds);
-        return Arrays.stream(longIds).map(Base32LongID::new).toArray(Base32LongID[]::new);
+        return Arrays.stream(longIds).map(Base32LongID::new).collect(Collectors.toSet());
     }
 
-    public Base32LongID[] getDependencyBuildRecordIds() {
+    public Set<Base32LongID> getDependencyBuildRecordIds() {
         Long[] longIds = StringUtils.deserializeLong(dependencyBuildRecordIds);
-        return Arrays.stream(longIds).map(Base32LongID::new).toArray(Base32LongID[]::new);
+        return Arrays.stream(longIds).map(Base32LongID::new).collect(Collectors.toSet());
     }
 
     public void setDependencyBuildRecordIds(Base32LongID[] dependencyBuildRecordIds) {

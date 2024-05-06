@@ -59,7 +59,7 @@ public class BuildIteratorTest {
     private BuildMapper mapper;
 
     @InjectMocks
-    private BuildProviderImpl provider;
+    private BuildFetcher buildFetcher;
 
     @Before
     public void prepareMock() {
@@ -75,10 +75,10 @@ public class BuildIteratorTest {
         Predicate<BuildRecord> predicate = mock(Predicate.class);
         mockRepository(sortInfo, predicate);
 
-        BuildProviderImpl.BuildIterator bit;
+        BuildFetcher.BuildIterator bit;
         List<Integer> ret;
 
-        bit = provider.new BuildIterator(1, 10, 1, sortInfo, predicate);
+        bit = buildFetcher.new BuildIterator(1, 10, 1, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             Build next = bit.next().getBuild();
@@ -86,21 +86,21 @@ public class BuildIteratorTest {
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
-        bit = provider.new BuildIterator(1, 10, 10, sortInfo, predicate);
+        bit = buildFetcher.new BuildIterator(1, 10, 10, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             ret.add(Integer.valueOf(bit.next().getBuild().getId()));
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
-        bit = provider.new BuildIterator(1, 10, 100, sortInfo, predicate);
+        bit = buildFetcher.new BuildIterator(1, 10, 100, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             ret.add(Integer.valueOf(bit.next().getBuild().getId()));
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
-        bit = provider.new BuildIterator(7, 12, 100, sortInfo, predicate);
+        bit = buildFetcher.new BuildIterator(7, 12, 100, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             ret.add(Integer.valueOf(bit.next().getBuild().getId()));
