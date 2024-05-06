@@ -415,4 +415,11 @@ public class BuildRecordPredicates {
             return cb.equal(newNRRRecordCount, 0);
         };
     }
+
+    public static Predicate<BuildRecord> withIds(Set<Base32LongID> ids) {
+        if (ids.isEmpty()) {
+            return (root, query, cb) -> cb.or();
+        }
+        return (root, query, cb) -> root.get(BuildRecord_.id).in(ids);
+    }
 }

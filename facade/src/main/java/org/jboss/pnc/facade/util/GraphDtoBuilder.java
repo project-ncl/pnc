@@ -25,20 +25,23 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 /**
- * @param <S> Source graph data type
- * @param <T> Target graph data type
- *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class GraphDtoBuilder<S, T> {
-    public Graph<T> from(
+public class GraphDtoBuilder {
+
+    /**
+     * @param <S> Source graph data type
+     * @param <T> Target graph data type
+     */
+    public static <S, T> Graph<T> from(
             org.jboss.util.graph.Graph<S> graph,
             Class<T> dataType,
             Function<org.jboss.util.graph.Vertex<S>, T> dataMapper) {
-        Map<String, Vertex<T>> vertices = new LinkedHashMap<>();
+        Map<String, Vertex<T>> vertices = new TreeMap<>();
         List<Edge<T>> edges = new ArrayList<>();
 
         for (org.jboss.util.graph.Vertex<S> vertex : graph.getVerticies()) {

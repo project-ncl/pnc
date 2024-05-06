@@ -29,7 +29,6 @@ import org.jboss.pnc.dto.response.Vertex;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
-import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -75,7 +74,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -103,6 +101,9 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
 
     @Mock
     private BuildCoordinator buildCoordinator;
+
+    @Mock
+    private BuildFetcher buildFetcher;
 
     @Mock
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
@@ -165,6 +166,30 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                 .temporaryBuild(false)
                 .build();
         when(buildConfigSetRecordRepository.queryById(any())).thenReturn(buildConfigSetRecord);
+
+        when(buildFetcher.getBuildWithDeps(any()))
+                .thenAnswer(invocation -> getBuildWithDependenecies(invocation.getArgument(0)));
+
+        when(buildFetcher.buildExists(any())).thenAnswer(invocation -> {
+            Base32LongID id = invocation.getArgument(0);
+            return runningBuilds.stream().anyMatch(b -> b.getId().equals(id.getId()))
+                    || repositoryList.stream().anyMatch(b -> b.getId().equals((id)));
+        });
+    }
+
+    private BuildFetcher.BuildWithDeps getBuildWithDependenecies(String id) {
+        Optional<BuildFetcher.BuildWithDeps> first = runningBuilds.stream()
+                .filter(b -> b.getId().equals(id))
+                .map(bt -> new BuildFetcher.BuildWithDeps(buildMapper.fromBuildTask(bt), bt))
+                .findFirst();
+        if (first.isPresent()) {
+            return first.get();
+        }
+        return repositoryList.stream()
+                .filter(b -> b.getId().getId().equals((id)))
+                .map(b -> new BuildFetcher.BuildWithDeps(buildMapper.toDTO(b), b))
+                .findFirst()
+                .orElseThrow(() -> new CorruptedDataException("Corrupted"));
     }
 
     private BuildTask mockBuildTask() {
@@ -386,7 +411,9 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         mockBuildTask();
         mockBuildTask();
         BuildRecord givenBuild = mockBuildRecord(givenIdAndBcName, new Long[0], new Long[0]);
+        Build dto = buildMapper.toDTO(givenBuild);
 
+        when(buildFetcher.getBuildPage(eq(0), eq(10), any(), any(), any(), any())).thenReturn(List.of(dto));
         when(buildConfigurationAuditedRepository.searchIdRevForBuildConfigurationName(givenIdAndBcName.toString()))
                 .thenReturn(Stream.of(givenBuild.getBuildConfigurationAuditedIdRev()).collect(Collectors.toList()));
 
@@ -409,8 +436,10 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         mockBuildTask(); // hit
         mockBuildRecord(); // hit
         mockBuildTask(); // hit
-        BuildRecord build2 = mockBuildRecord(); // hit
-        BuildTask build1 = mockBuildTask(); // hit
+        Build build2 = buildMapper.toDTO(mockBuildRecord()); // hit
+        Build build1 = buildMapper.fromBuildTask(mockBuildTask()); // hit
+
+        when(buildFetcher.getBuildPage(eq(0), eq(2), any(), any(), any(), any())).thenReturn(List.of(build1, build2));
 
         // When
         BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, false, "");
@@ -421,41 +450,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
         assertEquals(build1.getId(), it.next().getId());
-        assertEquals(BuildMapper.idMapper.toDto(build2.getId()), it.next().getId());
-    }
-
-    @Test
-    public void testGetBuildsPages() {
-        // Prepare
-        BuildRecord build8 = mockBuildRecord();
-        BuildTask build7 = mockBuildTask();
-        BuildRecord build6 = mockBuildRecord();
-        BuildTask build5 = mockBuildTask();
-        BuildRecord build4 = mockBuildRecord();
-        BuildTask build3 = mockBuildTask();
-        BuildRecord build2 = mockBuildRecord();
-        BuildTask build1 = mockBuildTask();
-
-        testPage(0, 2, new Base32LongID(build1.getId()), build2.getId());
-        testPage(1, 2, new Base32LongID(build3.getId()), build4.getId());
-        testPage(2, 2, new Base32LongID(build5.getId()), build6.getId());
-        testPage(3, 2, new Base32LongID(build7.getId()), build8.getId());
-
-        testPage(1, 3, build4.getId(), new Base32LongID(build5.getId()), build6.getId());
-        testPage(2, 3, new Base32LongID(build7.getId()), build8.getId());
-
-        testPage(2, 10);
-    }
-
-    private void testPage(int idx, int size, Base32LongID... ids) {
-        BuildPageInfo pageInfo = new BuildPageInfo(idx, size, "", "", false, false, "");
-        Page<Build> builds = provider.getBuilds(pageInfo);
-
-        Iterator<Build> it = builds.getContent().iterator();
-        for (Base32LongID id : ids) {
-            assertEquals(BuildMapper.idMapper.toDto(id), it.next().getId());
-        }
-        assertFalse(it.hasNext());
+        assertEquals(build2.getId(), it.next().getId());
     }
 
     @Test
@@ -488,63 +483,19 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
 
     @Test
     public void testGetAll() throws InterruptedException {
-        BuildRecord buildRecord1 = mockBuildRecord();
-        Thread.sleep(1L); // make sure new start time is in the next millisecond
-        BuildRecord buildRecord2 = mockBuildRecord();
-        Thread.sleep(1L); // make sure new start time is in the next millisecond
-        BuildRecord buildRecord3 = mockBuildRecord();
+        Build buildRecord1 = buildMapper.toDTO(mockBuildRecord());
+        Build buildRecord2 = buildMapper.toDTO(mockBuildRecord());
+        Build buildRecord3 = buildMapper.toDTO(mockBuildRecord());
+
+        when(buildFetcher.getBuildPage(eq(0), eq(10), any(), any(), any(), any()))
+                .thenReturn(List.of(buildRecord3, buildRecord2, buildRecord1));
+
         Page<Build> all = provider.getAll(0, 10, null, null);
 
         assertThat(all.getContent()).hasSize(3)
-                .haveExactly(
-                        1,
-                        new Condition<>(
-                                b -> buildRecord1.getSubmitTime().toInstant().equals(b.getSubmitTime()),
-                                "Build present"))
-                .haveExactly(
-                        1,
-                        new Condition<>(
-                                b -> buildRecord2.getSubmitTime().toInstant().equals(b.getSubmitTime()),
-                                "Build present"))
-                .haveExactly(
-                        1,
-                        new Condition<>(
-                                b -> buildRecord3.getSubmitTime().toInstant().equals(b.getSubmitTime()),
-                                "Build present"));
-    }
-
-    @Test
-    public void testGetLatePage() throws InterruptedException {
-        BuildRecord first = null;
-        BuildRecord last = null;
-        for (int i = 0; i <= 3000; i++) {
-            Thread.sleep(1L); // make sure new start time is in the next millisecond
-            BuildRecord build = mockBuildRecord();
-            if (i == (3000 - 2000)) {
-                first = build;
-            }
-            if (i == (3000 - 2049)) {
-                last = build;
-            }
-        }
-        assertThat(first).isNotNull();
-        assertThat(last).isNotNull();
-
-        Page<Build> all = provider.getAll(40, 50, null, null);
-
-        BuildRecord finalFirst = first;
-        BuildRecord finalLast = last;
-        assertThat(all.getContent()).hasSize(50)
-                .haveExactly(
-                        1,
-                        new Condition<>(
-                                b -> finalFirst.getSubmitTime().toInstant().equals(b.getSubmitTime()),
-                                "Build submitted " + finalFirst.getSubmitTime().toInstant() + " present"))
-                .haveExactly(
-                        1,
-                        new Condition<>(
-                                b -> finalLast.getSubmitTime().toInstant().equals(b.getSubmitTime()),
-                                "Build submitted " + finalLast.getSubmitTime().toInstant() + " present"));
+                .haveExactly(1, new Condition<>(b -> buildRecord1.getId().equals(b.getId()), "Build present"))
+                .haveExactly(1, new Condition<>(b -> buildRecord2.getId().equals(b.getId()), "Build present"))
+                .haveExactly(1, new Condition<>(b -> buildRecord3.getId().equals(b.getId()), "Build present"));
     }
 
     @Test
@@ -558,34 +509,25 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         when(buildSetTask.getBuildConfigSetRecord()).thenReturn(optional);
 
         BuildTask task = mockBuildTaskWithSet(buildSetTask);
+        Base32LongID taskId = BuildMapper.idMapper.toEntity(task.getId());
         BuildTask taskDep = mockBuildTaskWithSet(buildSetTask);
+        Base32LongID taskDepId = BuildMapper.idMapper.toEntity(taskDep.getId());
         BuildTask taskDepDep = mockBuildTaskWithSet(buildSetTask);
+        Base32LongID taskDepDepId = BuildMapper.idMapper.toEntity(taskDepDep.getId());
 
         when(task.getDependencies()).thenReturn(Collections.singleton(taskDep));
         when(taskDep.getDependencies()).thenReturn(Collections.singleton(taskDepDep));
+
+        when(buildFetcher.getGroupBuildContent(eq(configSetRecordId)))
+                .thenReturn(Set.of(taskId, taskDepId, taskDepDepId));
 
         // When
         Graph<Build> graph = provider.getBuildGraphForGroupBuild(Long.toString(configSetRecordId));
 
         // Then
         assertThat(graph.getVertices()).hasSize(3);
-        List<String> buildTaskIDsOrderedByBCName = Stream.of(task, taskDep, taskDepDep)
-                .sorted(Comparator.comparing(t -> t.getBuildConfigurationAudited().getName()))
-                .map(t -> t.getId())
-                .collect(Collectors.toList());
         assertThat(graph.getVertices().values().stream().map(Vertex::getName))
-                .containsExactlyElementsOf(buildTaskIDsOrderedByBCName);
-    }
-
-    @Test(expected = EmptyEntityException.class)
-    public void shouldThrowAnExceptionWhenTheGroupDoesNotExist() {
-        // Given some group
-        when(buildConfigSetRecordRepository.queryById(42L)).thenReturn(null);
-
-        // When getting non-existing group
-        Graph<Build> graph = provider.getBuildGraphForGroupBuild("42");
-
-        // Then should throw
+                .containsExactlyInAnyOrder(task.getId(), taskDep.getId(), taskDepDep.getId());
     }
 
     @Test

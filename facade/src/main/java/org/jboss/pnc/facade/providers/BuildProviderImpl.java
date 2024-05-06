@@ -19,7 +19,6 @@ package org.jboss.pnc.facade.providers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.graph.GraphBuilder;
@@ -38,24 +37,22 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
-import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.providers.BuildFetcher.BuildWithDeps;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
-import org.jboss.pnc.facade.util.MergeIterator;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
-import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -65,7 +62,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -75,14 +71,12 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.CursorPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ValidationException;
-import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,37 +85,25 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import static java.lang.Math.min;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
@@ -142,7 +124,6 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withU
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
-import static org.jboss.pnc.spi.datastore.repositories.api.OrderInfo.SortingDirection.DESC;
 import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.determineScmProvider;
 import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.getScmUrlGenerator;
 
@@ -167,6 +148,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
     private ResultMapper resultMapper;
+    private GroupBuildMapper groupBuildMapper;
+    private BuildFetcher buildFetcher;
 
     private KeycloakServiceClient keycloakServiceClient;
 
@@ -185,6 +168,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             UserService userService,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
             ResultMapper resultMapper,
+            GroupBuildMapper groupBuildMapper,
+            BuildFetcher buildFetcher,
             KeycloakServiceClient keycloakServiceClient) {
         super(repository, mapper, BuildRecord.class);
 
@@ -199,6 +184,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.userService = userService;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
         this.resultMapper = resultMapper;
+        this.groupBuildMapper = groupBuildMapper;
+        this.buildFetcher = buildFetcher;
         this.keycloakServiceClient = keycloakServiceClient;
     }
 
@@ -467,15 +454,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
-                .queryById(Long.valueOf(groupBuildId));
-        if (buildConfigSetRecord == null) {
-            throw new EmptyEntityException("Build group " + groupBuildId + " does not exists.");
-        }
-        List<String> runningAndStoredIds = getBuildIdsInTheGroup(buildConfigSetRecord);
-        org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = new org.jboss.util.graph.Graph<>();
-        for (String buildId : runningAndStoredIds) {
-            org.jboss.util.graph.Graph<BuildWithDependencies> dependencyGraph = createBuildDependencyGraph(buildId);
+        Long id = groupBuildMapper.getIdMapper().toEntity(groupBuildId);
+        Set<Base32LongID> buildIDs = buildFetcher.getGroupBuildContent(id);
+        buildFetcher.precacheAllBuildsDeps(buildIDs);
+
+        org.jboss.util.graph.Graph<BuildWithDeps> buildGraph = new org.jboss.util.graph.Graph<>();
+        for (Base32LongID buildId : buildIDs) {
+            org.jboss.util.graph.Graph<BuildWithDeps> dependencyGraph = createBuildDependencyGraph(buildId.getId());
             GraphUtils.merge(buildGraph, dependencyGraph);
             logger.trace(
                     "Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},",
@@ -484,58 +469,30 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                     buildGraph.getEdges());
         }
 
-        GraphDtoBuilder<BuildWithDependencies, Build> graphBuilder = new GraphDtoBuilder();
-        Graph<Build> graphDto = graphBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
-        return graphDto;
-    }
-
-    /**
-     * @return Running and completed build ids from the Build Group.
-     */
-    private List<String> getBuildIdsInTheGroup(BuildConfigSetRecord buildConfigSetRecord) {
-        List<BuildTask> runningTasks = null;
-        try {
-            runningTasks = buildCoordinator.getSubmittedBuildTasksBySetId(buildConfigSetRecord.getId());
-        } catch (RemoteRequestException | MissingDataException e) {
-            throw new RuntimeException(e);
-        }
-        List<String> runningAndStoredIds = new ArrayList<>();
-        runningTasks.stream()
-                .sorted(Comparator.comparing(bt -> bt.getBuildConfigurationAudited().getName()))
-                .map(BuildTask::getId)
-                .forEach(runningAndStoredIds::add);
-
-        Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
-                .stream()
-                .map(br -> BuildMapper.idMapper.toDto(br.getId()))
-                .collect(Collectors.toSet());
-        runningAndStoredIds.addAll(storedBuildIds);
-        return runningAndStoredIds;
+        return GraphDtoBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
     }
 
     @Override
     public Graph<Build> getDependencyGraph(String buildId) {
-        Build specific = getSpecific(buildId);
-        if (specific == null) {
+        Base32LongID id = buildMapper.getIdMapper().toEntity(buildId);
+        if (!buildFetcher.buildExists(id)) {
             throw new EmptyEntityException("there is no record for given buildId.");
         }
-        org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = createBuildDependencyGraph(buildId);
-        GraphDtoBuilder<BuildWithDependencies, Build> graphBuilder = new GraphDtoBuilder();
-        return graphBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
+        buildFetcher.precacheAllBuildsDeps(id);
+
+        org.jboss.util.graph.Graph<BuildWithDeps> buildGraph = createBuildDependencyGraph(buildId);
+        return GraphDtoBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
     }
 
-    private org.jboss.util.graph.Graph<BuildWithDependencies> createBuildDependencyGraph(String buildId) {
-        org.jboss.util.graph.Graph<BuildWithDependencies> graph = new org.jboss.util.graph.Graph<>();
-        GraphBuilder<BuildWithDependencies, String> graphBuilder = new GraphBuilder<>(
-                this::getRunningOrCompletedBuild,
-                BuildWithDependencies::getDependencies,
-                BuildWithDependencies::getDependants);
+    private org.jboss.util.graph.Graph<BuildWithDeps> createBuildDependencyGraph(String buildId) {
+        org.jboss.util.graph.Graph<BuildWithDeps> graph = new org.jboss.util.graph.Graph<>();
+        GraphBuilder<BuildWithDeps, String> graphBuilder = new GraphBuilder<>(
+                id -> buildFetcher.getBuildWithDeps(id),
+                BuildWithDeps::getDependencies,
+                BuildWithDeps::getDependants);
 
-        Vertex<BuildWithDependencies> current = graphBuilder.buildDependencyGraph(graph, buildId);
-        if (current != null) {
-            BuildWithDependencies currentTask = current.getData();
-            graphBuilder.buildDependentGraph(graph, currentTask.getBuild().getId());
-        }
+        graphBuilder.buildDependencyGraph(graph, buildId);
+        graphBuilder.buildDependentGraph(graph, buildId);
         return graph;
     }
 
@@ -575,33 +532,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             throw new EmptyEntityException("Build with id: " + buildId + " does not exist!");
         } else {
             return buildRecord;
-        }
-    }
-
-    /**
-     *
-     * @param id
-     * @return BuildWithDependencies
-     * @throws CorruptedDataException when there is no running nor completed build for a given id
-     */
-    private BuildWithDependencies getRunningOrCompletedBuild(String id) {
-        Optional<BuildTask> buildTask = null;
-        try {
-            buildTask = buildCoordinator.getSubmittedBuildTasks()
-                    .stream()
-                    .filter(submittedBuild -> submittedBuild.getId().equals(id))
-                    .findFirst();
-        } catch (RemoteRequestException | MissingDataException e) {
-            throw new RuntimeException(e);
-        }
-        if (buildTask.isPresent()) {
-            return new BuildWithDependencies(buildTask.get());
-        } else {
-            BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(parseId(id));
-            if (buildRecord == null) {
-                throw new CorruptedDataException("Missing build with id:" + id);
-            }
-            return new BuildWithDependencies(buildRecord);
         }
     }
 
@@ -900,11 +830,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             java.util.function.Predicate<BuildTask> predicate,
             Predicate<BuildRecord> dbPredicate) throws RemoteRequestException, MissingDataException {
         List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
-        Iterator<BuildWrapper> wrappedRunningBuilds = runningBuilds.stream().map(BuildWrapper::new).iterator();
-
-        int firstPossibleDBIndex = pageInfo.getPageIndex() * pageInfo.getPageSize() - runningBuilds.size();
-        int lastPossibleDBIndex = (pageInfo.getPageIndex() + 1) * pageInfo.getPageSize() - 1;
-        int toSkip = min(runningBuilds.size(), pageInfo.getPageIndex() * pageInfo.getPageSize());
 
         Predicate<BuildRecord>[] predicates = preparePredicates(
                 dbPredicate,
@@ -921,23 +846,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         comparing = thenCompareByLongID(comparing);
         sortInfo = sortInfo.thenOrderBy(DefaultOrderInfo.desc(BuildRecord_.id));
 
-        MergeIterator<BuildWrapper> buildsIT = new MergeIterator(
-                wrappedRunningBuilds,
-                new BuildIterator(
-                        firstPossibleDBIndex,
-                        lastPossibleDBIndex,
-                        pageInfo.getPageSize(),
-                        sortInfo,
-                        predicates),
-                wrapperComparator(comparing));
-        List<BuildWrapper> builds = StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(buildsIT, Spliterator.ORDERED | Spliterator.SORTED), false)
-                .skip(toSkip)
-                .limit(pageInfo.getPageSize())
-                .collect(Collectors.toList());
-
-        fetchBuildConfigAudited(builds.stream().flatMap(BuildWrapper::buildRecordStream).collect(Collectors.toSet()));
-        List<Build> resultList = builds.stream().map(BuildWrapper::getBuild).collect(Collectors.toList());
+        List<Build> resultList = buildFetcher.getBuildPage(
+                pageInfo.getPageIndex(),
+                pageInfo.getPageSize(),
+                runningBuilds,
+                predicates,
+                sortInfo,
+                comparing);
 
         int hits = repository.count(predicates) + runningBuilds.size();
 
@@ -954,32 +869,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         Comparator<Build> sortByLongId = Comparator.comparingLong(longId).reversed(); // id DESC
 
         return comparing.thenComparing(sortByLongId);
-    }
-
-    private void fetchBuildConfigAudited(Set<BuildRecord> buildRecords) {
-        if (buildRecords.isEmpty()) {
-            return;
-        }
-        Set<IdRev> idRevs = buildRecords.stream()
-                .filter(buildRecord -> buildRecord.getBuildConfigurationAudited() == null)
-                .map(BuildRecord::getBuildConfigurationAuditedIdRev)
-                .collect(Collectors.toSet());
-        prefetchFiledsOfBuildConfigs(idRevs);
-        Map<IdRev, BuildConfigurationAudited> buildConfigRevisions = buildConfigurationAuditedRepository
-                .queryById(idRevs);
-        for (BuildRecord buildRecord : buildRecords) {
-            if (buildRecord.getBuildConfigurationAudited() != null) {
-                continue;
-            }
-            IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigRevisions.get(idRev);
-            buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
-        }
-    }
-
-    private void prefetchFiledsOfBuildConfigs(Set<IdRev> idRevs) {
-        Set<Integer> buildConfigIDs = idRevs.stream().map(IdRev::getId).collect(Collectors.toSet());
-        buildConfigurationRepository.queryWithPredicates(BuildConfigurationPredicates.withIds(buildConfigIDs));
     }
 
     private Predicate<BuildRecord>[] preparePredicates(
@@ -1096,122 +985,4 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return buildRecords.stream().map(mapper::toDTO).findFirst();
     }
 
-    class BuildIterator implements Iterator<BuildWrapper> {
-
-        private List<BuildRecord> builds;
-        private Iterator<BuildRecord> it;
-        private final int maxPageSize;
-        private int firstIndex;
-        private final int lastIndex;
-        private final SortInfo<BuildRecord> sortInfo;
-        private final Predicate<BuildRecord>[] predicates;
-
-        public BuildIterator(
-                int firstIndex,
-                int lastIndex,
-                int pageSize,
-                SortInfo<BuildRecord> sortInfo,
-                Predicate<BuildRecord>... predicate) {
-            this.maxPageSize = Math.max(pageSize, 10);
-            this.firstIndex = Math.max(firstIndex, 0);
-            this.lastIndex = lastIndex;
-            this.predicates = predicate;
-            this.sortInfo = sortInfo;
-            nextPage();
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (it.hasNext()) {
-                return true;
-            }
-            if (firstIndex > lastIndex) {
-                return false;
-            }
-            nextPage();
-            return it.hasNext();
-        }
-
-        @Override
-        public BuildWrapper next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            return new BuildWrapper(it.next());
-        }
-
-        private void nextPage() {
-            int size = lastIndex - firstIndex + 1;
-            if (size > maxPageSize) {
-                size = maxPageSize;
-            }
-            PageInfo pageInfo = new CursorPageInfo(firstIndex, size);
-            builds = BuildProviderImpl.this.repository.queryWithPredicates(pageInfo, sortInfo, predicates);
-            it = builds.iterator();
-            if (builds.size() < size) {
-                firstIndex = lastIndex + 1;
-            } else {
-                firstIndex += size;
-            }
-        }
-    }
-
-    @Getter
-    private class BuildWithDependencies {
-        private final Build build;
-        private final Collection<String> dependencies;
-        private final Collection<String> dependants;
-
-        public BuildWithDependencies(BuildTask buildTask) {
-            build = buildMapper.fromBuildTask(buildTask);
-            dependencies = buildTask.getDependencies().stream().map(BuildTask::getId).collect(Collectors.toSet());
-            dependants = buildTask.getDependants().stream().map(BuildTask::getId).collect(Collectors.toSet());
-        }
-
-        public BuildWithDependencies(BuildRecord buildRecord) {
-            build = buildMapper.toDTO(buildRecord);
-            dependencies = Arrays.stream(buildRecord.getDependencyBuildRecordIds())
-                    .map(BuildMapper.idMapper::toDto)
-                    .collect(Collectors.toSet());
-            dependants = Arrays.stream(buildRecord.getDependentBuildRecordIds())
-                    .map(BuildMapper.idMapper::toDto)
-                    .collect(Collectors.toSet());
-        }
-    }
-
-    class BuildWrapper {
-        private final BuildRecord buildRecord;
-
-        private final Build mappedBuild;
-
-        public BuildWrapper(BuildRecord buildRecord) {
-            this.buildRecord = buildRecord;
-            this.mappedBuild = buildMapper.toDTOWithoutBCR(buildRecord);
-        }
-
-        public BuildWrapper(Build build) {
-            this.buildRecord = null;
-            this.mappedBuild = build;
-        }
-
-        public Build getBuild() {
-            if (buildRecord == null) {
-                return mappedBuild;
-            } else {
-                return buildMapper.toDTO(buildRecord);
-            }
-        }
-
-        public Stream<BuildRecord> buildRecordStream() {
-            if (buildRecord == null) {
-                return Stream.empty();
-            } else {
-                return Stream.of(buildRecord);
-            }
-        }
-    }
-
-    private static Comparator<BuildWrapper> wrapperComparator(Comparator<Build> comparator) {
-        return (o1, o2) -> (comparator.compare(o1.mappedBuild, o2.mappedBuild));
-    }
 }
