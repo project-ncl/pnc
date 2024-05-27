@@ -180,7 +180,7 @@ public class SystemConfig extends AbstractModuleConfig {
                 30000);
         this.recordUpdateJobEnabled = Boolean.parseBoolean(recordUpdateJobEnabled);
         this.bifrostLogUploadMaxRetries = toIntWithDefault("bifrostLogUploadMaxRetries", bifrostLogUploadMaxRetries, 3);
-        this.bifrostLogUploadRetryDelay = toIntWithDefault("bifrostLogUploadRetryDelay", messagingInternalQueueSize, 2);
+        this.bifrostLogUploadRetryDelay = toIntWithDefault("bifrostLogUploadRetryDelay", bifrostLogUploadRetryDelay, 2);
     }
 
     public static Properties readProperties(String file) {
@@ -357,12 +357,16 @@ public class SystemConfig extends AbstractModuleConfig {
                 + distributedEventType + '\'' + ", kafkaBootstrapServers='" + kafkaBootstrapServers + '\''
                 + ", kafkaTopic='" + kafkaTopic + '\'' + ", kafkaNumOfConsumers=" + kafkaNumOfConsumers
                 + ", kafkaNumOfRetries=" + kafkaNumOfRetries + ", kafkaRetryBackoffMillis=" + kafkaRetryBackoffMillis
-                + ", kafkaSecurityProtocol='" + kafkaSecurityProtocol + '\'' + ", kafkaSecuritySaslMechanism='"
-                + kafkaSecuritySaslMechanism + '\'' + ", kafkaSecuritySaslJaasConf='" + kafkaSecuritySaslJaasConf + '\''
-                + ", kafkaSecurityUser='" + kafkaSecurityUser + '\'' + ", kafkaSecurityPassword='"
-                + kafkaSecurityPassword + '\'' + ", kafkaProperties='" + kafkaProperties + '\''
-                + ", infinispanClusterName='" + infinispanClusterName + '\'' + ", infinispanTransportProperties='"
-                + infinispanTransportProperties + '\'' + '}';
+                + ", kafkaAcks='" + kafkaAcks + '\'' + ", kafkaSecurityProtocol='" + kafkaSecurityProtocol + '\''
+                + ", kafkaSecuritySaslMechanism='" + kafkaSecuritySaslMechanism + '\'' + ", kafkaSecuritySaslJaasConf='"
+                + kafkaSecuritySaslJaasConf + '\'' + ", kafkaSecurityUser='" + kafkaSecurityUser + '\''
+                + ", kafkaSecurityPassword='" + kafkaSecurityPassword + '\'' + ", kafkaProperties='" + kafkaProperties
+                + '\'' + ", infinispanClusterName='" + infinispanClusterName + '\''
+                + ", infinispanTransportProperties='" + infinispanTransportProperties + '\''
+                + ", legacyBuildCoordinator=" + legacyBuildCoordinator + ", recordUpdateJobMillisDelay="
+                + recordUpdateJobMillisDelay + ", recordUpdateJobEnabled=" + recordUpdateJobEnabled
+                + ", bifrostLogUploadMaxRetries=" + bifrostLogUploadMaxRetries + ", bifrostLogUploadRetryDelay="
+                + bifrostLogUploadRetryDelay + '}';
     }
 
     public boolean isRecordUpdateJobEnabled() {
