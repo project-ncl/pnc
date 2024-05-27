@@ -78,7 +78,20 @@ public class ScmUrlGeneratorProvider {
             return SCMProvider.GERRIT;
         }
 
-        // try some logic from internalScmUrl
+        // try some logic from internalScmUrl. we reached this point because we cannot determine from the scmUrl alone
+        return determineInternalScmProvider(internalScmUrl);
+    }
+
+    /**
+     * Simple heuristic logic for trying to determine what is the SCM provider out of the internal url used to clone the
+     * build
+     *
+     * @param internalScmUrl internalUrl from SCMRepository of the Build (can be URI or SCP-like)
+     * @return SCMProvider that is likely to have been used
+     * @throws ScmException if the arguments are not appropriate URLs
+     */
+    public static SCMProvider determineInternalScmProvider(String internalScmUrl) throws ScmException {
+
         if (isScpLike(internalScmUrl)) {
             return determineFromScpUri(internalScmUrl);
         } else {

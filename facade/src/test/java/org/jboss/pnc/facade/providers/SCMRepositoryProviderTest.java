@@ -171,6 +171,23 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     }
 
     @Test
+    public void testStoreNewRepositoryWithGitlabInternalUrlInScpFormatShouldSucceed() {
+
+        // when
+        SCMRepository toCreate = createNewSCMRepository(
+                "https://" + UUID.randomUUID().toString() + ".ca",
+                "git@gitlab.com:haha/hoho.git",
+                true,
+                null);
+
+        SCMRepository created = provider.store(toCreate);
+        // then
+        assertThat(created).isNotNull();
+        assertThat(created.getId()).isNotNull().isNotEmpty();
+        assertThat(created.getInternalUrl()).isEqualTo(toCreate.getInternalUrl());
+    }
+
+    @Test
     public void testUpdate() {
 
         // when
