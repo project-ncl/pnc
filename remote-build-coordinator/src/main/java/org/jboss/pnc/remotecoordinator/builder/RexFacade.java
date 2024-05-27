@@ -77,6 +77,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -212,6 +213,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 .mdcHeaderKeyMapping(mdcHeaderMapping)
                 .passOTELInRequestBody(true)
                 .passMDCInRequestBody(true)
+                .cancelTimeout(Duration.ofMillis(60000))
                 .build();
 
         CreateGraphRequest createGraphRequest = CreateGraphRequest.builder()

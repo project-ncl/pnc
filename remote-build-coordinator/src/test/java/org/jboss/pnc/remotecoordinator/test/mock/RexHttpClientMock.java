@@ -28,6 +28,7 @@ import javax.enterprise.inject.Alternative;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -52,7 +53,8 @@ public class RexHttpClientMock implements RexHttpClient {
     }
 
     @Override
-    public void cancel(@NotBlank String taskID) {
+    public Response cancel(@NotBlank String taskID) {
+        return null;
     }
 
     @Override

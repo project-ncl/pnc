@@ -38,4 +38,9 @@ public class RexQueueHttpClientMock implements RexQueueHttpClient {
     public LongResponse getConcurrent() {
         return LongResponse.builder().number(5L).build();
     }
+
+    @Override
+    public LongResponse getRunning() {
+        return LongResponse.builder().number(5L).build();
+    }
 }
