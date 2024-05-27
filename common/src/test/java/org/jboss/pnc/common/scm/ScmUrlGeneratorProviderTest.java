@@ -84,4 +84,20 @@ public class ScmUrlGeneratorProviderTest {
 
         assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GERRIT);
     }
+
+    @Test
+    public void testInternalScmProviderMethod() throws Exception {
+
+        String internalUrl = "git+ssh://git@gitlab.com/workspace/project/repository.git";
+        assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GITLAB);
+
+        internalUrl = "git@gitlab.com:workspace/project/repository.git";
+        assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GITLAB);
+
+        internalUrl = "git+ssh://git@gerrit.com/project/repository.git";
+        assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GERRIT);
+
+        internalUrl = "git@gerrit.com:workspace/project/repository.git";
+        assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GERRIT);
+    }
 }
