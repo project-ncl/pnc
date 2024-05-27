@@ -614,6 +614,12 @@
         <groupId>org.jboss.pnc.rex</groupId>
         <artifactId>rex-api</artifactId>
         <version>${version.rex-api}</version>
+        <classifier>javax</classifier>
+        <exclusions>
+          <exclusion>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+          </exclusion></exclusions>
       </dependency>
 
       <dependency>
@@ -632,6 +638,13 @@
         <groupId>org.jboss.pnc.rex</groupId>
         <artifactId>rex-dto</artifactId>
         <version>${version.rex-api}</version>
+        <classifier>javax</classifier>
+        <exclusions>
+          <exclusion>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>

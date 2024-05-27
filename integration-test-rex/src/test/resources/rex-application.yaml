@@ -2,7 +2,6 @@ scheduler:
   baseUrl: "http://localhost:5679"
 
 quarkus:
-
   http:
     cors: true
     port: 8080
@@ -37,17 +36,23 @@ quarkus:
     password: password
     cache:
       "rex-counter":
-        configuration-uri: "counter-configuration.xml"
+        configuration-resource: "counter-configuration.xml"
         near-cache-mode: disabled
         near-cache-max-entries: -1
       "rex-tasks":
-        configuration-uri: "task-configuration.xml"
+        configuration-resource: "task-configuration.xml"
         near-cache-mode: invalidated
         near-cache-max-entries: 100
       "rex-constraints":
-        configuration-uri: "constraints-configuration.xml"
+        configuration-resource: "constraints-configuration.xml"
         near-cache-mode: invalidated
         near-cache-max-entries: 100
+      "rex-signals":
+        configuration-resource: "signals-configuration.xml"
+        near-cache-mode: disabled
+      "rex-cluster-jobs":
+        configuration-resource: "cluster-jobs-configuration.xml"
+        near-cache-mode: disabled
   swagger-ui:
     always-include: true
 
@@ -61,6 +66,10 @@ quarkus:
         # Set to WARN if you want to see all the exceptions
         level: ERROR
       "io.quarkus.oidc":
+        level: TRACE
+      "io.quarkus.infinispan":
+        level: TRACE
+      "io.infinispan":
         level: TRACE
     min-level: TRACE
   vertx:

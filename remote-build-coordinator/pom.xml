@@ -58,6 +58,7 @@
     <dependency>
       <groupId>org.jboss.pnc.rex</groupId>
       <artifactId>rex-api</artifactId>
+      <classifier>javax</classifier>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
