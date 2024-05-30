@@ -153,4 +153,18 @@ public class GitSCPUrlTest {
         assertThatThrownBy(() -> GitSCPUrl.parse("git://lots.of.domains.github.com/gerrit/c3p0.git"))
                 .isInstanceOf(MalformedURLException.class);
     }
+
+    /**
+     * Gitlab naming convention:
+     *
+     * Must start with a lowercase or uppercase letter, digit, emoji, or underscore. Can also contain dots, pluses,
+     * dashes, or spaces.
+     */
+    @Test
+    public void testSpecialCases() throws Exception {
+
+        GitSCPUrl url = GitSCPUrl.parse("git@gitlab:pnc-here/Ecli+p_se/vert5.x.git");
+        assertThat(url.getOwner()).isEqualTo("Ecli+p_se");
+        assertThat(url.getRepositoryName()).isEqualTo("vert5.x");
+    }
 }
