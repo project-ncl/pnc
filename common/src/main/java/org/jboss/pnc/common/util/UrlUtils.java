@@ -95,18 +95,21 @@ public final class UrlUtils {
         return map;
     }
 
-    public static String keepHostAndPathOnly(String url) {
+    public static String keepHostAndPathOnly(String originalUrl) {
+
+        String urlWithScheme = originalUrl;
+
         // workaround to properly parse url. Without schema and available port, URI.create fails to parse
-        if (!url.contains("://")) {
-            url = "http://" + url;
+        if (!urlWithScheme.contains("://")) {
+            urlWithScheme = "http://" + urlWithScheme;
         }
 
         // if the url ends with slash, delete it
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
+        if (urlWithScheme.endsWith("/")) {
+            urlWithScheme = urlWithScheme.substring(0, urlWithScheme.length() - 1);
         }
 
-        URI uri = URI.create(url);
+        URI uri = URI.create(urlWithScheme);
         String host = uri.getHost();
         String path = uri.getPath();
 
@@ -115,10 +118,10 @@ public final class UrlUtils {
         // of urls. (NCL-5990)
         if (host == null) {
             try {
-                return GitSCPUrl.parse(StringUtils.stripProtocol(url)).getHostWithPath();
+                return GitSCPUrl.parse(originalUrl).getHostWithPath();
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(
-                        "Supplied URL:" + url + " is neither regular URI nor in Git SCP-style format.",
+                        "Supplied URL:" + originalUrl + " is neither regular URI nor in Git SCP-style format.",
                         e);
             }
         }

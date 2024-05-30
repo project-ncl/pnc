@@ -33,8 +33,21 @@ public class GitSCPUrl {
     private final String owner;
     private final String repositoryName;
 
+    /**
+     * Gitlab naming convention:
+     *
+     * Must start with a lowercase or uppercase letter, digit, emoji, or underscore. Can also contain dots, pluses,
+     * dashes, or spaces.
+     *
+     * Java's \w covers [a-zA-Z_0-9] : lower, uppercase letter, digit, underscore
+     *
+     * We're not going to "support" emoji in our regex because it's a landmine. I don't think we'll have repos using
+     * emojis :)
+     *
+     * We're also not adding space on the regex. Maybe we should in the future?
+     */
     private static Pattern scpPattern = Pattern.compile(
-            "^((?<user>\\w+)@)?(?<host>[-.\\w]+)[:/]{1,2}(?<path>((?<owner>[-\\w]+)/)*((?<reponame>[-\\w]+)(.git)?))[/]?$");
+            "^((?<user>\\w+)@)?(?<host>[-.+\\w]+)[:/]{1,2}(?<path>((?<owner>[-.+\\w]+)/)*(?<reponame>[-.+\\w]+))[/]?$");
 
     private GitSCPUrl(String user, String host, String path, String owner, String repositoryName) {
         this.user = user;
@@ -59,7 +72,7 @@ public class GitSCPUrl {
                 matcher.group("host"),
                 matcher.group("path"),
                 matcher.group("owner"),
-                matcher.group("reponame"));
+                matcher.group("reponame").replaceAll(".git$", ""));
     }
 
     public String getUser() {
