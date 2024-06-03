@@ -148,7 +148,7 @@
     <version.logback>1.2.3</version.logback>
     <version.git-commit-id-plugin>4.9.10</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
-    <version.org.jsoup.jsoup>1.16.1</version.org.jsoup.jsoup>
+    <version.org.jsoup.jsoup>1.17.2.redhat-00001</version.org.jsoup.jsoup>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
