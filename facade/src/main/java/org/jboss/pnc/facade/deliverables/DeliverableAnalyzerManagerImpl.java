@@ -477,7 +477,25 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return artifacts.iterator().next();
         }
 
-        // There was no artifact found with the same SHA-56 and name. Create a new one
+        // There can be multiple artifacts found with same sha256 and filename (e.g. same "pom.xml" in different jar,
+        // sources.jar, test-sources.jar), let's keep filtering to avoid unique constraint errors (NCL-8718).
+        // We will filter by same target repository (same distributionUrl in this case of not found artifacts), and
+        // finally by same identifier
+        artifacts = artifacts.stream()
+                .filter(art -> art.getTargetRepository().equals(targetRepo))
+                .collect(Collectors.toList());
+        if (artifacts.size() == 1) {
+            return artifacts.iterator().next();
+        }
+        artifacts = artifacts.stream()
+                .filter(art -> art.getIdentifier().equals(artifact.getFilename()))
+                .collect(Collectors.toList());
+        if (artifacts.size() == 1) {
+            return artifacts.iterator().next();
+        }
+
+        // There was no artifact found with the same SHA-56, filename, target repo and identifier. We can create a new
+        // one.
         return createArtifact(mapNotFoundArtifact(artifact, user), targetRepo);
     }
 
