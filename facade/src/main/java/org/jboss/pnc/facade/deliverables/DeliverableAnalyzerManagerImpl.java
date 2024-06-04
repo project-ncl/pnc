@@ -494,7 +494,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return artifacts.iterator().next();
         }
 
-        // There was no artifact found with the same SHA-56, filename, target repo and identifier. We can create a new
+        // There was no artifact found with the same SHA-256, filename, target repo and identifier. We can create a new
         // one.
         return createArtifact(mapNotFoundArtifact(artifact, user), targetRepo);
     }
