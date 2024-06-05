@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.remotecoordinator.maintenance;
 
-import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.module.IndyStoresClientModule;
@@ -27,6 +26,7 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.model.core.dto.StoreListingDTO;
+import org.commonjava.indy.promote.client.IndyPromoteAdminClientModule;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.auth.KeycloakServiceClient;
@@ -60,26 +60,26 @@ import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
 @Dependent
 public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
-    private Logger logger = LoggerFactory.getLogger(DefaultRemoteBuildsCleaner.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultRemoteBuildsCleaner.class);
 
-    private IndyFactory indyFactory;
+    private KeycloakServiceClient serviceClient;
 
-    KeycloakServiceClient serviceClient;
-
-    CausewayClient causewayClient;
+    private CausewayClient causewayClient;
 
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
     private final String tempBuildPromotionGroup;
 
+    private final Indy indy;
+
     @Inject
     public DefaultRemoteBuildsCleaner(
             Configuration configuration,
-            IndyFactory indyFactory,
+            Indy indy,
             KeycloakServiceClient serviceClient,
             CausewayClient causewayClient,
             BuildRecordPushResultRepository buildRecordPushResultRepository) {
-        this.indyFactory = indyFactory;
+        this.indy = indy;
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
@@ -96,8 +96,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     @Override
-    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        Result result = deleteBuildsFromIndy(buildRecord, authToken);
+    public Result deleteRemoteBuilds(BuildRecord buildRecord) {
+        Result result = deleteBuildsFromIndy(buildRecord);
         if (!result.isSuccess()) {
             return result;
         }
@@ -127,7 +127,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         return new Result(externalBuildId, ResultStatus.SUCCESS);
     }
 
-    private Result deleteBuildsFromIndy(BuildRecord buildRecord, String authToken) {
+    private Result deleteBuildsFromIndy(BuildRecord buildRecord) {
         String buildContentId = buildRecord.getBuildContentId();
         BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
         String pkgKey = getRepoPkgKey(buildType);
@@ -141,7 +141,6 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                     "BuildContentId is null. Nothing to be deleted from Indy.");
         }
 
-        Indy indy = indyFactory.get(authToken);
         try {
             IndyStoresClientModule indyStores = indy.stores();
             if (pkgKey != null) {
@@ -173,24 +172,35 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                     }
                 }
             } catch (IndyClientException e) {
-                String description = MessageFormat
-                        .format("Error in deleting generic http repos for build {0}: {1}", buildContentId, e);
-                logger.error(description, e);
+                logger.error("Error in deleting generic http repos for build {}.", buildContentId, e);
             }
 
             // delete the tracking record
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
             foloAdmin.clearTrackingRecord(buildContentId);
+
+            try {
+                // try to delete the promotion tracking record
+                IndyPromoteAdminClientModule promoteAdmin = indy.module(IndyPromoteAdminClientModule.class);
+                promoteAdmin.deleteTrackingRecords(buildContentId);
+            } catch (IndyClientException e) {
+                logger.warn(
+                        "Removal of promotion-tracking records for build {} unsuccessful, the build may have not"
+                                + " gone through promotion.",
+                        buildContentId,
+                        e);
+            }
+
             result = new Result(buildContentId, ResultStatus.SUCCESS);
+            logger.debug("Indy content for buildContentID {} deleted successfully.", buildContentId);
         } catch (IndyClientException e) {
             String description = MessageFormat.format(
                     "Failed to delete temporary hosted repository identified by buildContentId {0}.",
                     buildContentId);
             logger.error(description, e);
             result = new Result(buildContentId, ResultStatus.FAILED, description);
-        } finally {
-            IOUtils.closeQuietly(indy);
         }
+
         return result;
     }
 

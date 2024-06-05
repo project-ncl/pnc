@@ -23,17 +23,19 @@ import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.IndyClientHttp;
 import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
-import org.commonjava.indy.client.core.auth.OAuth20BearerTokenAuthenticator;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
+import org.commonjava.indy.promote.client.IndyPromoteAdminClientModule;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.log.MDCUtils;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 /**
@@ -44,6 +46,7 @@ public class IndyFactory {
 
     private Integer defaultRequestTimeout;
     private String baseUrl;
+    private Indy indy;
 
     @Deprecated // CDI workaround
     public IndyFactory() {
@@ -60,26 +63,39 @@ public class IndyFactory {
         this.baseUrl = baseUrl;
     }
 
-    public Indy get(String accessToken) {
-        IndyClientAuthenticator authenticator = null;
-        if (accessToken != null) {
-            authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
+    @PreDestroy
+    void clean() {
+        if (indy != null) {
+            indy.close();
+        }
+    }
+
+    @Produces
+    public Indy get(IndyClientAuthenticator authenticator) {
+        if (indy != null) {
+            return indy;
         }
 
         try {
+            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
+                    new IndyPromoteClientModule(), new IndyPromoteAdminClientModule() };
+
             SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
+                    // disable indy client metrics to avoid plague of o11phant library
+                    .withMetricEnabled(false)
                     .withRequestTimeoutSeconds(defaultRequestTimeout)
                     .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                     .build();
 
-            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
-                    new IndyPromoteClientModule() };
-            return new Indy(
-                    siteConfig,
-                    authenticator,
-                    new IndyObjectMapper(true),
-                    MDCUtils.HEADER_KEY_MAPPING,
-                    modules);
+            this.indy = Indy.builder()
+                    .setAuthenticator(authenticator)
+                    .setModules(modules)
+                    .setObjectMapper(new IndyObjectMapper(true))
+                    .setLocation(siteConfig)
+                    .setMdcCopyMappings(MDCUtils.HEADER_KEY_MAPPING)
+                    .build();
+
+            return this.indy;
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }

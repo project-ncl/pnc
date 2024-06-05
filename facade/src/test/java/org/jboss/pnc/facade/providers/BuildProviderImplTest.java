@@ -20,7 +20,7 @@ package org.jboss.pnc.facade.providers;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Edge;
 import org.jboss.pnc.dto.response.Graph;
@@ -623,13 +623,12 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         wireMockServer.start();
         wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
 
-        given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(eq(buildId), eq(USER_TOKEN), any()))
-                .willAnswer(invocation -> {
-                    Result result = new Result(buildIdString, ResultStatus.SUCCESS, "Build was deleted successfully");
+        given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(eq(buildId), any())).willAnswer(invocation -> {
+            Result result = new Result(buildIdString, ResultStatus.SUCCESS, "Build was deleted successfully");
 
-                    ((Consumer<Result>) invocation.getArgument(2)).accept(result);
-                    return true;
-                });
+            ((Consumer<Result>) invocation.getArgument(1)).accept(result);
+            return true;
+        });
 
         // when
         boolean result = provider.delete(buildIdString, callbackUrl);

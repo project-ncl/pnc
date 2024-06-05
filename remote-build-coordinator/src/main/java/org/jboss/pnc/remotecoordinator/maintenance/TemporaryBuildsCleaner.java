@@ -77,21 +77,20 @@ public class TemporaryBuildsCleaner {
      * Deletes a temporary build and artifacts created during the build or orphan dependencies used
      *
      * @param buildRecordId BuildRecord to be deleted
-     * @param authToken
      * @return true if success
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuild(Base32LongID buildRecordId, String authToken) throws ValidationException {
+    public Result deleteTemporaryBuild(Base32LongID buildRecordId) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {
             throw new ValidationException(
                     "Cannot delete temporary build with id " + BuildMapper.idMapper.toDto(buildRecordId)
                             + " as no build with this id exists");
         }
-        return deleteTemporaryBuild(buildRecord, authToken);
+        return deleteTemporaryBuild(buildRecord);
     }
 
-    private Result deleteTemporaryBuild(BuildRecord buildRecord, String authToken) throws ValidationException {
+    private Result deleteTemporaryBuild(BuildRecord buildRecord) throws ValidationException {
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
@@ -100,18 +99,19 @@ public class TemporaryBuildsCleaner {
         // first delete BRs where this build is noRebuildCause
         List<BuildRecord> noRebuildBRs = buildRecordRepository.getBuildByCausingRecord(buildRecord.getId());
         for (BuildRecord noRebuildBR : noRebuildBRs) {
-            log.info(
-                    "Deleting build " + noRebuildBR.getId() + " which has noRebuildCause " + buildRecord.getId() + ".");
-            deleteTemporaryBuild(noRebuildBR.getId(), authToken);
+            log.info("Deleting build {} which has noRebuildCause {}.", noRebuildBR.getId(), buildRecord.getId());
+            deleteTemporaryBuild(noRebuildBR.getId());
         }
 
         // delete the build itself
         log.info(
-                "Starting deletion of a temporary build " + buildRecord + "; Built artifacts: "
-                        + buildRecord.getBuiltArtifacts() + "; Dependencies: " + buildRecord.getDependencies());
+                "Starting deletion of a temporary build {}; Built artifacts: {}; Dependencies: {}",
+                buildRecord,
+                buildRecord.getBuiltArtifacts(),
+                buildRecord.getDependencies());
 
         String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
-        Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken);
+        Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord);
         if (!result.isSuccess()) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
             return new Result(externalBuildId, ResultStatus.FAILED, "Failed to delete remote temporary builds.");
@@ -125,13 +125,13 @@ public class TemporaryBuildsCleaner {
     }
 
     private void deleteArtifact(Artifact artifact) {
-        if (artifact.getDependantBuildRecords().size() > 0) {
-            log.info("Marking temporary artifact as DELETED: " + artifact.getDescriptiveString());
+        if (artifact.getDependantBuildRecords().isEmpty()) {
+            log.info("Deleting temporary artifact: {}", artifact.getDescriptiveString());
+            artifactRepository.delete(artifact.getId());
+        } else {
+            log.info("Marking temporary artifact as DELETED: {}", artifact.getDescriptiveString());
             artifact.setArtifactQuality(ArtifactQuality.DELETED);
             artifactRepository.save(artifact);
-        } else {
-            log.info("Deleting temporary artifact: " + artifact.getDescriptiveString());
-            artifactRepository.delete(artifact.getId());
         }
     }
 
@@ -139,11 +139,9 @@ public class TemporaryBuildsCleaner {
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
      *
      * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
-     * @param authToken
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuildConfigSetRecord(Long buildConfigSetRecordId, String authToken)
-            throws ValidationException {
+    public Result deleteTemporaryBuildConfigSetRecord(Long buildConfigSetRecordId) throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
 
         if (buildConfigSetRecord == null) {
@@ -155,7 +153,7 @@ public class TemporaryBuildsCleaner {
         if (!buildConfigSetRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
-        log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
+        log.info("Starting deletion of a temporary build record set {}", buildConfigSetRecord);
 
         for (BuildRecord br : buildConfigSetRecord.getBuildRecords()) {
             br.setBuildConfigSetRecord(null);

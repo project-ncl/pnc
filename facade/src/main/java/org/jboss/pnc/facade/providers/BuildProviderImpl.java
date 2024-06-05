@@ -28,7 +28,7 @@ import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.constants.Attributes;
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
@@ -214,26 +214,22 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public boolean delete(String buildId, String callback) {
-
         try {
-            String accessToken = keycloakServiceClient.getAuthToken();
-            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(
-                    parseId(buildId),
-                    accessToken,
-                    notifyOnBuildDeletionCompletion(callback, accessToken));
+            return temporaryBuildsCleanerAsyncInvoker
+                    .deleteTemporaryBuild(parseId(buildId), notifyOnBuildDeletionCompletion(callback));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
     }
 
-    private Consumer<Result> notifyOnBuildDeletionCompletion(String callback, String authToken) {
+    private Consumer<Result> notifyOnBuildDeletionCompletion(String callback) {
         return (result) -> {
             if (callback != null && !callback.isEmpty()) {
                 try {
                     HttpUtils.performHttpPostRequest(
                             callback,
                             OBJECT_MAPPER.writeValueAsString(resultMapper.toDTO(result)),
-                            authToken);
+                            keycloakServiceClient.getAuthToken());
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform a callback of delete operation.", e);
                 }
