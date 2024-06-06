@@ -47,12 +47,13 @@ public class AnalysisStatusMessageTest {
                 "test-attribute",
                 "test-milestone-id",
                 "test-status",
+                "test-result",
                 deliverablesUrls);
 
         assertThat(message.toJson()).isEqualTo(
                 "{\"operationId\":\"test-operation-id\"," + "\"attribute\":\"test-attribute\","
-                        + "\"milestoneId\":\"test-milestone-id\"," + "\"status\":\"test-status\",\"deliverablesUrls"
-                        + "\":[\"test-link1\",\"test-link2\"]}");
+                        + "\"milestoneId\":\"test-milestone-id\"," + "\"status\":\"test-status\","
+                        + "\"result\":\"test-result\"" + ",\"deliverablesUrls" + "\":[\"test-link1\",\"test-link2\"]}");
 
     }
 
