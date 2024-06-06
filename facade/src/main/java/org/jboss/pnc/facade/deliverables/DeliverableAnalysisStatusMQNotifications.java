@@ -60,6 +60,7 @@ public class DeliverableAnalysisStatusMQNotifications {
                 ATTRIBUTE_NAME,
                 event.getMilestoneId(),
                 event.getStatus().toString(),
+                event.getResult().toString(),
                 event.getDeliverablesUrls());
         ms.sendToTopic(message, prepareHeaders(event));
     }
@@ -70,6 +71,7 @@ public class DeliverableAnalysisStatusMQNotifications {
         headers.put("attribute", ATTRIBUTE_NAME);
         headers.put("milestoneId", event.getMilestoneId());
         headers.put("status", event.getStatus().toString());
+        headers.put("result", event.getResult().toString());
         headers.put("operationId", event.getOperationId());
         return headers;
     }

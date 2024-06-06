@@ -33,10 +33,16 @@ public class AnalysisStatusMessage implements Message {
     private final String attribute;
     private final String milestoneId;
     private final String status;
+    private final String result;
     private final List<String> deliverablesUrls;
 
-    public AnalysisStatusMessage(String attribute, String milestoneId, String status, List<String> deliverablesUrls) {
-        this("", attribute, milestoneId, status, deliverablesUrls);
+    public AnalysisStatusMessage(
+            String attribute,
+            String milestoneId,
+            String status,
+            String result,
+            List<String> deliverablesUrls) {
+        this("", attribute, milestoneId, status, result, deliverablesUrls);
     }
 
     public AnalysisStatusMessage(
@@ -44,11 +50,13 @@ public class AnalysisStatusMessage implements Message {
             String attribute,
             String milestoneId,
             String status,
+            String result,
             List<String> deliverablesUrls) {
         this.operationId = operationId;
         this.attribute = attribute;
         this.milestoneId = milestoneId;
         this.status = status;
+        this.result = result;
         this.deliverablesUrls = deliverablesUrls;
     }
 
