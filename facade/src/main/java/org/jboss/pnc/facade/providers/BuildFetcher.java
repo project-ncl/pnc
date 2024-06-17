@@ -167,21 +167,16 @@ public class BuildFetcher {
     }
 
     public boolean buildExists(Base32LongID buildId) {
-        try {
-            Optional<BuildTask> submittedBuildTask = buildCoordinator.getSubmittedBuildTask(buildId.getId());
-            if (submittedBuildTask.isPresent()) {
-                fetchRunningBuilds();
-                return true;
-            }
-            BuildRecord buildRecord = buildRecordRepository.queryById(buildId);
-            if (buildRecord == null) {
-                return false;
-            }
-            buildRecordCache.put(buildRecord.getId(), buildRecord);
+        fetchRunningBuilds(); // always fetch all running in case the build has a running parent
+        if (buildTaskCache.containsKey(buildId.getId())) {
             return true;
-        } catch (RemoteRequestException | MissingDataException e) {
-            throw new RuntimeException(e);
         }
+        BuildRecord buildRecord = buildRecordRepository.queryById(buildId);
+        if (buildRecord == null) {
+            return false;
+        }
+        buildRecordCache.put(buildRecord.getId(), buildRecord);
+        return true;
     }
 
     /**

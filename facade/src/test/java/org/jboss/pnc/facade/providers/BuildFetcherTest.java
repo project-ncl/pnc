@@ -256,7 +256,7 @@ public class BuildFetcherTest {
         boolean found = buildFetcher.buildExists(buildId);
 
         assertThat(found).isTrue();
-        Mockito.verify(buildCoordinator).getSubmittedBuildTask(Mockito.eq(buildId.getId()));
+        Mockito.verify(buildCoordinator).getSubmittedBuildTasks();
         Mockito.verify(repository).queryById(Mockito.eq(buildId));
     }
 
