@@ -82,18 +82,16 @@ public class IndyFactory {
 
             SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
                     // disable indy client metrics to avoid plague of o11phant library
-                    .withMetricEnabled(false)
                     .withRequestTimeoutSeconds(defaultRequestTimeout)
                     .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                     .build();
 
-            this.indy = Indy.builder()
-                    .setAuthenticator(authenticator)
-                    .setModules(modules)
-                    .setObjectMapper(new IndyObjectMapper(true))
-                    .setLocation(siteConfig)
-                    .setMdcCopyMappings(MDCUtils.HEADER_KEY_MAPPING)
-                    .build();
+            this.indy = new Indy(
+                    siteConfig,
+                    authenticator,
+                    new IndyObjectMapper(true),
+                    MDCUtils.HEADER_KEY_MAPPING,
+                    modules);
 
             return this.indy;
         } catch (IndyClientException e) {
