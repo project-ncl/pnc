@@ -382,7 +382,10 @@ public class BuildRecordPredicates {
                             // All entries in a column have to be NULL which is equivalent to count being 0 (aggregation
                             // functions ignore NULLs)
                             cb.equal(cb.count(buildRecordImplicitDependants.get(BuildRecord_.id)), 0)));
-            return cb.and();
+            return cb.or(
+                    // build can depend on itself
+                    cb.notEqual(root.get(BuildRecord_.id), buildRecordImplicitDependants.get(BuildRecord_.id)),
+                    cb.isNull(buildRecordImplicitDependants.get(BuildRecord_.id)));
         };
     }
 
