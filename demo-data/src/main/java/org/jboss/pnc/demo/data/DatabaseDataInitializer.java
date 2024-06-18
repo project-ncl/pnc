@@ -990,6 +990,8 @@ public class DatabaseDataInitializer {
                     .executionRootName("org.jboss.pnc:parent")
                     .executionRootVersion("1.2.4")
                     .temporaryBuild(true)
+                    .dependency(builtArtifact3)
+                    .dependency(builtArtifact7)
                     .build();
 
             BuildRecord savedTempRecord2 = buildRecordRepository.save(tempRecord2);

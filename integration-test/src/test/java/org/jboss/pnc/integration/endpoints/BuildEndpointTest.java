@@ -20,7 +20,6 @@ package org.jboss.pnc.integration.endpoints;
 import io.undertow.Undertow;
 import io.undertow.util.HttpString;
 import org.apache.http.entity.ContentType;
-import org.apache.kafka.common.quota.ClientQuotaAlteration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -72,11 +71,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -655,6 +656,7 @@ public class BuildEndpointTest {
     }
 
     @Test
+    @InSequence(5)
     public void shouldReturnForbiddenCodeForPushOfBadQualityArtifact() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
         ArtifactClient artifactClient = new ArtifactClient(RestClientConfiguration.asSystem());
@@ -729,6 +731,22 @@ public class BuildEndpointTest {
 
         assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildId, "WHITELISTED", REASON))
                 .hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @InSequence(0)
+    public void shouldReportLeafTempBuildThatDependsOnItself() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+
+        Collection<Build> leafTempBuilds = client.getAllIndependentTempBuildsOlderThanTimestamp(Long.MAX_VALUE)
+                .getAll();
+
+        assertThat(leafTempBuilds).hasSize(1);
+        Map<String, String> attributes = leafTempBuilds.iterator().next().getAttributes();
+        assertThat(leafTempBuilds).first().extracting(Build::getTemporaryBuild).isEqualTo(true);
+        assertThat(attributes)
+                .containsEntry(org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME, "org.jboss.pnc:parent");
+        assertThat(attributes).containsEntry(org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION, "1.2.4");
     }
 
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
