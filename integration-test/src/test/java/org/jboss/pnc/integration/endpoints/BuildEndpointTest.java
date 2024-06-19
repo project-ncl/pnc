@@ -650,12 +650,6 @@ public class BuildEndpointTest {
     }
 
     @Test
-    public void shouldGetOldTemporaryBuild() {
-        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
-
-    }
-
-    @Test
     @InSequence(5)
     public void shouldReturnForbiddenCodeForPushOfBadQualityArtifact() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
