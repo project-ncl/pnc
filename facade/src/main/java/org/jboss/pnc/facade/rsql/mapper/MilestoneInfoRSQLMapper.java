@@ -42,7 +42,7 @@ public class MilestoneInfoRSQLMapper implements RSQLMapper<Integer, ProductMiles
 
     @Override
     public Class<ProductMilestone> type() {
-        return ProductMilestone.class;
+        return null; // will not be picked by UniversalRSQLMapper
     }
 
     @Override
@@ -62,7 +62,7 @@ public class MilestoneInfoRSQLMapper implements RSQLMapper<Integer, ProductMiles
             case "releaseReleaseDate":
                 return from.join(ProductMilestone_.productRelease).get(ProductRelease_.releaseDate);
             default:
-                throw new RSQLException("Unknown RSQL selector " + selectorName + " for type " + type());
+                throw new RSQLException("Unknown RSQL selector " + selectorName + " for type MilestoneInfo");
         }
     }
 
