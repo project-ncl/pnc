@@ -477,7 +477,7 @@ public class ArtifactEndpointTest {
         assertThat(remoteResourceException.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
         assertThat(errorResponse.getErrorType()).isEqualTo("RSQLException");
         assertTrue(
-                Stream.of("Unknown RSQL selector " + selector + " for type", "ProductMilestone")
+                Stream.of("Unknown RSQL selector " + selector + " for type", "MilestoneInfo")
                         .allMatch(errorResponse.getErrorMessage()::contains));
     }
 
