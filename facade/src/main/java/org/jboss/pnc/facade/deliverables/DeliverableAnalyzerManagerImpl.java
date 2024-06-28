@@ -27,6 +27,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.BuildSystemType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
@@ -38,6 +39,7 @@ import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
 import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
@@ -48,13 +50,13 @@ import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
+import org.jboss.pnc.model.DeliverableArtifactLicenseInfo;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.Artifact.IdentifierSha256;
@@ -100,7 +102,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -282,6 +283,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                         build.getBrewId(),
                         artifactDto.getArchiveFilenames(),
                         artifactDto.getArchiveUnmatchedFilenames(),
+                        artifactDto.getLicenses(),
                         distribution);
             });
         }
@@ -304,6 +306,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                         null,
                         art.getArchiveFilenames(),
                         art.getArchiveUnmatchedFilenames(),
+                        art.getLicenses(),
                         distribution);
             }
         }
@@ -318,7 +321,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             Long brewBuildId,
             Collection<String> archiveFilenames,
             Collection<String> archiveUnmatchedFilenames,
+            Collection<LicenseInfo> licenseInfo,
             DeliverableAnalyzerDistribution distribution) {
+
         DeliverableArtifact deliverableArtifact = DeliverableArtifact.builder()
                 .artifact(artifact)
                 .report(report)
@@ -330,6 +335,25 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .build();
         report.addDeliverableArtifact(deliverableArtifact);
         // distribution.addDeliverableArtifact(deliverableArtifact);
+
+        Set<DeliverableArtifactLicenseInfo> licenses = Optional.ofNullable(licenseInfo)
+                .orElse(Collections.emptySet())
+                .stream()
+                .map(license -> {
+                    return DeliverableArtifactLicenseInfo.builder()
+                            .id(new Base32LongID(Sequence.nextBase32Id()))
+                            .comments(license.getComments())
+                            .distribution(license.getDistribution())
+                            .name(license.getName())
+                            .spdxLicenseId(license.getSpdxLicenseId())
+                            .url(license.getUrl())
+                            .source(license.getSource())
+                            .artifact(deliverableArtifact)
+                            .build();
+                })
+                .collect(Collectors.toSet());
+
+        deliverableArtifact.setLicenses(licenses);
         deliverableArtifactRepository.save(deliverableArtifact);
         log.debug("Added delivered artifact {}", deliverableArtifact);
     }
