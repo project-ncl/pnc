@@ -22,16 +22,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Type;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Join table between {@link DeliverableAnalyzerReport} and {@link Artifact} with some additional information.
@@ -81,6 +84,12 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     @ManyToOne
     @JoinColumn(name = "distribution_id", foreignKey = @ForeignKey(name = "fk_deliverableartifact_distribution"))
     private DeliverableAnalyzerDistribution distribution;
+
+    /**
+     * The set of licenses identified for this deliverable artifact.
+     */
+    @OneToMany(mappedBy = "artifact", cascade = CascadeType.PERSIST)
+    private Set<DeliverableArtifactLicenseInfo> licenses;
 
     public DeliverableArtifactPK getId() {
         return new DeliverableArtifactPK(report, artifact);

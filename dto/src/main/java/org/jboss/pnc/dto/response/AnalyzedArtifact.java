@@ -22,7 +22,9 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
+import java.util.Set;
 
+import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.dto.Artifact;
 
 /**
@@ -57,6 +59,11 @@ public class AnalyzedArtifact {
      * The list of archive unmatched filenames inside this artifact
      */
     List<String> archiveUnmatchedFilenames;
+
+    /**
+     * The licenses identified for this artifact
+     */
+    Set<LicenseInfo> licenses;
 
     /**
      * The distribution which was analyzed and is associated with this analyzed artifact
