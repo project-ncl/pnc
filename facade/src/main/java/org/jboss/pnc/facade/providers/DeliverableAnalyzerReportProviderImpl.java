@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
@@ -32,6 +33,7 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
+import org.jboss.pnc.model.DeliverableArtifactLicenseInfo;
 import org.jboss.pnc.spi.datastore.predicates.DeliverableArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
@@ -45,7 +47,10 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerLabelEntryPredicates.withReportId;
@@ -174,6 +179,22 @@ public class DeliverableAnalyzerReportProviderImpl extends
                         .sha256(deliverableArtifact.getDistribution().getSha256())
                         .build()
                 : null;
+
+        Set<LicenseInfo> licenses = Optional.ofNullable(deliverableArtifact.getLicenses())
+                .orElse(Collections.emptySet())
+                .stream()
+                .map((DeliverableArtifactLicenseInfo license) -> {
+                    return LicenseInfo.builder()
+                            .comments(license.getComments())
+                            .distribution(license.getDistribution())
+                            .name(license.getName())
+                            .spdxLicenseId(license.getSpdxLicenseId())
+                            .url(license.getUrl())
+                            .source(license.getSource())
+                            .build();
+                })
+                .collect(Collectors.toSet());
+
         return AnalyzedArtifact.builder()
                 .builtFromSource(deliverableArtifact.isBuiltFromSource())
                 .brewId(deliverableArtifact.getBrewBuildId())
@@ -181,6 +202,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 .archiveFilenames(StringUtils.splitString(deliverableArtifact.getArchiveFilenames()))
                 .archiveUnmatchedFilenames(StringUtils.splitString(deliverableArtifact.getArchiveUnmatchedFilenames()))
                 .distribution(distribution)
+                .licenses(licenses)
                 .build();
     }
 }
