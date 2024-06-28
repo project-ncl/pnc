@@ -45,6 +45,10 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
             <artifactId>mapper</artifactId>
         </dependency>
         <dependency>
@@ -79,10 +83,6 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>remote-build-coordinator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>pnc-api</artifactId>
         </dependency>
 
         <!-- Java EE dependencies -->

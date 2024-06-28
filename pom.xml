@@ -108,7 +108,7 @@
     <version.lombok>1.18.22</version.lombok>
     <version.mapstruct>1.5.3.Final</version.mapstruct>
     <version.pncmetrics>1.1.3</version.pncmetrics>
-    <version.pnc-api>3.0.0</version.pnc-api>
+    <version.pnc-api>3.0.3</version.pnc-api>
     <version.pnc-common>3.0.0</version.pnc-common>
     <version.rex-api>1.0.0-SNAPSHOT</version.rex-api>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
