@@ -340,22 +340,28 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .orElse(Collections.emptySet())
                 .stream()
                 .map(license -> {
-                    return DeliverableArtifactLicenseInfo.builder()
-                            .id(new Base32LongID(Sequence.nextBase32Id()))
-                            .comments(license.getComments())
-                            .distribution(license.getDistribution())
-                            .name(license.getName())
-                            .spdxLicenseId(license.getSpdxLicenseId())
-                            .url(license.getUrl())
-                            .source(license.getSource())
-                            .artifact(deliverableArtifact)
-                            .build();
+                    return toEntity(license, deliverableArtifact);
                 })
                 .collect(Collectors.toSet());
 
         deliverableArtifact.setLicenses(licenses);
         deliverableArtifactRepository.save(deliverableArtifact);
         log.debug("Added delivered artifact {}", deliverableArtifact);
+    }
+
+    private static DeliverableArtifactLicenseInfo toEntity(
+            LicenseInfo license,
+            DeliverableArtifact deliverableArtifact) {
+        return DeliverableArtifactLicenseInfo.builder()
+                .id(new Base32LongID(Sequence.nextBase32Id()))
+                .comments(license.getComments())
+                .distribution(license.getDistribution())
+                .name(license.getName())
+                .spdxLicenseId(license.getSpdxLicenseId())
+                .url(license.getUrl())
+                .source(license.getSource())
+                .artifact(deliverableArtifact)
+                .build();
     }
 
     private DeliverableAnalyzerReport createReportForCompletedAnalysis(
