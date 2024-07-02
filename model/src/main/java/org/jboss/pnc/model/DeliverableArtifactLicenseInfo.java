@@ -27,6 +27,7 @@ import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.api.enums.LicenseSource;
@@ -61,11 +62,13 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
     /**
      * The name provided for the license
      */
+    @Type(type = "org.hibernate.type.TextType")
     private String name;
 
     /**
      * The url provided for the license
      */
+    @Type(type = "org.hibernate.type.TextType")
     private String url;
 
     /**
@@ -76,7 +79,9 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
     /**
      * The type of source analyzed for the license information
      */
+    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private LicenseSource source;
 
     /**
@@ -87,11 +92,13 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
             @JoinColumn(
                     name = "delartifact_report_id",
                     referencedColumnName = "report_id",
-                    foreignKey = @ForeignKey(name = "fk_delartifact_report")),
+                    foreignKey = @ForeignKey(name = "fk_delartifact"),
+                    nullable = false),
             @JoinColumn(
                     name = "delartifact_artifact_id",
                     referencedColumnName = "artifact_id",
-                    foreignKey = @ForeignKey(name = "fk_delartifact_artifact")) })
+                    foreignKey = @ForeignKey(name = "fk_delartifact"),
+                    nullable = false) })
     private DeliverableArtifact artifact;
 
 }
