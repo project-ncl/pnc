@@ -29,7 +29,7 @@ CREATE TABLE deliverableartifactlicenseinfo
     url                     TEXT,
     comments                TEXT,
     distribution            VARCHAR(255),
-    source                  VARCHAR(255),
+    source                  VARCHAR(255) NOT NULL,
     delartifact_report_id   BIGINT NOT NULL,
     delartifact_artifact_id INTEGER NOT NULL,
     PRIMARY KEY (id)
