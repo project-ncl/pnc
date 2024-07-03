@@ -32,7 +32,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -49,8 +48,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(
         name = "UserTable",
-        uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
-                @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
+        uniqueConstraints = { @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
 public class User implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8437525005838384722L;
