@@ -66,6 +66,7 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionR
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactLicenseInfoRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
@@ -136,6 +137,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
     @Inject
     private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
+    @Inject
+    private DeliverableArtifactLicenseInfoRepository deliverableArtifactLicenseInfoRepository;
     @Inject
     private ArtifactMapper artifactMapper;
     @Inject
@@ -336,6 +339,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         report.addDeliverableArtifact(deliverableArtifact);
         // distribution.addDeliverableArtifact(deliverableArtifact);
 
+        deliverableArtifactRepository.save(deliverableArtifact);
+
         Set<DeliverableArtifactLicenseInfo> licenses = Optional.ofNullable(licenseInfo)
                 .orElse(Collections.emptySet())
                 .stream()
@@ -344,8 +349,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 })
                 .collect(Collectors.toSet());
 
-        deliverableArtifact.setLicenses(licenses);
-        deliverableArtifactRepository.save(deliverableArtifact);
+        for (DeliverableArtifactLicenseInfo licenseEntity : licenses) {
+            deliverableArtifactLicenseInfoRepository.save(licenseEntity);
+            deliverableArtifact.getLicenses().add(licenseEntity);
+        }
+
         log.debug("Added delivered artifact {}", deliverableArtifact);
     }
 
