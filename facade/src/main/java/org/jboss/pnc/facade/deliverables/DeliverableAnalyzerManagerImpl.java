@@ -351,7 +351,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         for (DeliverableArtifactLicenseInfo licenseEntity : licenses) {
             deliverableArtifactLicenseInfoRepository.save(licenseEntity);
-            deliverableArtifact.getLicenses().add(licenseEntity);
+            deliverableArtifact.addDeliverableArtifactLicenseInfo(licenseEntity);
         }
 
         log.debug("Added delivered artifact {}", deliverableArtifact);

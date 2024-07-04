@@ -33,6 +33,7 @@ import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Type;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -98,6 +99,20 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     public void setId(DeliverableArtifactPK id) {
         report = id.getReport();
         artifact = id.getArtifact();
+    }
+
+    public void addDeliverableArtifactLicenseInfo(DeliverableArtifactLicenseInfo licenseInfo) {
+        if (licenses == null) {
+            licenses = new HashSet<DeliverableArtifactLicenseInfo>();
+        }
+        licenses.add(licenseInfo);
+    }
+
+    public void removeDeliverableArtifactLicenseInfo(DeliverableArtifactLicenseInfo licenseInfo) {
+        if (licenses == null) {
+            return;
+        }
+        licenses.remove(licenseInfo);
     }
 
     @Override
