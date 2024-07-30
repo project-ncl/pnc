@@ -1833,7 +1833,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
-              <source>8</source>
+              <source>${maven.compiler.source}</source>
             </configuration>
             <executions>
               <execution>
