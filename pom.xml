@@ -108,9 +108,10 @@
     <version.lombok>1.18.22</version.lombok>
     <version.mapstruct>1.5.3.Final</version.mapstruct>
     <version.pncmetrics>1.1.3</version.pncmetrics>
-    <version.pnc-api>3.0.4-SNAPSHOT</version.pnc-api>
+    <version.pnc-api>3.0.4</version.pnc-api>
     <version.pnc-common>3.0.0</version.pnc-common>
-    <version.rex-api>1.0.0-SNAPSHOT</version.rex-api>
+    <version.rex-api>1.0.0</version.rex-api>
+    <bifrost-client.version>3.0.0</bifrost-client.version>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
     <version.vertx-core>3.9.14</version.vertx-core>
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
@@ -642,7 +643,7 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>bifrost-upload-client</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${bifrost-client.version}</version>
       </dependency>
 
       <dependency>
