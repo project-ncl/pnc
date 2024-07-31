@@ -27,6 +27,7 @@ import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -38,12 +39,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
+
 @ApplicationScoped
 @Slf4j
 // TODO: make it run on a single instance if easily doable
 public class SetRecordTasks {
 
     private BuildTaskRepository taskRepository;
+
+    private BuildRecordRepository recordRepository;
 
     Datastore datastore;
 
@@ -56,9 +61,11 @@ public class SetRecordTasks {
     @Inject
     public SetRecordTasks(
             BuildTaskRepository taskRepository,
+            BuildRecordRepository recordRepository,
             Datastore datastore,
             @Remote BuildCoordinator buildCoordinator) {
         this.taskRepository = taskRepository;
+        this.recordRepository = recordRepository;
         this.datastore = datastore;
         this.buildCoordinator = buildCoordinator;
     }
@@ -85,7 +92,8 @@ public class SetRecordTasks {
     private void updateConfigSetRecordStatus(BuildConfigSetRecord setRecord) throws CoreException {
         log.debug("Checking BuildConfigSetRecord[{}] for status update", setRecord.getId());
         List<BuildTaskRef> buildTasks = taskRepository.getBuildTasksByBCSRId(setRecord.getId());
-        Set<BuildRecord> buildRecords = setRecord.getBuildRecords();
+        List<BuildRecord> buildRecords = recordRepository
+                .queryWithPredicates(withBuildConfigSetRecordId(setRecord.getId()));
 
         BuildStatus effectiveState = getEffectiveState(setRecord, buildTasks, buildRecords);
         if (setRecord.getStatus() != effectiveState) {
@@ -98,8 +106,8 @@ public class SetRecordTasks {
 
     private BuildStatus getEffectiveState(
             BuildConfigSetRecord setRecord,
-            List<BuildTaskRef> buildTasks,
-            Set<BuildRecord> buildRecords) {
+            Collection<BuildTaskRef> buildTasks,
+            Collection<BuildRecord> buildRecords) {
         if (buildTasks.isEmpty() && buildRecords.isEmpty()) {
             log.error(
                     "BuildConfigSetRecord[{}] has no tasks and no build records, setting status to {}",
