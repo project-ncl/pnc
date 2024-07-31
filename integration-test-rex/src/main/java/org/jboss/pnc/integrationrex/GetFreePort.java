@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -30,10 +31,20 @@ public class GetFreePort {
     // public static final String REX_PORT = "rexPort";
 
     public static void main(String[] args) {
+        if (args == null || args.length < 1) {
+            throw new RuntimeException("Required first argument of directory where to create properties.");
+        }
+        String propertiesFilePath;
+        if (args[0].endsWith("/")) {
+            propertiesFilePath = args[0] + "test.properties";
+        } else {
+            propertiesFilePath = args[0] + "/test.properties";
+        }
+
         Properties properties = new Properties();
         properties.put(KEYCLOAK_PORT, Objects.toString(getFreeHostPort()));
         // properties.put(REX_PORT, Objects.toString(getFreeHostPort()));
-        try (final OutputStream outputstream = new FileOutputStream("target/test.properties")) {
+        try (OutputStream outputstream = new FileOutputStream(propertiesFilePath)) {
             properties.store(outputstream, "File Updated");
         } catch (IOException e) {
             throw new RuntimeException(e);
