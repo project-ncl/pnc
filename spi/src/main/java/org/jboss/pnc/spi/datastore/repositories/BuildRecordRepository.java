@@ -70,6 +70,8 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
 
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
 
+    List<BuildRecord> queryWithBuildConfigurationSetRecordId(Long bcsrId);
+
     List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date);
 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);

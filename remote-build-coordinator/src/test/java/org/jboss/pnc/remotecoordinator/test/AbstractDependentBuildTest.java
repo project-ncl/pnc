@@ -186,7 +186,7 @@ public abstract class AbstractDependentBuildTest {
                 mock(BuildTaskMappers.class),
                 mock(GenericSettingRepository.class));
 
-        updateSetJob = new SetRecordTasks(taskRepository, datastore, coordinator);
+        updateSetJob = new SetRecordTasks(taskRepository, buildRecordRepository, datastore, coordinator);
         buildScheduler.setTaskRepositoryMock(taskRepository);
     }
 
