@@ -681,6 +681,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.buildConfigurationSets = new HashSet<>(); // Don't add the clone to the set
         clone.buildEnvironment = buildEnvironment;
         clone.buildScript = buildScript;
+        clone.brewPullActive = brewPullActive;
         clone.creationTime = now;
         clone.dependants = new HashSet<>(); // Don't add the clone as dependency to parents.
         clone.dependencies = new HashSet<>(dependencies);
