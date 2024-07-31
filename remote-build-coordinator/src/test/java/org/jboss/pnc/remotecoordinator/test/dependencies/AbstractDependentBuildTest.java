@@ -148,7 +148,7 @@ public abstract class AbstractDependentBuildTest {
 
         buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
 
-        updateSetJob = new SetRecordTasks(taskRepository, datastore, coordinator);
+        updateSetJob = new SetRecordTasks(taskRepository, buildRecordRepository, datastore, coordinator);
         buildScheduler.setTaskRepositoryMock(taskRepository);
     }
 

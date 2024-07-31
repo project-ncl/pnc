@@ -50,9 +50,9 @@ public class SetRecordTasks {
 
     private BuildRecordRepository recordRepository;
 
-    Datastore datastore;
+    private Datastore datastore;
 
-    BuildCoordinator buildCoordinator;
+    private BuildCoordinator buildCoordinator;
 
     @Deprecated // CDI
     public SetRecordTasks() {
@@ -92,8 +92,7 @@ public class SetRecordTasks {
     private void updateConfigSetRecordStatus(BuildConfigSetRecord setRecord) throws CoreException {
         log.debug("Checking BuildConfigSetRecord[{}] for status update", setRecord.getId());
         List<BuildTaskRef> buildTasks = taskRepository.getBuildTasksByBCSRId(setRecord.getId());
-        List<BuildRecord> buildRecords = recordRepository
-                .queryWithPredicates(withBuildConfigSetRecordId(setRecord.getId()));
+        List<BuildRecord> buildRecords = recordRepository.queryWithBuildConfigurationSetRecordId(setRecord.getId());
 
         BuildStatus effectiveState = getEffectiveState(setRecord, buildTasks, buildRecords);
         if (setRecord.getStatus() != effectiveState) {

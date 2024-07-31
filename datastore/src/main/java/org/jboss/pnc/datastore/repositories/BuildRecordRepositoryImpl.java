@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withCausingBuildRecordId;
@@ -150,6 +151,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     @Override
     public List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId) {
         return queryWithPredicates(withBuildConfigurationId(configurationId));
+    }
+
+    @Override
+    public List<BuildRecord> queryWithBuildConfigurationSetRecordId(Long bcsrId) {
+        return queryWithPredicates(withBuildConfigSetRecordId(bcsrId));
     }
 
     @Override

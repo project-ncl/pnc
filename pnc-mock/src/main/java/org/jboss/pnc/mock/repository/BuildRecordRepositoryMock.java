@@ -84,6 +84,15 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
+    public List<BuildRecord> queryWithBuildConfigurationSetRecordId(Long bcsrId) {
+        return data.stream()
+                .filter(
+                        br -> br.getBuildConfigSetRecord() != null
+                                && br.getBuildConfigSetRecord().getId().equals(bcsrId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date) {
         return null;
     }
