@@ -366,23 +366,17 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>3.3.0</version>
             <configuration>
-              <executable>java</executable>
-              <arguments>
-                <argument>-classpath</argument>
-                <!-- automatically creates the classpath using all project dependencies,
-                     also adding the project build directory -->
-                <classpath/>
-                <argument>org.jboss.pnc.integrationrex.GetFreePort</argument>
-              </arguments>
+              <mainClass>org.jboss.pnc.integrationrex.GetFreePort</mainClass>
+              <arguments>${project.build.directory}</arguments>
             </configuration>
             <executions>
               <execution>
                 <id>prepare-properties</id>
                 <phase>pre-integration-test</phase>
                 <goals>
-                  <goal>exec</goal>
+                  <goal>java</goal>
                 </goals>
               </execution>
             </executions>
