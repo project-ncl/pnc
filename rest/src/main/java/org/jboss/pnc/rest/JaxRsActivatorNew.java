@@ -63,18 +63,7 @@ import org.jboss.pnc.rest.endpoints.internal.GenericSettingEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.HealthCheckEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.PncStatusEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
-import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
-import org.jboss.pnc.rest.provider.AlreadyRunningExceptionsMapper;
-import org.jboss.pnc.rest.provider.BpmExceptionMapper;
-import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
-import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
-import org.jboss.pnc.rest.provider.EJBExceptionMapper;
-import org.jboss.pnc.rest.provider.InvalidLabelOperationExceptionMapper;
-import org.jboss.pnc.rest.provider.OperationNotAllowedExceptionsMapper;
-import org.jboss.pnc.rest.provider.RSQLExceptionMapper;
-import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
-import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
-import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
+import org.jboss.pnc.rest.provider.*;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,6 +235,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(UnauthorizedExceptionMapper.class);
         resources.add(ValidationExceptionExceptionMapper.class);
         resources.add(InvalidLabelOperationExceptionMapper.class);
+        resources.add(ScheduleConflictExceptionMapper.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {
