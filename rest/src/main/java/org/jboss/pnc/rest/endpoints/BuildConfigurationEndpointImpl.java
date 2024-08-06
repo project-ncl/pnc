@@ -62,10 +62,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalInt;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,6 +94,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     private EndpointHelper<Integer, BuildConfiguration, BuildConfigurationRef> endpointHelper;
 
+    private static final int MAX_ALIGNMENT_PARAMETERS_LENGTH = 8192;
+
     @PostConstruct
     public void init() {
         endpointHelper = new EndpointHelper<>(BuildConfiguration.class, buildConfigurationProvider);
@@ -110,19 +109,37 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     private void validate(BuildConfiguration buildConfiguration) {
         if (buildConfiguration != null) {
             Map<String, String> parameters = buildConfiguration.getParameters();
-            String buildCategoryKey = BuildConfigurationParameterKeys.BUILD_CATEGORY.name();
-            if (parameters != null && parameters.containsKey(buildCategoryKey)) {
-                String buildCategoryStr = parameters.get(buildCategoryKey);
-                try {
-                    BuildCategory.valueOf(buildCategoryStr.toUpperCase());
-                } catch (Exception ex) {
-                    List<String> categories = Stream.of(BuildCategory.values())
-                            .map(BuildCategory::name)
-                            .collect(Collectors.toList());
-                    throw new InvalidEntityException(
-                            buildCategoryKey + " value '" + buildCategoryStr + "' is invalid. Valid values are: "
-                                    + String.join(", ", categories) + '.');
-                }
+
+            if (parameters != null) {
+                validateParameters(parameters);
+            }
+        }
+    }
+
+    private void validateParameters(Map<String, String> parameters) {
+        String buildCategoryKey = BuildConfigurationParameterKeys.BUILD_CATEGORY.name();
+        if (parameters.containsKey(buildCategoryKey)) {
+            String buildCategoryStr = parameters.get(buildCategoryKey);
+            try {
+                BuildCategory.valueOf(buildCategoryStr.toUpperCase());
+            } catch (Exception ex) {
+                List<String> categories = Stream.of(BuildCategory.values())
+                        .map(BuildCategory::name)
+                        .collect(Collectors.toList());
+                throw new InvalidEntityException(
+                        buildCategoryKey + " value '" + buildCategoryStr + "' is invalid. Valid values are: "
+                                + String.join(", ", categories) + '.');
+            }
+        }
+
+        String alignmentParametersKey = BuildConfigurationParameterKeys.ALIGNMENT_PARAMETERS.name();
+        if (parameters.containsKey(alignmentParametersKey)) {
+            String alignmentParametersStr = parameters.get(alignmentParametersKey);
+
+            if (alignmentParametersStr.length() > MAX_ALIGNMENT_PARAMETERS_LENGTH) {
+                throw new InvalidEntityException(
+                        alignmentParametersKey + " value is too long. Maximum length is: "
+                                + MAX_ALIGNMENT_PARAMETERS_LENGTH + ". Consider using asterisk (*).");
             }
         }
     }
