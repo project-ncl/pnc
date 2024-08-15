@@ -319,7 +319,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         } catch (IllegalStateException e) {
             // leaves user null
         }
-        if (!buildRecord.getUser().equals(user)) {
+        if (!buildRecord.getUser().equals(user) && !userService.hasLoggedInUserRole(USERS_ADMIN)) {
             throw new EJBAccessException("Only user who executed the build is allowed to get the SSH credentials");
         }
 
