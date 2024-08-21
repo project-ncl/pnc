@@ -30,7 +30,7 @@ public class DefaultPageInfo implements PageInfo {
 
     public DefaultPageInfo(int pageOffset, int pageSize) {
         Preconditions.checkArgument(pageOffset >= 0, "Page offset must be >= 0");
-        Preconditions.checkArgument(pageSize > 0, "Page size must be > 0");
+        Preconditions.checkArgument(pageSize >= 0, "Page size must be >= 0");
         this.pageSize = pageSize;
         this.pageOffset = pageOffset;
     }

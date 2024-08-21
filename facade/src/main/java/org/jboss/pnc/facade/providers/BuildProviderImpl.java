@@ -657,7 +657,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         int count = buildRecordRepository.countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
         logger.debug("BuildRecordInsightsCount: {}", count);
 
-        int totalPages = (int) Math.ceil((count) / (double) pageSize);
+        int totalPages = pageSize == 0 ? 0 : (int) Math.ceil((count) / (double) pageSize);
         logger.debug("TotalPages of BuildRecordInsightsCount: {}", totalPages);
 
         List<BuildRecordInsights> content = new ArrayList<>();
@@ -797,7 +797,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return new Page<>(
                 pageInfo.getPageIndex(),
                 pageInfo.getPageSize(),
-                (int) Math.ceil((double) runningBuilds.size() / pageInfo.getPageSize()),
+                pageInfo.getPageSize() == 0 ? 0
+                        : (int) Math.ceil((double) runningBuilds.size() / pageInfo.getPageSize()),
                 runningBuilds.size(),
                 builds);
     }
@@ -855,7 +856,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return new Page<>(
                 pageInfo.getPageIndex(),
                 pageInfo.getPageSize(),
-                (int) Math.ceil((double) hits / pageInfo.getPageSize()),
+                pageInfo.getPageSize() == 0 ? 0 : (int) Math.ceil((double) hits / pageInfo.getPageSize()),
                 hits,
                 resultList);
     }
