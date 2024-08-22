@@ -143,8 +143,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private ArtifactMapper artifactMapper;
     @Inject
     private OperationsManager operationsManager;
-    @Inject
-    private UserService userService;
 
     @Inject
     private KeycloakServiceClient keycloakServiceClient;
@@ -407,15 +405,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .build();
         deliverableAnalyzerLabelEntryRepository.save(labelHistoryEntry);
         report.getLabelHistory().add(labelHistoryEntry);
-    }
-
-    public Consumer<org.jboss.pnc.model.Artifact> artifactUpdater(String message) {
-        User user = userService.currentUser();
-        return a -> {
-            a.setQualityLevelReason(message);
-            a.setModificationUser(user);
-            a.setModificationTime(new Date());
-        };
     }
 
     private Optional<org.jboss.pnc.model.Artifact> getBestMatchingArtifact(
