@@ -400,7 +400,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .report(report)
                 .changeOrder(1)
                 .entryTime(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
-                .user(userService.currentUser())
+                .user(report.getOperation().getUser())
                 .reason("Analysis run as scratch.")
                 .change(LabelOperation.ADDED)
                 .label(DeliverableAnalyzerReportLabel.SCRATCH)
