@@ -236,7 +236,7 @@
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-xp-microprofile</artifactId>
-        <version>4.0.2.GA-7.4.16.GA</version>
+        <version>5.0.0.GA-redhat-00009</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
