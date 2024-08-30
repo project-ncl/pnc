@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.facade.deliverables;
 
+import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.messaging.spi.AnalysisStatusMessage;
-import org.jboss.pnc.messaging.spi.Message;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,24 +55,25 @@ public class DeliverableAnalysisStatusMQNotifications {
     }
 
     private void send(MessageSender ms, DeliverableAnalysisStatusChangedEvent event) {
-        Message message = new AnalysisStatusMessage(
+        OperationResult result = event.getResult();
+        AnalysisStatusMessage message = new AnalysisStatusMessage(
                 event.getOperationId(),
                 ATTRIBUTE_NAME,
                 event.getMilestoneId(),
                 event.getStatus().toString(),
-                event.getResult().toString(),
+                result == null ? null : result.toString(),
                 event.getDeliverablesUrls());
-        ms.sendToTopic(message, prepareHeaders(event));
+        ms.sendToTopic(message, prepareHeaders(message));
     }
 
-    private Map<String, String> prepareHeaders(DeliverableAnalysisStatusChangedEvent event) {
+    private Map<String, String> prepareHeaders(AnalysisStatusMessage message) {
         Map<String, String> headers = new HashMap<>();
         headers.put("type", "DeliverableAnalysisStateChange");
         headers.put("attribute", ATTRIBUTE_NAME);
-        headers.put("milestoneId", event.getMilestoneId());
-        headers.put("status", event.getStatus().toString());
-        headers.put("result", event.getResult().toString());
-        headers.put("operationId", event.getOperationId());
+        headers.put("milestoneId", message.getMilestoneId());
+        headers.put("status", message.getStatus());
+        headers.put("result", message.getResult());
+        headers.put("operationId", message.getOperationId());
         return headers;
     }
 }
