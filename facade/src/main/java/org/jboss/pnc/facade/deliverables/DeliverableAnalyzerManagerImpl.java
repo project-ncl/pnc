@@ -212,18 +212,32 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         // Find the url filename
         String urlFilename = Paths.get(distributionUrl.getPath()).getFileName().toString();
 
-        // Loop in the builds to find the artifact associated with the url
+        /* Loop in the builds to find the artifact associated with the url */
+
+        // [NCLSUP-1114] Handle the case where the file referenced in `distributionUrl` has been renamed from the
+        // original filename built in PNC or Brew. In this case, the `artifact.filename` contains the original name
+        // built in PNC or Brew (e.g. "my-product-dist-1.0.0.redhat-00001.zip") and the `artifact.archiveFilenames`
+        // contains the renamed filename (e.g. "my-product-1.0.0.zip" if the `distributionUrl` is
+        // "https://download.com/my-product-1.0.0.zip"). So let's search `artifact.archiveFilenames` first.
         Optional<Artifact> distributionArtifact = builds.stream()
                 .flatMap(b -> b.getArtifacts().stream())
-                .filter(a -> a.getFilename().equals(urlFilename))
+                .filter(a -> a.getArchiveFilenames() != null && a.getArchiveFilenames().contains(urlFilename))
                 .findFirst();
-
         if (distributionArtifact.isPresent()) {
             return distributionArtifact.get();
         }
 
-        // If the artifact was not found among the matched builds (meaning the zip was built in PNC or Brew), then look
-        // in the not found artifacts list (meaning the zip was built in e.g. Jenkins)
+        // If not found, let's search by `artifact.filename` which contains the original filename built in PNC or Brew
+        distributionArtifact = builds.stream()
+                .flatMap(b -> b.getArtifacts().stream())
+                .filter(a -> a.getFilename().equals(urlFilename))
+                .findFirst();
+        if (distributionArtifact.isPresent()) {
+            return distributionArtifact.get();
+        }
+
+        // If the artifact is still not found among the matched builds then search in the not found artifacts list (this
+        // means the zip was built in e.g. Jenkins)
         return notFoundArtifacts.stream().filter(a -> a.getFilename().equals(urlFilename)).findFirst().orElse(null);
     }
 
