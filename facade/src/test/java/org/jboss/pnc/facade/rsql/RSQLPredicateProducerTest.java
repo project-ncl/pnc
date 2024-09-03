@@ -27,11 +27,7 @@ import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.facade.rsql.mapper.BuildRSQLMapper;
 import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildEnvironment_;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecord_;
+import org.jboss.pnc.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -149,6 +145,21 @@ public class RSQLPredicateProducerTest {
             criteriaPredicate.apply(root, null, cb);
             fail("Exception expected");
         } catch (RuntimeException ex) {
+            // ok
+        }
+    }
+
+    @Test
+    public void testPredicateCompareEntity() {
+        var criteriaPredicate = producer.getCriteriaPredicate(BuildRecord.class, "environment==\"fooEnv\"");
+
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        Root<BuildRecord> root = mock(Root.class);
+
+        try {
+            criteriaPredicate.apply(root, null, cb);
+            fail("Exception expected");
+        } catch (RSQLException ex) {
             // ok
         }
     }

@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Date;
 
 public class CastValueConverter implements ValueConverter {
@@ -55,6 +56,8 @@ public class CastValueConverter implements ValueConverter {
                                 + argument,
                         ex);
             }
+        } else if (GenericEntity.class.isAssignableFrom(javaType)) {
+            throw new RSQLException("Entity type " + javaType + " is not comparable. Specify an entity attribute.");
         } else {
             throw new UnsupportedOperationException(
                     "The target type " + javaType + " is not known to the type converter.");
