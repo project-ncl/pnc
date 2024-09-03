@@ -760,13 +760,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
         if (pageInfo.isRunning()) {
             if (pageInfo.isLatest()) {
-                return getLatestRunningBuild(predicate);
+                return getLatestRunningBuild(pageInfo.getQ(), predicate);
             } else {
                 return getRunningBuilds(pageInfo, predicate);
             }
         } else {
             if (pageInfo.isLatest()) {
-                return getLatestBuild(predicate, dbPredicate);
+                return getLatestBuild(pageInfo.getQ(), predicate, dbPredicate);
             } else {
                 return getBuilds(pageInfo, predicate, dbPredicate);
             }
@@ -776,9 +776,9 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     /**
      * Returns the page of Latest Running build filtered by given predicate.
      */
-    private Page<Build> getLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate)
+    private Page<Build> getLatestRunningBuild(String query, java.util.function.Predicate<BuildTask> predicate)
             throws RemoteRequestException, MissingDataException {
-        List<Build> build = readLatestRunningBuild(predicate).map(Collections::singletonList)
+        List<Build> build = readLatestRunningBuild(query, predicate).map(Collections::singletonList)
                 .orElse(Collections.emptyList());
         return new Page<>(0, 1, build.size(), build.size(), build);
     }
@@ -806,11 +806,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
      * Returns the page of Latest build (running or finished) filtered by given predicate.
      */
     private Page<Build> getLatestBuild(
+            String query,
             java.util.function.Predicate<BuildTask> predicate,
             Predicate<BuildRecord> dbPredicate) throws RemoteRequestException, MissingDataException {
         TreeSet<Build> sorted = new TreeSet<>(Comparator.comparing(Build::getSubmitTime).reversed());
-        readLatestRunningBuild(predicate).ifPresent(sorted::add);
-        readLatestFinishedBuild(dbPredicate).ifPresent(sorted::add);
+
+        readLatestRunningBuild(query, predicate).ifPresent(sorted::add);
+        readLatestFinishedBuild(query, dbPredicate).ifPresent(sorted::add);
+
         if (sorted.size() > 1) {
             sorted.pollLast();
         }
@@ -962,21 +965,35 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return predicate;
     }
 
-    private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate)
+    private Optional<Build> readLatestRunningBuild(String query, java.util.function.Predicate<BuildTask> predicate)
             throws RemoteRequestException, MissingDataException {
-        Comparator<BuildTask> comparator = Comparator.comparing(BuildTask::getSubmitTime)
-                .thenComparingLong(task -> parseId(task.getId()).getLongId());
+        java.util.function.Predicate<Build> streamPredicate;
+        if (StringUtils.isEmpty(query)) {
+            streamPredicate = (f) -> true;
+        } else {
+            streamPredicate = rsqlPredicateProducer.getStreamPredicate(query);
+        }
+
+        Comparator<Build> comparator = Comparator.comparing(Build::getSubmitTime)
+                .thenComparingLong(build -> parseId(build.getId()).getLongId());
 
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(predicate)
-                .max(comparator) // submitTime DESC, id DESC
-                .map(buildMapper::fromBuildTask);
+                .map(buildMapper::fromBuildTask)
+                .filter(streamPredicate)
+                .max(comparator); // submitTime DESC, id DESC
     }
 
-    private Optional<Build> readLatestFinishedBuild(Predicate<BuildRecord> predicate) {
+    private Optional<Build> readLatestFinishedBuild(String query, Predicate<BuildRecord> predicate) {
+        Predicate<BuildRecord> criteriaPredicate = (_r, _q, cb) -> cb.conjunction();
+        if (!StringUtils.isEmpty(query)) {
+            criteriaPredicate = rsqlPredicateProducer.getCriteriaPredicate(BuildRecord.class, query);
+        }
+
         PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
         SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime, BuildRecord_.id);
-        List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, predicate);
+        List<BuildRecord> buildRecords = repository
+                .queryWithPredicates(pageInfo, sortInfo, criteriaPredicate, predicate);
 
         return buildRecords.stream().map(mapper::toDTO).findFirst();
     }
