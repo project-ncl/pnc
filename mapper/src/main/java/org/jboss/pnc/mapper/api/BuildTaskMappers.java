@@ -21,6 +21,7 @@ import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.IDToReferenceMapper;
 import org.jboss.pnc.mapper.UserFetcher;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rex.common.enums.StopFlag;
@@ -37,6 +38,7 @@ import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.BeforeMapping;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -52,9 +54,10 @@ import java.util.function.Predicate;
 @Mapper(
         config = MapperCentralConfig.class,
         unmappedSourcePolicy = ReportingPolicy.ERROR,
-        uses = { UserFetcher.class, IDToReferenceMapper.class, Base32LongIdMapper.class },
+        uses = { UserFetcher.class, IDToReferenceMapper.class },
         imports = { ContentIdentityManager.class, IdRev.class })
 public interface BuildTaskMappers {
+    Base32LongIdMapper base32IDMapper = new Base32LongIdMapper();
 
     @Mapping(target = "id", source = "task.name")
     @Mapping(target = "idRev", source = "task.constraint")
@@ -214,8 +217,8 @@ public interface BuildTaskMappers {
     @Mapping(target = "dependencies", source = "request.dependencies")
     @Mapping(target = "taskDependencies", ignore = true)
     @Mapping(target = "taskDependants", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "alreadyRunning", "buildConfigurationAudited" })
-    DefaultBuildTaskRef toNRRBuildTaskRef(RemoteBuildTask request, Long setRecordId);
+    @BeanMapping(ignoreUnmappedSourceProperties = { "alreadyRunning", "buildConfigurationAudited", "longId" })
+    DefaultBuildTaskRef toNRRBuildTaskRef(RemoteBuildTask request, Base32LongID setRecordId);
 
     @Mapping(
             target = "idRev",
@@ -283,5 +286,12 @@ public interface BuildTaskMappers {
 
     static <T> T unwrap(Optional<T> optional) {
         return (optional != null && optional.isPresent()) ? optional.get() : null;
+    }
+
+    static Base32LongID toBase32ID(String entityID) {
+        if (entityID == null) {
+            return null;
+        }
+        return base32IDMapper.toEntity(entityID);
     }
 }

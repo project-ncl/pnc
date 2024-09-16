@@ -145,8 +145,8 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         });
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
-        when(buildCoordinator.getSubmittedBuildTasksBySetId(anyLong())).thenAnswer(inv -> {
-            long bcsrid = inv.getArgument(0);
+        when(buildCoordinator.getSubmittedBuildTasksBySetId(any())).thenAnswer(inv -> {
+            Base32LongID bcsrid = inv.getArgument(0);
             return runningBuilds.stream()
                     .filter(
                             task -> task.getBuildConfigSetRecordId() != null
@@ -162,7 +162,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
 
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .id(1L)
+                .id(new Base32LongID(1L))
                 .temporaryBuild(false)
                 .build();
         when(buildConfigSetRecordRepository.queryById(any())).thenReturn(buildConfigSetRecord);
@@ -501,7 +501,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     @Test
     public void shouldGetGraphWithDependencies() {
         // With
-        Long configSetRecordId = 1L;
+        Base32LongID configSetRecordId = new Base32LongID(1L);
         BuildSetTask buildSetTask = mock(BuildSetTask.class);
         BuildConfigSetRecord setRecord = mock(BuildConfigSetRecord.class);
         Optional<BuildConfigSetRecord> optional = Optional.of(setRecord);
@@ -522,7 +522,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                 .thenReturn(Set.of(taskId, taskDepId, taskDepDepId));
 
         // When
-        Graph<Build> graph = provider.getBuildGraphForGroupBuild(Long.toString(configSetRecordId));
+        Graph<Build> graph = provider.getBuildGraphForGroupBuild(configSetRecordId.getId());
 
         // Then
         assertThat(graph.getVertices()).hasSize(3);
@@ -645,7 +645,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     private BuildTask mockBuildTaskWithSet(BuildSetTask buildSetTask) {
         BuildTask task = mockBuildTask();
         BuildConfigSetRecord record = buildSetTask.getBuildConfigSetRecord().get();
-        Long id = record.getId();
+        Base32LongID id = record.getId();
         when(task.getBuildConfigSetRecordId()).thenReturn(id);
         when(task.getUser()).thenReturn(mock(User.class));
         return task;

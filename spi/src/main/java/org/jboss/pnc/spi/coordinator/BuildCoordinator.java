@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.coordinator;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -67,7 +68,7 @@ public interface BuildCoordinator {
     List<BuildTask> getSubmittedBuildTasks() throws RemoteRequestException, MissingDataException;
 
     @Deprecated // get rid of BuildTask
-    List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId)
+    List<BuildTask> getSubmittedBuildTasksBySetId(Base32LongID buildConfigSetRecordId)
             throws RemoteRequestException, MissingDataException;
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
@@ -86,7 +87,7 @@ public interface BuildCoordinator {
      */
     boolean cancel(String buildTaskId) throws CoreException;
 
-    boolean cancelSet(long buildConfigSetRecordId) throws CoreException;
+    boolean cancelSet(Base32LongID buildConfigSetRecordId) throws CoreException;
 
     @Deprecated // used only internally
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus newState);

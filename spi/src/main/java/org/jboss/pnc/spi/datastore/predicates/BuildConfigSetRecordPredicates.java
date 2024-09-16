@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -51,19 +52,6 @@ public class BuildConfigSetRecordPredicates {
 
     public static Predicate<BuildConfigSetRecord> temporaryBuild() {
         return (root, query, cb) -> cb.isTrue(root.get(BuildConfigSetRecord_.temporaryBuild));
-    }
-
-    public static Predicate<BuildConfigSetRecord> newestWithBuildConfigSetID(Long buildConfigSetId) {
-        return (root, query, cb) -> {
-            Subquery<Long> subQuery = cb.createQuery(Long.class).subquery(Long.class);
-            Root<BuildConfigSetRecord> subRoot = subQuery.from(BuildConfigSetRecord.class);
-            javax.persistence.criteria.Predicate subSelect = cb.equal(
-                    subRoot.get(BuildConfigSetRecord_.buildConfigurationSet).get(BuildConfigurationSet_.id),
-                    buildConfigSetId);
-
-            subQuery.select(cb.max(subRoot.get(BuildConfigSetRecord_.id))).where(subSelect);
-            return cb.equal(root.get(BuildConfigSetRecord_.id), cb.any(subQuery));
-        };
     }
 
     public static Predicate<BuildConfigSetRecord> inStates(EnumSet<BuildStatus> inProgressStates) {

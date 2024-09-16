@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.BuildOptions;
@@ -154,7 +155,7 @@ public class BuildSetTask {
     }
 
     @Deprecated
-    public Long getId() {
+    public Base32LongID getId() {
         return Optional.ofNullable(buildConfigSetRecord).map(BuildConfigSetRecord::getId).orElse(null);
     }
 

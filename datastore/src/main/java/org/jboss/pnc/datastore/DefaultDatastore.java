@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -360,7 +361,7 @@ public class DefaultDatastore implements Datastore {
     }
 
     @Override
-    public BuildConfigSetRecord getBuildConfigSetRecordById(Long buildConfigSetRecordId) {
+    public BuildConfigSetRecord getBuildConfigSetRecordById(Base32LongID buildConfigSetRecordId) {
         return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
 

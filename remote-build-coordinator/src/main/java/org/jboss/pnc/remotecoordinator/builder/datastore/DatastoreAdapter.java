@@ -574,7 +574,7 @@ public class DatastoreAdapter {
         return datastore.getBuildConfigurations(buildConfigurationSet);
     }
 
-    public BuildConfigSetRecord getBuildCongigSetRecordById(Long buildConfigSetRecordId) {
+    public BuildConfigSetRecord getBuildCongigSetRecordById(Base32LongID buildConfigSetRecordId) {
         return datastore.getBuildConfigSetRecordById(buildConfigSetRecordId);
     }
 }
