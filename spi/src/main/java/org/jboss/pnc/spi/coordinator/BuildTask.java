@@ -94,7 +94,7 @@ public class BuildTask {
     private final ProductMilestone productMilestone;
 
     // called when all dependencies are built
-    private Long buildConfigSetRecordId;
+    private Base32LongID buildConfigSetRecordId;
 
     /**
      * This BR is set when Build Task is not required to be built.
@@ -115,7 +115,7 @@ public class BuildTask {
             Date submitTime,
             BuildSetTask buildSetTask,
             String id,
-            Long buildConfigSetRecordId,
+            Base32LongID buildConfigSetRecordId,
             ProductMilestone productMilestone,
             String contentId,
             String requestContext) {
@@ -194,7 +194,7 @@ public class BuildTask {
         return Optional.ofNullable(requestContext);
     }
 
-    public Long getBuildConfigSetRecordId() {
+    public Base32LongID getBuildConfigSetRecordId() {
         if (buildConfigSetRecordId == null && buildSetTask != null
                 && buildSetTask.getBuildConfigSetRecord().isPresent()) {
             buildConfigSetRecordId = buildSetTask.getBuildConfigSetRecord().get().getId();
@@ -264,7 +264,7 @@ public class BuildTask {
             String contentId,
             String requestContext) {
 
-        Long buildConfigSetRecordId = null;
+        Base32LongID buildConfigSetRecordId = null;
         if (buildSetTask != null) {
             buildConfigSetRecordId = buildSetTask.getBuildConfigSetRecord()
                     .map(BuildConfigSetRecord::getId)

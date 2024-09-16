@@ -84,7 +84,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
-    public List<BuildRecord> queryWithBuildConfigurationSetRecordId(Long bcsrId) {
+    public List<BuildRecord> queryWithBuildConfigurationSetRecordId(Base32LongID bcsrId) {
         return data.stream()
                 .filter(
                         br -> br.getBuildConfigSetRecord() != null

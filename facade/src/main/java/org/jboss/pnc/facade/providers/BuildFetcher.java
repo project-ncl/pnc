@@ -182,7 +182,7 @@ public class BuildFetcher {
     /**
      * Returns the set of build IDs that are in a Group Build. Empty set means the Group Build does not exist.
      */
-    public Set<Base32LongID> getGroupBuildContent(long buildConfigSetRecordId) {
+    public Set<Base32LongID> getGroupBuildContent(Base32LongID buildConfigSetRecordId) {
         try {
             Set<Base32LongID> buildIds = new HashSet<>();
 

@@ -156,10 +156,10 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
         try {
             BuildOptions buildOptions = toBuildOptions(buildParams);
 
-            long groupBuildId = buildTriggerer
+            String groupBuildId = buildTriggerer
                     .triggerGroupBuild(Integer.parseInt(groupConfigId), buildConfigRevisions, buildOptions);
 
-            return groupBuildProvider.getSpecific(Long.toString(groupBuildId));
+            return groupBuildProvider.getSpecific(groupBuildId);
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
         } catch (BuildRequestException ex) {

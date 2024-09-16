@@ -20,6 +20,7 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -32,7 +33,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 @Stateless
-public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Long>
+public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Base32LongID>
         implements BuildConfigSetRecordRepository {
 
     private static final EnumSet<BuildStatus> IN_PROGRESS_STATES = BuildStatus.unfinished();
@@ -43,19 +44,19 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
      */
     @Deprecated
     public BuildConfigSetRecordRepositoryImpl() {
-        super(BuildConfigSetRecord.class, Long.class);
+        super(BuildConfigSetRecord.class, Base32LongID.class);
     }
 
     @Inject
     public BuildConfigSetRecordRepositoryImpl(EntityManager manager) {
-        super(BuildConfigSetRecord.class, Long.class);
+        super(BuildConfigSetRecord.class, Base32LongID.class);
         this.manager = manager;
     }
 
     @Override
     public BuildConfigSetRecord save(BuildConfigSetRecord entity) {
         if (entity.getId() == null) {
-            long id = Sequence.nextId();
+            Base32LongID id = new Base32LongID(Sequence.nextId());
             entity.setId(id);
         }
         return super.save(entity);

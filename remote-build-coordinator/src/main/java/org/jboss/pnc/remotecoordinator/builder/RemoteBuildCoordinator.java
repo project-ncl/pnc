@@ -28,9 +28,11 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -286,7 +288,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     unfinishedTasks,
                     buildConfigurationSet.getCurrentProductMilestone());
 
-            Long buildConfigSetRecordId = Sequence.nextId();
+            Base32LongID buildConfigSetRecordId = new Base32LongID(Sequence.nextId());
             ScheduleResult scheduleResult = validateAndRunBuilds(
                     user,
                     buildOptions,
@@ -349,7 +351,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             User user,
             BuildOptions buildOptions,
             Graph<RemoteBuildTask> buildGraph,
-            Long buildConfigSetRecordId) throws CoreException, BuildConflictException, BuildRequestException {
+            Base32LongID buildConfigSetRecordId) throws CoreException, BuildConflictException, BuildRequestException {
 
         GraphValidation.checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
 
@@ -397,7 +399,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             User user,
             BuildOptions buildOptions,
             ScheduleResult scheduleResult,
-            Long buildConfigSetRecordId) throws CoreException {
+            Base32LongID buildConfigSetRecordId) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = storeAndNotifyBuildConfigSetRecord(
                 buildConfigSetRecordId,
                 buildConfigurationSet,
@@ -448,7 +450,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancelSet(long buildConfigSetRecordId) throws CoreException {
+    public boolean cancelSet(Base32LongID buildConfigSetRecordId) throws CoreException {
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildConfigSetRecordId);
         if (record == null) {
             log.error("Could not find buildConfigSetRecord with id : {}", buildConfigSetRecordId);
@@ -536,7 +538,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      * @return
      */
     private BuildConfigSetRecord storeAndNotifyBuildConfigSetRecord(
-            Long buildConfigSetRecordId,
+            Base32LongID buildConfigSetRecordId,
             BuildConfigurationSet buildConfigurationSet,
             BuildStatus newStatus,
             String description,
@@ -604,7 +606,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildConfigSetRecord buildConfigSetRecord,
             User user) {
         String buildTaskId = buildTask.getId();
-        Long buildConfigSetRecordId = buildConfigSetRecord == null ? null : buildConfigSetRecord.getId();
+        Base32LongID buildConfigSetRecordId = buildConfigSetRecord == null ? null : buildConfigSetRecord.getId();
 
         BuildTaskRef taskRef = taskMappers.toNRRBuildTaskRef(buildTask, buildConfigSetRecordId);
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
@@ -775,7 +777,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId)
+    public List<BuildTask> getSubmittedBuildTasksBySetId(Base32LongID buildConfigSetRecordId)
             throws RemoteRequestException, MissingDataException {
         return taskRepository.getBuildTasksByBCSRId(buildConfigSetRecordId)
                 .stream()

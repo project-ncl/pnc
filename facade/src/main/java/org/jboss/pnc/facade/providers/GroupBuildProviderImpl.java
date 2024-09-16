@@ -33,6 +33,7 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ResultMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -65,8 +66,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredica
 
 @PermitAll
 @Stateless
-public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSetRecord, GroupBuild, GroupBuildRef>
-        implements GroupBuildProvider {
+public class GroupBuildProviderImpl extends
+        AbstractProvider<Base32LongID, BuildConfigSetRecord, GroupBuild, GroupBuildRef> implements GroupBuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildProviderImpl.class);
 
@@ -125,7 +126,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
         try {
             String accessToken = keycloakServiceClient.getAuthToken();
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
-                    Long.valueOf(id),
+                    mapper.getIdMapper().toEntity(id),
                     accessToken,
                     notifyOnDeletionCompletion(callback, accessToken));
         } catch (ValidationException e) {
@@ -171,7 +172,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
     @Override
     public void cancel(String id) {
         try {
-            buildCoordinator.cancelSet(Long.parseLong(id));
+            buildCoordinator.cancelSet(mapper.getIdMapper().toEntity(id));
         } catch (CoreException e) {
             throw new RuntimeException("Error when canceling buildConfigSetRecord with id: " + id, e);
         }

@@ -20,9 +20,10 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 
-public interface GroupBuildProvider extends Provider<Long, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
+public interface GroupBuildProvider extends Provider<Base32LongID, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
     Page<GroupBuild> getGroupBuilds(GroupBuildPageInfo groupBuildPageInfo, String groupConfigId);
 

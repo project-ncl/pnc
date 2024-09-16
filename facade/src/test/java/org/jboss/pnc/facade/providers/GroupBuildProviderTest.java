@@ -24,6 +24,7 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -67,7 +68,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConfigSetRecord> {
+public class GroupBuildProviderTest extends AbstractBase32LongIDProviderTest<BuildConfigSetRecord> {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
 
@@ -115,7 +116,7 @@ public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConf
     }
 
     @Override
-    protected Repository<BuildConfigSetRecord, Long> repository() {
+    protected Repository<BuildConfigSetRecord, Base32LongID> repository() {
         return repository;
     }
 
@@ -157,8 +158,8 @@ public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConf
     @Test
     public void shouldProvideCallbackOnDeletion() throws Exception {
         // given
-        final long buildId = 88L;
-        final String buildIdString = String.valueOf(buildId);
+        final Base32LongID buildId = new Base32LongID(88L);
+        final String buildIdString = buildId.getId();
         final String callbackUrl = "http://localhost:8088/callback";
 
         WireMockServer wireMockServer = new WireMockServer(8088);

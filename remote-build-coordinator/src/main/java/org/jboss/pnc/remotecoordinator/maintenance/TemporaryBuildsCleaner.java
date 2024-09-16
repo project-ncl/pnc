@@ -141,7 +141,7 @@ public class TemporaryBuildsCleaner {
      * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuildConfigSetRecord(Long buildConfigSetRecordId) throws ValidationException {
+    public Result deleteTemporaryBuildConfigSetRecord(Base32LongID buildConfigSetRecordId) throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
 
         if (buildConfigSetRecord == null) {

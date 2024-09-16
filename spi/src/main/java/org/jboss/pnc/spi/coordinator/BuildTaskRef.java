@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
@@ -44,7 +45,7 @@ public interface BuildTaskRef {
 
     Instant getEndTime();
 
-    Long getBuildConfigSetRecordId();
+    Base32LongID getBuildConfigSetRecordId();
 
     ProductMilestone getProductMilestone();
 
