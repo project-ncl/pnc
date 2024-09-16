@@ -84,6 +84,8 @@ public class BuildPushResultRef implements DTOEntity {
      */
     protected final String message;
 
+    protected final String userInitiator;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

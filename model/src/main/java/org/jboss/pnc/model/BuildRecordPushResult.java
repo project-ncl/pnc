@@ -64,6 +64,8 @@ public class BuildRecordPushResult implements GenericEntity<Long> {
 
     private String tagPrefix;
 
+    private String userInitiator;
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_pushresult_milestonerelease"))
     private ProductMilestoneRelease productMilestoneRelease;
@@ -80,6 +82,7 @@ public class BuildRecordPushResult implements GenericEntity<Long> {
         setBrewBuildUrl(builder.brewBuildUrl);
         setTagPrefix(builder.tagPrefix);
         setProductMilestoneRelease(builder.productMilestoneRelease);
+        setUserInitiator(builder.userInitiator);
     }
 
     public static Builder newBuilder() {
@@ -154,6 +157,14 @@ public class BuildRecordPushResult implements GenericEntity<Long> {
         this.productMilestoneRelease = productMilestoneRelease;
     }
 
+    public String getUserInitiator() {
+        return userInitiator;
+    }
+
+    public void setUserInitiator(String userInitiator) {
+        this.userInitiator = userInitiator;
+    }
+
     @Override
     public String toString() {
         return "BuildRecordPushResult{" + "id=" + id + ", buildRecord=" + buildRecord + ", status=" + status + ", log='"
@@ -193,6 +204,8 @@ public class BuildRecordPushResult implements GenericEntity<Long> {
         private String tagPrefix;
 
         private ProductMilestoneRelease productMilestoneRelease;
+
+        private String userInitiator;
 
         private Builder() {
         }
@@ -235,6 +248,11 @@ public class BuildRecordPushResult implements GenericEntity<Long> {
 
         public Builder productMilestoneRelease(ProductMilestoneRelease productMilestoneRelease) {
             this.productMilestoneRelease = productMilestoneRelease;
+            return this;
+        }
+
+        public Builder userInitiator(String userInitiator) {
+            this.userInitiator = userInitiator;
             return this;
         }
 

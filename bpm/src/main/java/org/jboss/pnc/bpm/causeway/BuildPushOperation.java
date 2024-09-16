@@ -33,4 +33,6 @@ public class BuildPushOperation {
 
     private String completeCallbackUrlTemplate;
 
+    private String userInitiator;
+
 }
