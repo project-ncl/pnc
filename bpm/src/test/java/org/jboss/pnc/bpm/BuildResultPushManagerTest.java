@@ -165,7 +165,8 @@ public class BuildResultPushManagerTest {
                 Sequence.nextId(),
                 "tag",
                 false,
-                "https://foo.bar/build-record-push/%s/complete/");
+                "https://foo.bar/build-record-push/%s/complete/",
+                "bob");
         return releaseManager.push(buildPushOperation, "abc");
     }
 

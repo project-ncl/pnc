@@ -34,6 +34,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -75,6 +76,9 @@ import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 @RequestScoped
 @Slf4j
 public class BrewPusherImpl implements BrewPusher {
+
+    @Inject
+    UserService user;
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
@@ -197,7 +201,8 @@ public class BrewPusherImpl implements BrewPusher {
                 buildPushResultId,
                 buildPushParameters.getTagPrefix(),
                 buildPushParameters.isReimport(),
-                getCompleteCallbackUrlTemplate());
+                getCompleteCallbackUrlTemplate(),
+                user.currentUsername());
 
         Result pushResult = buildResultPushManager.push(buildPushOperation, keycloakServiceClient.getAuthToken());
         log.info("Push Result {}.", pushResult);

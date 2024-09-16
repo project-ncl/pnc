@@ -52,8 +52,9 @@ public class BuildPushResult extends BuildPushResultRef {
             String brewBuildUrl,
             String logContext,
             String message,
-            ProductMilestoneCloseResultRef productMilestoneCloseResult) {
-        super(id, buildId, status, brewBuildId, brewBuildUrl, logContext, message);
+            ProductMilestoneCloseResultRef productMilestoneCloseResult,
+            String userInitiator) {
+        super(id, buildId, status, brewBuildId, brewBuildUrl, logContext, message, userInitiator);
         this.productMilestoneCloseResult = productMilestoneCloseResult;
     }
 
