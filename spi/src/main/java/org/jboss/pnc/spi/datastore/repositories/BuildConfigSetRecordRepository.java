@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.
  */
-public interface BuildConfigSetRecordRepository extends Repository<BuildConfigSetRecord, Long> {
+public interface BuildConfigSetRecordRepository extends Repository<BuildConfigSetRecord, Base32LongID> {
     List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date);
 
     List<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress();

@@ -35,6 +35,7 @@ import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -492,7 +493,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancelSet(long buildSetTaskId) {
+    public boolean cancelSet(Base32LongID buildSetTaskId) {
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildSetTaskId);
         if (record == null) {
             log.error("Could not find buildConfigSetRecord with id : {}", buildSetTaskId);
@@ -960,11 +961,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) {
+    public List<BuildTask> getSubmittedBuildTasksBySetId(Base32LongID buildConfigSetRecordId) {
         return nullableStreamOf(buildQueue.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(
                         t -> t.getBuildSetTask() != null
-                                && Long.valueOf(buildConfigSetRecordId).equals(t.getBuildConfigSetRecordId()))
+                                && buildConfigSetRecordId.equals(t.getBuildConfigSetRecordId()))
                 .sorted(Comparator.comparing(bt -> bt.getBuildConfigurationAudited().getName()))
                 .collect(Collectors.toList());
     }

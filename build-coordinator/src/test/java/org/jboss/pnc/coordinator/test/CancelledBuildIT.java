@@ -22,6 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -191,7 +192,7 @@ public class CancelledBuildIT extends ProjectBuilder {
         }
     }
 
-    private Long getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId)
+    private Base32LongID getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId)
             throws RemoteRequestException, MissingDataException {
         return coordinator.getSubmittedBuildTasks()
                 .stream()

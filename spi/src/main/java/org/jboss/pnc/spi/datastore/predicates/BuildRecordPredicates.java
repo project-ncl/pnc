@@ -275,7 +275,7 @@ public class BuildRecordPredicates {
         }
     }
 
-    public static Predicate<BuildRecord> withBuildConfigSetRecordId(Long buildConfigSetRecordId) {
+    public static Predicate<BuildRecord> withBuildConfigSetRecordId(Base32LongID buildConfigSetRecordId) {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildConfigSetRecord> joinedConfigSetRecord = root
                     .join(BuildRecord_.buildConfigSetRecord);

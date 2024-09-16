@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
@@ -45,7 +46,7 @@ public class DefaultBuildTaskRef implements BuildTaskRef {
     private final IdRev idRev;
 
     @Getter
-    private final Long buildConfigSetRecordId;
+    private final Base32LongID buildConfigSetRecordId;
 
     @Getter
     private final ProductMilestone productMilestone;

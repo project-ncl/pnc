@@ -114,7 +114,7 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      * @throws ValidationException Thrown when build cannot be deleted
      */
     public boolean deleteTemporaryBuildConfigSetRecord(
-            Long buildConfigSetRecordId,
+            Base32LongID buildConfigSetRecordId,
             String authToken,
             Consumer<Result> onComplete) throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);

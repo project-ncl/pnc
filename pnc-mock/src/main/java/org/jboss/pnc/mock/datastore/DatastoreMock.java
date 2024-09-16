@@ -141,7 +141,7 @@ public class DatastoreMock implements Datastore {
     @Override
     public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
         if (buildConfigSetRecord.getId() == null) {
-            buildConfigSetRecord.setId(buildRecordSetSequence.incrementAndGet());
+            buildConfigSetRecord.setId(new Base32LongID(Sequence.nextId()));
         }
         log.info("Storing build config set record with id: " + buildConfigSetRecord);
         buildConfigSetRecords.add(buildConfigSetRecord);
@@ -169,7 +169,7 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildConfigSetRecord getBuildConfigSetRecordById(Long buildConfigSetRecordId) {
+    public BuildConfigSetRecord getBuildConfigSetRecordById(Base32LongID buildConfigSetRecordId) {
         return buildConfigSetRecords.stream()
                 .filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId))
                 .findFirst()

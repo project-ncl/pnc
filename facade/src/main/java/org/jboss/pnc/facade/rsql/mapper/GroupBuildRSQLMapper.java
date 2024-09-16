@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.GenericEntity;
@@ -30,7 +31,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @ApplicationScoped
-public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Long, BuildConfigSetRecord> {
+public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Base32LongID, BuildConfigSetRecord> {
 
     public GroupBuildRSQLMapper() {
         super(BuildConfigSetRecord.class);

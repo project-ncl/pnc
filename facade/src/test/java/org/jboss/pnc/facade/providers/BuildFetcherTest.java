@@ -268,7 +268,7 @@ public class BuildFetcherTest {
 
     @Test
     public void testGetGroupBuildContent() throws RemoteRequestException, MissingDataException {
-        long groupID = 100L;
+        Base32LongID groupID = new Base32LongID(100L);
         Base32LongID build1ID = new Base32LongID(10L);
         Base32LongID build2ID = new Base32LongID(12L);
         Base32LongID build3ID = new Base32LongID(14L);
@@ -310,7 +310,7 @@ public class BuildFetcherTest {
 
     @Test
     public void testGetGroupBuildContentShouldReturnEmptySetWhenTheGroupBuildDoesNotExist() {
-        Set<Base32LongID> foundID = buildFetcher.getGroupBuildContent(354L);
+        Set<Base32LongID> foundID = buildFetcher.getGroupBuildContent(new Base32LongID(354L));
 
         assertThat(foundID).isEmpty();
     }

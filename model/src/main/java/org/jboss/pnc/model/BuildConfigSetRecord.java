@@ -26,12 +26,12 @@ import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
-import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -59,14 +59,14 @@ import java.util.Set;
         indexes = { @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
                 @Index(name = "idx_buildconfigsetrecord_productversion", columnList = "productversion_id"),
                 @Index(name = "idx_buildconfigsetrecord_user", columnList = "user_id") })
-public class BuildConfigSetRecord implements GenericEntity<Long> {
+public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {
 
     private static final long serialVersionUID = 1L;
 
     public static final String SEQUENCE_NAME = "build_config_set_record_id_seq";
 
-    @Id
-    private Long id;
+    @EmbeddedId
+    private Base32LongID id;
 
     /**
      * The build configuration set which was executed
@@ -155,7 +155,7 @@ public class BuildConfigSetRecord implements GenericEntity<Long> {
      *
      * @return the id
      */
-    public Long getId() {
+    public Base32LongID getId() {
         return id;
     }
 
@@ -165,7 +165,7 @@ public class BuildConfigSetRecord implements GenericEntity<Long> {
      * @param id the new id
      */
     @Override
-    public void setId(Long id) {
+    public void setId(Base32LongID id) {
         this.id = id;
     }
 
@@ -328,7 +328,7 @@ public class BuildConfigSetRecord implements GenericEntity<Long> {
 
     public static class Builder {
 
-        private Long id;
+        private Base32LongID id;
 
         private BuildConfigurationSet buildConfigurationSet;
 
@@ -381,7 +381,7 @@ public class BuildConfigSetRecord implements GenericEntity<Long> {
             return buildConfigSetRecord;
         }
 
-        public Builder id(Long id) {
+        public Builder id(Base32LongID id) {
             this.id = id;
             return this;
         }

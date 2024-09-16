@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
@@ -32,7 +33,7 @@ public interface RexBuildScheduler {
      * @param buildConfigSetRecordId group recordId or null if it is not a group build
      * @throws ScheduleException
      */
-    void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
+    void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Base32LongID buildConfigSetRecordId)
             throws ScheduleException;
 
     void cancel(String taskId) throws RemoteRequestException;

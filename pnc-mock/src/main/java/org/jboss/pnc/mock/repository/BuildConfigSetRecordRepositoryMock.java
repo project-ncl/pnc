@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:06 PM
  */
-public class BuildConfigSetRecordRepositoryMock extends LongIdRepositoryMock<BuildConfigSetRecord>
+public class BuildConfigSetRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildConfigSetRecord>
         implements BuildConfigSetRecordRepository {
 
     @Override

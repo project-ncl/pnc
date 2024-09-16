@@ -20,6 +20,7 @@ package org.jboss.pnc.facade;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 
 import java.util.Set;
@@ -30,7 +31,7 @@ import java.util.Set;
  */
 public interface BrewPusher {
 
-    public Set<BuildPushResult> pushGroup(long id, String tagPrefix);
+    public Set<BuildPushResult> pushGroup(String id, String tagPrefix);
 
     BuildPushResult pushBuild(String id, BuildPushParameters buildPushParameters) throws ProcessException;
 

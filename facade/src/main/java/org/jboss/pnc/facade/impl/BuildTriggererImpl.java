@@ -101,13 +101,13 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     @Override
-    public long triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
+    public String triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
             throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
-        return result.getBuildConfigSetRecord().get().getId();
+        return result.getBuildConfigSetRecord().get().getId().getId();
     }
 
     @Override

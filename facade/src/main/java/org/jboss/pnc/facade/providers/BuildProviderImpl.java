@@ -440,9 +440,12 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId) {
         java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigSetRecordId() != null
-                && t.getBuildConfigSetRecordId().equals(Long.parseLong(groupBuildId));
+                && t.getBuildConfigSetRecordId().equals(groupBuildMapper.getIdMapper().toEntity(groupBuildId));
         try {
-            return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(Long.valueOf(groupBuildId)));
+            return getBuildList(
+                    pageInfo,
+                    predicate,
+                    withBuildConfigSetRecordId(groupBuildMapper.getIdMapper().toEntity(groupBuildId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
@@ -450,7 +453,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
-        Long id = groupBuildMapper.getIdMapper().toEntity(groupBuildId);
+        Base32LongID id = groupBuildMapper.getIdMapper().toEntity(groupBuildId);
         Set<Base32LongID> buildIDs = buildFetcher.getGroupBuildContent(id);
         buildFetcher.precacheAllBuildsDeps(buildIDs);
 

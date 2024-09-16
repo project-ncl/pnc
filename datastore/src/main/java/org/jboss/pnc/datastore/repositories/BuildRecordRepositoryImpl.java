@@ -154,7 +154,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     }
 
     @Override
-    public List<BuildRecord> queryWithBuildConfigurationSetRecordId(Long bcsrId) {
+    public List<BuildRecord> queryWithBuildConfigurationSetRecordId(Base32LongID bcsrId) {
         return queryWithPredicates(withBuildConfigSetRecordId(bcsrId));
     }
 

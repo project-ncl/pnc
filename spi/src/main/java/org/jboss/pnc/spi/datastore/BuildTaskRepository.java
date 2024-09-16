@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
@@ -29,7 +30,7 @@ public interface BuildTaskRepository {
 
     Optional<BuildTaskRef> getSpecific(String taskId) throws RemoteRequestException, MissingDataException;
 
-    List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId)
+    List<BuildTaskRef> getBuildTasksByBCSRId(Base32LongID buildConfigSetRecordId)
             throws RemoteRequestException, MissingDataException;
 
     /**

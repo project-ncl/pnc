@@ -20,13 +20,16 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
+import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
@@ -53,6 +56,7 @@ import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -156,7 +160,9 @@ public class BuildCoordinationIT {
 
         // check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
-        datastoreMock.getBuildConfigSetRecordById(Long.valueOf(buildConfigurationSet.getId()));
+        Base32LongIdMapper idMapper = new Base32LongIdMapper();
+        Base32LongID groubBuildID = idMapper.toEntity(buildConfigurationSet.getId().toString());
+        datastoreMock.getBuildConfigSetRecordById(groubBuildID);
 
         Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
         assertThat(maybeSetRecord.isPresent()).isTrue();

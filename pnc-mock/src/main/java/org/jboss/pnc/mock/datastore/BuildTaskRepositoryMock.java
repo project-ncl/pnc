@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.datastore;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
@@ -43,7 +44,7 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     }
 
     @Override
-    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) {
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Base32LongID buildConfigSetRecordId) {
         return tasks.values()
                 .stream()
                 .filter(t -> buildConfigSetRecordId.equals(t.getBuildConfigSetRecordId()))

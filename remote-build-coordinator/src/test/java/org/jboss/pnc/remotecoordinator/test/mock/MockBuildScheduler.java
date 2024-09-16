@@ -22,6 +22,7 @@ import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
@@ -91,7 +92,7 @@ public class MockBuildScheduler implements RexBuildScheduler {
     }
 
     @Override
-    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Base32LongID buildConfigSetRecordId)
             throws ScheduleException {
         scheduleRequests.add(buildGraph);
         if (scheduleException != null) {

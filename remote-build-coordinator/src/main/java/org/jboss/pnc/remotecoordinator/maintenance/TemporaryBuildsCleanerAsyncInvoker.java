@@ -111,7 +111,7 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      * @return True if the build exists and deletion started otherwise, false is build doesn't exist
      * @throws ValidationException Thrown when build cannot be deleted
      */
-    public boolean deleteTemporaryBuildConfigSetRecord(Long buildConfigSetRecordId, Consumer<Result> onComplete)
+    public boolean deleteTemporaryBuildConfigSetRecord(Base32LongID buildConfigSetRecordId, Consumer<Result> onComplete)
             throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
         if (buildConfigSetRecord == null) {

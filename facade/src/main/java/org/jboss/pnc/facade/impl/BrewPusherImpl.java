@@ -41,6 +41,7 @@ import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
@@ -106,13 +107,14 @@ public class BrewPusherImpl implements BrewPusher {
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.brewpush");
 
     @Override
-    public Set<BuildPushResult> pushGroup(long buildGroupId, String tagPrefix) {
+    public Set<BuildPushResult> pushGroup(String buildGroupId, String tagPrefix) {
         BuildPushParameters buildPushParameters = BuildPushParameters.builder()
                 .tagPrefix(tagPrefix)
                 .reimport(false)
                 .build();
+        Base32LongID id = GroupBuildMapper.idMapper.toEntity(buildGroupId);
         List<BuildRecord> buildRecords = buildRecordRepository
-                .queryWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(buildGroupId));
+                .queryWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(id));
 
         Set<BuildPushResult> results = new HashSet<>();
         for (BuildRecord buildRecord : buildRecords) {

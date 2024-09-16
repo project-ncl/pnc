@@ -37,6 +37,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
@@ -162,7 +163,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     }
 
     @WithSpan
-    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Base32LongID buildConfigSetRecordId)
             throws ScheduleException {
         BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
 
@@ -218,7 +219,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
         CreateGraphRequest createGraphRequest = CreateGraphRequest.builder()
                 .graphConfiguration(commonConfig)
-                .correlationID(buildConfigSetRecordId == null ? null : String.valueOf(buildConfigSetRecordId))
+                .correlationID(buildConfigSetRecordId == null ? null : buildConfigSetRecordId.getId())
                 .edges(edges)
                 .vertices(vertices)
                 .build();
@@ -279,7 +280,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     @WithSpan
     @Override
-    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId)
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Base32LongID buildConfigSetRecordId)
             throws RemoteRequestException, MissingDataException {
         try {
             ArrayList<BuildTaskRef> toReturn = new ArrayList<>();

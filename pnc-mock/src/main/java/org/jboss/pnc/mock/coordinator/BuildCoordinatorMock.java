@@ -21,6 +21,7 @@ package org.jboss.pnc.mock.coordinator;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -105,7 +106,7 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) {
+    public List<BuildTask> getSubmittedBuildTasksBySetId(Base32LongID buildConfigSetRecordId) {
         return activeTasks.stream()
                 .filter(
                         buildTask -> buildTask.getBuildSetTask().getBuildConfigSetRecord().isPresent()
@@ -128,7 +129,7 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public boolean cancelSet(long buildConfigSetRecordId) {
+    public boolean cancelSet(Base32LongID buildConfigSetRecordId) {
         return false;
     }
 
