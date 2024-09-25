@@ -180,7 +180,7 @@ public class ProductMilestoneReleaseManagerTest {
      */
     private void release(ProductMilestone milestone, int brewBuildId, BuildRecord... records) {
         int milestoneId = sequence.getAndIncrement();
-        releaseManager.startRelease(milestone, null, (long) milestoneId);
+        releaseManager.startRelease(milestone, null, (long) milestoneId, "bob");
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
         MilestoneReleaseResultRest milestoneReleaseResult = successfulReleaseResult(milestoneId, brewBuildId, records);
@@ -188,7 +188,7 @@ public class ProductMilestoneReleaseManagerTest {
     }
 
     private void release(ProductMilestone milestone, MilestoneReleaseResultRest releaseResultRest) {
-        releaseManager.startRelease(milestone, null, Long.valueOf(releaseResultRest.getMilestoneId()));
+        releaseManager.startRelease(milestone, null, Long.valueOf(releaseResultRest.getMilestoneId()), "bob");
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
         releaseManager.productMilestoneCloseCompleted(releaseResultRest);

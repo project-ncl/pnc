@@ -146,7 +146,8 @@ public class BuildResultPushManager {
                     buildPushOperation.getTagPrefix(),
                     URI.create(String.format(buildPushOperation.getCompleteCallbackUrlTemplate(), externalBuildId)),
                     buildPushOperation.getPushResultId(),
-                    buildPushOperation.isReImport());
+                    buildPushOperation.isReImport(),
+                    buildPushOperation.getUserInitiator());
             boolean successfullyStarted = causewayClient.importBuild(buildImportRequest, authToken);
             if (successfullyStarted) {
                 pushStatus = BuildPushStatus.ACCEPTED;
@@ -172,7 +173,8 @@ public class BuildResultPushManager {
             String tagPrefix,
             URI callBackUrl,
             Long pushResultId,
-            boolean reimport) {
+            boolean reimport,
+            String userInitiator) {
         BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
         logger.debug("BuildRecord: {}", buildRecord.getId());
         logger.debug("BuildEnvironment: {}", buildEnvironment);
@@ -230,7 +232,7 @@ public class BuildResultPushManager {
                 executionRootName,
                 buildType);
 
-        return new BuildImportRequest(callbackTarget, build, reimport);
+        return new BuildImportRequest(callbackTarget, build, reimport, userInitiator);
     }
 
     private Build getBuild(

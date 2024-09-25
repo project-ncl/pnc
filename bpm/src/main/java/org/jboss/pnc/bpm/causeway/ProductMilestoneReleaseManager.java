@@ -118,10 +118,11 @@ public class ProductMilestoneReleaseManager {
     public ProductMilestoneRelease startRelease(
             ProductMilestone milestone,
             String accessToken,
-            Long milestoneReleaseId) {
+            Long milestoneReleaseId,
+            String userInitiator) {
 
         ProductMilestoneRelease release;
-        release = triggerRelease(milestone, accessToken, milestoneReleaseId);
+        release = triggerRelease(milestone, accessToken, milestoneReleaseId, userInitiator);
         return productMilestoneReleaseRepository.save(release);
     }
 
@@ -153,11 +154,13 @@ public class ProductMilestoneReleaseManager {
      * @param milestone milestone to be released
      * @param accessToken access token to use to submit request
      * @param milestoneReleaseId the milestone id
+     * @param userInitiator user who initiated the request
      */
     private ProductMilestoneRelease triggerRelease(
             ProductMilestone milestone,
             String accessToken,
-            Long milestoneReleaseId) {
+            Long milestoneReleaseId,
+            String userInitiator) {
 
         ProductMilestoneRelease release = new ProductMilestoneRelease();
         release.setId(milestoneReleaseId);
@@ -165,7 +168,7 @@ public class ProductMilestoneReleaseManager {
         release.setMilestone(milestone);
 
         try {
-            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, globalConfig);
+            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, userInitiator, globalConfig);
             connector.startProcess(
                     bpmConfig.getBpmNewReleaseProcessId(),
                     Collections.singletonMap("processParameters", releaseTask.getProcessParameters()),

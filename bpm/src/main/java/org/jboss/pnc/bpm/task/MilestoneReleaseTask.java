@@ -36,19 +36,21 @@ public class MilestoneReleaseTask {
     @Getter
     private final ProductMilestone milestone;
     private final GlobalModuleGroup globalConfig;
+    private final String userInitiator;
 
-    public MilestoneReleaseTask(ProductMilestone milestone, GlobalModuleGroup globalConfig) {
+    public MilestoneReleaseTask(ProductMilestone milestone, String userInitiator, GlobalModuleGroup globalConfig) {
         this.milestone = milestone;
+        this.userInitiator = userInitiator;
         this.globalConfig = globalConfig;
     }
 
-    private MilestoneReleaseRest createMilestoneRest(ProductMilestone milestone) {
-        return new MilestoneReleaseRest(milestone.getId());
+    private MilestoneReleaseRest createMilestoneRest(ProductMilestone milestone, String userInitiator) {
+        return new MilestoneReleaseRest(milestone.getId(), userInitiator);
     }
 
     public Serializable getProcessParameters() throws CoreException {
         return new MilestoneReleaseParameters(
-                createMilestoneRest(milestone),
+                createMilestoneRest(milestone, userInitiator),
                 globalConfig.getPncUrl(),
                 globalConfig.getExternalCausewayUrl());
     }
