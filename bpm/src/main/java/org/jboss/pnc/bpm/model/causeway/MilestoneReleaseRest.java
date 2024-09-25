@@ -28,9 +28,11 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 @NoArgsConstructor
 public class MilestoneReleaseRest {
     private int milestoneId;
+    private String userInitiator;
 
-    public MilestoneReleaseRest(int milestoneId) {
+    public MilestoneReleaseRest(int milestoneId, String userInitiator) {
         this.milestoneId = milestoneId;
+        this.userInitiator = userInitiator;
     }
 
     @Override

@@ -286,7 +286,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         provider.closeMilestone(mock.getId().toString());
 
         // then
-        verify(releaseManager, times(1)).startRelease(any(), any(), any());
+        verify(releaseManager, times(1)).startRelease(any(), any(), any(), any());
     }
 
     private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(

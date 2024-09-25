@@ -36,6 +36,7 @@ import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -115,6 +116,9 @@ public class ProductMilestoneProviderImpl extends
 
     @Inject
     private EntityManager em;
+
+    @Inject
+    private UserService userService;
 
     @Inject
     public ProductMilestoneProviderImpl(
@@ -207,8 +211,11 @@ public class ProductMilestoneProviderImpl extends
             } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
 
-                ProductMilestoneRelease milestoneReleaseDb = releaseManager
-                        .startRelease(milestoneInDb, keycloakServiceClient.getAuthToken(), milestoneReleaseId);
+                ProductMilestoneRelease milestoneReleaseDb = releaseManager.startRelease(
+                        milestoneInDb,
+                        keycloakServiceClient.getAuthToken(),
+                        milestoneReleaseId,
+                        userService.currentUsername());
                 ProductMilestoneCloseResult milestoneCloseResult = milestoneReleaseMapper.toDTO(milestoneReleaseDb);
                 return milestoneCloseResult;
             }
