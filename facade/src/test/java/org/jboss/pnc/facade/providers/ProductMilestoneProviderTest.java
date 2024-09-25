@@ -21,6 +21,7 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -62,6 +63,9 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     private ProductMilestoneReleaseManager releaseManager;
 
     @Mock
+    private UserService userService;
+
+    @Mock
     private KeycloakServiceClient keycloakServiceClient;
 
     @Mock
@@ -77,6 +81,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     @Before
     public void setup() {
         when(keycloakServiceClient.getAuthToken()).thenReturn("eyUserToken");
+        when(userService.currentUsername()).thenReturn("dustin");
 
         ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 
