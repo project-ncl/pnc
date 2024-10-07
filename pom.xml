@@ -131,7 +131,7 @@
 
     <!-- TEST Dependency properties (CVEs not critical) -->
     <version.junit>4.13.2</version.junit>
-    <version.assertj-core>3.25.3</version.assertj-core>
+    <version.assertj-core>3.26.3</version.assertj-core>
     <version.mockito>5.1.1</version.mockito>
     <version.wiremock>2.35.0</version.wiremock>
     <version.dbunit>2.8.0</version.dbunit>
