@@ -602,13 +602,24 @@
           <exclusion>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-          </exclusion></exclusions>
+          </exclusion>
+          <exclusion>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc.rex</groupId>
         <artifactId>rex-model</artifactId>
         <version>${version.rex-api}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -626,6 +637,10 @@
           <exclusion>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
