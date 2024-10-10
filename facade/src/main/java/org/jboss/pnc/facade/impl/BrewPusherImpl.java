@@ -194,7 +194,7 @@ public class BrewPusherImpl implements BrewPusher {
             throw new OperationNotAllowedException(message, pushResult);
         }
 
-        log.debug("Pushing Build.id {}.", buildRecord.getId());
+        log.debug("Pushing Build.id {} from user {}.", buildRecord.getId(), user.currentUsername());
 
         BuildPushOperation buildPushOperation = new BuildPushOperation(
                 buildRecord,
