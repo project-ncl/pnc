@@ -136,7 +136,7 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
         List<DB> collection = repository
                 .queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
         int totalHits = repository.count(ObjectArrays.concat(rsqlPredicate, predicates));
-        int totalPages = (totalHits + pageSize - 1) / pageSize;
+        int totalPages = pageSize == 0 ? 0 : (totalHits + pageSize - 1) / pageSize;
         List<DTO> content = nullableStreamOf(collection).map(mapper::toDTO).collect(Collectors.toList());
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }

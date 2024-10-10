@@ -50,7 +50,7 @@ public class PaginationParameters {
     @Parameter(description = SwaggerConstants.PAGE_SIZE_DESCRIPTION)
     @QueryParam(value = SwaggerConstants.PAGE_SIZE_QUERY_PARAM)
     @DefaultValue(value = SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE)
-    @Positive
+    @PositiveOrZero
     @Max(value = Constants.MAX_PAGE_SIZE)
     protected int pageSize;
 
