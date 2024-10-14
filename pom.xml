@@ -141,7 +141,7 @@
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.shrinkwrap.resolver.bom>3.1.4</version.shrinkwrap.resolver.bom>
-    <version.arquillian-bom>1.6.0.Final</version.arquillian-bom>
+    <version.arquillian-bom>1.9.1.Final</version.arquillian-bom>
     <version.arquillian-weld>1.0.0.Final</version.arquillian-weld>
     <version.arquillian-jacoco>1.1.0</version.arquillian-jacoco>
     <version.arquillian-transactions>1.0.5</version.arquillian-transactions>
