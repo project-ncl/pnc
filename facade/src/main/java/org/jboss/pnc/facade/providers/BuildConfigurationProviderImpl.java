@@ -512,7 +512,7 @@ public class BuildConfigurationProviderImpl extends
                 .collect(Collectors.toList());
 
         int totalHits = auditedBuildConfigs.size();
-        int totalPages = (totalHits + pageSize - 1) / pageSize;
+        int totalPages = pageSize == 0 ? 0 : (totalHits + pageSize - 1) / pageSize;
 
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, toReturn);
     }

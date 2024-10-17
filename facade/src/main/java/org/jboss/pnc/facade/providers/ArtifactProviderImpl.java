@@ -197,7 +197,7 @@ public class ArtifactProviderImpl
 
         Predicate<Artifact>[] predicates = getPredicates(identifierPattern, qualities, repoType, buildCategories);
         int totalHits = repository.count(predicates);
-        int totalPages = (totalHits + pageSize - 1) / pageSize;
+        int totalPages = pageSize == 0 ? 0 : (totalHits + pageSize - 1) / pageSize;
 
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, artifacts);
     }
@@ -362,7 +362,7 @@ public class ArtifactProviderImpl
                 .collect(Collectors.toList());
 
         int totalHits = auditedBuildConfigs.size();
-        int totalPages = (totalHits + pageSize - 1) / pageSize;
+        int totalPages = pageSize == 0 ? 0 : (totalHits + pageSize - 1) / pageSize;
 
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, toReturn);
     }
