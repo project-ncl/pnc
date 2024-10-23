@@ -284,6 +284,10 @@ public class BuildTasksInitializer {
                     .findAny();
             BuildRecord noRebuildRequired = noRebuildRequiredCauses.get(buildConfigAudited.getIdRev());
             RemoteBuildTask remoteBuildTask;
+            ProductMilestone milestone = null;
+            if (!buildOptions.isTemporaryBuild()) {
+                milestone = currentProductMilestone;
+            }
             if (unfinishedTask.isPresent()) {
                 BuildTaskRef buildTaskRef = unfinishedTask.get();
                 remoteBuildTask = new RemoteBuildTask(
@@ -294,7 +298,7 @@ public class BuildTasksInitializer {
                         user.getUsername(),
                         true,
                         Optional.ofNullable(noRebuildRequired),
-                        currentProductMilestone,
+                        milestone,
                         new ArrayList<>(),
                         new ArrayList<>());
             } else {
@@ -306,7 +310,7 @@ public class BuildTasksInitializer {
                         user.getUsername(),
                         false,
                         Optional.ofNullable(noRebuildRequired),
-                        currentProductMilestone,
+                        milestone,
                         new ArrayList<>(),
                         new ArrayList<>());
             }
