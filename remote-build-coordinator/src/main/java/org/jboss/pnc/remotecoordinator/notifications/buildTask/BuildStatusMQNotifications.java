@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.TransactionPhase;
 import javax.inject.Inject;
 
 import java.util.HashMap;
@@ -49,7 +50,7 @@ public class BuildStatusMQNotifications {
         this.messageSender = messageSenderProvider.getMessageSender();
     }
 
-    public void observeEvent(@Observes BuildStatusChangedEvent event) {
+    public void observeEvent(@Observes(during = TransactionPhase.AFTER_SUCCESS) BuildStatusChangedEvent event) {
         logger.debug("Observed new status changed event {}.", event);
         messageSender.ifPresent(ms -> send(ms, event));
         logger.debug("Status changed event processed {}.", event);
