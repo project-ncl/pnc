@@ -51,7 +51,7 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient i
     }
 
     public CompletableFuture<Build> waitForBuild(String buildConfigId) {
-        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
+        webSocketClient.connect("wss://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient
                 .catchBuildChangedNotification(

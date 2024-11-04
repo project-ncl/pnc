@@ -53,7 +53,7 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
 
     public CompletableFuture<BuildPushResult> waitForBrewPush(String buildId) {
 
-        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
+        webSocketClient.connect("wss://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient
                 .catchBuildPushResult(() -> fallbackSupplier(buildId), withBuildId(buildId), withPushCompleted())

@@ -52,7 +52,7 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient i
     }
 
     public CompletableFuture<GroupBuild> waitForGroupBuild(String groupConfigId) {
-        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
+        webSocketClient.connect("wss://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient
                 .catchGroupBuildChangedNotification(
