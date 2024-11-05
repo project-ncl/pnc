@@ -191,8 +191,8 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             log.trace("Already connected.");
             return CompletableFuture.completedFuture(null);
         }
-        // in case no port was given, default to http port 80
-        int port = serverURI.getPort() == -1 ? 80 : serverURI.getPort();
+
+        int port = determinePort(serverURI);
 
         CompletableFuture<Void> future = new CompletableFuture<>();
         httpClient.webSocket(port, serverURI.getHost(), serverURI.getPath(), result -> {
@@ -215,6 +215,19 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             }
         });
         return future;
+    }
+
+    private static int determinePort(URI serverURI) {
+        // port specified
+        if (serverURI.getPort() != -1) {
+            return serverURI.getPort();
+        }
+        // secure protocol
+        if ("wss".equals(serverURI.getScheme())) {
+            return 443;
+        }
+        // default 80
+        return 80;
     }
 
     private void dispatch(String message) {
