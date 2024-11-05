@@ -87,7 +87,9 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient implements 
             }
         }
 
-        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
+        webSocketClient
+                .connect(configuration.getWSProtocol() + "://" + configuration.getHost() + BASE_PATH + "/notifications")
+                .join();
 
         // if bpm task called, listen to either creation or failure events
         return CompletableFuture

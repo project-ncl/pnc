@@ -49,7 +49,9 @@ public class AdvancedProductMilestoneClient extends ProductMilestoneClient imple
     }
 
     public CompletableFuture<ProductMilestoneCloseResult> waitForMilestoneClose(String milestoneId) {
-        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
+        webSocketClient
+                .connect(configuration.getWSProtocol() + "://" + configuration.getHost() + BASE_PATH + "/notifications")
+                .join();
         return webSocketClient
                 .catchProductMilestoneCloseResult(
                         () -> fallbackSupplier(milestoneId),

@@ -83,6 +83,19 @@ public class Configuration {
         }
     }
 
+    public String getWSProtocol() {
+        if (protocol == null) {
+            return "ws";
+        }
+        switch (protocol) {
+            case "https":
+                return "wss";
+            case "http":
+            default:
+                return "ws";
+        }
+    }
+
     public static final class ConfigurationBuilder {
 
         private Map<String, String> mdcToHeadersMappings = new HashMap<>();
