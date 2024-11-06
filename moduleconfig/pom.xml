@@ -25,7 +25,7 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
-    <version>3.0.5-SNAPSHOT</version>
+    <version>3.0.4</version>
   </parent>
 
   <artifactId>moduleconfig</artifactId>
