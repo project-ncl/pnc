@@ -184,6 +184,9 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             this.vertx = Vertx.vertx();
             HttpClientOptions options = new HttpClientOptions();
             options.setKeepAlive(false).setConnectTimeout(connectTimeout);
+            if ("wss".equals(serverURI.getScheme())) {
+                options.setSsl(true);
+            }
             this.httpClient = vertx.createHttpClient(options);
         }
 
