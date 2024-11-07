@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
@@ -44,8 +45,10 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestoneCloseResultPage;
+import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -59,6 +62,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.List;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -460,4 +465,28 @@ public interface ProductMilestoneEndpoint {
     DeliverableAnalyzerOperation analyzeDeliverables(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid DeliverablesAnalysisRequest request);
+
+    static final String GET_DELIVERED_ARTIFACTS_COMPARISON = "Gets Artifacts Delivered in at least two of the Milestones and their versions.";
+
+    /**
+     * {@value GET_DELIVERED_ARTIFACTS_COMPARISON}
+     *
+     * @param milestoneIds
+     * @return
+     */
+    @Operation(
+            summary = GET_DELIVERED_ARTIFACTS_COMPARISON,
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/comparisons/delivered-artifacts")
+    List<DeliveredArtifactInMilestones> compareArtifactVersionsDeliveredInMilestones(
+            @NotEmpty @QueryParam("milestoneIds") List<String> milestoneIds);
 }
