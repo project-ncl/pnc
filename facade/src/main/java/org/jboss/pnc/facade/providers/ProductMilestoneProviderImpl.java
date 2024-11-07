@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.google.common.collect.ObjectArrays;
+import org.apache.commons.collections.ListUtils;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
 import org.jboss.pnc.constants.Patterns;
-import org.jboss.pnc.datastore.repositories.ProductMilestoneRepositoryImpl;
 import org.jboss.pnc.datastore.repositories.internal.SortInfoConverter;
+import org.jboss.pnc.dto.response.ArtifactVersion;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -34,6 +36,7 @@ import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.util.UserService;
@@ -79,16 +82,19 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
 import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
@@ -348,6 +354,139 @@ public class ProductMilestoneProviderImpl extends
                 .artifactQuality(deliverableArtifactRepository.getArtifactQualitiesCounts(milestoneId))
                 .repositoryType(deliverableArtifactRepository.getRepositoryTypesCounts(milestoneId))
                 .build();
+    }
+
+    @Override
+    public List<DeliveredArtifactInMilestones> getArtifactsDeliveredInMilestonesGroupedByPrefix(
+            List<String> milestoneIds) {
+        List<Integer> milestoneIntIds = milestoneIds.stream().map(Integer::valueOf).collect(Collectors.toList());
+
+        List<Tuple> artifactsDeliveredInMilestonesTuples = milestoneRepository
+                .getArtifactsDeliveredInMilestones(milestoneIntIds);
+
+        return parseDeliveredArtifactsInMilestoneTuples(artifactsDeliveredInMilestonesTuples, milestoneIntIds);
+    }
+
+    private List<DeliveredArtifactInMilestones> parseDeliveredArtifactsInMilestoneTuples(
+            List<Tuple> tuples,
+            List<Integer> milestoneId) {
+        Map<String, Map<String, List<ArtifactVersion>>> artifactsDeliveredInMilestonesMap = tuples.stream()
+                .collect(
+                        Collectors.groupingBy(
+                                this::parseArtifactNameFromTuple,
+                                Collectors.flatMapping(
+                                        tuple -> parseMilestonePresencesFromTuple(tuple, milestoneId),
+                                        Collectors.toMap(
+                                                Map.Entry::getKey,
+                                                Map.Entry::getValue,
+                                                (existing, replacement) -> ListUtils.union(existing, replacement)))));
+
+        final int ARTIFACT_PREFIX_SHARED_IN_MIN_MILESTONES_COUNT = 2;
+
+        return artifactsDeliveredInMilestonesMap.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().size() >= ARTIFACT_PREFIX_SHARED_IN_MIN_MILESTONES_COUNT)
+                .map(
+                        entry -> DeliveredArtifactInMilestones.builder()
+                                .artifactIdentifierPrefix(entry.getKey())
+                                .productMilestoneArtifacts(entry.getValue())
+                                .build())
+                .collect(Collectors.toList());
+    }
+
+    private String parseArtifactNameFromTuple(Tuple tuple) {
+        String deployPath = tuple.get(1, String.class);
+        RepositoryType repositoryType = tuple.get(2, RepositoryType.class);
+
+        return parseArtifactNameFromDeployPath(deployPath, repositoryType);
+    }
+
+    private String parseArtifactNameFromDeployPath(String deployPath, RepositoryType repositoryType) {
+        switch (repositoryType) {
+            case MAVEN: {
+                var mavenCoordinates = ArtifactCoordinatesUtils.parseMavenCoordinates(deployPath);
+
+                if (mavenCoordinates != null) {
+                    return mavenCoordinates.getGroupId() + ":" + mavenCoordinates.getArtifactId();
+                }
+                break;
+            }
+            case NPM: {
+                var npmCoordinates = ArtifactCoordinatesUtils.parseNPMCoordinates(deployPath);
+
+                if (npmCoordinates != null) {
+                    return npmCoordinates.getName();
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported repository type: " + repositoryType);
+        }
+
+        return "";
+    }
+
+    private Stream<Map.Entry<String, List<ArtifactVersion>>> parseMilestonePresencesFromTuple(
+            Tuple tuple,
+            List<Integer> milestoneIds) {
+        String id = tuple.get(0, Integer.class).toString();
+        String deployPath = tuple.get(1, String.class);
+        RepositoryType repositoryType = tuple.get(2, RepositoryType.class);
+
+        String version = parseArtifactVersionFromDeployPath(deployPath, repositoryType);
+        String type = parseArtifactTypeFromDeployPath(deployPath, repositoryType);
+
+        ArtifactVersion artifactVersion = ArtifactVersion.builder().id(id).artifactVersion(version).type(type).build();
+
+        return milestoneIds.stream().filter(milestoneId -> {
+            Boolean milestonePresence = tuple.get(3 + milestoneIds.indexOf(milestoneId), Boolean.class);
+            return milestonePresence.booleanValue();
+        }).map(milestoneId -> Map.entry(milestoneId.toString(), List.of(artifactVersion)));
+    }
+
+    private String parseArtifactVersionFromDeployPath(String deployPath, RepositoryType repositoryType) {
+        switch (repositoryType) {
+            case MAVEN: {
+                var mavenCoordinates = ArtifactCoordinatesUtils.parseMavenCoordinates(deployPath);
+
+                if (mavenCoordinates != null) {
+                    return mavenCoordinates.getVersionString();
+                }
+                break;
+            }
+            case NPM: {
+                var npmCoordinates = ArtifactCoordinatesUtils.parseNPMCoordinates(deployPath);
+
+                if (npmCoordinates != null) {
+                    return npmCoordinates.getVersionString();
+                }
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported repository type: " + repositoryType);
+        }
+
+        return "";
+    }
+
+    private String parseArtifactTypeFromDeployPath(String deployPath, RepositoryType repositoryType) {
+        switch (repositoryType) {
+            case MAVEN: {
+                var mavenCoordinates = ArtifactCoordinatesUtils.parseMavenCoordinates(deployPath);
+
+                if (mavenCoordinates != null) {
+                    return mavenCoordinates.getType();
+                }
+                break;
+            }
+            case NPM:
+                return "tgz";
+            default:
+                throw new IllegalArgumentException("Unsupported repository type: " + repositoryType);
+
+        }
+
+        return "";
     }
 
     private int getMatchingArtifactMilestonesCount(
