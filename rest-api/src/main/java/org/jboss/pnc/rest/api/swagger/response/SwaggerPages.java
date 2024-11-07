@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerReport;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
