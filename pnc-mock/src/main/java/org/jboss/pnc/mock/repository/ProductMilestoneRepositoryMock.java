@@ -19,6 +19,11 @@ package org.jboss.pnc.mock.repository;
 
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+
+import javax.persistence.Tuple;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:24 PM
@@ -29,5 +34,10 @@ public class ProductMilestoneRepositoryMock extends IntIdRepositoryMock<ProductM
     @Override
     public long countBuiltArtifactsInMilestone(Integer id) {
         return 0;
+    }
+
+    @Override
+    public List<Tuple> getArtifactsDeliveredInMilestones(List<Integer> milestoneIds) {
+        return new ArrayList<>();
     }
 }
