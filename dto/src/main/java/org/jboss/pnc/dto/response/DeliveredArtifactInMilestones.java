@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto;
+package org.jboss.pnc.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -46,7 +46,8 @@ public class DeliveredArtifactInMilestones {
     private final String artifactIdentifierPrefix;
 
     /**
-     * Product Milestone ID mapped to list of Artifact versions delivered in the Milestone with the same prefix.
+     * Product Milestone ID mapped to list of Artifact versions delivered in the Milestone with the same identifier
+     * prefix.
      */
     private final Map<String, List<ArtifactVersion>> productMilestoneArtifacts;
 

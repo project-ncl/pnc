@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.endpoints;
 
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -29,6 +30,7 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -177,5 +179,10 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     public DeliverableAnalyzerOperation analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
         return deliverableAnalyzerManager
                 .analyzeDeliverables(id, request.getDeliverablesUrls(), request.isRunAsScratchAnalysis());
+    }
+
+    @Override
+    public List<DeliveredArtifactInMilestones> compareArtifactVersionsDeliveredInMilestones(List<String> milestoneIds) {
+        return productMilestoneProvider.getArtifactsDeliveredInMilestonesGroupedByPrefix(milestoneIds);
     }
 }
