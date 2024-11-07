@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto;
+package org.jboss.pnc.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -38,12 +38,13 @@ import java.util.Map;
 public class DeliveredArtifactInMilestones {
 
     /**
-     * Artifact identifier without the version Redhat version part.
+     * Artifact identifier without the Redhat version part.
      */
-    protected final String identifierPrefix;
+    protected final String artifactIdentifierPrefix;
 
     /**
-     * Product Milestone ID mapped to list of Artifacts delivered in the Milestone with the same identifier prefix.
+     * Product Milestone ID mapped to list of Artifact versions delivered in the Milestone with the same identifier
+     * prefix.
      */
     protected final Map<String, List<ArtifactVersion>> productMilestoneArtifacts;
 
