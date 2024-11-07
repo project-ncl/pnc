@@ -18,7 +18,11 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+
+import javax.persistence.Tuple;
+import java.util.List;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.ProductMilestone} entity.
@@ -26,4 +30,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 public interface ProductMilestoneRepository extends Repository<ProductMilestone, Integer> {
 
     long countBuiltArtifactsInMilestone(Integer id);
+
+    List<Tuple> getArtifactsDeliveredInMilestones(List<Integer> milestoneIds);
 }
