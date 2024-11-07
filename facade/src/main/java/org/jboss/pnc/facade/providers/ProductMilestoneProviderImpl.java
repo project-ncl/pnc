@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.google.common.collect.ObjectArrays;
+import org.apache.commons.collections.ListUtils;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Patterns;
-import org.jboss.pnc.datastore.repositories.ProductMilestoneRepositoryImpl;
 import org.jboss.pnc.datastore.repositories.internal.SortInfoConverter;
+import org.jboss.pnc.dto.response.ArtifactVersion;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -79,16 +80,17 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
 import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
@@ -348,6 +350,62 @@ public class ProductMilestoneProviderImpl extends
                 .artifactQuality(deliverableArtifactRepository.getArtifactQualitiesCounts(milestoneId))
                 .repositoryType(deliverableArtifactRepository.getRepositoryTypesCounts(milestoneId))
                 .build();
+    }
+
+    @Override
+    public Page<DeliveredArtifactInMilestones> getArtifactsDeliveredInMilestonesGroupedByPrefix(
+            int pageIndex,
+            int pageSize,
+            List<String> milestoneIds) {
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+
+        List<Integer> milestoneIntIds = milestoneIds.stream().map(Integer::valueOf).collect(Collectors.toList());
+
+        List<Tuple> artifactsDeliveredInMilestonesTuples = milestoneRepository
+                .getArtifactsDeliveredInMilestonesGroupedByPrefix(pageInfo, milestoneIntIds);
+
+        List<DeliveredArtifactInMilestones> artifactsDeliveredInMilestones = artifactsDeliveredInMilestonesTuples
+                .stream()
+                .map(tuple -> {
+                    var prefix = tuple.get(0, String.class);
+
+                    Map<String, List<ArtifactVersion>> mMap = milestoneIntIds.stream().map(milestoneId -> {
+                        String artifactVersionsWithId = tuple
+                                .get(1 + milestoneIntIds.indexOf(milestoneId), String.class);
+                        List<ArtifactVersion> artifactVersionsList = Arrays.asList(artifactVersionsWithId.split(","))
+                                .stream()
+                                .map(artifactVersionWithId -> {
+                                    var artifactVersionWithIdSplit = Arrays.asList(artifactVersionWithId.split(":"));
+                                    var artifactId = artifactVersionWithIdSplit.get(0);
+                                    var artifactVersion = artifactVersionWithIdSplit.get(1);
+
+                                    return ArtifactVersion.builder()
+                                            .id(artifactId)
+                                            .artifactVersion(artifactVersion)
+                                            .build();
+                                })
+                                .collect(Collectors.toList());
+
+                        return Map.entry(milestoneId.toString(), artifactVersionsList);
+                    })
+                            .collect(
+                                    Collectors.toMap(
+                                            entry -> entry.getKey(),
+                                            entry -> entry.getValue(),
+                                            (existing, replacement) -> ListUtils.union(existing, replacement)));
+
+                    return DeliveredArtifactInMilestones.builder()
+                            .artifactIdentifierPrefix(prefix)
+                            .productMilestoneArtifacts(mMap)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return new Page<>(
+                pageIndex,
+                pageSize,
+                milestoneRepository.countDeliveredArtifactPrefixesInMilestones(milestoneIntIds),
+                artifactsDeliveredInMilestones);
     }
 
     private int getMatchingArtifactMilestonesCount(
