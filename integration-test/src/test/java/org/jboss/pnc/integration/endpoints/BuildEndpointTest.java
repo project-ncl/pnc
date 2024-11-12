@@ -184,6 +184,25 @@ public class BuildEndpointTest {
     }
 
     @Test
+    public void shouldSupportPageSizeZero() throws Exception {
+        final io.restassured.response.Response response = given().redirects()
+                .follow(false)
+                .port(8080)
+                .when()
+                .get(String.format(BASE_REST_PATH + "/builds/?pageIndex=%d&pageSize=%d", 0, 0));
+
+        int pageSize = response.getBody().jsonPath().getInt("pageSize");
+        int totalPages = response.getBody().jsonPath().getInt("totalPages");
+        int totalHits = response.getBody().jsonPath().getInt("totalHits");
+        List<Build> builds = response.getBody().jsonPath().getList("content", Build.class);
+
+        assertThat(pageSize).isEqualTo(0);
+        assertThat(totalPages).isEqualTo(0);
+        assertThat(totalHits).isEqualTo(9);
+        assertThat(builds).hasSize(0);
+    }
+
+    @Test
     public void shouldBeAbleToReachAllBuildsWhenPaging() throws Exception {
         BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
 
