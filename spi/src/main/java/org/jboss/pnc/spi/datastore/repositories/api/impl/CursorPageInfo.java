@@ -27,7 +27,7 @@ public class CursorPageInfo implements PageInfo {
 
     public CursorPageInfo(int elementOffset, int pageSize) {
         Preconditions.checkArgument(elementOffset >= 0, "Element offset must be >= 0");
-        Preconditions.checkArgument(pageSize > 0, "Page size must be > 0");
+        Preconditions.checkArgument(pageSize >= 0, "Page size must be >= 0");
         this.pageSize = pageSize;
         this.elementOffset = elementOffset;
     }
