@@ -31,6 +31,8 @@ import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.response.ArtifactVersion;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -94,6 +96,9 @@ public class ProductMilestoneEndpointTest {
     private static ProductMilestone milestone;
     private static String milestoneId;
     private static ProductMilestone milestone2;
+
+    private static ProductMilestone milestone3;
+
     private static BPMWireMock bpm;
 
     @Deployment
@@ -111,6 +116,7 @@ public class ProductMilestoneEndpointTest {
         milestone = it.next();
         milestoneId = milestone.getId();
         milestone2 = it.next();
+        milestone3 = it.next();
         var bpmPort = 8288;
         bpm = new BPMWireMock(bpmPort);
         log.info("Mocked BPM started at port: " + bpmPort);
@@ -341,7 +347,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(7);
+        assertThat(all).hasSize(9);
         RemoteCollection<Artifact> built = client.getDeliveredArtifacts(
                 milestoneId,
                 Optional.empty(),
@@ -358,7 +364,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
-        assertThat(all).hasSize(5);
+        assertThat(all).hasSize(6);
 
         RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
                 milestoneId,
@@ -378,18 +384,18 @@ public class ProductMilestoneEndpointTest {
                 .thisMilestone(2L) // builtArtifact1, builtArtifact9
                 .otherMilestones(1L) // builtArtifact10
                 .otherProducts(2L) // builtArtifact11, builtArtifact12
-                .noMilestone(1L) // builtArtifact5
+                .noMilestone(3L) // builtArtifact5, builtArtifact16a, builtArtifact16b
                 .noBuild(1L) // importedArtifact2
                 .build();
 
         EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
-        expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 8L);
         expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
 
         EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
                 .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
-        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 9L);
 
         ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(3L) // builtArtifact1, builtArtifact2, builtArtifact9
@@ -416,6 +422,55 @@ public class ProductMilestoneEndpointTest {
         assertThat(actualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
         assertThat(actualStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
         assertThat(actualStats).isEqualTo(expectedStats);
+    }
+
+    @Test
+    public void testCompareArtifactsDeliveredInMilestonesWithTwoMilestonesAndCommonPrefix() throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        ArtifactVersion artifactVersion1 = ArtifactVersion.builder()
+                .id("117")
+                .artifactVersion("1.0.redhat-a")
+                .type("jar")
+                .build();
+        ArtifactVersion artifactVersion2 = ArtifactVersion.builder()
+                .id("118")
+                .artifactVersion("1.0.redhat-b")
+                .type("jar")
+                .build();
+
+        DeliveredArtifactInMilestones expectedDeliveredArtifactsInMilestones = DeliveredArtifactInMilestones.builder()
+                .artifactIdentifierPrefix("demo:built-artifact16")
+                .productMilestoneArtifacts(
+                        Map.of("100", List.of(artifactVersion1, artifactVersion2), "101", List.of(artifactVersion2)))
+                .build();
+
+        // act
+        List<DeliveredArtifactInMilestones> actualDeliveredArtifactsInMilestonesList = client
+                .compareArtifactVersionsDeliveredInMilestones(List.of(milestone.getId(), milestone2.getId()));
+
+        // assert
+        assertThat(actualDeliveredArtifactsInMilestonesList).hasSize(1);
+        var actualDeliveredArtifactsInMilestones = actualDeliveredArtifactsInMilestonesList.iterator().next();
+
+        assertThat(actualDeliveredArtifactsInMilestones.getArtifactIdentifierPrefix())
+                .isEqualTo(expectedDeliveredArtifactsInMilestones.getArtifactIdentifierPrefix());
+        assertThat(actualDeliveredArtifactsInMilestones.getProductMilestoneArtifacts())
+                .isEqualTo(expectedDeliveredArtifactsInMilestones.getProductMilestoneArtifacts());
+    }
+
+    @Test
+    public void testCompareArtifactsDeliveredInMilestonesWithTwoMilestonesAndNoCommonPrefix() throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        // act
+        List<DeliveredArtifactInMilestones> actualDeliveredArtifactsInMilestonesList = client
+                .compareArtifactVersionsDeliveredInMilestones(List.of(milestone2.getId(), milestone3.getId()));
+
+        // assert
+        assertThat(actualDeliveredArtifactsInMilestonesList).hasSize(0);
     }
 
     @Test
