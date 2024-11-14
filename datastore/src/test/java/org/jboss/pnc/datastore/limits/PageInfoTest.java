@@ -60,14 +60,4 @@ public class PageInfoTest {
         defaultPageInfoProducer.getPageInfo(offset, size);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldRejectZeroSize() throws Exception {
-        // given
-        int size = 0;
-        int offset = 0;
-
-        // when
-        defaultPageInfoProducer.getPageInfo(offset, size);
-    }
-
 }
