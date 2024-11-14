@@ -114,7 +114,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
-        assertThat(all).hasSize(17); // from DatabaseDataInitializer
+        assertThat(all).hasSize(21); // from DatabaseDataInitializer
     }
 
     @Test
