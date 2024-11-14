@@ -1177,11 +1177,65 @@ public class DatabaseDataInitializer {
                 .deployPath("/built15")
                 .build();
 
+        Artifact builtArtifact16a = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord7)
+                .identifier("demo:built-artifact16:jar:1.0.redhat-a")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 16a")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(16L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/demo/built-artifact16/1.0.redhat-a/built-artifact16-1.0.redhat-a.jar")
+                .build();
+
+        Artifact builtArtifact16b = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord7)
+                .identifier("demo:built-artifact16:jar:1.0.redhat-b")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 16b")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(16L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/demo/built-artifact16/1.0.redhat-b/built-artifact16-1.0.redhat-b.jar")
+                .build();
+        Artifact builtArtifact17 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord7)
+                .identifier("demo:built-artifact17:jar:1.0.redhat")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 17")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(17L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/demo/built-artifact17/1.0.redhat/built-artifact17-1.0.redhat.jar")
+                .build();
+        Artifact builtArtifact18 = Artifact.Builder.newBuilder()
+                .buildRecord(buildRecord7)
+                .identifier("demo:built-artifact18:jar:1.0.redhat")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 18")
+                .md5("md5-fake-123abc")
+                .sha1("sha1-fake-123abc")
+                .sha256("sha256-fake-123abc")
+                .size(18L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/demo/built-artifact18/1.0.redhat/built-artifact18-1.0.redhat.jar")
+                .build();
+
         builtArtifact11 = artifactRepository.save(builtArtifact11);
         builtArtifact12 = artifactRepository.save(builtArtifact12);
         builtArtifact13 = artifactRepository.save(builtArtifact13);
         builtArtifact14 = artifactRepository.save(builtArtifact14);
         builtArtifact15 = artifactRepository.save(builtArtifact15);
+        builtArtifact16a = artifactRepository.save(builtArtifact16a);
+        builtArtifact16b = artifactRepository.save(builtArtifact16b);
+        builtArtifact17 = artifactRepository.save(builtArtifact17);
+        builtArtifact18 = artifactRepository.save(builtArtifact18);
 
         demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
         demoProductMilestone3 = productMilestoneRepository.queryById(demoProductMilestone3.getId());
@@ -1265,6 +1319,36 @@ public class DatabaseDataInitializer {
                 .build();
         operation4 = deliverableAnalyzerOperationRepository.save(operation4);
 
+        DeliverableAnalyzerOperation operation5 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000005l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone1)
+                .build();
+        operation5 = deliverableAnalyzerOperationRepository.save(operation5);
+
+        DeliverableAnalyzerOperation operation6 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000006l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone2)
+                .build();
+        operation6 = deliverableAnalyzerOperationRepository.save(operation6);
+
+        DeliverableAnalyzerOperation operation7 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000007l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone3)
+                .build();
+        operation7 = deliverableAnalyzerOperationRepository.save(operation7);
+
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
@@ -1282,6 +1366,24 @@ public class DatabaseDataInitializer {
                 .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
                 .build();
         report3 = deliverableAnalyzerReportRepository.save(report3);
+
+        DeliverableAnalyzerReport report4 = DeliverableAnalyzerReport.builder()
+                .operation(operation5)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report4 = deliverableAnalyzerReportRepository.save(report4);
+
+        DeliverableAnalyzerReport report5 = DeliverableAnalyzerReport.builder()
+                .operation(operation6)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report5 = deliverableAnalyzerReportRepository.save(report5);
+
+        DeliverableAnalyzerReport report6 = DeliverableAnalyzerReport.builder()
+                .operation(operation7)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report6 = deliverableAnalyzerReportRepository.save(report6);
 
         DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
@@ -1354,6 +1456,38 @@ public class DatabaseDataInitializer {
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
+        DeliverableArtifact analyzedArtifact11a = DeliverableArtifact.builder()
+                .report(report4)
+                .artifact(builtArtifact16a)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact11b = DeliverableArtifact.builder()
+                .report(report4)
+                .artifact(builtArtifact16b)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        DeliverableArtifact analyzedArtifact12 = DeliverableArtifact.builder()
+                .report(report5)
+                .artifact(builtArtifact16b)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        DeliverableArtifact analyzedArtifact13 = DeliverableArtifact.builder()
+                .report(report5)
+                .artifact(builtArtifact17)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        DeliverableArtifact analyzedArtifact14 = DeliverableArtifact.builder()
+                .report(report6)
+                .artifact(builtArtifact18)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
 
         deliverableArtifactRepository.save(analyzedArtifact1);
         deliverableArtifactRepository.save(analyzedArtifact2);
@@ -1365,6 +1499,11 @@ public class DatabaseDataInitializer {
         deliverableArtifactRepository.save(analyzedArtifact8);
         deliverableArtifactRepository.save(analyzedArtifact9);
         deliverableArtifactRepository.save(analyzedArtifact10);
+        deliverableArtifactRepository.save(analyzedArtifact11a);
+        deliverableArtifactRepository.save(analyzedArtifact11b);
+        deliverableArtifactRepository.save(analyzedArtifact12);
+        deliverableArtifactRepository.save(analyzedArtifact13);
+        deliverableArtifactRepository.save(analyzedArtifact14);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {
