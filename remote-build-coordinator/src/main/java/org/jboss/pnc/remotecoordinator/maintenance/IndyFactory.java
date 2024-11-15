@@ -46,7 +46,6 @@ public class IndyFactory {
 
     private Integer defaultRequestTimeout;
     private String baseUrl;
-    private Indy indy;
 
     @Deprecated // CDI workaround
     public IndyFactory() {
@@ -65,17 +64,9 @@ public class IndyFactory {
 
     @PreDestroy
     void clean() {
-        if (indy != null) {
-            indy.close();
-        }
     }
 
-    @Produces
     public Indy get(IndyClientAuthenticator authenticator) {
-        if (indy != null) {
-            return indy;
-        }
-
         try {
             IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
                     new IndyPromoteClientModule(), new IndyPromoteAdminClientModule() };
@@ -86,14 +77,13 @@ public class IndyFactory {
                     .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                     .build();
 
-            this.indy = new Indy(
+            return new Indy(
                     siteConfig,
                     authenticator,
                     new IndyObjectMapper(true),
                     MDCUtils.HEADER_KEY_MAPPING,
                     modules);
 
-            return this.indy;
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }

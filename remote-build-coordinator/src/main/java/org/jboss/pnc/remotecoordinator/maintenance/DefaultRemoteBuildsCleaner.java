@@ -70,19 +70,23 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private final String tempBuildPromotionGroup;
 
-    private final Indy indy;
+    private final IndyFactory indyFactory;
+
+    private final RefreshingIndyAuthenticator refreshingIndyAuthenticator;
 
     @Inject
     public DefaultRemoteBuildsCleaner(
             Configuration configuration,
-            Indy indy,
+            IndyFactory indyFactory,
             KeycloakServiceClient serviceClient,
             CausewayClient causewayClient,
-            BuildRecordPushResultRepository buildRecordPushResultRepository) {
-        this.indy = indy;
+            BuildRecordPushResultRepository buildRecordPushResultRepository,
+            RefreshingIndyAuthenticator refreshingIndyAuthenticator) {
+        this.indyFactory = indyFactory;
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+        this.refreshingIndyAuthenticator = refreshingIndyAuthenticator;
 
         IndyRepoDriverModuleConfig config;
         try {
@@ -141,7 +145,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                     "BuildContentId is null. Nothing to be deleted from Indy.");
         }
 
-        try {
+        try (Indy indy = indyFactory.get(refreshingIndyAuthenticator)) {
             IndyStoresClientModule indyStores = indy.stores();
             if (pkgKey != null) {
                 // delete artifacts from consolidated repository
