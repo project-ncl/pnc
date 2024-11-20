@@ -30,7 +30,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>3.1.2-SNAPSHOT</version>
+  <version>3.1.2</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -50,7 +50,7 @@
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
     <url>https://github.com/project-ncl/pnc/</url>
-    <tag>HEAD</tag>
+    <tag>3.1.2.RC1</tag>
   </scm>
 
   <developers>
