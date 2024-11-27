@@ -90,6 +90,7 @@
       <property name="hibernate.cache.infinispan.cfg"
                 value="org/infinispan/hibernate/cache/commons/builder/infinispan-configs-local.xml"/>
 
+      <property name="hibernate.metadata_builder_contributor" value="org.jboss.pnc.model.utils.CustomSqlFunctionImplementor"/>
     </properties>
 
   </persistence-unit>

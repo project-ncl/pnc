@@ -129,6 +129,7 @@
           <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.expiration.lifespan" />
           <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.attributes.expiration.lifespan" />
 
+          <property name="hibernate.metadata_builder_contributor" value="org.jboss.pnc.model.utils.CustomSqlFunctionImplementor"/>
       </properties>
    </persistence-unit>
 </persistence>
