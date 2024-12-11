@@ -18,7 +18,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -100,6 +101,10 @@
       <artifactId>atlas-identities</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.commonjava.atlas</groupId>
+      <artifactId>atlas-npm-identities</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
@@ -121,85 +126,85 @@
     </testResources>
     <plugins>
       <plugin>
-          <groupId>pl.project13.maven</groupId>
-          <artifactId>git-commit-id-plugin</artifactId>
-          <executions>
-              <execution>
-                  <goals>
-                      <goal>revision</goal>
-                  </goals>
-              </execution>
-          </executions>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
 
-          <configuration>
-              <!--
-                If you'd like to tell the plugin where your .git directory is,
-                use this setting, otherwise we'll perform a search trying to
-                figure out the right directory. It's better to add it explicite IMHO.
-              -->
-              <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+        <configuration>
+          <!--
+            If you'd like to tell the plugin where your .git directory is,
+            use this setting, otherwise we'll perform a search trying to
+            figure out the right directory. It's better to add it explicite IMHO.
+          -->
+          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 
-              <!-- false is default here, it prints some more information during the build -->
-              <verbose>true</verbose>
+          <!-- false is default here, it prints some more information during the build -->
+          <verbose>true</verbose>
 
-          </configuration>
+        </configuration>
       </plugin>
       <plugin>
-          <groupId>com.google.code.maven-replacer-plugin</groupId>
-          <artifactId>maven-replacer-plugin</artifactId>
-          <executions>
-              <execution>
-                  <phase>process-sources</phase>
-                  <goals>
-                      <goal>replace</goal>
-                  </goals>
-              </execution>
-          </executions>
-          <configuration>
-              <file>src/main/templates/org/jboss/pnc/common/BuildInformationConstants.java</file>
-              <outputFile>src/main/java/org/jboss/pnc/common/BuildInformationConstants.java</outputFile>
-              <replacements>
-                  <replacement>
-                      <token>@version@</token>
-                      <value>${project.version}</value>
-                  </replacement>
-                  <replacement>
-                      <token>@commit-id@</token>
-                      <value>${git.commit.id.abbrev}</value>
-                  </replacement>
-                  <replacement>
-                      <token>@build-time@</token>
-                      <value>${maven.build.timestamp}</value>
-                  </replacement>
-              </replacements>
-          </configuration>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <file>src/main/templates/org/jboss/pnc/common/BuildInformationConstants.java</file>
+          <outputFile>src/main/java/org/jboss/pnc/common/BuildInformationConstants.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@version@</token>
+              <value>${project.version}</value>
+            </replacement>
+            <replacement>
+              <token>@commit-id@</token>
+              <value>${git.commit.id.abbrev}</value>
+            </replacement>
+            <replacement>
+              <token>@build-time@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
+        </configuration>
       </plugin>
       <plugin>
-          <groupId>org.eclipse.transformer</groupId>
-          <artifactId>transformer-maven-plugin</artifactId>
-          <version>0.5.0</version>
-          <extensions>true</extensions>
-          <configuration>
-              <rules>
-                  <jakartaDefaults>true</jakartaDefaults>
-              </rules>
-          </configuration>
-          <executions>
-              <execution>
-                  <id>default-jar</id>
-                  <goals>
-                      <goal>jar</goal>
-                  </goals>
-                  <configuration>
-                      <artifact>
-                          <groupId>${project.groupId}</groupId>
-                          <artifactId>${project.artifactId}</artifactId>
-                          <version>${project.version}</version>
-                      </artifact>
-                      <classifier>jakarta</classifier>
-                  </configuration>
-              </execution>
-          </executions>
+        <groupId>org.eclipse.transformer</groupId>
+        <artifactId>transformer-maven-plugin</artifactId>
+        <version>0.5.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <rules>
+            <jakartaDefaults>true</jakartaDefaults>
+          </rules>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <artifact>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>${project.version}</version>
+              </artifact>
+              <classifier>jakarta</classifier>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
