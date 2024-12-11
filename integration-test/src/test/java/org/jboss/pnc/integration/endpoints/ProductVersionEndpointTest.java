@@ -442,7 +442,7 @@ public class ProductVersionEndpointTest {
                 .thisVersion(3L) // bA1, bA9, bA10
                 .otherVersions(1L) // bA13
                 .otherProducts(2L) // bA11, bA12
-                .noMilestone(1L) // bA5
+                .noMilestone(4L) // bA5
                 .noBuild(1L) // iA2
                 .build();
 
@@ -508,7 +508,7 @@ public class ProductVersionEndpointTest {
 
         EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
-        expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 8L);
         expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
 
         ProductMilestoneArtifactQualityStatistics expectedArtQualityStats = ProductMilestoneArtifactQualityStatistics
@@ -557,7 +557,7 @@ public class ProductVersionEndpointTest {
 
         EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
                 .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
-        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 9L);
 
         ProductMilestoneRepositoryTypeStatistics expectedRepoTypeStats = ProductMilestoneRepositoryTypeStatistics
                 .builder()
@@ -597,5 +597,4 @@ public class ProductVersionEndpointTest {
         // then
         assertThat(all).isEmpty();
     }
-
 }

@@ -17,20 +17,40 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import com.google.common.collect.Lists;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
+import org.jboss.pnc.model.DeliverableAnalyzerReport_;
+import org.jboss.pnc.model.DeliverableArtifact;
+import org.jboss.pnc.model.DeliverableArtifact_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 
 import javax.ejb.Stateless;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
 public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMilestone, Integer>
@@ -55,4 +75,80 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
 
         return entityManager.createQuery(query).getSingleResult();
     }
-}
+
+    @Override
+    public List<Tuple> getArtifactsDeliveredInMilestones(List<Integer> milestoneIds) {
+        if (milestoneIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class);
+
+        Root<DeliverableAnalyzerOperation> deliverableAnalyzerOperations = query
+                .from(DeliverableAnalyzerOperation.class);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> productMilestones = deliverableAnalyzerOperations
+                .join(DeliverableAnalyzerOperation_.productMilestone);
+        Join<DeliverableAnalyzerOperation, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableAnalyzerOperations
+                .join(DeliverableAnalyzerOperation_.report);
+        Join<DeliverableArtifact, Artifact> artifacts = deliverableAnalyzerReports
+                .join(DeliverableAnalyzerReport_.artifacts)
+                .join(DeliverableArtifact_.artifact);
+        Join<Artifact, TargetRepository> targetRepositories = artifacts.join(Artifact_.targetRepository);
+
+        List<Selection<?>> selects = Lists.newArrayList(
+                artifacts.get(Artifact_.id).as(String.class),
+                artifacts.get(Artifact_.identifier),
+                artifacts.get(Artifact_.deployPath),
+                targetRepositories.get(TargetRepository_.repositoryType));
+        List<Selection<Integer>> artifactPresentInMilestones = (milestoneIds.stream().map(milestoneId -> {
+            CriteriaBuilder.SimpleCase<Integer, Integer> simpleCase = cb
+                    .selectCase(productMilestones.get(ProductMilestone_.id));
+            simpleCase.when(milestoneId, 1);
+            simpleCase.otherwise(0);
+
+            return simpleCase;
+        }).collect(Collectors.toList()));
+        selects.addAll(artifactPresentInMilestones);
+
+        query.multiselect(selects);
+        query.where(
+                getMavenOrNpmArtifactsInMilestonesPredicate(
+                        cb,
+                        targetRepositories,
+                        productMilestones,
+                        deliverableAnalyzerReports,
+                        milestoneIds));
+        query.groupBy(
+                artifacts.get(Artifact_.id).as(String.class),
+                artifacts.get(Artifact_.identifier),
+                artifacts.get(Artifact_.deployPath),
+                targetRepositories.get(TargetRepository_.repositoryType),
+                productMilestones.get(ProductMilestone_.id));
+
+        TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList();
+    }
+
+    private Predicate getMavenOrNpmArtifactsInMilestonesPredicate(
+            CriteriaBuilder cb,
+            Path<TargetRepository> targetRepositories,
+            Path<ProductMilestone> productMilestones,
+            Path<DeliverableAnalyzerReport> deliverableAnalyzerReports,
+            List<Integer> milestoneIds) {
+        Predicate isMavenOrNpmArtifact = cb.or(
+                cb.equal(targetRepositories.get(TargetRepository_.repositoryType), RepositoryType.MAVEN),
+                cb.equal(targetRepositories.get(TargetRepository_.repositoryType), RepositoryType.NPM));
+
+        Expression reportLabels = deliverableAnalyzerReports.get(DeliverableAnalyzerReport_.labels);
+        // e.g.: ",DELETED,SCRATCH," NOT LIKE ",%SCRATCH%," == false
+        Predicate notFromScratchAnalysis = cb.notLike(
+                cb.concat(",", cb.concat(reportLabels, ",")),
+                "%," + DeliverableAnalyzerReportLabel.SCRATCH.name() + ",%");
+
+        return cb.and(
+                isMavenOrNpmArtifact,
+                productMilestones.get(ProductMilestone_.id).in(milestoneIds),
+                notFromScratchAnalysis);
+    }
+};

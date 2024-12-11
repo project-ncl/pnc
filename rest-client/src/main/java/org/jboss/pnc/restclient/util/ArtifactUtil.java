@@ -18,9 +18,8 @@
 package org.jboss.pnc.restclient.util;
 
 import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
-import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
-import org.commonjava.atlas.npm.ident.util.NpmPackagePathInfo;
+import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
@@ -34,11 +33,8 @@ public class ArtifactUtil {
                 throw new IllegalArgumentException("Artifact " + artifact + "is not a maven artifact");
             }
         }
-        ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(artifact.getDeployPath());
-        if (pathInfo == null) {
-            return null;
-        }
-        return new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+
+        return ArtifactCoordinatesUtils.parseMavenCoordinates(artifact.getDeployPath());
     }
 
     public static NpmPackageRef parseNPMCoordinates(ArtifactRef artifact) {
@@ -48,12 +44,8 @@ public class ArtifactUtil {
                 throw new IllegalArgumentException("Artifact " + artifact + "is not an NPM artifact");
             }
         }
-        NpmPackagePathInfo npmPathInfo = NpmPackagePathInfo.parse(artifact.getDeployPath());
-        if (npmPathInfo == null) {
-            return null;
-        }
-        NpmPackageRef packageRef = new NpmPackageRef(npmPathInfo.getName(), npmPathInfo.getVersion());
-        return packageRef;
+
+        return ArtifactCoordinatesUtils.parseNPMCoordinates(artifact.getDeployPath());
     }
 
 }
