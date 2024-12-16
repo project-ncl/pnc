@@ -719,7 +719,7 @@
       <dependency>
         <groupId>io.smallrye</groupId>
         <artifactId>smallrye-fault-tolerance-context-propagation</artifactId>
-        <version>5.5.0</version>
+        <version>6.7.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
