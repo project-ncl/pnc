@@ -347,7 +347,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(9);
+        assertThat(all).hasSize(10);
         RemoteCollection<Artifact> built = client.getDeliveredArtifacts(
                 milestoneId,
                 Optional.empty(),
@@ -364,7 +364,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
-        assertThat(all).hasSize(6);
+        assertThat(all).hasSize(7);
 
         RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
                 milestoneId,
@@ -385,6 +385,7 @@ public class ProductMilestoneEndpointTest {
                 .otherMilestones(1L) // builtArtifact10
                 .otherProducts(2L) // builtArtifact11, builtArtifact12
                 .noMilestone(3L) // builtArtifact5, builtArtifact16a, builtArtifact16b
+                                 // (NOT builtArtifact18, coming from SCRATCH analysis)
                 .noBuild(1L) // importedArtifact2
                 .build();
 

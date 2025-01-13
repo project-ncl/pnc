@@ -1349,6 +1349,16 @@ public class DatabaseDataInitializer {
                 .build();
         operation7 = deliverableAnalyzerOperationRepository.save(operation7);
 
+        DeliverableAnalyzerOperation operation8 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000008l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone1)
+                .build();
+        operation8 = deliverableAnalyzerOperationRepository.save(operation8);
+
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
@@ -1384,6 +1394,12 @@ public class DatabaseDataInitializer {
                 .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
                 .build();
         report6 = deliverableAnalyzerReportRepository.save(report6);
+
+        DeliverableAnalyzerReport report7 = DeliverableAnalyzerReport.builder()
+                .operation(operation8)
+                .labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH))
+                .build();
+        report7 = deliverableAnalyzerReportRepository.save(report7);
 
         DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
@@ -1489,6 +1505,13 @@ public class DatabaseDataInitializer {
                 .brewBuildId(null)
                 .build();
 
+        DeliverableArtifact analyzedArtifact15 = DeliverableArtifact.builder()
+                .report(report7)
+                .artifact(builtArtifact18)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
         deliverableArtifactRepository.save(analyzedArtifact1);
         deliverableArtifactRepository.save(analyzedArtifact2);
         deliverableArtifactRepository.save(analyzedArtifact3);
@@ -1504,6 +1527,7 @@ public class DatabaseDataInitializer {
         deliverableArtifactRepository.save(analyzedArtifact12);
         deliverableArtifactRepository.save(analyzedArtifact13);
         deliverableArtifactRepository.save(analyzedArtifact14);
+        deliverableArtifactRepository.save(analyzedArtifact15);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {
