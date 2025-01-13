@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableAnalyzerReport_;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.DeliverableArtifactPK;
@@ -53,6 +54,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.notProducedInBuild;
 
 @Stateless
@@ -69,8 +71,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
         Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
@@ -82,8 +85,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts built in this milestone
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                cb.equal(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId));
+                cb.equal(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -94,8 +99,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
         Join<ProductVersion, Product> deliverableArtifactsProduct = deliverableArtifactsMilestone
@@ -115,9 +121,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts from this product
                 // 3) only built delivered artifacts *not* built in this milestone
+                // 4) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.equal(builtDeliveredArtifactsProduct.get(Product_.id), deliverableArtifactsProduct.get(Product_.id)),
-                cb.notEqual(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId));
+                cb.notEqual(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -130,8 +138,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
         Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
                 .join(DeliverableArtifact_.artifact);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
         Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifactsMilestone
@@ -144,10 +153,12 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts *not* from this product
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.notEqual(
                         builtDeliveredArtifactsVersion.get(ProductVersion_.product),
-                        deliverableArtifactsProductVersion.get(ProductVersion_.product)));
+                        deliverableArtifactsProductVersion.get(ProductVersion_.product)),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -160,8 +171,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
         Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
                 .join(DeliverableArtifact_.artifact);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
         Join<Artifact, BuildRecord> deliveredArtifactsBuild = deliveredArtifacts.join(Artifact_.buildRecord);
@@ -170,8 +182,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts with no milestone
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)));
+                cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -184,8 +198,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
         Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
                 .join(DeliverableArtifact_.artifact);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
 
@@ -193,8 +208,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) we care about artifacts from the milestone given by id
                 // 2) only delivered artifacts which were *not* built
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                notProducedInBuild(cb, deliveredArtifacts));
+                notProducedInBuild(cb, deliveredArtifacts),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -207,15 +224,18 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
         Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
                 .join(DeliverableArtifact_.artifact);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
 
         query.multiselect(
                 deliveredArtifacts.get(Artifact_.artifactQuality),
                 cb.count(deliveredArtifacts.get(Artifact_.artifactQuality)));
-        query.where(cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId));
+        query.where(
+                cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(deliveredArtifacts.get(Artifact_.artifactQuality));
 
         List<Tuple> tuples = entityManager.createQuery(query).getResultList();
@@ -231,15 +251,18 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         Join<DeliverableArtifact, Artifact> deliveredArtifacts = deliverableArtifacts
                 .join(DeliverableArtifact_.artifact);
         Join<Artifact, TargetRepository> targetRepositories = deliveredArtifacts.join(Artifact_.targetRepository);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
 
         query.multiselect(
                 targetRepositories.get(TargetRepository_.repositoryType),
                 cb.count(targetRepositories.get(TargetRepository_.repositoryType)));
-        query.where(cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId));
+        query.where(
+                cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(targetRepositories.get(TargetRepository_.repositoryType));
 
         List<Tuple> tuples = entityManager.createQuery(query).getResultList();
@@ -262,8 +285,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -277,7 +301,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.select(
                 // Take distinct products, since one product can build more than one delivered artifact
                 cb.countDistinct(builtDeliveredArtifactProduct.get(Product_.id)));
-        query.where(cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId));
+        query.where(
+                cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -292,8 +318,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 .join(DeliverableArtifact_.artifact)
                 .join(Artifact_.buildRecord)
                 .join(BuildRecord_.productMilestone);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -301,7 +328,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.select(
                 // Take distinct milestones, since one milestone can build more than one delivered artifact
                 cb.countDistinct(builtDeliveredArtifactMilestone.get(ProductMilestone_.id)));
-        query.where(cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId));
+        query.where(
+                cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -312,8 +341,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -328,8 +358,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) only delivered artifacts from this version
                 // 2) delivered built artifacts, which were built in this version
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
-                cb.equal(builtDeliveredArtifactProductVersionId, productVersionId));
+                cb.equal(builtDeliveredArtifactProductVersionId, productVersionId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -340,8 +372,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -357,11 +390,13 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) only delivered artifacts from this version
                 // 2) delivered built artifacts, which are of the same product
                 // 3) delivered built artifacts, which are from other version
+                // 4) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 cb.equal(
                         deliveredArtifactsBuildProductVersion.get(ProductVersion_.product),
                         deliverableArtifactsProductVersion.get(ProductVersion_.product)),
-                cb.notEqual(deliveredArtifactsBuildProductVersion.get(ProductVersion_.id), productVersionId));
+                cb.notEqual(deliveredArtifactsBuildProductVersion.get(ProductVersion_.id), productVersionId),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -372,8 +407,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -388,10 +424,12 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) only artifacts from this version
                 // 2) delivered built artifacts, which were built by other products
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 cb.notEqual(
                         deliveredArtifactsBuildProductVersion.get(ProductVersion_.product),
-                        deliverableArtifactsProductVersion.get(ProductVersion_.product)));
+                        deliverableArtifactsProductVersion.get(ProductVersion_.product)),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -402,8 +440,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -415,8 +454,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) only artifacts from this version
                 // 2) delivered built artifacts, which were built in no milestone
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
-                cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)));
+                cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -427,8 +468,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<ProductMilestone, ProductVersion> deliverableArtifactsProductVersion = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone)
                 .join(ProductMilestone_.productVersion);
@@ -439,8 +481,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         query.where(
                 // 1) only artifacts from this version
                 // 2) delivered artifacts, which were not built
+                // 3) delivered artifacts *not* from scratch analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
-                notProducedInBuild(cb, deliveredArtifacts));
+                notProducedInBuild(cb, deliveredArtifacts),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -456,8 +500,10 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
         Path<ArtifactQuality> artifactQuality = deliverableArtifacts.join(DeliverableArtifact_.artifact)
@@ -467,7 +513,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 deliverableArtifactsMilestone.get(ProductMilestone_.id),
                 artifactQuality,
                 cb.count(artifactQuality));
-        query.where(deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds));
+        query.where(
+                deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(deliverableArtifactsMilestone.get(ProductMilestone_.id), artifactQuality);
 
         return entityManager.createQuery(query).getResultList();
@@ -484,8 +532,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
         Root<DeliverableArtifact> deliverableArtifacts = query.from(DeliverableArtifact.class);
-        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableArtifacts
-                .join(DeliverableArtifact_.report)
+        Join<DeliverableArtifact, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableArtifacts
+                .join(DeliverableArtifact_.report);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> deliverableArtifactsMilestone = deliverableAnalyzerReports
                 .join(DeliverableAnalyzerReport_.operation)
                 .join(DeliverableAnalyzerOperation_.productMilestone);
         Path<RepositoryType> repositoryType = deliverableArtifacts.join(DeliverableArtifact_.artifact)
@@ -496,7 +545,9 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 deliverableArtifactsMilestone.get(ProductMilestone_.id),
                 repositoryType,
                 cb.count(repositoryType));
-        query.where(deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds));
+        query.where(
+                deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds),
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(deliverableArtifactsMilestone.get(ProductMilestone_.id), repositoryType);
 
         return entityManager.createQuery(query).getResultList();
