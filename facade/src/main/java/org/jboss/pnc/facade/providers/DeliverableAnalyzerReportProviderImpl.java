@@ -26,6 +26,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerLabelSaver;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifier;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerLabelEntryMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
@@ -155,6 +156,9 @@ public class DeliverableAnalyzerReportProviderImpl extends
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
         Base32LongID reportId = parseId(id);
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
+        if (report == null) {
+            throw new EmptyEntityException("Deliverable analyzer report with id: " + id + " does not exist!");
+        }
 
         labelSaver.init(report, request.getReason());
         labelModifier.validateAndAddLabel(request.getLabel(), report.getLabels());
@@ -164,6 +168,9 @@ public class DeliverableAnalyzerReportProviderImpl extends
     public void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
         Base32LongID reportId = parseId(id);
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
+        if (report == null) {
+            throw new EmptyEntityException("Deliverable analyzer report with id: " + id + " does not exist!");
+        }
 
         labelSaver.init(report, request.getReason());
         labelModifier.validateAndRemoveLabel(request.getLabel(), report.getLabels());
