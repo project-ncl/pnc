@@ -53,6 +53,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.notProducedInBuild;
+
 @Stateless
 public class DeliverableArtifactRepositoryImpl extends AbstractRepository<DeliverableArtifact, DeliverableArtifactPK>
         implements DeliverableArtifactRepository {
@@ -192,7 +194,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) we care about artifacts from the milestone given by id
                 // 2) only delivered artifacts which were *not* built
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                cb.isNull(deliveredArtifacts.get(Artifact_.buildRecord)));
+                notProducedInBuild(cb, deliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -438,7 +440,7 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) only artifacts from this version
                 // 2) delivered artifacts, which were not built
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
-                cb.isNull(deliveredArtifacts.get(Artifact_.buildRecord)));
+                notProducedInBuild(cb, deliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
