@@ -34,7 +34,26 @@ public class DeliverableAnalyzerReportPredicates {
     public static Predicate notFromScratchAnalysis(
             CriteriaBuilder cb,
             Path<DeliverableAnalyzerReport> deliverableAnalyzerReports) {
+        return getNotFromReportLabelAnalysisPredicate(
+                cb,
+                deliverableAnalyzerReports,
+                DeliverableAnalyzerReportLabel.SCRATCH);
+    }
+
+    public static Predicate notFromDeletedAnalysis(
+            CriteriaBuilder cb,
+            Path<DeliverableAnalyzerReport> deliverableAnalyzerReports) {
+        return getNotFromReportLabelAnalysisPredicate(
+                cb,
+                deliverableAnalyzerReports,
+                DeliverableAnalyzerReportLabel.DELETED);
+    }
+
+    private static Predicate getNotFromReportLabelAnalysisPredicate(
+            CriteriaBuilder cb,
+            Path<DeliverableAnalyzerReport> deliverableAnalyzerReports,
+            DeliverableAnalyzerReportLabel reportLabel) {
         Expression reportLabels = deliverableAnalyzerReports.get(DeliverableAnalyzerReport_.labels).as(String.class);
-        return cb.notLike(reportLabels, "%" + DeliverableAnalyzerReportLabel.SCRATCH.name() + "%");
+        return cb.notLike(reportLabels, "%" + reportLabel.name() + "%");
     }
 }
