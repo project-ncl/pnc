@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
 
 @Stateless
 public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMilestone, Integer>
@@ -142,6 +143,7 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
         return cb.and(
                 isMavenOrNpmArtifact,
                 productMilestones.get(ProductMilestone_.id).in(milestoneIds),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
     }
 }

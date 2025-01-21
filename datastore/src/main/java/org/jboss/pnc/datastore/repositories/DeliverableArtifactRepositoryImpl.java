@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.notProducedInBuild;
 
 @Stateless
@@ -86,9 +87,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts built in this milestone
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.equal(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -122,10 +125,12 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 2) only built delivered artifacts from this product
                 // 3) only built delivered artifacts *not* built in this milestone
                 // 4) delivered artifacts *not* from scratch analysis
+                // 5) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.equal(builtDeliveredArtifactsProduct.get(Product_.id), deliverableArtifactsProduct.get(Product_.id)),
                 cb.notEqual(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -154,11 +159,13 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts *not* from this product
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.notEqual(
                         builtDeliveredArtifactsVersion.get(ProductVersion_.product),
                         deliverableArtifactsProductVersion.get(ProductVersion_.product)),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -183,9 +190,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) we care about delivered artifacts from the milestone given by id
                 // 2) only built delivered artifacts with no milestone
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -209,9 +218,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) we care about artifacts from the milestone given by id
                 // 2) only delivered artifacts which were *not* built
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 notProducedInBuild(cb, deliveredArtifacts),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -235,7 +246,8 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 cb.count(deliveredArtifacts.get(Artifact_.artifactQuality)));
         query.where(
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(deliveredArtifacts.get(Artifact_.artifactQuality));
 
         List<Tuple> tuples = entityManager.createQuery(query).getResultList();
@@ -262,7 +274,8 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 cb.count(targetRepositories.get(TargetRepository_.repositoryType)));
         query.where(
                 cb.equal(deliverableArtifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(targetRepositories.get(TargetRepository_.repositoryType));
 
         List<Tuple> tuples = entityManager.createQuery(query).getResultList();
@@ -303,7 +316,8 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 cb.countDistinct(builtDeliveredArtifactProduct.get(Product_.id)));
         query.where(
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -330,7 +344,8 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 cb.countDistinct(builtDeliveredArtifactMilestone.get(ProductMilestone_.id)));
         query.where(
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -359,9 +374,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) only delivered artifacts from this version
                 // 2) delivered built artifacts, which were built in this version
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 cb.equal(builtDeliveredArtifactProductVersionId, productVersionId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -391,12 +408,14 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 2) delivered built artifacts, which are of the same product
                 // 3) delivered built artifacts, which are from other version
                 // 4) delivered artifacts *not* from scratch analysis
+                // 5) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 cb.equal(
                         deliveredArtifactsBuildProductVersion.get(ProductVersion_.product),
                         deliverableArtifactsProductVersion.get(ProductVersion_.product)),
                 cb.notEqual(deliveredArtifactsBuildProductVersion.get(ProductVersion_.id), productVersionId),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -425,11 +444,13 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) only artifacts from this version
                 // 2) delivered built artifacts, which were built by other products
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 cb.notEqual(
                         deliveredArtifactsBuildProductVersion.get(ProductVersion_.product),
                         deliverableArtifactsProductVersion.get(ProductVersion_.product)),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -455,9 +476,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) only artifacts from this version
                 // 2) delivered built artifacts, which were built in no milestone
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.productMilestone)),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -482,9 +505,11 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 // 1) only artifacts from this version
                 // 2) delivered artifacts, which were not built
                 // 3) delivered artifacts *not* from scratch analysis
+                // 4) delivered artifacts *not* from deleted analysis
                 cb.equal(deliverableArtifactsProductVersion.get(ProductVersion_.id), productVersionId),
                 notProducedInBuild(cb, deliveredArtifacts),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -515,7 +540,8 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 cb.count(artifactQuality));
         query.where(
                 deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(deliverableArtifactsMilestone.get(ProductMilestone_.id), artifactQuality);
 
         return entityManager.createQuery(query).getResultList();
@@ -547,7 +573,8 @@ public class DeliverableArtifactRepositoryImpl extends AbstractRepository<Delive
                 cb.count(repositoryType));
         query.where(
                 deliverableArtifactsMilestone.get(ProductMilestone_.id).in(milestoneIds),
-                notFromScratchAnalysis(cb, deliverableAnalyzerReports));
+                notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
         query.groupBy(deliverableArtifactsMilestone.get(ProductMilestone_.id), repositoryType);
 
         return entityManager.createQuery(query).getResultList();
