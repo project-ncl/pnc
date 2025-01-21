@@ -35,7 +35,9 @@ import org.jboss.pnc.model.DeliverableArtifact_;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,6 +189,13 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withPurl(String purl) {
         return (root, query, cb) -> cb.equal(root.get(Artifact_.purl), purl);
+    }
+
+    public static javax.persistence.criteria.Predicate notProducedInBuild(
+            CriteriaBuilder cb,
+            Path<Artifact> artifacts) {
+        // build record being NULL is not enough because of Brew builds
+        return artifacts.get(Artifact_.artifactQuality).in(ArtifactQuality.IMPORTED, ArtifactQuality.DELETED);
     }
 
 }
