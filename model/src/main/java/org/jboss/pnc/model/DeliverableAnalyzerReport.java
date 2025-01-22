@@ -110,7 +110,6 @@ public class DeliverableAnalyzerReport implements GenericEntity<Base32LongID> {
 
     @Override
     public String toString() {
-        return "DeliverableAnalyzerReport{" + "id=" + id + ", operation=" + operation + ", labels=" + labels
-                + ", labelHistory=" + labelHistory + ", artifacts=" + artifacts + '}';
+        return "DeliverableAnalyzerReport{" + "id=" + id + ", operation=" + operation + ", labels=" + labels + '}';
     }
 }
