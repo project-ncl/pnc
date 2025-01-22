@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.model.utils.DeliverableAnalyzerReportLabelToStringConverter;
 
@@ -110,7 +111,6 @@ public class DeliverableAnalyzerReport implements GenericEntity<Base32LongID> {
 
     @Override
     public String toString() {
-        return "DeliverableAnalyzerReport{" + "id=" + id + ", operation=" + operation + ", labels=" + labels
-                + ", labelHistory=" + labelHistory + ", artifacts=" + artifacts + '}';
+        return "DeliverableAnalyzerReport{" + "id=" + id + ", operation=" + operation + ", labels=" + labels + '}';
     }
 }
