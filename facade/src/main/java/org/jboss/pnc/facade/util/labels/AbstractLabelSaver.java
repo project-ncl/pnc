@@ -47,6 +47,9 @@ public abstract class AbstractLabelSaver<LH_ID extends Serializable, LO_ID exten
     @Override
     @Transactional(Transactional.TxType.MANDATORY)
     public void init(LO labeledObject, String reason) {
+        System.err.println("labelEntryRepository: " + labelEntryRepository);
+        System.err.println("labeledObject: " + labeledObject);
+        System.err.println("labeledObject.getId(): " + labeledObject.getId());
         this.labeledObject = labeledObject;
         this.nextChangeOrder = labelEntryRepository.getLatestChangeOrderOfReport(labeledObject.getId());
         this.reason = reason;

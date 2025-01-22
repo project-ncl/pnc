@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
@@ -58,6 +59,7 @@ import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerLabelEnt
 
 @PermitAll
 @Stateless
+@Slf4j
 public class DeliverableAnalyzerReportProviderImpl extends
         AbstractProvider<Base32LongID, DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport>
         implements DeliverableAnalyzerReportProvider {
@@ -154,12 +156,16 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     @Override
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
+        log.warn("Adding label: " + id + ", " + request);
         Base32LongID reportId = parseId(id);
+        log.warn("reportId: " + reportId);
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
+        log.warn("report: " + report);
         if (report == null) {
             throw new EmptyEntityException("Deliverable analyzer report with id: " + id + " does not exist!");
         }
 
+        log.warn("Calling init: " + report +", " + request.getReason());
         labelSaver.init(report, request.getReason());
         labelModifier.validateAndAddLabel(request.getLabel(), report.getLabels());
     }
