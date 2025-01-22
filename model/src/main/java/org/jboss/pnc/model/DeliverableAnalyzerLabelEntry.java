@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 
@@ -46,6 +47,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Entity
+@ToString(exclude = { "report" })
 @Table(
         uniqueConstraints = @UniqueConstraint(
                 name = "uc_delanlabelentry_id_report",
