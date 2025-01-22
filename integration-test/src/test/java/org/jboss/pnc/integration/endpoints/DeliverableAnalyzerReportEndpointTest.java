@@ -53,6 +53,7 @@ import static org.junit.Assert.fail;
 public class DeliverableAnalyzerReportEndpointTest {
 
     private static String operationId;
+    private static String operationId2;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -65,6 +66,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         Iterator<DeliverableAnalyzerOperation> it = operationClient.getAllDeliverableAnalyzerOperation().iterator();
         it.next();
         operationId = it.next().getId();
+        operationId2 = it.next().getId();
     }
 
     @Test
@@ -168,6 +170,35 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(thirdLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.ADDED);
         assertThat(thirdLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.DELETED);
         assertThat(thirdLabelHistoryEntry.getReason())
+                .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
+    }
+
+    @Test
+    @InSequence(10)
+    public void testAddFirstLabelEntry() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.DELETED)
+                .reason("Oh jeez, this was clearly a mistake, marking as DELETED..")
+                .build();
+
+        // when
+        assertThat(client.getLabelHistory(operationId2).size()).isZero();
+        client.addLabel(operationId2, request);
+        DeliverableAnalyzerReport report = client.getSpecific(operationId2);
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId2);
+
+        // then
+        assertThat(report.getLabels()).containsExactly(DeliverableAnalyzerReportLabel.DELETED);
+
+        assertThat(labelHistory.size()).isEqualTo(1);
+
+        Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
+        var labelHistoryEntry = labelHistoryIterator.next();
+        assertThat(labelHistoryEntry.getChange()).isEqualTo(LabelOperation.ADDED);
+        assertThat(labelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.DELETED);
+        assertThat(labelHistoryEntry.getReason())
                 .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
     }
 
