@@ -788,7 +788,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
-                .artifactQuality(ArtifactQuality.NEW)
+                .artifactQuality(ArtifactQuality.IMPORTED)
                 .buildCategory(BuildCategory.STANDARD)
                 .deployPath("/imported2")
                 .build();
