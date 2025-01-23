@@ -508,8 +508,9 @@ public class ProductVersionEndpointTest {
 
         EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
-        expectedArtifactQualities.put(ArtifactQuality.NEW, 8L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 7L);
         expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
+        expectedArtifactQualities.put(ArtifactQuality.IMPORTED, 1L);
 
         ProductMilestoneArtifactQualityStatistics expectedArtQualityStats = ProductMilestoneArtifactQualityStatistics
                 .builder()
