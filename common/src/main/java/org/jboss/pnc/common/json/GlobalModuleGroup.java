@@ -46,6 +46,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalRexUrl;
     private String externalSbomerUrl;
     private String externalUiLoggerUrl;
+    private String externalDingroguUrl;
 
     private String externalEttUrl;
     private String brewContentUrl;
@@ -200,6 +201,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalUiLoggerUrl(String externalUiLoggerUrl) {
         this.externalUiLoggerUrl = externalUiLoggerUrl;
+    }
+
+    public String getExternalDingroguUrl() {
+        return externalDingroguUrl;
+    }
+
+    public void setExternalDingroguUrl(String externalDingroguUrl) {
+        this.externalDingroguUrl = externalDingroguUrl;
     }
 
     public String getExternalLogEventDurationUrl() {

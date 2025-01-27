@@ -18,7 +18,8 @@
             "externalKafkaStoreUrl": "http://1.2.3.8",
             "externalPncUrl": "http://1.2.3.9",
             "externalRepourUrl": "http://1.2.3.10",
-            "externalUiLoggerUrl": "http://1.2.3.11"
+            "externalUiLoggerUrl": "http://1.2.3.11",
+            "externalDingroguUrl": "http://1.2.3.12"
         }
     ]
 }
