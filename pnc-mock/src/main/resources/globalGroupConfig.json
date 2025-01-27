@@ -14,5 +14,6 @@
     "externalKafkaStoreUrl": "http://kafka-store.pnc.jboss.org/",
     "externalPncUrl": "http://orch.pnc.jboss.com/pnc-rest/v2",
     "externalRepourUrl": "http://repour.pnc.jboss.com",
-    "externalDingroguUrl": "http://dingrogu.pnc.jboss.com"
+    "externalDingroguUrl": "http://dingrogu.pnc.jboss.com",
+    "externalReqourUrl": "http://reqour.pnc.jboss.com"
 }

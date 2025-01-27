@@ -26,6 +26,9 @@ import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.BuildCategory;
+import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
@@ -35,6 +38,8 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.dingroguclient.DingroguBuildWorkDTO;
+import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.model.Base32LongID;
@@ -92,6 +97,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.text.MessageFormat.format;
@@ -101,6 +107,8 @@ import static java.text.MessageFormat.format;
  */
 @ApplicationScoped
 public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
+
+    private static final String DINGROGU_PARAMETER_KEY = "USE_DINGROGU";
 
     private static final Logger log = LoggerFactory.getLogger(RexFacade.class);
 
@@ -137,6 +145,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     private BuildTaskMappers mappers;
     private RexHttpClient rexClient;
     private RexQueueHttpClient rexQueueClient;
+    private DingroguClient dingroguClient;
 
     private KeycloakServiceClient keycloakServiceClient;
 
@@ -152,6 +161,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             BuildTaskMappers mappers,
             RexHttpClient rexClient,
             RexQueueHttpClient rexQueueClient,
+            DingroguClient dingroguClient,
             KeycloakServiceClient keycloakServiceClient) {
         this.systemConfig = systemConfig;
         this.globalConfig = globalConfig;
@@ -159,6 +169,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         this.mappers = mappers;
         this.rexClient = rexClient;
         this.rexQueueClient = rexQueueClient;
+        this.dingroguClient = dingroguClient;
         this.keycloakServiceClient = keycloakServiceClient;
     }
 
@@ -187,7 +198,13 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                                                 systemConfig.getTemporaryBuildsLifeSpan(),
                                                 temporaryBuild)
                                         .toString());) {
-                    vertices.put(buildTask.getId(), getCreateNewTaskRHPAMDTO(bpmUrl, buildTask, user));
+                    CreateTaskDTO create;
+                    if (useDingrogu(buildTask)) {
+                        create = getCreateNewTaskDingroguDTO(buildTask);
+                    } else {
+                        create = getCreateNewTaskRHPAMDTO(bpmUrl, buildTask, user);
+                    }
+                    vertices.put(buildTask.getId(), create);
                 }
             }
         }
@@ -414,6 +431,43 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         return createTaskDTO;
     }
 
+    private CreateTaskDTO getCreateNewTaskDingroguDTO(RemoteBuildTask buildTask) {
+
+        log.info("Using dingrogu for build: {}", buildTask.getId());
+        List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
+                .entrySet()
+                .stream()
+                .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        headers.addAll(
+                List.of(
+                        new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
+                        new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
+
+        String correlationId = UUID.randomUUID().toString();
+        Request remoteStart = dingroguClient.startProcessInstance(buildTask, headers, correlationId);
+        Request remoteCancel = dingroguClient.cancelProcessInstance(headers, correlationId);
+
+        BuildMeta buildMetadata = mappers.toBuildMeta(buildTask);
+        Request callback = Request.builder()
+                .method(Request.Method.POST)
+                .uri(URI.create(format("{0}/build-tasks/{1}/notify", globalConfig.getPncUrl(), buildTask.getId())))
+                .headers(headers)
+                .attachment(buildMetadata)
+                .build();
+
+        CreateTaskDTO createTaskDTO = new CreateTaskDTO(
+                buildTask.getId(),
+                BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
+                remoteStart,
+                remoteCancel,
+                callback,
+                Mode.ACTIVE,
+                null);
+        return createTaskDTO;
+    }
+
     @Deprecated // remove once fully migrated to external task scheduler
     private BuildTask toBuildTask(RemoteBuildTask buildTask, User user, Date startTime) {
         BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder().startTime(startTime).build();
@@ -445,5 +499,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot set build queue size", e);
         }
+    }
+
+    private boolean useDingrogu(RemoteBuildTask buildTask) {
+        Map<String, String> genericParams = buildTask.getBuildConfigurationAudited().getGenericParameters();
+        return genericParams.keySet().contains(DINGROGU_PARAMETER_KEY);
     }
 }

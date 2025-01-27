@@ -47,6 +47,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalSbomerUrl;
     private String externalUiLoggerUrl;
     private String externalDingroguUrl;
+    private String externalReqourUrl;
 
     private String externalEttUrl;
     private String brewContentUrl;
@@ -209,6 +210,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalDingroguUrl(String externalDingroguUrl) {
         this.externalDingroguUrl = externalDingroguUrl;
+    }
+
+    public String getExternalReqourUrl() {
+        return externalReqourUrl;
+    }
+
+    public void setExternalReqourUrl(String externalReqourUrl) {
+        this.externalReqourUrl = externalReqourUrl;
     }
 
     public String getExternalLogEventDurationUrl() {
