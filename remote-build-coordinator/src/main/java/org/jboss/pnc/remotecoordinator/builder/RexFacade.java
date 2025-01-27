@@ -187,7 +187,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                                                 systemConfig.getTemporaryBuildsLifeSpan(),
                                                 temporaryBuild)
                                         .toString());) {
-                    vertices.put(buildTask.getId(), getCreateNewTaskDTO(bpmUrl, buildTask, user));
+                    vertices.put(buildTask.getId(), getCreateNewTaskRHPAMDTO(bpmUrl, buildTask, user));
                 }
             }
         }
@@ -356,7 +356,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         return taskFilterParameters;
     }
 
-    private CreateTaskDTO getCreateNewTaskDTO(
+    private CreateTaskDTO getCreateNewTaskRHPAMDTO(
             BpmEndpointUrlFactory bpmUrlFactory,
             RemoteBuildTask buildTask,
             User user) {
