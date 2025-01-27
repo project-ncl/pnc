@@ -65,6 +65,7 @@
     <module>test-common</module>
     <module>common</module>
     <module>causeway-client</module>
+    <module>dingrogu-client</module>
     <module>moduleconfig</module>
     <module>auth</module>
     <module>datastore</module>
@@ -390,6 +391,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>causeway-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>dingrogu-client</artifactId>
         <version>${project.version}</version>
       </dependency>
 
