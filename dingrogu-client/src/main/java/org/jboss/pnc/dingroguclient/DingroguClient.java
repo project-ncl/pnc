@@ -69,7 +69,12 @@ public class DingroguClient {
                 .tempBuild(buildTask.getBuildOptions().isTemporaryBuild())
                 .alignmentPreference(buildTask.getBuildOptions().getAlignmentPreference())
                 .buildContentId(contentId)
-                .buildType(BuildType.valueOf(buildTask.getBuildConfigurationAudited().getBuildType().toString()))
+                .buildType(
+                        BuildType.valueOf(
+                                buildTask.getBuildConfigurationAudited()
+                                        .getBuildConfiguration()
+                                        .getBuildType()
+                                        .toString()))
                 .buildCategory(getBuildCategory(buildTask.getBuildConfigurationAudited().getGenericParameters()))
                 .defaultAlignmentParams(buildTask.getBuildConfigurationAudited().getDefaultAlignmentParams())
                 .brewPullActive(buildTask.getBuildConfigurationAudited().isBrewPullActive())
