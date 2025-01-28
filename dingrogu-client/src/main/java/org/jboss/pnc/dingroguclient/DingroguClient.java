@@ -41,7 +41,7 @@ public class DingroguClient {
         DingroguBuildWorkDTO dto = createDTO(buildTask, correlationId);
         return new Request(
                 Request.Method.POST,
-                URI.create(global.getExternalDingroguUrl() + "/workflow/build/start"),
+                URI.create(global.getExternalDingroguUrl() + "/workflow/build/rex-start"),
                 headers,
                 dto);
     }
@@ -71,10 +71,7 @@ public class DingroguClient {
                 .buildContentId(contentId)
                 .buildType(
                         BuildType.valueOf(
-                                buildTask.getBuildConfigurationAudited()
-                                        .getBuildConfiguration()
-                                        .getBuildType()
-                                        .toString()))
+                                buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildType().name()))
                 .buildCategory(getBuildCategory(buildTask.getBuildConfigurationAudited().getGenericParameters()))
                 .defaultAlignmentParams(buildTask.getBuildConfigurationAudited().getDefaultAlignmentParams())
                 .brewPullActive(buildTask.getBuildConfigurationAudited().isBrewPullActive())

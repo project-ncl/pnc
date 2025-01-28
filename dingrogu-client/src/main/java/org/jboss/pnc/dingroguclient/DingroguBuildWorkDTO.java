@@ -23,6 +23,7 @@ import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -50,4 +51,5 @@ public class DingroguBuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
+    BuildExecutionConfiguration buildExecutionConfiguration;
 }
