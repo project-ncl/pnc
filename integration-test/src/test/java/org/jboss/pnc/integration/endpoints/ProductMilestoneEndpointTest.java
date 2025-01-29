@@ -435,11 +435,13 @@ public class ProductMilestoneEndpointTest {
                 .id("117")
                 .artifactVersion("1.0.redhat-a")
                 .type("jar")
+                .classifier(null)
                 .build();
         ArtifactVersion artifactVersion2 = ArtifactVersion.builder()
                 .id("118")
                 .artifactVersion("1.0.redhat-b")
                 .type("jar")
+                .classifier(null)
                 .build();
 
         DeliveredArtifactInMilestones expectedDeliveredArtifactsInMilestones = DeliveredArtifactInMilestones.builder()
