@@ -25,7 +25,7 @@ import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.datastore.repositories.internal.SortInfoConverter;
-import org.jboss.pnc.dto.response.ArtifactVersion;
+import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -62,7 +62,6 @@ import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
@@ -82,8 +81,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -370,7 +367,7 @@ public class ProductMilestoneProviderImpl extends
     private List<DeliveredArtifactInMilestones> parseDeliveredArtifactsInMilestoneTuples(
             List<Tuple> tuples,
             List<Integer> milestoneId) {
-        Map<String, Map<String, List<ArtifactVersion>>> artifactsDeliveredInMilestonesMap = tuples.stream()
+        Map<String, Map<String, List<ParsedArtifact>>> artifactsDeliveredInMilestonesMap = tuples.stream()
                 .collect(
                         Collectors.groupingBy(
                                 this::parseArtifactNameFromTuple,
@@ -426,7 +423,7 @@ public class ProductMilestoneProviderImpl extends
         return "";
     }
 
-    private Stream<Map.Entry<String, List<ArtifactVersion>>> parseMilestonePresencesFromTuple(
+    private Stream<Map.Entry<String, List<ParsedArtifact>>> parseMilestonePresencesFromTuple(
             Tuple tuple,
             List<Integer> milestoneIds) {
         String id = tuple.get(0, Integer.class).toString();
@@ -437,7 +434,7 @@ public class ProductMilestoneProviderImpl extends
         String type = parseArtifactTypeFromDeployPath(deployPath, repositoryType);
         String classifier = parseArtifactClassifierFromDeployPath(deployPath, repositoryType);
 
-        ArtifactVersion artifactVersion = ArtifactVersion.builder()
+        ParsedArtifact parsedArtifact = ParsedArtifact.builder()
                 .id(id)
                 .artifactVersion(version)
                 .type(type)
@@ -447,7 +444,7 @@ public class ProductMilestoneProviderImpl extends
         return milestoneIds.stream().filter(milestoneId -> {
             Boolean milestonePresence = tuple.get(3 + milestoneIds.indexOf(milestoneId), Boolean.class);
             return milestonePresence.booleanValue();
-        }).map(milestoneId -> Map.entry(milestoneId.toString(), List.of(artifactVersion)));
+        }).map(milestoneId -> Map.entry(milestoneId.toString(), List.of(parsedArtifact)));
     }
 
     private String parseArtifactVersionFromDeployPath(String deployPath, RepositoryType repositoryType) {

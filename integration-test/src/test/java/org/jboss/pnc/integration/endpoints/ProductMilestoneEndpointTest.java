@@ -31,7 +31,7 @@ import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.response.ArtifactVersion;
+import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -431,13 +431,13 @@ public class ProductMilestoneEndpointTest {
         // arrange
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
-        ArtifactVersion artifactVersion1 = ArtifactVersion.builder()
+        ParsedArtifact parsedArtifact1 = ParsedArtifact.builder()
                 .id("117")
                 .artifactVersion("1.0.redhat-a")
                 .type("jar")
                 .classifier(null)
                 .build();
-        ArtifactVersion artifactVersion2 = ArtifactVersion.builder()
+        ParsedArtifact parsedArtifact2 = ParsedArtifact.builder()
                 .id("118")
                 .artifactVersion("1.0.redhat-b")
                 .type("jar")
@@ -447,7 +447,7 @@ public class ProductMilestoneEndpointTest {
         DeliveredArtifactInMilestones expectedDeliveredArtifactsInMilestones = DeliveredArtifactInMilestones.builder()
                 .artifactIdentifierPrefix("demo:built-artifact16")
                 .productMilestoneArtifacts(
-                        Map.of("100", List.of(artifactVersion1, artifactVersion2), "101", List.of(artifactVersion2)))
+                        Map.of("100", List.of(parsedArtifact1, parsedArtifact2), "101", List.of(parsedArtifact2)))
                 .build();
 
         // act
