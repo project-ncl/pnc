@@ -48,6 +48,11 @@ public class ArtifactVersion {
      */
     protected final String type;
 
+    /**
+     * Artifact identifier classifier part.
+     */
+    protected final String classifier;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

@@ -435,8 +435,14 @@ public class ProductMilestoneProviderImpl extends
 
         String version = parseArtifactVersionFromDeployPath(deployPath, repositoryType);
         String type = parseArtifactTypeFromDeployPath(deployPath, repositoryType);
+        String classifier = parseArtifactClassifierFromDeployPath(deployPath, repositoryType);
 
-        ArtifactVersion artifactVersion = ArtifactVersion.builder().id(id).artifactVersion(version).type(type).build();
+        ArtifactVersion artifactVersion = ArtifactVersion.builder()
+                .id(id)
+                .artifactVersion(version)
+                .type(type)
+                .classifier(classifier)
+                .build();
 
         return milestoneIds.stream().filter(milestoneId -> {
             Boolean milestonePresence = tuple.get(3 + milestoneIds.indexOf(milestoneId), Boolean.class);
@@ -487,6 +493,26 @@ public class ProductMilestoneProviderImpl extends
         }
 
         return "";
+    }
+
+    private String parseArtifactClassifierFromDeployPath(String deployPath, RepositoryType repositoryType) {
+        switch (repositoryType) {
+            case MAVEN: {
+                var mavenCoordinates = ArtifactCoordinatesUtils.parseMavenCoordinates(deployPath);
+
+                if (mavenCoordinates != null) {
+                    return mavenCoordinates.getClassifier();
+                }
+                break;
+            }
+            case NPM:
+                return null;
+            default:
+                throw new IllegalArgumentException("Unsupported repository type: " + repositoryType);
+
+        }
+
+        return null;
     }
 
     private int getMatchingArtifactMilestonesCount(
