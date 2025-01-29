@@ -49,7 +49,7 @@ public class DeliveredArtifactInMilestones {
      * Product Milestone ID mapped to list of Artifact versions delivered in the Milestone with the same identifier
      * prefix.
      */
-    private final Map<String, List<ArtifactVersion>> productMilestoneArtifacts;
+    private final Map<String, List<ParsedArtifact>> productMilestoneArtifacts;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

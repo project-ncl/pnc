@@ -23,15 +23,15 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 
 /**
- * Artifact identifier version part with ID of the Artifact.
+ * Artifact identifier parsed into its version, type, and optional classifier.
  *
  * @author Patrik Korytár &lt;pkorytar@redhat.com&gt;
  */
 @Data
 @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-@JsonDeserialize(builder = ArtifactVersion.Builder.class)
+@JsonDeserialize(builder = ParsedArtifact.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ArtifactVersion {
+public class ParsedArtifact {
 
     /**
      * ID of the artifact.
