@@ -43,6 +43,8 @@ import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.dingroguclient.DingroguClient;
+import org.jboss.pnc.dingroguclient.DingroguDeliverablesAnalysisDTO;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
@@ -157,6 +159,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private Event<DeliverableAnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
     @Inject
     private Connector connector;
+    @Inject
+    DingroguClient dingroguClient;
 
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(
@@ -733,26 +737,35 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             Base32LongID operationId) {
         Request callback = operationsManager.getOperationCallback(operationId);
         String id = operationId.getId();
-        try {
-            AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
-                    id,
-                    deliverablesUrls,
-                    runAsScratchAnalysis);
-            AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
 
-            connector.startProcess(
-                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
-                    analyzeTask,
-                    id,
-                    keycloakServiceClient.getAuthToken());
-
-            DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
-                    .started(id, milestoneId, deliverablesUrls);
-            analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
-        } catch (ProcessManagerException e) {
-            log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
-            throw new RuntimeException(e);
-        }
+        DingroguDeliverablesAnalysisDTO dto = DingroguDeliverablesAnalysisDTO.builder()
+                .operationId(id)
+                .urls(deliverablesUrls)
+                .callback(callback)
+                .scratch(runAsScratchAnalysis)
+                .build();
+        dingroguClient.submitDeliverablesAnalysis(dto);
+//        try {
+//
+//            AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
+//                    id,
+//                    deliverablesUrls,
+//                    runAsScratchAnalysis);
+//            AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
+//
+//            connector.startProcess(
+//                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
+//                    analyzeTask,
+//                    id,
+//                    keycloakServiceClient.getAuthToken());
+//
+//            DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
+//                    .started(id, milestoneId, deliverablesUrls);
+//            analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
+//        } catch (ProcessManagerException e) {
+//            log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
+//            throw new RuntimeException(e);
+//        }
     }
 
     public void observeEvent(@Observes OperationChangedEvent event) {
