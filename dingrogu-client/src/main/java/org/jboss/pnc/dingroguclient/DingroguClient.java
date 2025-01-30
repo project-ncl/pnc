@@ -37,7 +37,7 @@ public class DingroguClient {
     @Inject
     private GlobalModuleGroup global;
 
-    public Request startProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId) {
+    public Request startBuildProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId) {
         DingroguBuildWorkDTO dto = createDTO(buildTask, correlationId);
         return new Request(
                 Request.Method.POST,

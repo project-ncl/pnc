@@ -26,9 +26,6 @@ import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.api.enums.BuildCategory;
-import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
@@ -38,7 +35,6 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.dingroguclient.DingroguBuildWorkDTO;
 import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
@@ -446,7 +442,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                         new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
 
         String correlationId = UUID.randomUUID().toString();
-        Request remoteStart = dingroguClient.startProcessInstance(buildTask, headers, correlationId);
+        Request remoteStart = dingroguClient.startBuildProcessInstance(buildTask, headers, correlationId);
         Request remoteCancel = dingroguClient.cancelProcessInstance(headers, correlationId);
 
         BuildMeta buildMetadata = mappers.toBuildMeta(buildTask);
