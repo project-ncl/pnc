@@ -63,6 +63,14 @@ public class DingroguClient {
                 Optional.of(keycloakServiceClient.getAuthToken()));
     }
 
+    public void submitRepositoryCreation(DingroguRepositoryCreationDTO dto) {
+        String url = global.getExternalDingroguUrl() + "/workflow/repository-creation/start";
+        HttpUtils.performHttpRequest(
+                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
+                dto,
+                Optional.of(keycloakServiceClient.getAuthToken()));
+    }
+
     public Request cancelProcessInstance(List<Request.Header> headers, String correlationId) {
 
         return new Request(
