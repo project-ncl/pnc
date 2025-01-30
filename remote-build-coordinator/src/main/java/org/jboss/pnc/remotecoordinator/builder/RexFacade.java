@@ -446,7 +446,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                         new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
 
         String correlationId = UUID.randomUUID().toString();
-        Request remoteStart = dingroguClient.startProcessInstance(buildTask, headers, correlationId);
+        Request remoteStart = dingroguClient.startBuildProcessInstance(buildTask, headers, correlationId);
         Request remoteCancel = dingroguClient.cancelProcessInstance(headers, correlationId);
 
         BuildMeta buildMetadata = mappers.toBuildMeta(buildTask);

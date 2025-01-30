@@ -21,7 +21,9 @@ import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 
@@ -30,6 +32,7 @@ import javax.inject.Inject;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
 public class DingroguClient {
@@ -37,13 +40,27 @@ public class DingroguClient {
     @Inject
     private GlobalModuleGroup global;
 
-    public Request startProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId) {
+    @Inject
+    private KeycloakServiceClient keycloakServiceClient;
+
+    public Request startBuildProcessInstance(
+            RemoteBuildTask buildTask,
+            List<Request.Header> headers,
+            String correlationId) {
         DingroguBuildWorkDTO dto = createDTO(buildTask, correlationId);
         return new Request(
                 Request.Method.POST,
                 URI.create(global.getExternalDingroguUrl() + "/workflow/build/rex-start"),
                 headers,
                 dto);
+    }
+
+    public void submitDeliverablesAnalysis(DingroguDeliverablesAnalysisDTO dto) {
+        String url = global.getExternalDingroguUrl() + "/workflow/deliverables-analysis/start";
+        HttpUtils.performHttpRequest(
+                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
+                dto,
+                Optional.of(keycloakServiceClient.getAuthToken()));
     }
 
     public Request cancelProcessInstance(List<Request.Header> headers, String correlationId) {
