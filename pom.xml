@@ -145,7 +145,7 @@
     <version.arquillian-bom>1.6.0.Final</version.arquillian-bom>
     <version.arquillian-weld>1.0.0.Final</version.arquillian-weld>
     <version.arquillian-jacoco>1.1.0</version.arquillian-jacoco>
-    <version.arquillian-transactions>1.0.5</version.arquillian-transactions>
+    <version.arquillian-transactions>2.0.0</version.arquillian-transactions>
     <version.arquillian-wildfly>3.0.1.Final</version.arquillian-wildfly>
     <version.logback>1.2.3</version.logback>
     <version.git-commit-id-plugin>4.9.10</version.git-commit-id-plugin>
