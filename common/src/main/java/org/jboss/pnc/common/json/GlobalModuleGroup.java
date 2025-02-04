@@ -48,6 +48,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalUiLoggerUrl;
     private String externalDingroguUrl;
     private String externalReqourUrl;
+    private String externalKonfluxBuildDriverUrl;
 
     private String externalEttUrl;
     private String brewContentUrl;
@@ -218,6 +219,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalReqourUrl(String externalReqourUrl) {
         this.externalReqourUrl = externalReqourUrl;
+    }
+
+    public String getExternalKonfluxBuildDriverUrl() {
+        return externalKonfluxBuildDriverUrl;
+    }
+
+    public void setExternalKonfluxBuildDriverUrl(String externalKonfluxBuildDriverUrl) {
+        this.externalKonfluxBuildDriverUrl = externalKonfluxBuildDriverUrl;
     }
 
     public String getExternalLogEventDurationUrl() {
