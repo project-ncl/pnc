@@ -35,6 +35,7 @@ import java.util.Map;
 public class DingroguBuildWorkDTO {
     String reqourUrl;
     String repositoryDriverUrl;
+    String konfluxBuildDriverUrl;
 
     String scmRepoURL;
     String scmRevision;
@@ -51,5 +52,12 @@ public class DingroguBuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
-    BuildExecutionConfiguration buildExecutionConfiguration;
+
+    String buildScript;
+    String buildTool;
+    String recipeImage;
+    String podMemoryOverride;
+    String namespace;
+    String buildToolVersion;
+    String javaVersion;
 }

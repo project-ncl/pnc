@@ -80,12 +80,25 @@ public class DingroguClient {
                 null);
     }
 
+    /**
+     * TODO: hardcoded values: buildToolVersion, javaVersion, buildTool
+     * 
+     * @param buildTask
+     * @param correlationId
+     * @return
+     */
     public DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId) {
 
+        String podMemoryOverride = "";
+        Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
+        if (genericParameters.containsKey("BUILDER_POD_MEMORY")) {
+            podMemoryOverride = genericParameters.get("BUILDER_POD_MEMORY");
+        }
         String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
         return DingroguBuildWorkDTO.builder()
                 .reqourUrl(global.getExternalReqourUrl())
                 .repositoryDriverUrl(global.getExternalRepositoryDriverUrl())
+                .konfluxBuildDriverUrl(global.getExternalKonfluxBuildDriverUrl())
                 .scmRepoURL(buildTask.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildTask.getBuildConfigurationAudited().getScmRevision())
                 .preBuildSyncEnabled(
@@ -103,7 +116,20 @@ public class DingroguClient {
                 .genericParameters(buildTask.getBuildConfigurationAudited().getGenericParameters())
                 .buildConfigurationId(buildTask.getBuildConfigurationAudited().getId().toString())
                 .correlationId(correlationId)
+                .buildScript(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildScript())
+                // TODO: temporary
+                .javaVersion("17")
+                // TODO: temporary
+                .buildToolVersion("3.9.5")
+                // TODO: temporary
+                .buildTool("maven")
+                .podMemoryOverride(podMemoryOverride)
+                // TODO: temporary
+                .recipeImage(global.getTempKonfluxRecipeImage())
+                // TODO: temporary
+                .namespace(global.tempKonfluxNamespace)
                 .build();
+
     }
 
     private static BuildCategory getBuildCategory(Map<String, String> genericParameters) {
