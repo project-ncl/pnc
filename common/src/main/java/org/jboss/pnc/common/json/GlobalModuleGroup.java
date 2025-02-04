@@ -49,6 +49,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalDingroguUrl;
     private String externalReqourUrl;
     private String externalKonfluxBuildDriverUrl;
+    /**
+     * TODO: remove once we figure out where to put them
+     */
+    public String tempKonfluxRecipeImage;
+    /**
+     * TODO: remove once we figure out where to put them
+     */
+    public String tempKonfluxNamespace;
 
     private String externalEttUrl;
     private String brewContentUrl;
@@ -227,6 +235,22 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalKonfluxBuildDriverUrl(String externalKonfluxBuildDriverUrl) {
         this.externalKonfluxBuildDriverUrl = externalKonfluxBuildDriverUrl;
+    }
+
+    public String getTempKonfluxRecipeImage() {
+        return tempKonfluxRecipeImage;
+    }
+
+    public void setTempKonfluxRecipeImage(String tempKonfluxRecipeImage) {
+        this.tempKonfluxRecipeImage = tempKonfluxRecipeImage;
+    }
+
+    public String getTempKonfluxNamespace() {
+        return tempKonfluxRecipeImage;
+    }
+
+    public void setTempKonfluxNamespace(String tempKonfluxNamespace) {
+        this.tempKonfluxRecipeImage = tempKonfluxNamespace;
     }
 
     public String getExternalLogEventDurationUrl() {
