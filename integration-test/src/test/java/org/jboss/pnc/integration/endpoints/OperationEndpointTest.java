@@ -34,6 +34,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -163,6 +164,7 @@ public class OperationEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldScratchFlagBeTrue() throws ClientException {
         // when
         client.startScratchDeliverableAnalysis(

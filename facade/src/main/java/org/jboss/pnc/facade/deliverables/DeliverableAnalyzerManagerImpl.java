@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.deliverables;
 import com.github.packageurl.MalformedPackageURLException;
 import com.github.packageurl.PackageURL;
 import com.github.packageurl.PackageURLBuilder;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
@@ -36,8 +35,6 @@ import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.Connector;
-import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
-import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
 import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -50,7 +47,6 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -72,7 +68,6 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactLicenseInfoRe
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
-import org.jboss.pnc.spi.exception.ProcessManagerException;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
@@ -742,33 +737,35 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .operationId(id)
                 .urls(deliverablesUrls)
                 .callback(callback)
+                .deliverablesAnalyzerUrl(globalConfig.getExternalDeliverablesAnalyzerUrl())
+                .orchUrl(globalConfig.getPncUrl())
                 .scratch(runAsScratchAnalysis)
                 .build();
         dingroguClient.submitDeliverablesAnalysis(dto);
         DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                 .started(id, milestoneId, deliverablesUrls);
         analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
-//        try {
-//
-//            AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
-//                    id,
-//                    deliverablesUrls,
-//                    runAsScratchAnalysis);
-//            AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
-//
-//            connector.startProcess(
-//                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
-//                    analyzeTask,
-//                    id,
-//                    keycloakServiceClient.getAuthToken());
-//
-//            DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
-//                    .started(id, milestoneId, deliverablesUrls);
-//            analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
-//        } catch (ProcessManagerException e) {
-//            log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
-//            throw new RuntimeException(e);
-//        }
+        // try {
+        //
+        // AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
+        // id,
+        // deliverablesUrls,
+        // runAsScratchAnalysis);
+        // AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
+        //
+        // connector.startProcess(
+        // bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
+        // analyzeTask,
+        // id,
+        // keycloakServiceClient.getAuthToken());
+        //
+        // DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
+        // .started(id, milestoneId, deliverablesUrls);
+        // analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
+        // } catch (ProcessManagerException e) {
+        // log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
+        // throw new RuntimeException(e);
+        // }
     }
 
     public void observeEvent(@Observes OperationChangedEvent event) {
