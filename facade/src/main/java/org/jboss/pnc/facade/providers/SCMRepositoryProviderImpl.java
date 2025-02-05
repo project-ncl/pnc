@@ -34,6 +34,8 @@ import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.UrlUtils;
+import org.jboss.pnc.dingroguclient.DingroguClient;
+import org.jboss.pnc.dingroguclient.DingroguRepositoryCreationDTO;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
@@ -113,6 +115,9 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     Connector connector;
+
+    @Inject
+    DingroguClient dingroguClient;
 
     @Inject
     public SCMRepositoryProviderImpl(
@@ -393,16 +398,35 @@ public class SCMRepositoryProviderImpl
         task = new RepositoryCreationTask(repositoryCreationProcess.build(), jobType, globalConfig);
 
         long id = Sequence.nextId();
-        try {
-            Map<String, Serializable> parameters = new HashMap<>();
-            parameters.put("processParameters", task.getProcessParameters());
-            parameters.put("taskId", id);
-            connector.startProcess(bpmConfig.getNewBcCreationProcessId(), parameters, Objects.toString(id), authToken);
-        } catch (CoreException e) {
-            throw new RuntimeException("Could not get process parameters: " + task, e);
-        } catch (ProcessManagerException e) {
-            throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
+        if (globalConfig.isTempUseDingroguRepositoryCreation()) {
+            log.info("Using new dingrogu repository creation process");
+            DingroguRepositoryCreationDTO dto = DingroguRepositoryCreationDTO.builder()
+                    .repourUrl(globalConfig.getRepourUrl())
+                    .orchUrl(globalConfig.getPncUrl())
+                    .externalRepoUrl(externalURL)
+                    .preBuildSyncEnabled(preBuildSyncEnabled)
+                    .ref(revision)
+                    .jobNotificationType(org.jboss.pnc.api.enums.JobNotificationType.valueOf(jobType.toString()))
+                    .buildConfiguration(buildConfiguration.orElse(null))
+                    .build();
+            dingroguClient.submitRepositoryCreation(dto);
+        } else {
+            try {
+                Map<String, Serializable> parameters = new HashMap<>();
+                parameters.put("processParameters", task.getProcessParameters());
+                parameters.put("taskId", id);
+                connector.startProcess(
+                        bpmConfig.getNewBcCreationProcessId(),
+                        parameters,
+                        Objects.toString(id),
+                        authToken);
+            } catch (CoreException e) {
+                throw new RuntimeException("Could not get process parameters: " + task, e);
+            } catch (ProcessManagerException e) {
+                throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
+            }
         }
+
         return id;
     }
 

@@ -57,6 +57,10 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
      * TODO: remove once we figure out where to put them
      */
     public String tempKonfluxNamespace;
+    /**
+     * TODO: remove once we are comfortable with the new process
+     */
+    public boolean tempUseDingroguRepositoryCreation;
 
     private String externalEttUrl;
     private String brewContentUrl;
@@ -251,6 +255,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setTempKonfluxNamespace(String tempKonfluxNamespace) {
         this.tempKonfluxRecipeImage = tempKonfluxNamespace;
+    }
+
+    public boolean isTempUseDingroguRepositoryCreation() {
+        return tempUseDingroguRepositoryCreation;
+    }
+
+    public void setTempUseDingroguRepositoryCreation(boolean tempUseDingroguRepositoryCreation) {
+        this.tempUseDingroguRepositoryCreation = tempUseDingroguRepositoryCreation;
     }
 
     public String getExternalLogEventDurationUrl() {
