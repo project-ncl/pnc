@@ -80,7 +80,8 @@
         },
         {
           "@module-config": "scheduler-config",
-          "schedulerBaseUrl": "http://localhost:5679"
+          "schedulerBaseUrl": "http://localhost:5679",
+          "queueNameForBuilds": "builds"
         }
       ]
     }

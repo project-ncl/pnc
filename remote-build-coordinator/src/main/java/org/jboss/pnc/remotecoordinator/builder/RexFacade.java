@@ -26,13 +26,13 @@ import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingroguclient.DingroguClient;
@@ -142,8 +142,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     private RexHttpClient rexClient;
     private RexQueueHttpClient rexQueueClient;
     private DingroguClient dingroguClient;
-
-    private KeycloakServiceClient keycloakServiceClient;
+    private SchedulerConfig schedulerConfig;
 
     @Deprecated
     public RexFacade() { // CDI workaround
@@ -158,7 +157,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             RexHttpClient rexClient,
             RexQueueHttpClient rexQueueClient,
             DingroguClient dingroguClient,
-            KeycloakServiceClient keycloakServiceClient) {
+            SchedulerConfig schedulerConfig) {
         this.systemConfig = systemConfig;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
@@ -166,7 +165,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         this.rexClient = rexClient;
         this.rexQueueClient = rexQueueClient;
         this.dingroguClient = dingroguClient;
-        this.keycloakServiceClient = keycloakServiceClient;
+        this.schedulerConfig = schedulerConfig;
     }
 
     @WithSpan
@@ -235,6 +234,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 .correlationID(buildConfigSetRecordId == null ? null : buildConfigSetRecordId.getId())
                 .edges(edges)
                 .vertices(vertices)
+                .queue(schedulerConfig.getQueueNameForBuilds())
                 .build();
         try {
             rexClient.start(createGraphRequest);
@@ -330,7 +330,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             Set<BuildTaskRef> set = new HashSet<>();
             TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
 
-            for (TaskDTO task : rexClient.getAll(taskFilterParameters)) {
+            for (TaskDTO task : rexClient
+                    .getAll(taskFilterParameters, List.of(schedulerConfig.getQueueNameForBuilds()))) {
                 BuildTaskRef buildTaskRef = mappers.toBuildTaskRef(task, getBuildMetadata(task));
                 set.add(buildTaskRef);
             }
@@ -419,6 +420,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         CreateTaskDTO createTaskDTO = new CreateTaskDTO(
                 buildTask.getId(),
                 BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
+                schedulerConfig.getQueueNameForBuilds(),
                 remoteStart,
                 remoteCancel,
                 callback,
@@ -456,6 +458,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         CreateTaskDTO createTaskDTO = new CreateTaskDTO(
                 buildTask.getId(),
                 BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
+                schedulerConfig.getQueueNameForBuilds(),
                 remoteStart,
                 remoteCancel,
                 callback,
@@ -482,7 +485,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     @Override
     public long getBuildQueueSize() throws RemoteRequestException {
         try {
-            return rexQueueClient.getConcurrent().getNumber();
+            return rexQueueClient.getConcurrentNamed(schedulerConfig.getQueueNameForBuilds()).getNumber();
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot get build queue size", e);
         }
@@ -491,7 +494,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     @Override
     public void setBuildQueueSize(long queueSize) throws RemoteRequestException {
         try {
-            rexQueueClient.setConcurrent(queueSize);
+            rexQueueClient.setConcurrentNamed(schedulerConfig.getQueueNameForBuilds(), queueSize);
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot set build queue size", e);
         }
@@ -499,6 +502,6 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     private boolean useDingrogu(RemoteBuildTask buildTask) {
         Map<String, String> genericParams = buildTask.getBuildConfigurationAudited().getGenericParameters();
-        return genericParams.keySet().contains(DINGROGU_PARAMETER_KEY);
+        return genericParams.containsKey(DINGROGU_PARAMETER_KEY);
     }
 }

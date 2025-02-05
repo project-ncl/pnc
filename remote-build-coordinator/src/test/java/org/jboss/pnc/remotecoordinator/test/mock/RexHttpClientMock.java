@@ -31,6 +31,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @ApplicationScoped
@@ -43,7 +44,7 @@ public class RexHttpClientMock implements RexHttpClient {
     }
 
     @Override
-    public Set<TaskDTO> getAll(TaskFilterParameters filterParameters) {
+    public Set<TaskDTO> getAll(TaskFilterParameters filterParameters, List<String> queueFilter) {
         return Collections.emptySet();
     }
 

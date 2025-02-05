@@ -23,6 +23,7 @@ import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.enums.BuildStatus;
@@ -143,6 +144,9 @@ public abstract class AbstractDependentBuildTest {
         when(systemConfig.getTemporaryBuildsLifeSpan()).thenReturn(1);
         when(config.getModuleConfig(any())).thenReturn(systemConfig);
 
+        SchedulerConfig schedulerConfig = mock(SchedulerConfig.class);
+        when(schedulerConfig.getQueueNameForBuilds()).thenReturn("builds");
+
         taskRepository = new BuildTaskRepositoryMock();
 
         if (buildConfigurationRepository == null) {
@@ -184,7 +188,8 @@ public abstract class AbstractDependentBuildTest {
                 mock(BuildMapper.class),
                 buildTasksInitializer,
                 mock(BuildTaskMappers.class),
-                mock(GenericSettingRepository.class));
+                mock(GenericSettingRepository.class),
+                schedulerConfig);
 
         updateSetJob = new SetRecordTasks(taskRepository, buildRecordRepository, datastore, coordinator);
         buildScheduler.setTaskRepositoryMock(taskRepository);
