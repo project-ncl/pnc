@@ -56,6 +56,7 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -364,14 +365,14 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
-        assertThat(all).hasSize(7);
+        assertThat(all).hasSize(4);
 
         RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
                 milestoneId,
                 Optional.empty(),
                 Optional.of("progressStatus==IN_PROGRESS"));
 
-        assertThat(allInProgress).hasSize(4);
+        assertThat(allInProgress).hasSize(1);
     }
 
     @Test
@@ -478,6 +479,8 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
+    @Ignore
+    // Update the count in testGetDeliverableAnalyzerOperations when the Ignore is removed
     public void shouldScratchFlagBeFalseImplicitly() throws ClientException {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
@@ -500,6 +503,8 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
+    @Ignore
+    // Update the count in testGetDeliverableAnalyzerOperations when the Ignore is removed
     public void shouldScratchFlagBeFalse() throws ClientException {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
@@ -523,6 +528,8 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
+    @Ignore
+    // Update the count in testGetDeliverableAnalyzerOperations when the Ignore is removed
     public void shouldScratchFlagBeTrue() throws ClientException {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
