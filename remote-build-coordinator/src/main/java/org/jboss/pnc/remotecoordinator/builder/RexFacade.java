@@ -227,6 +227,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 .passOTELInRequestBody(true)
                 .passMDCInRequestBody(true)
                 .cancelTimeout(Duration.ofMillis(60000))
+                .delayDependantsForFinalNotification(true)
                 .build();
 
         CreateGraphRequest createGraphRequest = CreateGraphRequest.builder()
