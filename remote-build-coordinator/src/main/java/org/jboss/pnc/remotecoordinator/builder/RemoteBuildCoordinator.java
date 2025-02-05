@@ -21,6 +21,7 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.GraphUtils;
+import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.util.ProcessStageUtils;
@@ -129,6 +130,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
     private BuildConfigurationAuditedRepository bcaRepository;
     private BuildConfigSetRecordRepository groupBuildRepository;
+    private SchedulerConfig schedulerConfig;
 
     @Deprecated
     public RemoteBuildCoordinator() {
@@ -148,7 +150,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildMapper buildMapper,
             BuildTasksInitializer buildTasksInitializer,
             BuildTaskMappers taskMappers,
-            GenericSettingRepository genericSettingRepository) {
+            GenericSettingRepository genericSettingRepository,
+            SchedulerConfig schedulerConfig) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -162,6 +165,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         this.buildMapper = buildMapper;
         this.taskMappers = taskMappers;
         this.genericSettingRepository = genericSettingRepository;
+        this.schedulerConfig = schedulerConfig;
     }
 
     /**
@@ -803,9 +807,23 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
          * if (isInMaintenanceMode()) {
          * log.info("Orchestrator is in maintenance mode. Skipping adjustment of queue size."); return; }
          */
+        long buildQueueSize;
+        try {
+            buildQueueSize = buildScheduler.getBuildQueueSize();
+        } catch (RemoteRequestException e) {
+            log.info(
+                    "Initializing Rex queue for builds with name {} and size {}.",
+                    schedulerConfig.getQueueNameForBuilds(),
+                    queueSize);
+            buildScheduler.setBuildQueueSize(queueSize);
+            return;
+        }
 
-        if (buildScheduler.getBuildQueueSize() != queueSize) {
-            log.info("Changing build queue size to {}", queueSize);
+        if (buildQueueSize != queueSize) {
+            log.info(
+                    "Changing Rex build queue with name {} to size {}",
+                    schedulerConfig.getQueueNameForBuilds(),
+                    queueSize);
             buildScheduler.setBuildQueueSize(queueSize);
             log.info("Build queue size set to {}.", queueSize);
         }

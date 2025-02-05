@@ -31,17 +31,20 @@ public class SchedulerConfig extends AbstractModuleConfig {
     private final String readTimeout;
     private final String followRedirects;
     private final String maxScheduleRetries;
+    private final String queueNameForBuilds;
 
     public SchedulerConfig(
             @JsonProperty("schedulerBaseUrl") String schedulerBaseUrl,
             @JsonProperty("connectTimeout") String connectTimeout,
             @JsonProperty("readTimeout") String readTimeout,
             @JsonProperty("followRedirects") String followRedirects,
-            @JsonProperty("maxScheduleRetries") String maxScheduleRetries) {
+            @JsonProperty("maxScheduleRetries") String maxScheduleRetries,
+            @JsonProperty("queueNameForBuilds") String queueNameForBuilds) {
         this.schedulerBaseUrl = schedulerBaseUrl;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
         this.followRedirects = followRedirects;
         this.maxScheduleRetries = maxScheduleRetries;
+        this.queueNameForBuilds = queueNameForBuilds;
     }
 }
