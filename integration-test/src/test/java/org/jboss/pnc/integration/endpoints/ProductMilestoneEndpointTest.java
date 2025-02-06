@@ -40,6 +40,8 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
+import org.jboss.pnc.dto.response.Edge;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
@@ -71,6 +73,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
@@ -348,7 +351,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(10);
+        assertThat(all).hasSize(11);
         RemoteCollection<Artifact> built = client.getDeliveredArtifacts(
                 milestoneId,
                 Optional.empty(),
@@ -365,7 +368,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
-        assertThat(all).hasSize(4);
+        assertThat(all).hasSize(5);
 
         RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
                 milestoneId,
@@ -385,20 +388,19 @@ public class ProductMilestoneEndpointTest {
                 .thisMilestone(2L) // builtArtifact1, builtArtifact9
                 .otherMilestones(1L) // builtArtifact10
                 .otherProducts(2L) // builtArtifact11, builtArtifact12
-                .noMilestone(3L) // builtArtifact5, builtArtifact16a, builtArtifact16b
-                                 // (NOT builtArtifact18, coming from SCRATCH analysis)
+                .noMilestone(4L) // builtArtifact5, builtArtifact16a, builtArtifact16b, builtArtifact18
                 .noBuild(1L) // importedArtifact2
                 .build();
 
         EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
-        expectedArtifactQualities.put(ArtifactQuality.NEW, 7L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 8L);
         expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
         expectedArtifactQualities.put(ArtifactQuality.IMPORTED, 1L);
 
         EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
                 .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
-        expectedRepositoryTypes.put(RepositoryType.MAVEN, 9L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 10L);
 
         ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(3L) // builtArtifact1, builtArtifact2, builtArtifact9
@@ -463,6 +465,26 @@ public class ProductMilestoneEndpointTest {
                 .isEqualTo(expectedDeliveredArtifactsInMilestones.getArtifactIdentifierPrefix());
         assertThat(actualDeliveredArtifactsInMilestones.getProductMilestoneArtifacts())
                 .isEqualTo(expectedDeliveredArtifactsInMilestones.getProductMilestoneArtifacts());
+    }
+
+    @Test
+    public void testGetMilestonesSharingDeliveredArtifactsGraph() throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        Set<String> expectedVerticesKeys = Set.of("100", "101", "102", "104");
+        List<Edge> expectedEdges = List.of(
+                Edge.builder().source("101").target("100").cost(1).build(),
+                Edge.builder().source("104").target("102").cost(2).build(),
+                Edge.builder().source("102").target("100").cost(1).build());
+
+        // act
+        Graph<ProductMilestone> actualGraph = client
+                .getMilestonesSharingDeliveredArtifactsGraph(milestone.getId().toString(), null);
+
+        // assert
+        assertThat(actualGraph.getVertices().keySet()).isEqualTo(expectedVerticesKeys);
+        assertThat(actualGraph.getEdges()).isEqualTo(expectedEdges);
     }
 
     @Test
