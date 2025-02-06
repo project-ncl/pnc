@@ -439,10 +439,10 @@ public class ProductVersionEndpointTest {
         // from DatabaseDataInitializer: dPM = demoProductMilestone, bA = builtArtifact, iA = importedArtifact
         ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics
                 .builder()
-                .thisVersion(3L) // bA1, bA9, bA10
+                .thisVersion(4L) // bA1, bA2, bA9, bA10
                 .otherVersions(1L) // bA13
                 .otherProducts(2L) // bA11, bA12
-                .noMilestone(6L) // bA5, bA16a, bA16b, bA17, bA18
+                .noMilestone(7L) // bA5, bA16a, bA16b, bA17, bA18
                 .noBuild(1L) // iA2
                 .build();
 
@@ -508,7 +508,7 @@ public class ProductVersionEndpointTest {
 
         EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
-        expectedArtifactQualities.put(ArtifactQuality.NEW, 7L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 8L);
         expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
         expectedArtifactQualities.put(ArtifactQuality.IMPORTED, 1L);
 
@@ -558,7 +558,7 @@ public class ProductVersionEndpointTest {
 
         EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
                 .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
-        expectedRepositoryTypes.put(RepositoryType.MAVEN, 9L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 10L);
 
         ProductMilestoneRepositoryTypeStatistics expectedRepoTypeStats = ProductMilestoneRepositoryTypeStatistics
                 .builder()
