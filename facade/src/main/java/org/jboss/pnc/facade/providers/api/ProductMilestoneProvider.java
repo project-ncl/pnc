@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
@@ -56,4 +57,6 @@ public interface ProductMilestoneProvider
     ProductMilestoneStatistics getStatistics(String id);
 
     List<DeliveredArtifactInMilestones> getArtifactsDeliveredInMilestonesGroupedByPrefix(List<String> milestoneIds);
+
+    Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(String milestoneId, Integer depthLimit);
 }
