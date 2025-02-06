@@ -36,6 +36,7 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
@@ -184,5 +185,10 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Override
     public List<DeliveredArtifactInMilestones> compareArtifactVersionsDeliveredInMilestones(List<String> milestoneIds) {
         return productMilestoneProvider.getArtifactsDeliveredInMilestonesGroupedByPrefix(milestoneIds);
+    }
+
+    @Override
+    public Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(String milestoneId, Integer depthLimit) {
+        return productMilestoneProvider.getMilestonesSharingDeliveredArtifactsGraph(milestoneId, depthLimit);
     }
 }
