@@ -1359,6 +1359,26 @@ public class DatabaseDataInitializer {
                 .build();
         operation8 = deliverableAnalyzerOperationRepository.save(operation8);
 
+        DeliverableAnalyzerOperation operation9 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000009l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone5)
+                .build();
+        operation9 = deliverableAnalyzerOperationRepository.save(operation9);
+
+        DeliverableAnalyzerOperation operation10 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000010l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone1)
+                .build();
+        operation10 = deliverableAnalyzerOperationRepository.save(operation10);
+
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
@@ -1400,6 +1420,18 @@ public class DatabaseDataInitializer {
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH))
                 .build();
         report7 = deliverableAnalyzerReportRepository.save(report7);
+
+        DeliverableAnalyzerReport report8 = DeliverableAnalyzerReport.builder()
+                .operation(operation9)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report8 = deliverableAnalyzerReportRepository.save(report8);
+
+        DeliverableAnalyzerReport report9 = DeliverableAnalyzerReport.builder()
+                .operation(operation10)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report9 = deliverableAnalyzerReportRepository.save(report9);
 
         DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
@@ -1512,6 +1544,34 @@ public class DatabaseDataInitializer {
                 .brewBuildId(null)
                 .build();
 
+        DeliverableArtifact analyzedArtifact16 = DeliverableArtifact.builder()
+                .report(report8)
+                .artifact(builtArtifact13)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        DeliverableArtifact analyzedArtifact17 = DeliverableArtifact.builder()
+                .report(report8)
+                .artifact(builtArtifact2)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        DeliverableArtifact analyzedArtifact18 = DeliverableArtifact.builder()
+                .report(report2)
+                .artifact(builtArtifact2)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        DeliverableArtifact analyzedArtifact19 = DeliverableArtifact.builder()
+                .report(report9)
+                .artifact(builtArtifact18)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
         deliverableArtifactRepository.save(analyzedArtifact1);
         deliverableArtifactRepository.save(analyzedArtifact2);
         deliverableArtifactRepository.save(analyzedArtifact3);
@@ -1528,6 +1588,10 @@ public class DatabaseDataInitializer {
         deliverableArtifactRepository.save(analyzedArtifact13);
         deliverableArtifactRepository.save(analyzedArtifact14);
         deliverableArtifactRepository.save(analyzedArtifact15);
+        deliverableArtifactRepository.save(analyzedArtifact16);
+        deliverableArtifactRepository.save(analyzedArtifact17);
+        deliverableArtifactRepository.save(analyzedArtifact18);
+        deliverableArtifactRepository.save(analyzedArtifact19);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {
