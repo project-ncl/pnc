@@ -21,6 +21,8 @@ import org.apache.commons.collections.ListUtils;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.graph.UndirectedGraphBuilder;
+import org.jboss.pnc.common.graph.VertexNeighbor;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
 import org.jboss.pnc.constants.Patterns;
@@ -30,6 +32,7 @@ import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
@@ -39,6 +42,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
+import org.jboss.pnc.facade.util.GraphDtoBuilder;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
@@ -510,6 +514,38 @@ public class ProductMilestoneProviderImpl extends
         }
 
         return null;
+    }
+
+    @Override
+    public Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(String milestoneId, Integer depthLimit) {
+        org.jboss.util.graph.Graph<ProductMilestone> milestoneInterconnectionGraph = createMilestoneInterconnectionGraph(
+                milestoneId,
+                depthLimit);
+
+        return GraphDtoBuilder.from(milestoneInterconnectionGraph, ProductMilestone.class, vertex -> vertex.getData());
+    }
+
+    private org.jboss.util.graph.Graph<ProductMilestone> createMilestoneInterconnectionGraph(
+            String milestoneId,
+            Integer depthLimit) {
+        var graph = new org.jboss.util.graph.Graph<ProductMilestone>();
+        var graphBuilder = new UndirectedGraphBuilder<ProductMilestone, String>(id -> getSpecific(id), node -> {
+            var tuples = milestoneRepository.getMilestonesSharingDeliveredArtifacts(Integer.valueOf(node.getId()));
+            return parseVertexNeighborsFromTuples(tuples);
+        });
+
+        graphBuilder.buildGraph(graph, milestoneId, depthLimit);
+        return graph;
+    }
+
+    private List<VertexNeighbor<String>> parseVertexNeighborsFromTuples(List<Tuple> tuples) {
+        return tuples.stream()
+                .map(
+                        tuple -> VertexNeighbor.<String> builder()
+                                .neighborId(tuple.get(0, Integer.class).toString())
+                                .cost(tuple.get(1, Integer.class))
+                                .build())
+                .collect(Collectors.toList());
     }
 
     private int getMatchingArtifactMilestonesCount(
