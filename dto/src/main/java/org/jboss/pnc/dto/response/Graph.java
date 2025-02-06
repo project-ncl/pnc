@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.Map;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Getter
+@EqualsAndHashCode
 @AllArgsConstructor
 @Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = Graph.Builder.class)
