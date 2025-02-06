@@ -33,6 +33,7 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
@@ -48,11 +49,14 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestoneClos
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
@@ -489,4 +493,29 @@ public interface ProductMilestoneEndpoint {
     @Path("/comparisons/delivered-artifacts")
     List<DeliveredArtifactInMilestones> compareArtifactVersionsDeliveredInMilestones(
             @NotEmpty @QueryParam("milestoneIds") List<String> milestoneIds);
+
+    static final String GET_MILESTONES_INTERCONNECTION_GRAPH = "Finds Milestones sharing Delivered Artifacts with a requested Milestones, and so for those Milestones to create a graph. Maximum depth limit is 5.";
+
+    /**
+     * {@value GET_MILESTONES_INTERCONNECTION_GRAPH}
+     *
+     * @param milestoneId
+     * @return
+     */
+    @Operation(
+            summary = GET_MILESTONES_INTERCONNECTION_GRAPH,
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/interconnection-graph")
+    Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(
+            @Parameter(description = PM_ID) @PathParam("id") String milestoneId,
+            @QueryParam("depthLimit") @Min(0) @Max(5) @DefaultValue("5") Integer depthLimit);
 }
