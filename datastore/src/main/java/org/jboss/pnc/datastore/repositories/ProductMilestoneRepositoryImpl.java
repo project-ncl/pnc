@@ -46,6 +46,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
+import javax.persistence.criteria.Subquery;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,5 +146,53 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
                 productMilestones.get(ProductMilestone_.id).in(milestoneIds),
                 notFromScratchAnalysis(cb, deliverableAnalyzerReports),
                 notFromDeletedAnalysis(cb, deliverableAnalyzerReports));
+    }
+
+    @Override
+    public List<Tuple> getMilestonesSharingDeliveredArtifacts(Integer milestoneId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class);
+
+        Root<DeliverableAnalyzerOperation> deliverableAnalyzerOperationsOuter = query
+                .from(DeliverableAnalyzerOperation.class);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> productMilestonesOuter = deliverableAnalyzerOperationsOuter
+                .join(DeliverableAnalyzerOperation_.productMilestone);
+        Join<DeliverableAnalyzerOperation, DeliverableAnalyzerReport> deliverableAnalyzerReportsOuter = deliverableAnalyzerOperationsOuter
+                .join(DeliverableAnalyzerOperation_.report);
+        Join<DeliverableArtifact, Artifact> artifactsOuter = deliverableAnalyzerReportsOuter
+                .join(DeliverableAnalyzerReport_.artifacts)
+                .join(DeliverableArtifact_.artifact);
+
+        Subquery<Integer> subquery = query.subquery(Integer.class);
+
+        Root<DeliverableAnalyzerOperation> deliverableAnalyzerOperationsInner = subquery
+                .from(DeliverableAnalyzerOperation.class);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> productMilestonesInner = deliverableAnalyzerOperationsInner
+                .join(DeliverableAnalyzerOperation_.productMilestone);
+        Join<DeliverableAnalyzerOperation, DeliverableAnalyzerReport> deliverableAnalyzerReportsInner = deliverableAnalyzerOperationsInner
+                .join(DeliverableAnalyzerOperation_.report);
+        Join<DeliverableArtifact, Artifact> artifactsInner = deliverableAnalyzerReportsInner
+                .join(DeliverableAnalyzerReport_.artifacts)
+                .join(DeliverableArtifact_.artifact);
+
+        subquery.select(artifactsInner.get(Artifact_.id)).distinct(true);
+        subquery.where(
+                cb.and(
+                        cb.equal(productMilestonesInner.get(ProductMilestone_.id), milestoneId),
+                        notFromScratchAnalysis(cb, deliverableAnalyzerReportsInner),
+                        notFromDeletedAnalysis(cb, deliverableAnalyzerReportsInner)));
+
+        query.multiselect(
+                productMilestonesOuter.get(ProductMilestone_.id),
+                cb.countDistinct(artifactsOuter.get(Artifact_.id)).as(Integer.class));
+        query.where(
+                cb.and(
+                        cb.notEqual(productMilestonesOuter.get(ProductMilestone_.id), milestoneId),
+                        artifactsOuter.get(Artifact_.id).in(subquery),
+                        notFromScratchAnalysis(cb, deliverableAnalyzerReportsOuter),
+                        notFromDeletedAnalysis(cb, deliverableAnalyzerReportsOuter)));
+        query.groupBy(productMilestonesOuter.get(ProductMilestone_.id));
+
+        return entityManager.createQuery(query).getResultList();
     }
 }
