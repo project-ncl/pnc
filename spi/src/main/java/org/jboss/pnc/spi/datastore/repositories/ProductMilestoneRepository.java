@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 import javax.persistence.Tuple;
@@ -39,4 +38,11 @@ public interface ProductMilestoneRepository extends Repository<ProductMilestone,
      * (RepositoryType); 3+) (for each Milestone) Whether an Artifact was delivered in a Milestone (Boolean)
      */
     List<Tuple> getArtifactsDeliveredInMilestones(List<Integer> milestoneIds);
+
+    /**
+     * Fetches Milestones sharing common Delivered Artifacts with the specified Milestone (milestoneId).
+     *
+     * Returned tuple format: 0) Milestone ID (Integer); 1) Count of shared Delivered Artifacts (Integer)
+     */
+    List<Tuple> getMilestonesSharingDeliveredArtifacts(Integer milestoneId);
 }
