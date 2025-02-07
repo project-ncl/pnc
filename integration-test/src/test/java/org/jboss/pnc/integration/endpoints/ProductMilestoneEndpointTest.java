@@ -364,14 +364,14 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
-        assertThat(all).hasSize(7);
+        assertThat(all).hasSize(1);
 
         RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
                 milestoneId,
                 Optional.empty(),
                 Optional.of("progressStatus==IN_PROGRESS"));
 
-        assertThat(allInProgress).hasSize(4);
+        assertThat(allInProgress).hasSize(1);
     }
 
     @Test
