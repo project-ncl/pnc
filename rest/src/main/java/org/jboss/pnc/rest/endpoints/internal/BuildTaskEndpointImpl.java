@@ -366,6 +366,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             // dependency was cancelled, failed or the build had timeout on cancel
             case CANCELLED:
             case DEPENDENCY_FAILED:
+            case DEPENDENCY_NOTIFY_FAILED:
                 return Optional.empty();
         }
 
