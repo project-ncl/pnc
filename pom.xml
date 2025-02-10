@@ -127,7 +127,7 @@
     <version.commons-beanutils>1.9.4</version.commons-beanutils>
 
     <!-- OTEL Dependencies for Instrumentation -->
-    <version.io.opentelemetry.instrumentation>1.22.0</version.io.opentelemetry.instrumentation>
+    <version.io.opentelemetry.instrumentation>2.12.0</version.io.opentelemetry.instrumentation>
     <version.com.redhat.resilience.otel>1.3.0</version.com.redhat.resilience.otel>
 
     <!-- TEST Dependency properties (CVEs not critical) -->
