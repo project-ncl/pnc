@@ -266,6 +266,7 @@ public interface BuildTaskMappers {
                     case CANCELLED:
                         return BuildCoordinationStatus.CANCELLED;
                     case DEPENDENCY_FAILED:
+                    case DEPENDENCY_NOTIFY_FAILED:
                         return BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES;
                     default:
                         throw new IllegalArgumentException("Unknown stopFlag " + flag);

@@ -178,7 +178,7 @@ public class RemoteServices {
     private static GenericContainer createRexContainer(InfinispanContainer ispn, String portBinding) {
         Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8StringWithoutLineEnding());
 
-        GenericContainer rex = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle/rex:latest"))
+        GenericContainer rex = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle-devel/rex:latest"))
                 // DockerImageName.parse("localhost/<<your-name>>/rex:1.0.2-SNAPSHOT"))
                 .withNetwork(containerNetwork)
                 .withNetworkAliases("rex")
