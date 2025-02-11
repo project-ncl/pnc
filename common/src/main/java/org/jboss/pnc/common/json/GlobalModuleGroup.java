@@ -250,11 +250,11 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     }
 
     public String getTempKonfluxNamespace() {
-        return tempKonfluxRecipeImage;
+        return tempKonfluxNamespace;
     }
 
     public void setTempKonfluxNamespace(String tempKonfluxNamespace) {
-        this.tempKonfluxRecipeImage = tempKonfluxNamespace;
+        this.tempKonfluxNamespace = tempKonfluxNamespace;
     }
 
     public boolean isTempUseDingroguRepositoryCreation() {
