@@ -94,6 +94,10 @@ public class DingroguClient {
         if (genericParameters.containsKey("BUILDER_POD_MEMORY")) {
             podMemoryOverride = genericParameters.get("BUILDER_POD_MEMORY");
         }
+        if (podMemoryOverride == null || podMemoryOverride.isBlank()) {
+            // default value
+            podMemoryOverride = "4";
+        }
         String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
         return DingroguBuildWorkDTO.builder()
                 .reqourUrl(global.getExternalReqourUrl())
@@ -127,7 +131,7 @@ public class DingroguClient {
                 // TODO: temporary
                 .recipeImage(global.getTempKonfluxRecipeImage())
                 // TODO: temporary
-                .namespace(global.tempKonfluxNamespace)
+                .namespace(global.getTempKonfluxNamespace())
                 .build();
 
     }
