@@ -22,10 +22,13 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.common.json.ConfigurationJSONParser;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -36,12 +39,15 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class DingroguClient {
+    private static final int MAX_RETRIES = 5;
 
     @Inject
     private GlobalModuleGroup global;
 
     @Inject
     private KeycloakServiceClient keycloakServiceClient;
+
+    public static final Logger log = LoggerFactory.getLogger(DingroguClient.class);
 
     public Request startBuildProcessInstance(
             RemoteBuildTask buildTask,
@@ -57,7 +63,7 @@ public class DingroguClient {
 
     public void submitDeliverablesAnalysis(DingroguDeliverablesAnalysisDTO dto) {
         String url = global.getExternalDingroguUrl() + "/workflow/deliverables-analysis/start";
-        HttpUtils.performHttpRequest(
+        submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
                 Optional.of(keycloakServiceClient.getAuthToken()));
@@ -65,7 +71,7 @@ public class DingroguClient {
 
     public void submitRepositoryCreation(DingroguRepositoryCreationDTO dto) {
         String url = global.getExternalDingroguUrl() + "/workflow/repository-creation/start";
-        HttpUtils.performHttpRequest(
+        submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
                 Optional.of(keycloakServiceClient.getAuthToken()));
@@ -73,7 +79,7 @@ public class DingroguClient {
 
     public void submitBrewPush(DingroguBrewPushDTO dto) {
         String url = global.getExternalDingroguUrl() + "/workflow/brew-push/start";
-        HttpUtils.performHttpRequest(
+        submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
                 Optional.of(keycloakServiceClient.getAuthToken()));
@@ -153,5 +159,34 @@ public class DingroguClient {
         String buildCategoryKey = BuildConfigurationParameterKeys.BUILD_CATEGORY.name();
         return BuildCategory.SERVICE.name().equals(genericParameters.get(buildCategoryKey)) ? BuildCategory.SERVICE
                 : BuildCategory.STANDARD;
+    }
+
+    public static void submitRequestWithRetries(Request request, Object payload, Optional<String> authToken) {
+        submitRequestWithRetriesAttempt(request, payload, authToken, MAX_RETRIES);
+    }
+
+    public static void submitRequestWithRetriesAttempt(
+            Request request,
+            Object payload,
+            Optional<String> authToken,
+            int retries) {
+
+        if (retries < 0) {
+            throw new RuntimeException("Maximum number of retries attempted!");
+        }
+
+        try {
+            HttpUtils.performHttpRequest(request, payload, authToken);
+        } catch (Exception e) {
+            log.error("Exception for request: {}, attempts left: {}", request.getUri(), retries, e);
+            try {
+                Thread.sleep((long) (MAX_RETRIES + 1 - retries) * 1000L);
+            } catch (InterruptedException er) {
+                log.error("Exception thrown during sleeping", er);
+            }
+
+            // retry again
+            submitRequestWithRetriesAttempt(request, payload, authToken, retries - 1);
+        }
     }
 }
