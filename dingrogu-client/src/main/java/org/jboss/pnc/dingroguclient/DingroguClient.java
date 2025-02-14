@@ -71,6 +71,14 @@ public class DingroguClient {
                 Optional.of(keycloakServiceClient.getAuthToken()));
     }
 
+    public void submitBrewPush(DingroguBrewPushDTO dto) {
+        String url = global.getExternalDingroguUrl() + "/workflow/brew-push/start";
+        HttpUtils.performHttpRequest(
+                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
+                dto,
+                Optional.of(keycloakServiceClient.getAuthToken()));
+    }
+
     public Request cancelProcessInstance(List<Request.Header> headers, String correlationId) {
 
         return new Request(
