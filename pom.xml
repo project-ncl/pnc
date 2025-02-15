@@ -1671,6 +1671,7 @@
           <version>2.12.2</version>
           <configuration>
               <configFile>../eclipse-codeStyle.xml</configFile>
+              <lineEnding>LF</lineEnding>
           </configuration>
           <executions>
               <execution>
