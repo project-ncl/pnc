@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mapper.abstracts;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;

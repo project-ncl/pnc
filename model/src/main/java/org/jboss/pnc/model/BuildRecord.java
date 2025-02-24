@@ -282,9 +282,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @BatchSize(size = 200)
     private Set<BuildRecordAttribute> attributes = new HashSet<>();
 
-    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.REMOVE)
-    private Set<BuildRecordPushResult> buildRecordPushResults;
-
     /**
      * A collection of buildRecords that depends on this at time this is stored. Dependents are defined based on
      * scheduled state.
@@ -712,24 +709,6 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
     public void setExecutionRootVersion(String executionRootVersion) {
         this.executionRootVersion = executionRootVersion;
-    }
-
-    public Set<BuildRecordPushResult> getBuildRecordPushResults() {
-        return buildRecordPushResults;
-    }
-
-    public void setBuildRecordPushResults(Set<BuildRecordPushResult> buildRecordPushResults) {
-        this.buildRecordPushResults = buildRecordPushResults;
-    }
-
-    public void addBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
-        buildRecordPushResults.add(buildRecordPushResult);
-        buildRecordPushResult.setBuildRecord(this);
-    }
-
-    public void removeBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
-        buildRecordPushResults.remove(buildRecordPushResult);
-        buildRecordPushResult.setBuildRecord(null);
     }
 
     public void setDependentBuildRecordIds(Base32LongID[] dependentBuildRecordIds) {
