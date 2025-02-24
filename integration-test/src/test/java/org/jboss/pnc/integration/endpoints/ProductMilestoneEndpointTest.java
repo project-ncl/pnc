@@ -197,53 +197,6 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
-    public void shouldGetMilestoneRelease() throws IOException, RemoteResourceException {
-        // given
-        ProductClient productClient = new ProductClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<Product> products = productClient
-                .getAll(Optional.empty(), Optional.of("name==\"" + PNC_PRODUCT_NAME + "\""));
-        Product product = products.iterator().next();
-        Map<String, ProductVersionRef> productVersions = product.getProductVersions();
-        Optional<ProductVersionRef> productVersion = productVersions.values()
-                .stream()
-                .filter(pv -> pv.getVersion().equals(DatabaseDataInitializer.PNC_PRODUCT_VERSION_1))
-                .findAny();
-
-        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<ProductMilestone> milestones = productVersionClient.getMilestones(
-                productVersion.get().getId(),
-                Optional.empty(),
-                Optional.of("version==\"" + PNC_PRODUCT_MILESTONE3 + "\""));
-        ProductMilestone milestone = milestones.iterator().next();
-
-        ProductMilestoneClient milestoneClient = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
-
-        // when
-        RemoteCollection<ProductMilestoneCloseResult> milestoneReleases = milestoneClient
-                .getCloseResults(milestone.getId(), null);
-        // then
-        Assert.assertEquals(3, milestoneReleases.size());
-        // make sure the result is ordered by date
-        Instant previous = Instant.EPOCH;
-        for (Iterator<ProductMilestoneCloseResult> iter = milestoneReleases.iterator(); iter.hasNext();) {
-            ProductMilestoneCloseResult next = iter.next();
-            logger.debug("MilestoneRelease id: {}, StartingDate: {}.", next.getId(), next.getStartingDate());
-            Assert.assertTrue("Wong milestone releases order.", next.getStartingDate().isAfter(previous));
-            previous = next.getStartingDate();
-        }
-
-        // when
-        ProductMilestoneCloseParameters filter = new ProductMilestoneCloseParameters();
-        filter.setLatest(true);
-        RemoteCollection<ProductMilestoneCloseResult> latestMilestoneRelease = milestoneClient
-                .getCloseResults(milestone.getId(), filter);
-        // then
-        Assert.assertEquals(1, latestMilestoneRelease.getAll().size());
-        // the latest one in demo data has status SUCCEEDED
-        Assert.assertEquals(MilestoneCloseStatus.SUCCEEDED, latestMilestoneRelease.iterator().next().getStatus());
-    }
-
-    @Test
     public void testGetSpecific() throws ClientException {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
@@ -331,7 +284,6 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone created = client.createNew(newMilestone);
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
-
         assertThatThrownBy(() -> client.closeMilestone(retrieved.getId()))
                 .hasCauseInstanceOf(BadRequestException.class);
     }

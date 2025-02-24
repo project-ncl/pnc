@@ -18,17 +18,16 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
-import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -40,15 +39,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,7 +57,10 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     private ProductMilestoneRepository repository;
 
     @Mock
-    private ProductMilestoneReleaseManager releaseManager;
+    private BrewPusher brewPusher;
+
+    @Mock
+    private BuildPushOperationRepository buildPushOperationRepository;
 
     @Mock
     private UserService userService;
@@ -86,8 +86,6 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 
         List<ProductMilestone> productMilestones = new ArrayList<>();
-
-        mock.setPerformedBuilds(new HashSet<BuildRecord>(Arrays.asList(new BuildRecord())));
 
         productMilestones.add(mock);
         productMilestones.add(mockSecond);
@@ -238,11 +236,10 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     public void testCancelMilestoneCloseProcess() {
 
         // when
-        when(releaseManager.noReleaseInProgress(any())).thenReturn(false);
         provider.cancelMilestoneCloseProcess(mock.getId().toString());
 
         // then
-        verify(releaseManager, times(1)).cancel(any(), anyString());
+        verify(brewPusher, times(1)).cancelPushOfMilestone(eq(mock.getId().toString()));
     }
 
     @Test
@@ -259,16 +256,6 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     }
 
     @Test
-    public void testCancelMilestoneCloseProcessShouldFailIfNoReleaseInProgress() {
-
-        // when
-        when(releaseManager.noReleaseInProgress(any())).thenReturn(true);
-
-        assertThatThrownBy(() -> provider.cancelMilestoneCloseProcess(mock.getId().toString()))
-                .isInstanceOf(EmptyEntityException.class);
-    }
-
-    @Test
     public void testCloseMilestoneShouldFailIfAlreadyClosed() {
         // given
         ProductMilestone closed = ProductMilestoneFactory.getInstance()
@@ -279,19 +266,18 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         org.jboss.pnc.dto.ProductMilestone milestone = provider.getSpecific(closed.getId().toString());
 
         // when then
-        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId()))
+        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId(), false))
                 .isInstanceOf(RepositoryViolationException.class);
     }
 
     @Test
     public void testCloseMilestone() {
-
         // when
-        when(releaseManager.noReleaseInProgress(any())).thenReturn(true);
-        provider.closeMilestone(mock.getId().toString());
+        when(buildPushOperationRepository.queryWithPredicates(any())).thenReturn(List.of());
+        provider.closeMilestone(mock.getId().toString(), false);
 
         // then
-        verify(releaseManager, times(1)).startRelease(any(), any(), any(), any());
+        verify(brewPusher, times(2)).pushBuild(any(), any(), any());
     }
 
     private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(

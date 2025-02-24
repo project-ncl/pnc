@@ -20,18 +20,25 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.bpm.causeway.FinalLogRestProducer;
 import org.jboss.pnc.causewayclient.DefaultCausewayClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.dingroguclient.DingroguClientImpl;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.BuildPushReport;
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
-import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.mock.client.BifrostMock;
 import org.jboss.pnc.integration.mock.client.CausewayClientMock;
+import org.jboss.pnc.integration.mock.client.DingroguClientMock;
 import org.jboss.pnc.integration.mock.client.FinalLogRestMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -71,6 +78,10 @@ public class BuildPushTest {
         causewayClientJar.deleteClass(DefaultCausewayClient.class);
         causewayClientJar.addClass(CausewayClientMock.class);
 
+        JavaArchive dingroguClientJar = enterpriseArchive.getAsType(JavaArchive.class, Deployments.DINGROGU_CLIENT_JAR);
+        dingroguClientJar.deleteClass(DingroguClientImpl.class);
+        dingroguClientJar.addClass(DingroguClientMock.class);
+
         JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, Deployments.BPM_JAR);
         processManager.deleteClass(FinalLogRestProducer.class);
         processManager.addClass(BifrostMock.class);
@@ -98,39 +109,39 @@ public class BuildPushTest {
     }
 
     @Test
-    public void shouldPushBuild() throws ClientException {
+    public void shouldPushBuild() throws ClientException, InterruptedException {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+        OperationClient operationClient = new OperationClient(RestClientConfiguration.asUser());
         Build build = client.getSpecific(buildId);
 
         // first push accepted
         BuildPushParameters parameters = BuildPushParameters.builder().reimport(false).tagPrefix("test-tag").build();
-        BuildPushResult result = client.push(build.getId(), parameters);
+        BuildPushOperation result = client.push(build.getId(), parameters);
         String buildPushResultId = result.getId();
 
         assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(BuildPushStatus.ACCEPTED);
+        assertThat(result.getProgressStatus()).isEqualTo(ProgressStatus.IN_PROGRESS);
 
         // second push rejected because already in process
         assertThatThrownBy(() -> client.push(build.getId(), parameters)).hasCauseInstanceOf(ClientErrorException.class);
 
-        // should reject completion with invalid result id
-        assertThatThrownBy(() -> client.completePush(buildId, returnSuccessfulResult(buildId, "1111")))
-                .hasCauseInstanceOf(ClientErrorException.class);
-
         // successful complete of first push
-        client.completePush(buildId, returnSuccessfulResult(buildId, buildPushResultId));
+        client.completePush(buildId, completion(buildPushResultId, 12));
+
+        Thread.sleep(500); // Wait for the result to be stored in DB. Assume success.
+
+        operationClient.finish(result.getId(), OperationResult.SUCCESSFUL);
 
         // get result from db
-        BuildPushResult successPushResult = client.getPushResult(buildId);
-
-        assertThat(successPushResult.getStatus()).isEqualTo(BuildPushStatus.SUCCESS);
-        assertThat(successPushResult.getLogContext()).isEqualTo(buildPushResultId);
+        BuildPushReport successPushResult = client.getPushResult(buildId);
+        assertThat(successPushResult.getResult()).isEqualTo(OperationResult.SUCCESSFUL);
+        assertThat(successPushResult.getBrewBuildId()).isEqualTo(12);
 
         // next push should accept again
-        BuildPushResult result2 = client.push(build.getId(), parameters);
+        BuildPushOperation result2 = client.push(build.getId(), parameters);
 
         assertThat(result2).isNotNull();
-        assertThat(result2.getStatus()).isEqualTo(BuildPushStatus.ACCEPTED);
+        assertThat(result2.getProgressStatus()).isEqualTo(ProgressStatus.IN_PROGRESS);
     }
 
     @Test
@@ -146,7 +157,12 @@ public class BuildPushTest {
         assertThatThrownBy(() -> client.push(build2Id, parameters)).hasCauseInstanceOf(ForbiddenException.class);
     }
 
-    private BuildPushResult returnSuccessfulResult(String id, String buildPushResultId) {
-        return BuildPushResult.builder().status(BuildPushStatus.SUCCESS).buildId(id).id(buildPushResultId).build();
+    private BuildPushCompleted completion(String operationId, int brewBuildId) {
+        return BuildPushCompleted.builder()
+                .operationId(operationId)
+                .brewBuildId(brewBuildId)
+                .brewBuildUrl("https://example.com/build/" + brewBuildId)
+                .callback(Request.builder().build())
+                .build();
     }
 }

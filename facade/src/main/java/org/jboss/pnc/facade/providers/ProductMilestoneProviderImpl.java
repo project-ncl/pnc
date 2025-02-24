@@ -18,19 +18,22 @@
 package org.jboss.pnc.facade.providers;
 
 import org.apache.commons.collections.ListUtils;
+import org.jboss.pnc.api.constants.Attributes;
+import org.jboss.pnc.api.constants.OperationParameters;
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
-import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.UndirectedGraphBuilder;
 import org.jboss.pnc.common.graph.VertexNeighbor;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.datastore.repositories.internal.SortInfoConverter;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.MilestoneInfo;
@@ -39,40 +42,48 @@ import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
+import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
+import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
+import org.jboss.pnc.spi.datastore.predicates.OperationPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -110,8 +121,6 @@ public class ProductMilestoneProviderImpl extends
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProviderImpl.class);
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.milestone");
 
-    private ProductMilestoneReleaseManager releaseManager;
-    private final ProductMilestoneCloseResultMapper milestoneReleaseMapper;
     private final MilestoneInfoRSQLMapper milestoneInfoRSQLMapper;
 
     @Inject
@@ -120,6 +129,12 @@ public class ProductMilestoneProviderImpl extends
     private final ProductMilestoneRepository milestoneRepository;
 
     private final DeliverableArtifactRepository deliverableArtifactRepository;
+
+    private final BrewPusher brewPusher;
+
+    private final BuildPushOperationRepository buildPushOperationRepository;
+
+    private BuildPushOperationMapper buildPushOperationMapper;
 
     @Inject
     private EntityManager em;
@@ -132,17 +147,19 @@ public class ProductMilestoneProviderImpl extends
             ProductMilestoneRepository repository,
             DeliverableArtifactRepository deliverableArtifactRepository,
             ProductMilestoneMapper mapper,
-            ProductMilestoneReleaseManager releaseManager,
-            ProductMilestoneCloseResultMapper milestoneReleaseMapper,
-            MilestoneInfoRSQLMapper milestoneInfoRSQLMapper) {
+            MilestoneInfoRSQLMapper milestoneInfoRSQLMapper,
+            BrewPusher brewPusher,
+            BuildPushOperationRepository buildPushOperationRepository,
+            BuildPushOperationMapper buildPushOperationMapper) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
-        this.releaseManager = releaseManager;
-        this.milestoneReleaseMapper = milestoneReleaseMapper;
         this.milestoneRepository = repository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
         this.milestoneInfoRSQLMapper = milestoneInfoRSQLMapper;
+        this.brewPusher = brewPusher;
+        this.buildPushOperationRepository = buildPushOperationRepository;
+        this.buildPushOperationMapper = buildPushOperationMapper;
     }
 
     @Override
@@ -189,44 +206,142 @@ public class ProductMilestoneProviderImpl extends
     }
 
     @Override
-    public ProductMilestoneCloseResult closeMilestone(String id) {
-        try {
-            Long milestoneReleaseId = Sequence.nextId();
-            MDCUtils.addProcessContext(milestoneReleaseId.toString());
-            userLog.info("Processing milestone close request ...");
-            ProductMilestoneCloseResult closeResult = doCloseMilestone(id, milestoneReleaseId);
-            return closeResult;
-        } finally {
-            MDCUtils.removeProcessContext();
-        }
-    }
-
-    private ProductMilestoneCloseResult doCloseMilestone(String id, Long milestoneReleaseId) {
+    public void closeMilestone(String id, boolean skipPush) {
         org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {
-            userLog.info("Milestone is already closed: no more modifications allowed");
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
         }
-        if (milestoneInDb.getPerformedBuilds().size() == 0) {
+        if (milestoneInDb.getPerformedBuilds().isEmpty()) {
             throw new InvalidEntityException("No builds were performed in milestone!");
-        } else {
-            Optional<ProductMilestoneRelease> inProgress = releaseManager.getInProgress(milestoneInDb);
-            if (inProgress.isPresent()) {
-                userLog.warn("Milestone close is already in progress.");
-                return milestoneReleaseMapper.toDTO(inProgress.get());
-            } else {
-                log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
-
-                ProductMilestoneRelease milestoneReleaseDb = releaseManager.startRelease(
-                        milestoneInDb,
-                        keycloakServiceClient.getAuthToken(),
-                        milestoneReleaseId,
-                        userService.currentUsername());
-                ProductMilestoneCloseResult milestoneCloseResult = milestoneReleaseMapper.toDTO(milestoneReleaseDb);
-                return milestoneCloseResult;
-            }
         }
+        if (skipPush) {
+            close(milestoneInDb);
+            return;
+        }
+        Set<Base32LongID> buildIds = buildsToPush(milestoneInDb);
+        List<org.jboss.pnc.model.BuildPushOperation> runningOperations = runningBuildPushes(buildIds);
+        if (!runningOperations.isEmpty()) {
+            List<BuildPushOperation> runningOperationsDTO = runningOperations.stream()
+                    .map(buildPushOperationMapper::toDTO)
+                    .collect(Collectors.toList());
+            throw new AlreadyRunningException(
+                    "Build push for builds in milestone already in progress.",
+                    runningOperationsDTO);
+        }
+        doCloseMilestone(milestoneInDb, buildIds);
+    }
+
+    private static Set<Base32LongID> buildsToPush(org.jboss.pnc.model.ProductMilestone milestoneInDb) {
+        return milestoneInDb.getPerformedBuilds()
+                .stream()
+                .filter(build -> build.getStatus() == BuildStatus.SUCCESS)
+                .map(BuildRecord::getId)
+                .collect(Collectors.toSet());
+    }
+
+    private void close(org.jboss.pnc.model.ProductMilestone milestone) {
+        // set milestone end date to now when the release process is successful
+        milestone.setEndDate(new Date());
+        milestoneRepository.save(milestone);
+        removeCurrentFlagFromMilestone(milestone);
+    }
+
+    /**
+     * [NCL-3112] Mark the milestone provided as not current
+     *
+     * @param milestone ProductMilestone to not be current anymore
+     */
+    private void removeCurrentFlagFromMilestone(org.jboss.pnc.model.ProductMilestone milestone) {
+        ProductVersion productVersion = milestone.getProductVersion();
+
+        if (productVersion.getCurrentProductMilestone() != null
+                && productVersion.getCurrentProductMilestone().getId().equals(milestone.getId())) {
+
+            productVersion.setCurrentProductMilestone(null);
+        }
+    }
+
+    private void doCloseMilestone(org.jboss.pnc.model.ProductMilestone milestone, Set<Base32LongID> buildIds) {
+        String tagPrefix = milestone.getProductVersion().getAttributes().get(Attributes.BREW_TAG_PREFIX);
+        if (tagPrefix == null) {
+            throw new InvalidEntityException(
+                    "Product version for this milestone is missing attribute " + Attributes.BREW_TAG_PREFIX);
+        }
+
+        BuildPushParameters buildPushParameters = BuildPushParameters.builder()
+                .tagPrefix(tagPrefix)
+                .reimport(false)
+                .build();
+
+        String milestoneId = mapper.getIdMapper().toDto(milestone.getId());
+
+        for (Base32LongID buildId : buildIds) {
+            brewPusher.pushBuild(buildId, buildPushParameters, milestoneId);
+        }
+    }
+
+    @Override
+    public void observeEvent(@Observes OperationChangedEvent event) {
+        if (event.getOperationClass() != org.jboss.pnc.model.BuildPushOperation.class) {
+            return;
+        }
+        if (event.getStatus() != ProgressStatus.FINISHED || event.getPreviousStatus() == ProgressStatus.FINISHED) {
+            return;
+        }
+        org.jboss.pnc.model.BuildPushOperation operation = buildPushOperationRepository.queryById(event.getId());
+        String milestoneId = operation.getOperationParameters().get(OperationParameters.BUILD_PUSH_MILESTONE_CLOSE);
+        if (milestoneId == null) {
+            return;
+        }
+        log.debug(
+                "Observed build push operation status (with linked milestone {}) changed event {}.",
+                milestoneId,
+                event);
+        onBuildPushOperationFinished(milestoneId, operation);
+    }
+
+    private void onBuildPushOperationFinished(String milestoneId, org.jboss.pnc.model.BuildPushOperation operation) {
+        if (operation.getResult() != OperationResult.SUCCESSFUL) {
+            return;
+        }
+        Integer id = mapper.getIdMapper().toEntity(milestoneId);
+        org.jboss.pnc.model.ProductMilestone milestone = repository.queryById(id);
+        if (milestone == null) {
+            throw new IllegalStateException("Product milestone with id " + id + " not found.");
+        }
+
+        Set<Base32LongID> buildIds = buildsToPush(milestone);
+        List<org.jboss.pnc.model.BuildPushOperation> runningOperations = runningBuildPushes(buildIds).stream()
+                .filter(
+                        o -> milestoneId
+                                .equals(o.getOperationParameters().get(OperationParameters.BUILD_PUSH_MILESTONE_CLOSE)))
+                .collect(Collectors.toList());
+        if (!runningOperations.isEmpty()) {
+            log.debug(
+                    "Wanting to close milestone {}, but waiting for {} other build pushes to finish.",
+                    milestoneId,
+                    runningOperations.size());
+            return;
+        }
+
+        Set<Base32LongID> successfullyPushed = buildPushOperationRepository
+                .queryWithPredicates(
+                        BuildPushPredicates.withBuilds(buildIds),
+                        OperationPredicates.withResult(ResultStatus.SUCCESS))
+                .stream()
+                .map(o -> o.getBuild().getId())
+                .collect(Collectors.toSet());
+
+        if (successfullyPushed.containsAll(buildIds)) {
+            log.debug("Last build push {} finished, closing milestone.", operation.getId());
+            close(milestone);
+        }
+    }
+
+    public List<org.jboss.pnc.model.BuildPushOperation> runningBuildPushes(Set<Base32LongID> buildIds) {
+        return buildPushOperationRepository
+                .queryWithPredicates(BuildPushPredicates.withBuilds(buildIds), OperationPredicates.inProgress());
     }
 
     @Override
@@ -238,14 +353,7 @@ public class ProductMilestoneProviderImpl extends
             userLog.info("Milestone is already closed.");
             throw new RepositoryViolationException("Milestone is already closed!");
         } else {
-            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
-                userLog.warn(
-                        "Milestone's 'end date' set and no release in progress! Cannot run cancel process for given id");
-                throw new EmptyEntityException("No running cancel process for given id.");
-            } else {
-                userLog.info("Cancelling milestone release process ...");
-                releaseManager.cancel(milestoneInDb, keycloakServiceClient.getAuthToken());
-            }
+            brewPusher.cancelPushOfMilestone(id);
         }
     }
 

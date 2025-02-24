@@ -26,15 +26,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
@@ -167,7 +168,7 @@ public interface BuildEndpoint {
             + "org.jboss.pnc.dto.DeleteOperationResult";
 
     /**
-     * {@value DELETE} {@value DELETE_DESC2} {@value SwaggerConstants#REQUIRES_ADMIN}
+     * {@value DELETE_DESC} {@value DELETE_DESC2} {@value SwaggerConstants#REQUIRES_ADMIN}
      *
      * @param id {@value B_ID}
      * @param callback {@value SwaggerConstants#CALLBACK_URL}
@@ -444,12 +445,12 @@ public interface BuildEndpoint {
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ATTRIBUTE_KEY, required = true) @QueryParam("key") String key);
 
-    static final String GET_PUSH_RESULT_DESC = "Get Brew push result for specific build.";
+    static final String GET_PUSH_RESULT_DESC = "Get latest Brew push result for specific build.";
 
     /**
      * {@value GET_PUSH_RESULT_DESC}
      *
-     * @param id {@value B_ID}
+     * @param buildId {@value B_ID}
      * @return
      */
     @Operation(
@@ -458,7 +459,7 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -467,7 +468,34 @@ public interface BuildEndpoint {
     @GET
     @Path("/{id}/brew-push")
     @TimedMetric
-    BuildPushResult getPushResult(@Parameter(description = B_ID) @PathParam("id") String id);
+    @Deprecated(forRemoval = true, since = "3.2")
+    BuildPushReport getPushResult(@Parameter(description = B_ID) @PathParam("id") String buildId);
+
+    static final String GET_PUSH_REPORT_DESC = "Get specific report of build push operation.";
+    static final String BUILD_PUSH_RESULT_ID = "ID of the build push operation";
+
+    /**
+     * {@value GET_PUSH_REPORT_DESC}
+     *
+     * @param operationId {@value BUILD_PUSH_RESULT_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_PUSH_REPORT_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/brew-push/{id}")
+    @TimedMetric
+    BuildPushReport getPushReport(@Parameter(description = BUILD_PUSH_RESULT_ID) @PathParam("id") String operationId);
 
     static final String PUSH_DESC = "Push build to Brew.";
 
@@ -484,7 +512,7 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = ACCEPTED_CODE,
                             description = ACCEPTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                            content = @Content(schema = @Schema(implementation = BuildPushOperation.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -504,7 +532,7 @@ public interface BuildEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
-    BuildPushResult push(
+    BuildPushOperation push(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid BuildPushParameters buildPushParameters);
 
@@ -536,8 +564,7 @@ public interface BuildEndpoint {
      * {@value COMPLETE_PUSH_DESC}
      *
      * @param id {@value B_ID}
-     * @param buildPushResult
-     * @return
+     * @param buildPushCompleted
      */
     @Operation(
             summary = COMPLETE_PUSH_DESC,
@@ -546,7 +573,7 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
                             description = ENTITY_CREATED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -562,9 +589,7 @@ public interface BuildEndpoint {
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/brew-push/complete")
-    BuildPushResult completePush(
-            @Parameter(description = B_ID) @PathParam("id") String id,
-            BuildPushResult buildPushResult);
+    void completePush(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushCompleted buildPushCompleted);
 
     static final String GET_BUILD_CONFIG_REVISION = "Gets the build config revision for specific build.";
 

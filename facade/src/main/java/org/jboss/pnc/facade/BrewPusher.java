@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.facade;
 
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.BuildPushReport;
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.spi.coordinator.ProcessException;
 
 import java.util.Set;
 
@@ -31,13 +32,17 @@ import java.util.Set;
  */
 public interface BrewPusher {
 
-    public Set<BuildPushResult> pushGroup(String id, String tagPrefix);
+    Set<BuildPushOperation> pushGroup(String id, String tagPrefix);
 
-    BuildPushResult pushBuild(String id, BuildPushParameters buildPushParameters) throws ProcessException;
+    BuildPushOperation pushBuild(String id, BuildPushParameters buildPushParameters);
 
-    boolean brewPushCancel(String buildId);
+    BuildPushOperation pushBuild(Base32LongID id, BuildPushParameters buildPushParameters, String milestoneId);
 
-    BuildPushResult brewPushComplete(String buildId, BuildPushResult buildPushResult);
+    void cancelPushOfBuild(String buildId);
+
+    void cancelPushOfMilestone(String milestoneId);
+
+    void brewPushComplete(String buildId, BuildPushCompleted buildPushResult);
 
     /**
      * Gets generated in progress brew push result or the latest completed one. If there is one in progress for given
@@ -47,5 +52,9 @@ public interface BrewPusher {
      * @param buildId build record id
      * @return generated or loaded push result, {@code null} in case there is no completed nor in progress
      */
-    BuildPushResult getBrewPushResult(String buildId);
+    @Deprecated
+    BuildPushReport getBrewPushResult(String buildId);
+
+    BuildPushReport getBrewPushReport(String operationId);
+
 }

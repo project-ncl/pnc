@@ -18,6 +18,8 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
@@ -26,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+
+import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -55,6 +59,7 @@ public class ProductMilestoneFactory {
                 .id(getNextId())
                 .version(productVersion)
                 .product(product)
+                .attributes(Map.of(BREW_TAG_PREFIX, "tag-prefix"))
                 .build();
 
         return createNewProductMilestoneFromProductVersion(pV, milestoneVersion);
@@ -68,7 +73,13 @@ public class ProductMilestoneFactory {
                 .id(getNextId())
                 .productVersion(productVersion)
                 .version(milestoneVersion)
+                .performedBuild(createNewBuild())
+                .performedBuild(createNewBuild())
                 .build();
+    }
+
+    private BuildRecord createNewBuild() {
+        return BuildRecord.Builder.newBuilder().id(Sequence.nextBase32Id()).status(BuildStatus.SUCCESS).build();
     }
 
     private Integer getNextId() {

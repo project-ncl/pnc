@@ -19,8 +19,11 @@ package org.jboss.pnc.spi.datastore.predicates;
 
 import javax.persistence.criteria.Join;
 
+import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
+import org.jboss.pnc.model.Operation;
+import org.jboss.pnc.model.Operation_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -33,6 +36,14 @@ public class OperationPredicates {
                     .join(DeliverableAnalyzerOperation_.productMilestone);
             return cb.equal(milestone.get(ProductMilestone_.id), milestoneId);
         };
+    }
+
+    public static <T extends Operation> Predicate<T> inProgress() {
+        return (root, query, cb) -> cb.isNull(root.get(Operation_.result));
+    }
+
+    public static <T extends Operation> Predicate<T> withResult(ResultStatus result) {
+        return (root, query, cb) -> cb.equal(root.get(Operation_.result), result);
     }
 
 }
