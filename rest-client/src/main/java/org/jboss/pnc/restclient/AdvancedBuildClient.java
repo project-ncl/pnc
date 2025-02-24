@@ -19,23 +19,22 @@ package org.jboss.pnc.restclient;
 
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.Configuration;
-import org.jboss.pnc.client.GroupConfigurationClient;
+import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.dto.BuildPushResult;
-import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.BuildPushReport;
+import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withBuildId;
-import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withPushCompleted;
+import static org.jboss.pnc.restclient.websocket.predicates.OperationNotificationPredicates.withOperationFinished;
+import static org.jboss.pnc.restclient.websocket.predicates.OperationNotificationPredicates.withOperationID;
 
 /**
  * AdvancedBuildClient that provides additional features to wait for a build to finish.
@@ -51,40 +50,50 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
         super(configuration);
     }
 
-    public CompletableFuture<BuildPushResult> waitForBrewPush(String buildId) {
+    public CompletableFuture<BuildPushReport> waitForBrewPush(String operationId) {
 
         webSocketClient
                 .connect(configuration.getWSProtocol() + "://" + configuration.getHost() + BASE_PATH + "/notifications")
                 .join();
 
         return webSocketClient
-                .catchBuildPushResult(() -> fallbackSupplier(buildId), withBuildId(buildId), withPushCompleted())
-                .thenApply(BuildPushResultNotification::getBuildPushResult);
+                .catchBuildPushResult(
+                        () -> fallbackSupplier(operationId),
+                        withOperationID(operationId),
+                        withOperationFinished())
+                .thenApply(this::getBuildPushReport);
+    }
+
+    private BuildPushReport getBuildPushReport(OperationNotification operationNotification) {
+        try (BuildClient client = new BuildClient(configuration)) {
+            try {
+                return client.getPushReport(operationNotification.getOperationId());
+            } catch (RemoteResourceException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
-     * Used to retrieve BuildPushResult through REST when WS Client loses connection and reconnects
+     * Used to retrieve BuildPushReport through REST when WS Client loses connection and reconnects
      *
-     * @param buildId Id of the build where the push build was run
+     * @param operationId Id of the operation that performs the push
      * @return
      * @throws RemoteResourceException
      */
-    private BuildPushResult fallbackSupplier(String buildId) throws RemoteResourceException {
-        BuildPushResult result = null;
-        try (BuildClient client = new BuildClient(configuration)) {
-            result = client.getPushResult(buildId);
+    private BuildPushOperation fallbackSupplier(String operationId) throws RemoteResourceException {
+        try (OperationClient client = new OperationClient(configuration)) {
+            return client.getSpecificBuildPush(operationId);
         }
-        return result;
     }
 
-    public CompletableFuture<BuildPushResult> executeBrewPush(String buildId, BuildPushParameters parameters)
+    public CompletableFuture<BuildPushReport> executeBrewPush(String buildId, BuildPushParameters parameters)
             throws RemoteResourceException {
-        CompletableFuture<BuildPushResult> future = waitForBrewPush(buildId);
-        super.push(buildId, parameters);
-        return future;
+        BuildPushOperation push = super.push(buildId, parameters);
+        return waitForBrewPush(push.getId());
     }
 
-    public BuildPushResult executeBrewPush(
+    public BuildPushReport executeBrewPush(
             String buildConfigId,
             BuildPushParameters parameters,
             long timeout,

@@ -24,12 +24,14 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.OperationRef;
 import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.mapper.api.OperationMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -50,15 +52,20 @@ public class OperationEndpointImpl implements OperationEndpoint {
     private DeliverableAnalyzerOperationProvider delAnalyzerOperationProvider;
 
     @Inject
+    private BuildPushOperationProvider buildPushOperationProvider;
+
+    @Inject
     private DeliverableAnalyzerManager deliverableAnalyzerManager;
 
-    private EndpointHelper<Base32LongID, DeliverableAnalyzerOperation, OperationRef> delAnalyzerendpointHelper;
+    private EndpointHelper<Base32LongID, DeliverableAnalyzerOperation, OperationRef> delAnalyzerEndpointHelper;
+    private EndpointHelper<Base32LongID, BuildPushOperation, OperationRef> buildPushEndpointHelper;
 
     @PostConstruct
     public void init() {
-        delAnalyzerendpointHelper = new EndpointHelper<>(
+        delAnalyzerEndpointHelper = new EndpointHelper<>(
                 DeliverableAnalyzerOperation.class,
                 delAnalyzerOperationProvider);
+        buildPushEndpointHelper = new EndpointHelper<>(BuildPushOperation.class, buildPushOperationProvider);
     }
 
     @Override
@@ -70,19 +77,18 @@ public class OperationEndpointImpl implements OperationEndpoint {
     public DeliverableAnalyzerOperation updateDeliverableAnalyzer(
             String id,
             @NotNull DeliverableAnalyzerOperation operation) {
-        return delAnalyzerendpointHelper.update(id, operation);
+        return delAnalyzerEndpointHelper.update(id, operation);
     }
 
     @Override
     public DeliverableAnalyzerOperation getSpecificDeliverableAnalyzer(String id) {
-        return delAnalyzerendpointHelper.getSpecific(id);
+        return delAnalyzerEndpointHelper.getSpecific(id);
     }
 
     @Override
     public Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperation(@Valid PageParameters pageParams) {
         logger.debug("Retrieving deliverable analyzer operations with these " + pageParams.toString());
-        return delAnalyzerOperationProvider
-                .getAll(pageParams.getPageIndex(), pageParams.getPageSize(), pageParams.getSort(), pageParams.getQ());
+        return delAnalyzerEndpointHelper.getAll(pageParams);
     }
 
     @Override
@@ -90,5 +96,15 @@ public class OperationEndpointImpl implements OperationEndpoint {
             ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest) {
         return deliverableAnalyzerManager
                 .analyzeDeliverables(null, scratchDeliverablesAnalysisRequest.getDeliverablesUrls(), true);
+    }
+
+    @Override
+    public BuildPushOperation getSpecificBuildPush(String id) {
+        return buildPushEndpointHelper.getSpecific(id);
+    }
+
+    @Override
+    public Page<BuildPushOperation> getAllBuildPushOperation(PageParameters pageParams) {
+        return buildPushEndpointHelper.getAll(pageParams);
     }
 }

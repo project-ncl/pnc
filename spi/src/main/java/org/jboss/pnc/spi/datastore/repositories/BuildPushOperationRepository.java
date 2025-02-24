@@ -15,28 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade;
+package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation;
-import org.jboss.pnc.model.Operation;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
-import java.util.Map;
+/**
+ * Interface for manipulating {@link BuildPushOperation} entity
+ */
+public interface BuildPushOperationRepository extends Repository<BuildPushOperation, Base32LongID> {
 
-public interface OperationsManager {
-
-    Operation updateProgress(Base32LongID operationId, ProgressStatus status);
-
-    Operation setResult(Base32LongID operationId, OperationResult result);
-
-    DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(String milestoneId, Map<String, String> inputParams);
-
-    Request getOperationCallback(Base32LongID operationId);
-
-    BuildPushOperation newBuildPushOperation(BuildRecord build, Map<String, String> inputParams);
 }

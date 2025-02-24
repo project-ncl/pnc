@@ -23,15 +23,14 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
-import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
+import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
@@ -159,7 +158,7 @@ public interface WebSocketClient extends AutoCloseable {
             Predicate<BuildConfigurationCreation>... filters) throws ConnectionClosedException;
 
     /**
-     * Specific version of {@link #onMessage} method for {@link BuildPushResultNotification}.
+     * Specific version of {@link #onMessage} method for {@link OperationNotification}.
      *
      * @param onNotification listener invoked on notification
      * @param filters the filters
@@ -168,9 +167,9 @@ public interface WebSocketClient extends AutoCloseable {
      *         connection.
      * @see #onMessage
      */
-    ListenerUnsubscriber onBuildPushResult(
-            Consumer<BuildPushResultNotification> onNotification,
-            Predicate<BuildPushResultNotification>... filters) throws ConnectionClosedException;
+    ListenerUnsubscriber onOperationChange(
+            Consumer<OperationNotification> onNotification,
+            Predicate<OperationNotification>... filters) throws ConnectionClosedException;
 
     /**
      * Specific version of {@link #onMessage} method for {@link GroupBuildChangedNotification}.
@@ -249,14 +248,13 @@ public interface WebSocketClient extends AutoCloseable {
             Predicate<BuildConfigurationCreation>... filters);
 
     /**
-     * Specific version of {@link #catchSingleNotification} method for {@link BuildPushResultNotification}.
+     * Specific version of {@link #catchSingleNotification} method for {@link OperationNotification}.
      *
      * @param filters the filters
      * @return the completable future
      * @see #catchSingleNotification
      */
-    CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
-            Predicate<BuildPushResultNotification>... filters);
+    CompletableFuture<OperationNotification> catchOperationChange(Predicate<OperationNotification>... filters);
 
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link GroupBuildChangedNotification}.
@@ -315,20 +313,21 @@ public interface WebSocketClient extends AutoCloseable {
             Predicate<BuildChangedNotification>... filters);
 
     /**
-     * Specific version of {@link #catchSingleNotification} method for {@link BuildPushResultNotification} with a
-     * supplier invoked on reconnect.
+     * Specific version of {@link #catchSingleNotification} method for {@link OperationNotification} with a supplier
+     * invoked on reconnect.
      * 
-     * The reconnectSupplier must retrieve a {@link BuildPushResult} contextually compatible with the {@param filters}.
-     * The supplier must contain the same {@link BuildPushResult} that the WS message would have.
+     * The reconnectSupplier must retrieve a {@link OperationNotification} contextually compatible with the
+     * {@param filters}. The supplier must contain the same {@link OperationNotification} that the WS message would
+     * have.
      *
-     * @param reconnectSupplier BuildPushResult supplier on reconnect
+     * @param reconnectSupplier OperationNotification supplier on reconnect
      * @param filters the filters
      * @return the completable future
      * @see #catchSingleNotification
      */
-    CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
-            FallbackRequestSupplier<BuildPushResult> reconnectSupplier,
-            Predicate<BuildPushResultNotification>... filters);
+    CompletableFuture<OperationNotification> catchBuildPushResult(
+            FallbackRequestSupplier<BuildPushOperation> reconnectSupplier,
+            Predicate<OperationNotification>... filters);
 
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link GroupBuildChangedNotification} with a
