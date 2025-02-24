@@ -44,7 +44,6 @@ public class DefaultCausewayClient implements CausewayClient {
 
     Logger logger = LoggerFactory.getLogger(DefaultCausewayClient.class);
 
-    private String buildPushEndpoint;
     private String untagEndpoint;
 
     @Deprecated // CDI workaround
@@ -54,7 +53,6 @@ public class DefaultCausewayClient implements CausewayClient {
     @Inject
     public DefaultCausewayClient(GlobalModuleGroup globalConfig) {
         String causewayBaseUrl = globalConfig.getExternalCausewayUrl();
-        buildPushEndpoint = causewayBaseUrl + "/import/build";
         untagEndpoint = causewayBaseUrl + "/untag/build";
     }
 
@@ -88,12 +86,6 @@ public class DefaultCausewayClient implements CausewayClient {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public boolean importBuild(BuildImportRequest buildImportRequest, String authToken) {
-        String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);
-        return post(buildPushEndpoint, jsonMessage, authToken);
     }
 
     @Override

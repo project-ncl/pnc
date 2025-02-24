@@ -19,7 +19,6 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.MilestoneInfo;

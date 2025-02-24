@@ -34,7 +34,6 @@ import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.BuildRef;
-import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
@@ -268,7 +267,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Deprecated(forRemoval = true, since = "3.2")
     // TODO: when removing, remove @AllArgsConstructor(access = AccessLevel.PROTECTED) from BuildPushReport
     private static class BuildPushReportCompatibility extends BuildPushReport {
-        ProductMilestoneCloseResultRef productMilestoneCloseResult = null;
+        Object productMilestoneCloseResult = null;
         String buildId;
         BuildPushStatus status;
         String logContext;
@@ -328,7 +327,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
     @Deprecated(forRemoval = true, since = "3.2")
     private static class BuildPushOperationCompatibility extends BuildPushOperation {
-        ProductMilestoneCloseResultRef productMilestoneCloseResult = null;
+        Object productMilestoneCloseResult = null;
         String buildId;
         BuildPushStatus status = BuildPushStatus.ACCEPTED;
         Integer brewBuildId = null;

@@ -26,13 +26,11 @@ import javax.transaction.Transactional;
 
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.BuildConfigurationRef;
-import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
-import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
@@ -42,7 +40,6 @@ import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
@@ -51,7 +48,6 @@ import org.jboss.pnc.mapper.api.IdEntity;
 import org.jboss.pnc.mapper.api.IdMapper;
 import org.jboss.pnc.mapper.api.OperationMapper;
 import org.jboss.pnc.mapper.api.ProductMapper;
-import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
@@ -65,13 +61,11 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
@@ -97,8 +91,6 @@ public class RefToReferenceMapper {
     @Inject
     private BuildMapper buildMapper;
     @Inject
-    private BuildPushResultMapper buildPushResultMapper;
-    @Inject
     private EnvironmentMapper environmentMapper;
     @Inject
     private UserMapper userMapper;
@@ -114,8 +106,6 @@ public class RefToReferenceMapper {
     private GroupBuildMapper groupBuildMapper;
     @Inject
     private GroupConfigurationMapper groupConfigurationMapper;
-    @Inject
-    private ProductMilestoneCloseResultMapper productMilestoneCloseResultMapper;
     @Inject
     private ProductMapper productMapper;
     @Inject
@@ -150,10 +140,6 @@ public class RefToReferenceMapper {
         return map(dtoEntity, buildMapper.getIdMapper(), BuildRecord.class);
     }
 
-    public BuildRecordPushResult toEntityReference(BuildPushResultRef dtoEntity) {
-        return map(dtoEntity, buildPushResultMapper.getIdMapper(), BuildRecordPushResult.class);
-    }
-
     @IdEntity
     public BuildEnvironment toEntityReference(Environment dtoEntity) {
         return map(dtoEntity, environmentMapper.getIdMapper(), BuildEnvironment.class);
@@ -173,10 +159,6 @@ public class RefToReferenceMapper {
 
     public ProductMilestone toEntityReference(ProductMilestoneRef dtoEntity) {
         return map(dtoEntity, productMilestoneMapper.getIdMapper(), ProductMilestone.class);
-    }
-
-    public ProductMilestoneRelease toEntityReference(ProductMilestoneCloseResultRef dtoEntity) {
-        return map(dtoEntity, productMilestoneCloseResultMapper.getIdMapper(), ProductMilestoneRelease.class);
     }
 
     public ProductRelease toEntityReference(ProductReleaseRef dtoEntity) {

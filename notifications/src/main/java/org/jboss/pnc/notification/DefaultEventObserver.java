@@ -19,12 +19,10 @@ package org.jboss.pnc.notification;
 
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.OperationNotification;
-import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.BuildPushReportMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
@@ -92,12 +90,6 @@ public class DefaultEventObserver {
                         buildSetStatusChangedEvent.getGroupBuild(),
                         buildSetStatusChangedEvent.getOldBuildStatus()));
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
-    }
-
-    public void collectProductMilestoneCloseResultEvent(@Observes ProductMilestoneCloseResult milestoneCloseResult) {
-        logger.trace("Observed new MilestoneCloseResult event {}.", milestoneCloseResult);
-        sendMessage(new ProductMilestoneCloseResultNotification(milestoneCloseResult));
-        logger.trace("ProductMilestoneCloseResult event processed {}.", milestoneCloseResult);
     }
 
     public void collectOperationChangedEvent(@Observes OperationChangedEvent operationChangedEvent) {
