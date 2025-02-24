@@ -23,7 +23,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.bpm.causeway.FinalLogRestProducer;
 import org.jboss.pnc.causewayclient.DefaultCausewayClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
@@ -39,7 +38,6 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.mock.client.BifrostMock;
 import org.jboss.pnc.integration.mock.client.CausewayClientMock;
 import org.jboss.pnc.integration.mock.client.DingroguClientMock;
-import org.jboss.pnc.integration.mock.client.FinalLogRestMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.model.Base32LongID;
@@ -83,9 +81,7 @@ public class BuildPushTest {
         dingroguClientJar.addClass(DingroguClientMock.class);
 
         JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, Deployments.BPM_JAR);
-        processManager.deleteClass(FinalLogRestProducer.class);
         processManager.addClass(BifrostMock.class);
-        processManager.addClass(FinalLogRestMock.class);
 
         processManager.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 

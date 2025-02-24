@@ -74,10 +74,9 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @BeanMapping(
             qualifiedBy = BuildHelpers.class,
             ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
-                    "builtArtifacts", "dependencies", "buildRecordPushResults", "buildConfigurationId",
-                    "buildConfigurationRev", "buildConfigurationAuditedIdRev", "buildEnvironment",
-                    "buildConfigurationAudited", "buildOutputChecksum", "dependentBuildRecordIds",
-                    "dependencyBuildRecordIds", "attributesMap" })
+                    "builtArtifacts", "dependencies", "buildConfigurationId", "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
+                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
     Build toDTO(BuildRecord dbEntity);
 
     /**
@@ -99,10 +98,9 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @BeanMapping(
             qualifiedBy = BuildHelpersNoBCRevision.class,
             ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
-                    "builtArtifacts", "dependencies", "buildRecordPushResults", "buildConfigurationId",
-                    "buildConfigurationRev", "buildConfigurationAuditedIdRev", "buildEnvironment",
-                    "buildConfigurationAudited", "buildOutputChecksum", "dependentBuildRecordIds",
-                    "dependencyBuildRecordIds", "attributesMap" })
+                    "builtArtifacts", "dependencies", "buildConfigurationId", "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
+                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
     Build toDTOWithoutBCR(BuildRecord dbEntity);
 
     @Override
@@ -112,10 +110,10 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "scmRevision", "scmTag", "sshCommand", "sshPassword",
                     "executionRootName", "executionRootVersion", "builtArtifacts", "dependencies", "productMilestone",
-                    "buildConfigSetRecord", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-                    "buildEnvironment", "buildConfigurationAudited", "dependentBuildRecordIds",
-                    "dependencyBuildRecordIds", "user", "attributes", "attributesMap", "buildConfigurationAuditedIdRev",
-                    "buildOutputChecksum", "scmBuildConfigRevision", "scmBuildConfigRevisionInternal" })
+                    "buildConfigSetRecord", "buildConfigurationId", "buildConfigurationRev", "buildEnvironment",
+                    "buildConfigurationAudited", "dependentBuildRecordIds", "dependencyBuildRecordIds", "user",
+                    "attributes", "attributesMap", "buildConfigurationAuditedIdRev", "buildOutputChecksum",
+                    "scmBuildConfigRevision", "scmBuildConfigRevisionInternal" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -137,7 +135,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "executionRootName", ignore = true)
     @Mapping(target = "executionRootVersion", ignore = true)
     @Mapping(target = "buildOutputChecksum", ignore = true)
-    @Mapping(target = "buildRecordPushResults", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "attributesMap", ignore = true)
     @Mapping(target = "noRebuildCause", qualifiedBy = IdEntity.class)
@@ -149,7 +146,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "attributes", ignore = true) // Specific endpoint exists for updating attributes
     @Mapping(target = "attributesMap", ignore = true)
     @Mapping(target = "buildConfigurationAudited", ignore = true) // Transient
-    @Mapping(target = "buildRecordPushResults", ignore = true) // Only added to when new push result is created
     // fields with updatable=false
     @Mapping(target = "buildConfigurationId", ignore = true)
     @Mapping(target = "buildConfigurationRev", ignore = true)

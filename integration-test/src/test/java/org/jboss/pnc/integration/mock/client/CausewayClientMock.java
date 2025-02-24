@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration.mock.client;
 
-import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.causewayclient.CausewayClient;
 
@@ -25,11 +24,6 @@ import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class CausewayClientMock implements CausewayClient {
-
-    @Override
-    public boolean importBuild(BuildImportRequest buildImportRequest, String authToken) {
-        return true;
-    }
 
     @Override
     public boolean untagBuild(UntagRequest untagRequest, String authToken) {

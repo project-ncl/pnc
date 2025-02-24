@@ -24,18 +24,15 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.BuildPushOperation;
-import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerReport;
-import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.Project;
@@ -79,9 +76,6 @@ public class SwaggerPages {
     public static class BuildRecordInsightsPage extends Page<BuildRecordInsights> {
     }
 
-    public static class BuildPushResultPage extends Page<BuildPushResult> {
-    }
-
     public static class DTOEntityPage extends Page<DTOEntity> {
     }
 
@@ -95,9 +89,6 @@ public class SwaggerPages {
     }
 
     public static class ProductMilestonePage extends Page<ProductMilestone> {
-    }
-
-    public static class ProductMilestoneCloseResultPage extends Page<ProductMilestoneCloseResult> {
     }
 
     public static class ProductReleasePage extends Page<ProductRelease> {

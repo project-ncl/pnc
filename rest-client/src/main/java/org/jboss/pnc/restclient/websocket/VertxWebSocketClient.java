@@ -38,13 +38,11 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
 import org.jboss.pnc.dto.notification.OperationNotification;
-import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.jboss.pnc.enums.BuildStatus;
@@ -460,13 +458,6 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         return onMessage(SCMRepositoryCreationSuccess.class, onNotification, filters);
     }
 
-    @Override
-    public ListenerUnsubscriber onProductMilestoneCloseResult(
-            Consumer<ProductMilestoneCloseResultNotification> onNotification,
-            Predicate<ProductMilestoneCloseResultNotification>... filters) throws ConnectionClosedException {
-        return onMessage(ProductMilestoneCloseResultNotification.class, onNotification, filters);
-    }
-
     // NO RECONNECTS
 
     private <T extends Notification> CompletableFuture<T> catchSingleNotification(
@@ -496,12 +487,6 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     public CompletableFuture<GroupBuildChangedNotification> catchGroupBuildChangedNotification(
             Predicate<GroupBuildChangedNotification>... filters) {
         return catchSingleNotification(GroupBuildChangedNotification.class, filters);
-    }
-
-    @Override
-    public CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
-            Predicate<ProductMilestoneCloseResultNotification>... filters) {
-        return catchSingleNotification(ProductMilestoneCloseResultNotification.class, filters);
     }
 
     @Override
@@ -586,28 +571,6 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                         pushResult.getProgressStatus(),
                         pushResult.getResult(),
                         pushResult);
-    }
-
-    @Override
-    public CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
-            FallbackRequestSupplier<ProductMilestoneCloseResult> reconnectSupplier,
-            Predicate<ProductMilestoneCloseResultNotification>... filters) {
-        return catchSingleNotification(
-                ProductMilestoneCloseResultNotification.class,
-                () -> mockMilestoneCloseNotification(reconnectSupplier),
-                filters);
-    }
-
-    private ProductMilestoneCloseResultNotification mockMilestoneCloseNotification(
-            FallbackRequestSupplier<ProductMilestoneCloseResult> fallback) {
-        ProductMilestoneCloseResult pushResult = null;
-        try {
-            pushResult = fallback.get();
-        } catch (RemoteResourceException exception) {
-            log.warn("Failsafe reconnection failed.", exception);
-            return null;
-        }
-        return pushResult == null ? null : new ProductMilestoneCloseResultNotification(pushResult);
     }
 
     @Override

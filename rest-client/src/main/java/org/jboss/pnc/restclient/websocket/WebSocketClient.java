@@ -25,13 +25,11 @@ import java.util.function.Supplier;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
 import org.jboss.pnc.dto.notification.OperationNotification;
-import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 
@@ -214,20 +212,6 @@ public interface WebSocketClient extends AutoCloseable {
             Predicate<SCMRepositoryCreationSuccess>... filters) throws ConnectionClosedException;
 
     /**
-     * Specific version of {@link #onMessage} method for {@link ProductMilestoneCloseResultNotification}.
-     *
-     * @param onNotification listener invoked on notification
-     * @param filters the filters
-     * @return the listener unsubscriber
-     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
-     *         connection.
-     * @see #onMessage
-     */
-    ListenerUnsubscriber onProductMilestoneCloseResult(
-            Consumer<ProductMilestoneCloseResultNotification> onNotification,
-            Predicate<ProductMilestoneCloseResultNotification>... filters) throws ConnectionClosedException;
-
-    /**
      * Specific version of {@link #catchSingleNotification} method for {@link BuildChangedNotification}.
      *
      * @param filters the filters
@@ -287,16 +271,6 @@ public interface WebSocketClient extends AutoCloseable {
             Predicate<SCMRepositoryCreationSuccess>... filters);
 
     /**
-     * Specific version of {@link #catchSingleNotification} method for {@link ProductMilestoneCloseResultNotification}.
-     *
-     * @param filters the filters
-     * @return the completable future
-     * @see #catchSingleNotification
-     */
-    CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
-            Predicate<ProductMilestoneCloseResultNotification>... filters);
-
-    /**
      * Specific version of {@link #catchSingleNotification} method for {@link BuildChangedNotification} with a supplier
      * invoked on reconnect.
      *
@@ -344,23 +318,6 @@ public interface WebSocketClient extends AutoCloseable {
     CompletableFuture<GroupBuildChangedNotification> catchGroupBuildChangedNotification(
             FallbackRequestSupplier<GroupBuild> reconnectSupplier,
             Predicate<GroupBuildChangedNotification>... filters);
-
-    /**
-     * Specific version of {@link #catchSingleNotification} method for {@link ProductMilestoneCloseResultNotification}
-     * with a supplier invoked on reconnect.
-     *
-     * The reconnectSupplier must retrieve a {@link ProductMilestoneCloseResult} contextually compatible with the
-     * {@param filters}. The supplier must contain the same {@link ProductMilestoneCloseResult} that the WS message
-     * would have.
-     * 
-     * @param reconnectSupplier ProductMilestoneCloseResult supplier on reconnect
-     * @param filters the filters
-     * @return the completable future
-     * @see #catchSingleNotification
-     */
-    CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
-            FallbackRequestSupplier<ProductMilestoneCloseResult> reconnectSupplier,
-            Predicate<ProductMilestoneCloseResultNotification>... filters);
 
     /**
      * Safely disconnects and closes the WebSocket client.
