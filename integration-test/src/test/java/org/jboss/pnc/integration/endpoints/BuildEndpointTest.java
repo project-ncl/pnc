@@ -669,32 +669,6 @@ public class BuildEndpointTest {
     }
 
     @Test
-    @InSequence(5)
-    public void shouldReturnForbiddenCodeForPushOfBadQualityArtifact() throws RemoteResourceException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
-        ArtifactClient artifactClient = new ArtifactClient(RestClientConfiguration.asSystem());
-
-        Artifact badQuality = artifactClient.create(
-                Artifact.builder()
-                        .artifactQuality(ArtifactQuality.DELETED)
-                        .buildCategory(BuildCategory.STANDARD)
-                        .filename("builtArtifactInsert2.jar")
-                        .identifier("integration-test:built-artifact:jar:1.0")
-                        .targetRepository(artifactClient.getSpecific("100").getTargetRepository())
-                        .md5("insert-md5-2")
-                        .sha1("insert-2")
-                        .sha256("insert-2")
-                        .size(10L)
-                        .build());
-
-        client.setBuiltArtifacts(build2Id, Collections.singletonList(badQuality.getId()));
-
-        assertThatThrownBy(
-                () -> client.push(build2Id, BuildPushParameters.builder().reimport(true).tagPrefix("test-tag").build()))
-                        .hasCauseInstanceOf(ForbiddenException.class);
-    }
-
-    @Test
     public void shouldModifyBuiltArtifactQualityLevels() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
         String buildRecordId = build3Id;

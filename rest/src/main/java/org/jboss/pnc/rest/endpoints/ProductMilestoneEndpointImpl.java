@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -32,9 +31,9 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
+import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -45,21 +44,16 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
-import org.jboss.pnc.facade.providers.api.ProductMilestoneCloseResultProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 
 @ApplicationScoped
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private ProductMilestoneProvider productMilestoneProvider;
-
-    @Inject
-    private ProductMilestoneCloseResultProvider productMilestoneCloseResultProvider;
 
     @Inject
     private ArtifactProvider artifactProvider;
@@ -113,34 +107,19 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public ProductMilestoneCloseResult closeMilestone(String id) {
-        return productMilestoneProvider.closeMilestone(id);
+    public void closeMilestone(String id, MilestoneCloseRequest closeRequest) {
+        boolean skipPush = closeRequest != null && Boolean.TRUE.equals(closeRequest.getSkipBrewPush());
+        productMilestoneProvider.closeMilestone(id, skipPush);
+    }
+
+    @Override
+    public void closeMilestone(String id) {
+        productMilestoneProvider.closeMilestone(id, false);
     }
 
     @Override
     public void cancelMilestoneClose(String id) {
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
-    }
-
-    @Override
-    public Page<ProductMilestoneCloseResult> getCloseResults(
-            String id,
-            PageParameters pageParams,
-            ProductMilestoneCloseParameters filterParams) {
-        if (filterParams != null && filterParams.isLatest()) {
-            ProductMilestoneCloseResult latestProductMilestoneCloseResult = productMilestoneCloseResultProvider
-                    .getLatestProductMilestoneCloseResult(Integer.parseInt(id));
-            return new Page<>(0, 1, 1, Collections.singletonList(latestProductMilestoneCloseResult));
-        } else {
-            return productMilestoneCloseResultProvider.getProductMilestoneCloseResults(
-                    pageParams.getPageIndex(),
-                    pageParams.getPageSize(),
-                    pageParams.getSort(),
-                    pageParams.getQ(),
-                    Integer.parseInt(id),
-                    filterParams.isLatest(),
-                    filterParams.isRunning());
-        }
     }
 
     @Override

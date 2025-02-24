@@ -28,13 +28,17 @@ import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 
+import javax.enterprise.event.Observes;
 import java.util.List;
 
 public interface ProductMilestoneProvider
         extends Provider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
 
-    ProductMilestoneCloseResult closeMilestone(String id);
+    void closeMilestone(String id, boolean skipPush);
+
+    void observeEvent(@Observes OperationChangedEvent event);
 
     void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException;
 

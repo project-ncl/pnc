@@ -69,6 +69,14 @@ public class DingroguClient {
                 Optional.of(keycloakServiceClient.getAuthToken()));
     }
 
+    public void submitBuildPush(DingroguBuildPushDTO dto) {
+        String url = global.getExternalDingroguUrl() + "/workflow/build-push/start";
+        HttpUtils.performHttpRequest(
+                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
+                dto,
+                Optional.of(keycloakServiceClient.getAuthToken()));
+    }
+
     public void submitRepositoryCreation(DingroguRepositoryCreationDTO dto) {
         String url = global.getExternalDingroguUrl() + "/workflow/repository-creation/start";
         submitRequestWithRetries(
@@ -147,7 +155,6 @@ public class DingroguClient {
                 // TODO: temporary
                 .namespace(global.getTempKonfluxNamespace())
                 .build();
-
     }
 
     private static BuildCategory getBuildCategory(Map<String, String> genericParameters) {

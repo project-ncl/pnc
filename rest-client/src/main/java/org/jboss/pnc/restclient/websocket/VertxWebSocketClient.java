@@ -36,14 +36,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
+import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
@@ -433,10 +433,10 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     @Override
-    public ListenerUnsubscriber onBuildPushResult(
-            Consumer<BuildPushResultNotification> onNotification,
-            Predicate<BuildPushResultNotification>... filters) throws ConnectionClosedException {
-        return onMessage(BuildPushResultNotification.class, onNotification, filters);
+    public ListenerUnsubscriber onOperationChange(
+            Consumer<OperationNotification> onNotification,
+            Predicate<OperationNotification>... filters) throws ConnectionClosedException {
+        return onMessage(OperationNotification.class, onNotification, filters);
     }
 
     @Override
@@ -488,9 +488,8 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     @Override
-    public CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
-            Predicate<BuildPushResultNotification>... filters) {
-        return catchSingleNotification(BuildPushResultNotification.class, filters);
+    public CompletableFuture<OperationNotification> catchOperationChange(Predicate<OperationNotification>... filters) {
+        return catchSingleNotification(OperationNotification.class, filters);
     }
 
     @Override
@@ -562,24 +561,31 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     @Override
-    public CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
-            FallbackRequestSupplier<BuildPushResult> reconnectSupplier,
-            Predicate<BuildPushResultNotification>... filters) {
+    public CompletableFuture<OperationNotification> catchBuildPushResult(
+            FallbackRequestSupplier<BuildPushOperation> reconnectSupplier,
+            Predicate<OperationNotification>... filters) {
         return catchSingleNotification(
-                BuildPushResultNotification.class,
+                OperationNotification.class,
                 () -> mockBuildPushNotification(reconnectSupplier),
                 filters);
     }
 
-    private BuildPushResultNotification mockBuildPushNotification(FallbackRequestSupplier<BuildPushResult> fallback) {
-        BuildPushResult pushResult = null;
+    private OperationNotification mockBuildPushNotification(FallbackRequestSupplier<BuildPushOperation> fallback) {
+        BuildPushOperation pushResult;
         try {
             pushResult = fallback.get();
         } catch (RemoteResourceException exception) {
             log.warn("Failsafe reconnection failed.", exception);
             return null;
         }
-        return pushResult == null ? null : new BuildPushResultNotification(pushResult);
+        return pushResult == null ? null
+                : new OperationNotification(
+                        "BUILD_PUSH",
+                        pushResult.getId(),
+                        pushResult.getProgressStatus(),
+                        pushResult.getProgressStatus(),
+                        pushResult.getResult(),
+                        pushResult);
     }
 
     @Override
