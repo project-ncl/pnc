@@ -17,23 +17,20 @@
  */
 package org.jboss.pnc.dingroguclient;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 
 import java.util.List;
 
-public interface DingroguClient {
-    Request startBuildProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId);
-
-    void submitDeliverablesAnalysis(DingroguDeliverablesAnalysisDTO dto);
-
-    void submitBuildPush(DingroguBuildPushDTO dto);
-
-    void submitRepositoryCreation(DingroguRepositoryCreationDTO dto);
-
-    void submitBrewPush(DingroguBrewPushDTO dto);
-
-    Request cancelProcessInstance(List<Request.Header> headers, String correlationId);
-
-    DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId);
+@Value
+@Builder
+@Jacksonized
+public class DingroguBuildPushDTO {
+    String operationId;
+    String buildId;
+    String tagPrefix;
+    boolean reimport;
 }

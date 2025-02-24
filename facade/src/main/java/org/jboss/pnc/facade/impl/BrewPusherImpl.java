@@ -18,96 +18,83 @@
 package org.jboss.pnc.facade.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.bpm.causeway.BuildPushOperation;
-import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
-import org.jboss.pnc.bpm.causeway.InProgress;
-import org.jboss.pnc.bpm.causeway.Result;
-import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.api.constants.OperationParameters;
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.constants.Attributes;
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dingroguclient.DingroguBuildPushDTO;
+import org.jboss.pnc.dingroguclient.DingroguClient;
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
-import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.facade.validation.AlreadyRunningException;
+import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
 import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.mapper.api.BuildPushResultMapper;
+import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
+import org.jboss.pnc.mapper.api.BuildPushReportMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
-import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildPushOperation;
+import org.jboss.pnc.model.BuildPushReport;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.InconsistentDataException;
-import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
+import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
-import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
+import org.jboss.pnc.spi.datastore.predicates.OperationPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
 import static org.jboss.pnc.api.constants.MDCKeys.BUILD_ID_KEY;
-import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
-import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 
 /**
- *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@RequestScoped
 @Slf4j
+@ApplicationScoped
 public class BrewPusherImpl implements BrewPusher {
-
-    @Inject
-    UserService user;
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
-    private ArtifactRepository artifactRepository;
+    private OperationsManager operationsManager;
 
     @Inject
-    private BuildRecordPushResultRepository buildRecordPushResultRepository;
+    private BuildPushOperationMapper buildPushOperationMapper;
 
     @Inject
-    private BuildResultPushManager buildResultPushManager;
+    private BuildPushReportMapper buildPushReportMapper;
 
     @Inject
-    private GlobalModuleGroup globalModuleGroupConfiguration;
+    private BuildPushOperationRepository buildPushOperationRepository;
 
     @Inject
-    private BuildPushResultMapper buildPushResultMapper;
+    private BuildPushReportRepository buildPushReportRepository;
 
     @Inject
-    private KeycloakServiceClient keycloakServiceClient;
-
-    private final static EnumSet<ArtifactQuality> ARTIFACT_BAD_QUALITIES = EnumSet.of(DELETED, BLACKLISTED);
+    private DingroguClient dingroguClient;
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.brewpush");
 
     @Override
-    public Set<BuildPushResult> pushGroup(String buildGroupId, String tagPrefix) {
+    public Set<org.jboss.pnc.dto.BuildPushOperation> pushGroup(String buildGroupId, String tagPrefix) {
         BuildPushParameters buildPushParameters = BuildPushParameters.builder()
                 .tagPrefix(tagPrefix)
                 .reimport(false)
@@ -116,130 +103,77 @@ public class BrewPusherImpl implements BrewPusher {
         List<BuildRecord> buildRecords = buildRecordRepository
                 .queryWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(id));
 
-        Set<BuildPushResult> results = new HashSet<>();
+        Set<org.jboss.pnc.dto.BuildPushOperation> results = new HashSet<>();
         for (BuildRecord buildRecord : buildRecords) {
-            Long buildPushResultId = Sequence.nextId();
-            MDCUtils.addProcessContext(buildPushResultId.toString());
-            MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().getLongId());
-            try {
-                results.add(doPushBuild(buildRecord.getId(), buildPushParameters, buildPushResultId));
-            } catch (OperationNotAllowedException | AlreadyRunningException e) {
-                results.add(
-                        BuildPushResult.builder()
-                                .status(BuildPushStatus.REJECTED)
-                                .id(buildPushResultId.toString())
-                                .buildId(BuildMapper.idMapper.toDto(buildRecord.getId()))
-                                .message(e.getMessage())
-                                .build());
-            } catch (InconsistentDataException | ProcessException e) {
-                results.add(
-                        BuildPushResult.builder()
-                                .status(BuildPushStatus.SYSTEM_ERROR)
-                                .id(buildPushResultId.toString())
-                                .buildId(BuildMapper.idMapper.toDto(buildRecord.getId()))
-                                .message(e.getMessage())
-                                .build());
-            } finally {
-                MDCUtils.removeProcessContext();
-                MDCUtils.removeCustomContext(BUILD_ID_KEY);
-            }
+            BuildRecord build = getLatestSuccessfullyExecutedBuildRecord(buildRecord.getId());
+            org.jboss.pnc.dto.BuildPushOperation buildPushOperation = doPushBuild(build, buildPushParameters, null);
+            results.add(buildPushOperation);
+            MDCUtils.removeProcessContext();
         }
         return results;
     }
 
     @Override
-    public BuildPushResult pushBuild(String buildId, BuildPushParameters buildPushParameters) throws ProcessException {
+    public org.jboss.pnc.dto.BuildPushOperation pushBuild(String buildId, BuildPushParameters buildPushParameters) {
         Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
-        BuildRecord build = buildRecordRepository.queryById(BuildMapper.idMapper.toEntity(buildId));
+        return pushBuild(id, buildPushParameters, null);
+    }
+
+    @Override
+    public org.jboss.pnc.dto.BuildPushOperation pushBuild(
+            Base32LongID id,
+            BuildPushParameters buildPushParameters,
+            String milestoneId) {
+        BuildRecord build = buildRecordRepository.queryById(id);
+        if (build == null) {
+            throw new EmptyEntityException("Build with id: " + id + " does not exist!");
+        }
         if (build.getStatus().equals(BuildStatus.NO_REBUILD_REQUIRED)) {
             throw new OperationNotAllowedException(
                     "Build has NO_REBUILD_REQUIRED status, push last successful build or use force-rebuild.");
         }
-        Long buildPushResultId = Sequence.nextId();
-        MDCUtils.addProcessContext(buildPushResultId.toString());
-        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getLongId());
-        try {
-            return doPushBuild(id, buildPushParameters, buildPushResultId);
-        } finally {
-            MDCUtils.removeProcessContext();
-            MDCUtils.removeCustomContext(BUILD_ID_KEY);
+        if (!build.getStatus().equals(BuildStatus.SUCCESS)) {
+            throw new OperationNotAllowedException("You can push only successful builds.");
         }
+        return doPushBuild(build, buildPushParameters, milestoneId);
     }
 
-    private BuildPushResult doPushBuild(
-            Base32LongID buildId,
+    private org.jboss.pnc.dto.BuildPushOperation doPushBuild(
+            BuildRecord build,
             BuildPushParameters buildPushParameters,
-            Long buildPushResultId) throws ProcessException {
-
-        userLog.info("Push started."); // TODO START timing event
-        // collect and validate input data
-        BuildRecord buildRecord = getLatestSuccessfullyExecutedBuildRecord(buildId);
-        if (buildRecord.getExecutionRootName() == null && !buildRecord.getBuildConfigurationAudited()
-                .getGenericParameters()
-                .containsKey(BREW_BUILD_NAME.name())) {
-            throw new InvalidEntityException(
-                    "Build " + buildId + " cannot be pushed to brew, because it is missing "
-                            + Attributes.BUILD_BREW_NAME + " attribute with brew name.");
-        }
-        List<Artifact> artifacts = artifactRepository
-                .queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
-        if (hasBadArtifactQuality(artifacts)) {
-            String message = "Build contains artifacts of insufficient quality: BLACKLISTED/DELETED.";
-            log.debug(message);
-            BuildPushResult pushResult = BuildPushResult.builder()
-                    .buildId(BuildMapper.idMapper.toDto(buildId))
-                    .status(BuildPushStatus.REJECTED)
-                    .id(buildPushResultId.toString())
-                    .logContext(buildPushResultId.toString())
-                    .message(message)
-                    .build();
-            throw new OperationNotAllowedException(message, pushResult);
+            String milestoneId) {
+        Map<String, String> inputParams = new HashMap<>();
+        inputParams.put(OperationParameters.BUILD_PUSH_TAG_PREFIX, buildPushParameters.getTagPrefix());
+        inputParams.put(OperationParameters.BUILD_PUSH_REIMPORT, buildPushParameters.isReimport() ? "true" : "false");
+        if (milestoneId != null) {
+            inputParams.put(OperationParameters.BUILD_PUSH_MILESTONE_CLOSE, milestoneId);
         }
 
-        log.debug("Pushing Build.id {} from user {}.", buildRecord.getId(), user.currentUsername());
+        BuildPushOperation operation = operationsManager.newBuildPushOperation(build, inputParams);
 
-        BuildPushOperation buildPushOperation = new BuildPushOperation(
-                buildRecord,
-                buildPushResultId,
-                buildPushParameters.getTagPrefix(),
-                buildPushParameters.isReimport(),
-                getCompleteCallbackUrlTemplate(),
-                user.currentUsername());
-
-        Result pushResult = buildResultPushManager.push(buildPushOperation, keycloakServiceClient.getAuthToken());
-        log.info("Push Result {}.", pushResult);
-
-        BuildPushResult result = BuildPushResult.builder()
-                .id(pushResult.getId())
-                .buildId(pushResult.getBuildId())
-                .status(pushResult.getStatus())
-                .logContext(pushResult.getId())
-                .message(pushResult.getMessage())
-                .build();
-
-        // verify operation status
-        switch (pushResult.getStatus()) {
-            case ACCEPTED:
-                userLog.info("Push ACCEPTED.");
-                return result;
-            case REJECTED:
-                userLog.warn("Push REJECTED.");
-                throw new AlreadyRunningException(pushResult.getMessage(), result);
-            case SYSTEM_ERROR:
-                userLog.error("Brew push failed: " + pushResult.getMessage());
-                throw new ProcessException(pushResult.getMessage());
-            default:
-                userLog.error("Invalid push result status.");
-                throw new ProcessException("Invalid push result status.");
+        try {
+            log.info("Starting brew push of build {}.", build.getId());
+            startPush(operation, buildPushParameters.getTagPrefix(), buildPushParameters.isReimport());
+            return buildPushOperationMapper.toDTO(
+                    (BuildPushOperation) operationsManager
+                            .updateProgress(operation.getId(), ProgressStatus.IN_PROGRESS));
+        } catch (RuntimeException ex) {
+            operationsManager.setResult(operation.getId(), OperationResult.SYSTEM_ERROR);
+            throw ex;
         }
     }
 
-    private boolean hasBadArtifactQuality(Collection<Artifact> builtArtifacts) {
-        return builtArtifacts.stream().map(Artifact::getArtifactQuality).anyMatch(ARTIFACT_BAD_QUALITIES::contains);
+    private void startPush(BuildPushOperation operation, String tagPrefix, boolean reimport) {
+        dingroguClient.submitBuildPush(
+                DingroguBuildPushDTO.builder()
+                        .operationId(operation.getId().getId())
+                        .buildId(operation.getBuild().getId().getId())
+                        .tagPrefix(tagPrefix)
+                        .reimport(reimport)
+                        .build());
     }
 
     /**
-     *
      * @param buildRecordId
      * @return Latest build record with status success or null if the build record does not exist.
      * @throws InconsistentDataException when there is no SUCCESS status before NO_REBUILD_REQUIRED
@@ -272,38 +206,60 @@ public class BrewPusherImpl implements BrewPusher {
     }
 
     @Override
-    public boolean brewPushCancel(String buildId) {
+    public void cancelPushOfBuild(String buildId) {
         Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
-        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(id);
-        if (pushContext.isPresent()) {
-            MDCUtils.addProcessContext(pushContext.get().getPushResultId());
-            MDCUtils.addCustomContext(BUILD_ID_KEY, id.getLongId());
-            userLog.info("Build push cancel requested.");
-            try {
-                return buildResultPushManager.cancelInProgressPush(id);
-            } finally {
-                MDCUtils.removeProcessContext();
-                MDCUtils.removeCustomContext(BUILD_ID_KEY);
-            }
-        } else {
+        List<BuildPushOperation> buildPushOperations = buildPushOperationRepository
+                .queryWithPredicates(OperationPredicates.inProgress(), BuildPushPredicates.withBuild(id));
+        if (buildPushOperations.isEmpty()) {
             throw new EmptyEntityException("There is no running push operation for build id: " + buildId);
         }
+        buildPushOperations
+                .forEach(operation -> dingroguClient.cancelProcessInstance(List.of(), operation.getId().getId()));
     }
 
     @Override
-    public BuildPushResult brewPushComplete(String buildId, BuildPushResult buildPushResult) {
+    public void cancelPushOfMilestone(String milestoneId) {
+        List<BuildPushOperation> buildPushOperations = buildPushOperationRepository
+                .queryWithPredicates(OperationPredicates.inProgress())
+                .stream()
+                .filter(
+                        o -> milestoneId
+                                .equals(o.getOperationParameters().get(OperationParameters.BUILD_PUSH_MILESTONE_CLOSE)))
+                .collect(Collectors.toList());
+
+        if (buildPushOperations.isEmpty()) {
+            throw new EmptyEntityException("There is no running push operation for milestone: " + milestoneId);
+        }
+        buildPushOperations
+                .forEach(operation -> dingroguClient.cancelProcessInstance(List.of(), operation.getId().getId()));
+    }
+
+    @Override
+    public void brewPushComplete(String buildId, BuildPushCompleted buildPushCompletion) {
         Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
-        MDCUtils.addProcessContext(buildPushResult.getId());
+        MDCUtils.addProcessContext(buildPushCompletion.getOperationId());
+        Base32LongID operationId = buildPushOperationMapper.getIdMapper()
+                .toEntity(buildPushCompletion.getOperationId());
+        BuildPushOperation buildPushOperation = buildPushOperationRepository.queryById(operationId);
+        if (buildPushOperation == null) {
+            throw new EmptyEntityException("Build push operation with id " + operationId + " not found.");
+        }
         MDCUtils.addCustomContext(BUILD_ID_KEY, id.getLongId());
         try {
             log.info(
                     "Received completion notification for BuildRecord.id: {}. Object received: {}.",
                     buildId,
-                    buildPushResult);
+                    buildPushCompletion);
 
-            buildResultPushManager.complete(id, buildPushResultMapper.toEntity(buildPushResult));
+            var report = BuildPushReport.builder()
+                    .id(id)
+                    .operation(buildPushOperation)
+                    .brewBuildId(buildPushCompletion.getBrewBuildId())
+                    .brewBuildUrl(buildPushCompletion.getBrewBuildUrl())
+                    .build();
+            buildPushReportRepository.save(report);
+
             userLog.info("Brew push completed."); // TODO END timing event
-            return buildPushResult;
         } finally {
             MDCUtils.removeProcessContext();
             MDCUtils.removeCustomContext(BUILD_ID_KEY);
@@ -311,28 +267,48 @@ public class BrewPusherImpl implements BrewPusher {
     }
 
     @Override
-    public BuildPushResult getBrewPushResult(String buildId) {
+    public org.jboss.pnc.dto.BuildPushReport getBrewPushResult(String buildId) {
         Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
-        BuildPushResult result = null;
-        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(id);
-        if (pushContext.isPresent()) {
-            result = BuildPushResult.builder()
-                    .buildId(buildId)
-                    .status(BuildPushStatus.ACCEPTED)
-                    .logContext(pushContext.get().getPushResultId())
-                    .build();
-        } else {
-            BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(id);
-            if (latestForBuildRecord != null) {
-                return buildPushResultMapper.toDTO(latestForBuildRecord);
+
+        var buildPushOperations = buildPushOperationRepository.queryWithPredicates(BuildPushPredicates.withBuild(id));
+
+        Optional<BuildPushOperation> latestOperation;
+        latestOperation = buildPushOperations.stream()
+                .filter(o -> o.getProgressStatus() != ProgressStatus.FINISHED)
+                .max(Comparator.comparing(BuildPushOperation::getSubmitTime));
+
+        if (latestOperation.isPresent()) {
+            return buildPushReportMapper.fromOperation(latestOperation.get());
+        }
+
+        latestOperation = buildPushOperations.stream()
+                .filter(o -> o.getProgressStatus() == ProgressStatus.FINISHED)
+                .max(Comparator.comparing(BuildPushOperation::getEndTime));
+
+        if (latestOperation.isPresent()) {
+            BuildPushOperation operation = latestOperation.get();
+            if (operation.getResult() == OperationResult.SUCCESSFUL) {
+                BuildPushReport buildPushReport = buildPushReportRepository.queryById(operation.getId());
+                return buildPushReportMapper.toRef(buildPushReport);
+            } else {
+                return buildPushReportMapper.fromOperation(operation);
             }
         }
-        return result;
+
+        return null;
     }
 
-    private String getCompleteCallbackUrlTemplate() {
-        String pncBaseUrl = StringUtils.stripEndingSlash(globalModuleGroupConfiguration.getPncUrl());
-        return pncBaseUrl + "/builds/%s/brew-push/complete";
+    @Override
+    public org.jboss.pnc.dto.BuildPushReport getBrewPushReport(String operationId) {
+        Base32LongID id = BuildMapper.idMapper.toEntity(operationId);
+
+        BuildPushReport buildPushReport = buildPushReportRepository.queryById(id);
+        if (buildPushReport != null) {
+            return buildPushReportMapper.toRef(buildPushReport);
+        }
+
+        BuildPushOperation buildPushOperation = buildPushOperationRepository.queryById(id);
+        return buildPushReportMapper.fromOperation(buildPushOperation);
     }
 
 }

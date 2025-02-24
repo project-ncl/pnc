@@ -38,10 +38,13 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.BuildPushOperation;
+import org.jboss.pnc.model.BuildPushReport;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
+import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
+import org.jboss.pnc.spi.datastore.predicates.OperationPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +71,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     CausewayClient causewayClient;
 
-    private BuildRecordPushResultRepository buildRecordPushResultRepository;
+    private final BuildPushOperationRepository buildPushOperationRepository;
 
     private final String tempBuildPromotionGroup;
 
@@ -78,11 +81,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             IndyFactory indyFactory,
             KeycloakServiceClient serviceClient,
             CausewayClient causewayClient,
-            BuildRecordPushResultRepository buildRecordPushResultRepository) {
+            BuildPushOperationRepository buildPushOperationRepository) {
         this.indyFactory = indyFactory;
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
-        this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+        this.buildPushOperationRepository = buildPushOperationRepository;
 
         IndyRepoDriverModuleConfig config;
         try {
@@ -109,18 +112,19 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
-        List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository
-                .getAllSuccessfulForBuildRecord(buildRecord.getId());
-
+        List<BuildPushOperation> buildPushOperations = buildPushOperationRepository.queryWithPredicates(
+                BuildPushPredicates.withBuild(buildRecord.getId()),
+                OperationPredicates.withResult(org.jboss.pnc.api.enums.ResultStatus.SUCCESS));
         String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
-        for (BuildRecordPushResult pushResult : toRemove) {
-            boolean success = causewayUntag(pushResult.getTagPrefix(), pushResult.getBrewBuildId());
+        for (BuildPushOperation buildPushOperation : buildPushOperations) {
+            BuildPushReport report = buildPushOperation.getReport();
+            boolean success = causewayUntag(report.getOperation().getTagPrefix(), report.getBrewBuildId());
             if (!success) {
                 logger.error(
                         "Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
                         buildRecord.getId(),
-                        pushResult.getBrewBuildId(),
-                        pushResult.getTagPrefix());
+                        report.getBrewBuildId(),
+                        report.getOperation().getTagPrefix());
                 return new Result(externalBuildId, ResultStatus.FAILED, "Failed to un-tag pushed build record.");
             }
         }

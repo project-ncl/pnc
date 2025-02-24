@@ -17,23 +17,33 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.bifrost.enums.Format;
 import org.jboss.pnc.api.constants.MDCKeys;
+import org.jboss.pnc.api.dto.Result;
+import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
@@ -44,13 +54,13 @@ import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -64,6 +74,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.text.MessageFormat.format;
@@ -75,6 +86,7 @@ import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @ApplicationScoped
+@Slf4j
 public class BuildEndpointImpl implements BuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -111,6 +123,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private GlobalModuleGroup globalConfig;
+
+    @Inject
+    private KeycloakServiceClient keycloakServiceClient;
+
+    @Inject
+    private ManagedExecutorService executorService;
 
     private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
@@ -227,31 +245,128 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public BuildPushResult getPushResult(String id) {
-        BuildPushResult brewPushResult = brewPusher.getBrewPushResult(id);
+    public BuildPushReport getPushResult(String buildId) {
+        BuildPushReport brewPushResult = brewPusher.getBrewPushResult(buildId);
         if (brewPushResult == null) {
             throw new NotFoundException();
+        }
+
+        return new BuildPushReportCompatibility(brewPushResult);
+    }
+
+    @Override
+    public BuildPushReport getPushReport(String operationId) {
+        BuildPushReport brewPushResult = brewPusher.getBrewPushReport(operationId);
+        if (brewPushResult == null) {
+            throw new NotFoundException("Build Push operation with id " + operationId + " not found.");
         }
         return brewPushResult;
     }
 
+    @Value
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
+    @Deprecated(forRemoval = true, since = "3.2")
+    // TODO: when removing, remove @AllArgsConstructor(access = AccessLevel.PROTECTED) from BuildPushReport
+    private static class BuildPushReportCompatibility extends BuildPushReport {
+        ProductMilestoneCloseResultRef productMilestoneCloseResult = null;
+        String buildId;
+        BuildPushStatus status;
+        String logContext;
+        String message = null;
+        String userInitiator;
+
+        public BuildPushReportCompatibility(BuildPushReport buildPushReport) {
+            super(
+                    buildPushReport.getId(),
+                    buildPushReport.getSubmitTime(),
+                    buildPushReport.getStartTime(),
+                    buildPushReport.getEndTime(),
+                    buildPushReport.getUser(),
+                    buildPushReport.getResult(),
+                    buildPushReport.getBuild(),
+                    buildPushReport.getTagPrefix(),
+                    buildPushReport.getBrewBuildId(),
+                    buildPushReport.getBrewBuildUrl());
+
+            buildId = buildPushReport.getBuild().getId();
+            logContext = buildPushReport.getBuild().getId();
+            userInitiator = buildPushReport.getUser().getUsername();
+            if (buildPushReport.getResult() == null) {
+                status = BuildPushStatus.ACCEPTED;
+            } else {
+                switch (buildPushReport.getResult()) {
+                    case SUCCESSFUL:
+                        status = BuildPushStatus.SUCCESS;
+                        break;
+                    case FAILED:
+                        status = BuildPushStatus.FAILED;
+                        break;
+                    case REJECTED:
+                        status = BuildPushStatus.REJECTED;
+                        break;
+                    case CANCELLED:
+                        status = BuildPushStatus.CANCELED;
+                        break;
+                    case TIMEOUT:
+                    case SYSTEM_ERROR:
+                    default:
+                        status = BuildPushStatus.SYSTEM_ERROR;
+                }
+            }
+        }
+
+    }
+
     @Override
-    public BuildPushResult push(String id, BuildPushParameters buildPushParameters) {
-        try {
-            return brewPusher.pushBuild(id, buildPushParameters);
-        } catch (ProcessException e) {
-            throw new RuntimeException(e);
+    public BuildPushOperation push(String id, BuildPushParameters buildPushParameters) {
+        BuildPushOperation buildPushOperation = brewPusher.pushBuild(id, buildPushParameters);
+        BuildPushOperationCompatibility compat = new BuildPushOperationCompatibility(buildPushOperation.toBuilder());
+        return compat;
+    }
+
+    @Value
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
+    @Deprecated(forRemoval = true, since = "3.2")
+    private static class BuildPushOperationCompatibility extends BuildPushOperation {
+        ProductMilestoneCloseResultRef productMilestoneCloseResult = null;
+        String buildId;
+        BuildPushStatus status = BuildPushStatus.ACCEPTED;
+        Integer brewBuildId = null;
+        String brewBuildUrl = null;
+        String logContext;
+        String message = null;
+        String userInitiator;
+
+        public BuildPushOperationCompatibility(BuildPushOperationBuilder<?, ?> b) {
+            super(b);
+            buildId = getBuild().getId();
+            logContext = getBuild().getId();
+            userInitiator = getUser().getUsername();
         }
     }
 
     @Override
     public void cancelPush(String id) {
-        brewPusher.brewPushCancel(id);
+        brewPusher.cancelPushOfBuild(id);
     }
 
     @Override
-    public BuildPushResult completePush(String id, BuildPushResult buildPushResult) {
-        return brewPusher.brewPushComplete(id, buildPushResult);
+    public void completePush(String id, BuildPushCompleted buildPushCompleted) {
+        executorService.execute(() -> {
+            ResultStatus result;
+            try {
+                brewPusher.brewPushComplete(id, buildPushCompleted);
+                result = ResultStatus.SUCCESS;
+            } catch (RuntimeException e) {
+                log.error("Storing results of build push with id={} failed: ", buildPushCompleted.getOperationId(), e);
+                result = ResultStatus.SYSTEM_ERROR;
+            }
+
+            HttpUtils.performHttpRequest(
+                    buildPushCompleted.getCallback(),
+                    new Result(result),
+                    Optional.of(keycloakServiceClient.getAuthToken()));
+        });
     }
 
     @Override

@@ -53,6 +53,7 @@ public class Deployments {
     public static final String AUTH_JAR = "/auth.jar";
     public static final String COORDINATOR_JAR = "/build-coordinator.jar";
     public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
+    public static final String DINGROGU_CLIENT_JAR = "/lib/dingrogu-client.jar";
 
     public static final String BPM_JAR = "/bpm.jar";
     public static final String REST_WAR = "/rest.war";

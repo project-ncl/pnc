@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
@@ -31,6 +32,8 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -71,11 +74,13 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface OperationEndpoint {
 
     static final String GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_DESC = "Gets all deliverable analyzer operations.";
+    static final String GET_ALL_BUILD_PUSH_OPERATIONS_DESC = "Gets all build push operations.";
     static final String COMPLETE_OPERATION_DESC = "Complete a running operation.";
     static final String OPERATION_RESULT = "Result of completed operation.";
     static final String UPDATE_DEL_ANALYZER_DESC = "Updates an existing deliverable analyzer operation.";
     static final String START_DELIVERABLE_ANALYSIS = "Starts a new deliverable analysis of deliverables given by URLs";
     static final String GET_SPECIFIC_DEL_ANALYZER_DESC = "Gets a specific delivarable analyzer operation.";
+    static final String GET_SPECIFIC_BUILD_PUSH_DESC = "Gets a specific build push operation.";
     static final String OP_ID = "ID of the operation";
 
     /**
@@ -204,4 +209,51 @@ public interface OperationEndpoint {
     DeliverableAnalyzerOperation startScratchDeliverableAnalysis(
             @Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
 
+    /**
+     * {@value GET_SPECIFIC_BUILD_PUSH_DESC}
+     *
+     * @param id {@value OP_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_SPECIFIC_BUILD_PUSH_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushOperation.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/build-push/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
+    BuildPushOperation getSpecificBuildPush(@Parameter(description = OP_ID) @PathParam("id") String id);
+
+    /**
+     * {@value GET_ALL_BUILD_PUSH_OPERATIONS_DESC}
+     *
+     * @param pageParams
+     * @return
+     */
+    @Operation(
+            summary = GET_ALL_BUILD_PUSH_OPERATIONS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushOperationPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/build-push")
+    Page<BuildPushOperation> getAllBuildPushOperation(@Valid @BeanParam PageParameters pageParams);
 }

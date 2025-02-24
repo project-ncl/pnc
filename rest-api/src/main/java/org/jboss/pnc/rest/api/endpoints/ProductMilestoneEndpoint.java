@@ -29,8 +29,8 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
+import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
@@ -41,11 +41,9 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestoneCloseResultPage;
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 import javax.validation.Valid;
@@ -245,6 +243,33 @@ public interface ProductMilestoneEndpoint {
 
     /**
      * {@value CLOSE_MILESTONE_DESC}
+     *
+     * @param id {@value PM_ID}
+     * @return
+     */
+    @Operation(
+            summary = CLOSE_MILESTONE_DESC,
+            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @RespondWithStatus(Response.Status.ACCEPTED)
+    @Path("/{id}/close")
+    @Deprecated(forRemoval = true, since = "3.2")
+    void closeMilestone(@Parameter(description = PM_ID) @PathParam("id") String id);
+
+    /**
+     * {@value CLOSE_MILESTONE_DESC}
      * 
      * @param id {@value PM_ID}
      * @return
@@ -267,7 +292,9 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
-    ProductMilestoneCloseResult closeMilestone(@Parameter(description = PM_ID) @PathParam("id") String id);
+    void closeMilestone(
+            @Parameter(description = PM_ID) @PathParam("id") String id,
+            @Valid MilestoneCloseRequest closeRequest);
 
     static final String CLOSE_MILESTONE_CANCEL_DESC = "Cancel product milestone close process.";
 
@@ -291,39 +318,6 @@ public interface ProductMilestoneEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
     void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") String id);
-
-    static final String GET_CLOSE_RESULTS = "Get milestone releases.";
-
-    /**
-     * {@value GET_CLOSE_RESULTS}
-     * 
-     * @param id{@value PM_ID}
-     * @param pageParams
-     * @param filterParams
-     * @return
-     */
-    @Operation(
-            summary = GET_CLOSE_RESULTS,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(
-                                    schema = @Schema(implementation = ProductMilestoneCloseResultPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("/{id}/close-results")
-    Page<ProductMilestoneCloseResult> getCloseResults(
-            @Parameter(description = PM_ID) @PathParam("id") String id,
-            @Valid @BeanParam PageParameters pageParams,
-            @BeanParam ProductMilestoneCloseParameters filterParams);
 
     static final String GET_DELIVERABLES_DESC = "Gets artifacts delivered in this milestone.";
 

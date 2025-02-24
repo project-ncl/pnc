@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade;
 
+import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -26,6 +28,8 @@ import org.jboss.pnc.facade.validation.OperationNotAllowedException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.coordinator.ProcessException;
@@ -40,17 +44,15 @@ import org.junit.runners.Parameterized;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
-import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 import static org.jboss.pnc.enums.ArtifactQuality.NEW;
 import static org.jboss.pnc.enums.BuildStatus.FAILED;
 import static org.jboss.pnc.enums.BuildStatus.NO_REBUILD_REQUIRED;
-import static org.jboss.pnc.enums.BuildStatus.SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -63,6 +65,9 @@ public class BuildPusherRejectionsTest {
 
     @Mock
     private ArtifactRepository artifactRepository;
+
+    @Mock
+    private OperationsManager operationsManager;
 
     @Spy
     private BuildRecordRepository buildRecordRepository = new BuildRecordRepositoryMock();
@@ -86,9 +91,7 @@ public class BuildPusherRejectionsTest {
     @Parameterized.Parameters
     public static List<Object[]> testQualities() {
         return Arrays.asList(
-                new Object[][] { { SUCCESS, BLACKLISTED, OperationNotAllowedException.class },
-                        { SUCCESS, DELETED, OperationNotAllowedException.class },
-                        { FAILED, NEW, OperationNotAllowedException.class },
+                new Object[][] { { FAILED, NEW, OperationNotAllowedException.class },
                         { NO_REBUILD_REQUIRED, NEW, OperationNotAllowedException.class } });
     }
 
@@ -98,10 +101,16 @@ public class BuildPusherRejectionsTest {
     @Before
     public void setUp() {
         initMocks(this);
+        when(operationsManager.newBuildPushOperation(any(), any())).thenAnswer(
+                (Answer<BuildPushOperation>) invocation -> BuildPushOperation.builder()
+                        .id(new Base32LongID(Sequence.nextId()))
+                        .progressStatus(ProgressStatus.NEW)
+                        .build(invocation.getArgument(0))
+                        .build());
     }
 
     @Test
-    public void shouldRejectWithBlacklistedArtifacts() throws ProcessException {
+    public void shouldRejectBadBuilds() throws ProcessException {
         // given
         BuildRecord record = new BuildRecord();
         record.setStatus(buildStatus);
