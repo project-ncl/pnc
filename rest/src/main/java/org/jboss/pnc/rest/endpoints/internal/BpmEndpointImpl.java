@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
-import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.rest.endpoints.internal.api.BpmEndpoint;
@@ -43,20 +41,12 @@ public class BpmEndpointImpl implements BpmEndpoint {
     @Inject
     SCMRepositoryProvider scmRepositoryProvider;
 
-    @Inject
-    private ProductMilestoneReleaseManager productMilestoneReleaseManager;
-
     @Context
     private HttpServletRequest request;
 
     @Override
     public void repositoryCreationCompleted(RepositoryCreationResult repositoryCreationResult) {
         scmRepositoryProvider.repositoryCreationCompleted(repositoryCreationResult);
-    }
-
-    @Override
-    public void milestoneReleaseCompleted(MilestoneReleaseResultRest milestoneReleaseResult) {
-        productMilestoneReleaseManager.productMilestoneCloseCompleted(milestoneReleaseResult);
     }
 
     private String readContent(InputStream inputStream) throws IOException {

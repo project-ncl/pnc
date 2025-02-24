@@ -35,7 +35,6 @@ import org.jboss.pnc.mapper.GroupBuildMapperImpl;
 import org.jboss.pnc.mapper.GroupConfigurationMapperImpl;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.ProductMapperImpl;
-import org.jboss.pnc.mapper.ProductMilestoneCloseResultMapperImpl;
 import org.jboss.pnc.mapper.ProductMilestoneMapperImpl;
 import org.jboss.pnc.mapper.ProductReleaseMapperImpl;
 import org.jboss.pnc.mapper.ProductVersionMapperImpl;
@@ -57,7 +56,6 @@ import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ProductMapper;
-import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
@@ -153,9 +151,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Spy
     protected ProductMilestoneMapper productMilestoneMapper = new ProductMilestoneMapperImpl();
-
-    @Spy
-    protected ProductMilestoneCloseResultMapper productMilestoneCloseResultMapper = new ProductMilestoneCloseResultMapperImpl();
 
     @Spy
     protected ProductReleaseMapper productReleaseMapper = new ProductReleaseMapperImpl();
