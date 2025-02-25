@@ -85,5 +85,4 @@ public interface ArtifactProvider
     ArtifactRevision createQualityLevelRevision(String id, String quality, String reason) throws DTOValidationException;
 
     Artifact getSpecificFromPurl(String purl);
-
 }
