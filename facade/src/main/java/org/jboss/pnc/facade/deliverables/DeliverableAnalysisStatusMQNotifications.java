@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class DeliverableAnalysisStatusMQNotifications {
         this.messageSender = messageSenderProvider.getMessageSender();
     }
 
-    public void observeEvent(@Observes DeliverableAnalysisStatusChangedEvent event) {
+    public void observeEvent(@ObservesAsync DeliverableAnalysisStatusChangedEvent event) {
         logger.debug("Observed new analysis status changed event {}.", event);
         messageSender.ifPresent(ms -> send(ms, event));
         logger.debug("Analysis status changed event processed {}.", event);

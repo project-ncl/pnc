@@ -73,6 +73,7 @@ import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -744,7 +745,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         dingroguClient.submitDeliverablesAnalysis(dto);
         DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                 .started(id, milestoneId, deliverablesUrls);
-        analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
+        analysisStatusChangedEventNotifier.fireAsync(analysisStatusChanged);
         // try {
         //
         // AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
@@ -768,7 +769,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         // }
     }
 
-    public void observeEvent(@Observes OperationChangedEvent event) {
+    public void observeEvent(@ObservesAsync OperationChangedEvent event) {
         if (event.getOperationClass() != org.jboss.pnc.model.DeliverableAnalyzerOperation.class) {
             return;
         }
@@ -793,7 +794,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                         operation.getProductMilestone().getId().toString(),
                         operation.getResult(),
                         deliverablesUrls);
-        analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
+        analysisStatusChangedEventNotifier.fireAsync(analysisStatusChanged);
     }
 
     private class ArtifactStats {

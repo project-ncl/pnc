@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 
@@ -92,7 +93,7 @@ public class DefaultEventObserver {
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
     }
 
-    public void collectOperationChangedEvent(@Observes OperationChangedEvent operationChangedEvent) {
+    public void collectOperationChangedEvent(@ObservesAsync OperationChangedEvent operationChangedEvent) {
         logger.trace("Observed new OperationChangedEvent event {}.", operationChangedEvent);
         String notificationType;
         Operation operationToSend;

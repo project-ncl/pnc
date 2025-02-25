@@ -30,6 +30,7 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import java.util.List;
 
 public interface ProductMilestoneProvider
@@ -37,7 +38,7 @@ public interface ProductMilestoneProvider
 
     void closeMilestone(String id, boolean skipPush);
 
-    void observeEvent(@Observes OperationChangedEvent event);
+    void observeEvent(@ObservesAsync OperationChangedEvent event);
 
     void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException;
 
