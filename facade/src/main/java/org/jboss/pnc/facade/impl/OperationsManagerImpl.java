@@ -85,11 +85,11 @@ public class OperationsManagerImpl implements OperationsManager {
     public Operation updateProgress(Base32LongID id, ProgressStatus status) {
         Tuple tuple = self._updateProgress(id, status);
         operationStatusChangedEventNotifier
-                .fire(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
+                .fireAsync(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
         return tuple.operation;
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
     public Tuple _updateProgress(Base32LongID id, ProgressStatus status) {
         Operation operation = repository.queryById(id);
@@ -109,11 +109,11 @@ public class OperationsManagerImpl implements OperationsManager {
     public Operation setResult(Base32LongID id, OperationResult result) {
         Tuple tuple = self._setResult(id, result);
         operationStatusChangedEventNotifier
-                .fire(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
+                .fireAsync(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
         return tuple.operation;
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
     public Tuple _setResult(Base32LongID id, OperationResult result) {
         Operation operation = repository.queryById(id);
@@ -151,7 +151,7 @@ public class OperationsManagerImpl implements OperationsManager {
                 .id(operationId)
                 .build();
         operation = self.saveToDb(operation);
-        operationStatusChangedEventNotifier.fire(new OperationChangedEventImpl(operation, null));
+        operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
         return operation;
     }
 
@@ -174,7 +174,7 @@ public class OperationsManagerImpl implements OperationsManager {
                     BuildPushOperation.class,
                     null);
         }
-        operationStatusChangedEventNotifier.fire(new OperationChangedEventImpl(operation, null));
+        operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
         return operation;
     }
 

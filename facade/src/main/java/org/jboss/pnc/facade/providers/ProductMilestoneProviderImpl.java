@@ -84,6 +84,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -282,7 +283,7 @@ public class ProductMilestoneProviderImpl extends
     }
 
     @Override
-    public void observeEvent(@Observes OperationChangedEvent event) {
+    public void observeEvent(@ObservesAsync OperationChangedEvent event) {
         if (event.getOperationClass() != org.jboss.pnc.model.BuildPushOperation.class) {
             return;
         }
