@@ -40,6 +40,7 @@ import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsS
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
@@ -120,6 +121,9 @@ public class ProductMilestoneProviderImpl extends
     private final ProductMilestoneRepository milestoneRepository;
 
     private final DeliverableArtifactRepository deliverableArtifactRepository;
+
+    @Inject
+    private ArtifactProvider artifactProvider;
 
     @Inject
     private EntityManager em;
