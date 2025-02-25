@@ -467,6 +467,19 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
+    public void testCompareArtifactsDeliveredInMilestonesWithTwoMilestonesAndNoCommonPrefix() throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        // act
+        List<DeliveredArtifactInMilestones> actualDeliveredArtifactsInMilestonesList = client
+                .compareArtifactVersionsDeliveredInMilestones(List.of(milestone2.getId(), milestone3.getId()));
+
+        // assert
+        assertThat(actualDeliveredArtifactsInMilestonesList).hasSize(0);
+    }
+
+    @Test
     public void testGetMilestonesSharingDeliveredArtifactsGraph() throws ClientException {
         // arrange
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
@@ -487,16 +500,18 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
-    public void testCompareArtifactsDeliveredInMilestonesWithTwoMilestonesAndNoCommonPrefix() throws ClientException {
+    public void testGetDeliveredArtifactsSharedInMilestones() throws ClientException {
         // arrange
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
+        List<String> expectedSharedDeliveredArtifactIds = List.of("114", "101");
+
         // act
-        List<DeliveredArtifactInMilestones> actualDeliveredArtifactsInMilestonesList = client
-                .compareArtifactVersionsDeliveredInMilestones(List.of(milestone2.getId(), milestone3.getId()));
+        RemoteCollection<Artifact> actualList = client.getDeliveredArtifactsSharedInMilestones("102", "104");
 
         // assert
-        assertThat(actualDeliveredArtifactsInMilestonesList).hasSize(0);
+        assertThat(actualList).hasSize(2);
+        assertThat(actualList).extracting(Artifact::getId).hasSameElementsAs(expectedSharedDeliveredArtifactIds);
     }
 
     @Test
