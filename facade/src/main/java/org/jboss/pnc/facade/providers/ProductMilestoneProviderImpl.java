@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.collections.ListUtils;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
@@ -50,6 +51,7 @@ import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.Artifact;
@@ -66,6 +68,7 @@ import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
@@ -113,6 +116,7 @@ public class ProductMilestoneProviderImpl extends
     private ProductMilestoneReleaseManager releaseManager;
     private final ProductMilestoneCloseResultMapper milestoneReleaseMapper;
     private final MilestoneInfoRSQLMapper milestoneInfoRSQLMapper;
+    private final ArtifactMapper artifactMapper;
 
     @Inject
     private KeycloakServiceClient keycloakServiceClient;
@@ -134,7 +138,8 @@ public class ProductMilestoneProviderImpl extends
             ProductMilestoneMapper mapper,
             ProductMilestoneReleaseManager releaseManager,
             ProductMilestoneCloseResultMapper milestoneReleaseMapper,
-            MilestoneInfoRSQLMapper milestoneInfoRSQLMapper) {
+            MilestoneInfoRSQLMapper milestoneInfoRSQLMapper,
+            ArtifactMapper artifactMapper) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
@@ -143,6 +148,7 @@ public class ProductMilestoneProviderImpl extends
         this.milestoneRepository = repository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
         this.milestoneInfoRSQLMapper = milestoneInfoRSQLMapper;
+        this.artifactMapper = artifactMapper;
     }
 
     @Override
@@ -546,6 +552,27 @@ public class ProductMilestoneProviderImpl extends
                                 .cost(tuple.get(1, Integer.class))
                                 .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getDeliveredArtifactsSharedInMilestones(
+            int pageIndex,
+            int pageSize,
+            String milestone1Id,
+            String milestone2Id) {
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        Integer milestone1IntId = Integer.valueOf(milestone1Id);
+        Integer milestone2IntId = Integer.valueOf(milestone2Id);
+
+        List<org.jboss.pnc.dto.Artifact> sharedDeliveredArtifacts = milestoneRepository
+                .getDeliveredArtifactsSharedInMilestones(pageInfo, milestone1IntId, milestone2IntId)
+                .stream()
+                .map(artifactMapper::toDTO)
+                .collect(Collectors.toList());
+
+        int totalHits = milestoneRepository.countDeliveredArtifactsSharedInMilestones(milestone1IntId, milestone2IntId);
+
+        return new Page<>(pageIndex, pageSize, totalHits, sharedDeliveredArtifacts);
     }
 
     private int getMatchingArtifactMilestonesCount(

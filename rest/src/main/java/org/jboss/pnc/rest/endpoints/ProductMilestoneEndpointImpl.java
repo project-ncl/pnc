@@ -191,4 +191,16 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     public Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(String milestoneId, Integer depthLimit) {
         return productMilestoneProvider.getMilestonesSharingDeliveredArtifactsGraph(milestoneId, depthLimit);
     }
+
+    @Override
+    public Page<Artifact> getDeliveredArtifactsSharedInMilestones(
+            PageParameters pageParams,
+            String milestone1Id,
+            String milestone2Id) {
+        return productMilestoneProvider.getDeliveredArtifactsSharedInMilestones(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                milestone1Id,
+                milestone2Id);
+    }
 }
