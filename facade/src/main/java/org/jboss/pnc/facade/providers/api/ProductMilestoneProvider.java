@@ -29,7 +29,6 @@ import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import java.util.List;
 

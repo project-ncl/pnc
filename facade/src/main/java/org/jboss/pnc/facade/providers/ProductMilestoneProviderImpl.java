@@ -45,6 +45,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.BrewPusher;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
@@ -83,7 +84,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -134,6 +134,9 @@ public class ProductMilestoneProviderImpl extends
     private final BrewPusher brewPusher;
 
     private final BuildPushOperationRepository buildPushOperationRepository;
+
+    @Inject
+    private ArtifactProvider artifactProvider;
 
     private BuildPushOperationMapper buildPushOperationMapper;
 
