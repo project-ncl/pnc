@@ -35,6 +35,7 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 
 import javax.ejb.Stateless;
 import javax.persistence.Tuple;
@@ -194,5 +195,55 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
         query.groupBy(productMilestonesOuter.get(ProductMilestone_.id));
 
         return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<Artifact> getDeliveredArtifactsSharedInMilestones(
+            PageInfo pageInfo,
+            Integer milestone1Id,
+            Integer milestone2Id) {
+        TypedQuery<Artifact> typedQuery = getDeliveredArtifactsSharedInMilestonesQuery(milestone1Id, milestone2Id);
+        if (pageInfo != null) {
+            typedQuery.setFirstResult(pageInfo.getElementOffset());
+            typedQuery.setMaxResults(pageInfo.getPageSize());
+        }
+
+        return typedQuery.getResultList();
+    }
+
+    @Override
+    public int countDeliveredArtifactsSharedInMilestones(Integer milestone1Id, Integer milestone2Id) {
+        TypedQuery<Artifact> typedQuery = getDeliveredArtifactsSharedInMilestonesQuery(milestone1Id, milestone2Id);
+
+        return typedQuery.getResultList().size();
+    }
+
+    private TypedQuery<Artifact> getDeliveredArtifactsSharedInMilestonesQuery(
+            Integer milestone1Id,
+            Integer milestone2Id) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<DeliverableAnalyzerOperation> deliverableAnalyzerOperations = query
+                .from(DeliverableAnalyzerOperation.class);
+        Join<DeliverableAnalyzerOperation, ProductMilestone> productMilestones = deliverableAnalyzerOperations
+                .join(DeliverableAnalyzerOperation_.productMilestone);
+        Join<DeliverableAnalyzerOperation, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableAnalyzerOperations
+                .join(DeliverableAnalyzerOperation_.report);
+        Join<DeliverableArtifact, Artifact> artifacts = deliverableAnalyzerReports
+                .join(DeliverableAnalyzerReport_.artifacts)
+                .join(DeliverableArtifact_.artifact);
+
+        query.select(artifacts);
+        query.where(
+                cb.and(
+                        productMilestones.get(ProductMilestone_.id).in(List.of(milestone1Id, milestone2Id)),
+                        notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                        notFromDeletedAnalysis(cb, deliverableAnalyzerReports)));
+        query.groupBy(artifacts);
+        // delivered in both milestones
+        query.having(cb.equal(cb.countDistinct(productMilestones.get(ProductMilestone_.id)), cb.literal(2L)));
+
+        return entityManager.createQuery(query);
     }
 }
