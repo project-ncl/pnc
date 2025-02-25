@@ -23,7 +23,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -45,17 +45,17 @@ public class DeliverableAnalyzerReport implements DTOEntity {
     /**
      * The time when the deliverable analysis was submitted.
      */
-    Date submitTime;
+    Instant submitTime;
 
     /**
      * The time when the deliverable analysis was started.
      */
-    Date startTime;
+    Instant startTime;
 
     /**
      * The time when the deliverable analysis finished.
      */
-    Date endTime;
+    Instant endTime;
 
     /**
      * The user who started the analysis.
