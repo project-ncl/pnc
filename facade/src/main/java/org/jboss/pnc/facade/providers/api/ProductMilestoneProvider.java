@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -59,4 +61,10 @@ public interface ProductMilestoneProvider
     List<DeliveredArtifactInMilestones> getArtifactsDeliveredInMilestonesGroupedByPrefix(List<String> milestoneIds);
 
     Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(String milestoneId, Integer depthLimit);
+
+    Page<Artifact> getDeliveredArtifactsSharedInMilestones(
+            int pageIndex,
+            int pageSize,
+            String milestone1Id,
+            String milestone2Id);
 }
