@@ -81,6 +81,7 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.deliveredInMilestones;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDeliveredInProductMilestone;
@@ -382,6 +383,25 @@ public class ArtifactProviderImpl
             throw new NotFoundException();
         }
         return mapper.toDTO(artifact);
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getDeliveredArtifactsSharedInMilestones(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
+            String milestone1Id,
+            String milestone2Id) {
+        Integer milestone1IntId = Integer.valueOf(milestone1Id);
+        Integer milestone2IntId = Integer.valueOf(milestone2Id);
+
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sort,
+                q,
+                deliveredInMilestones(milestone1IntId, milestone2IntId));
     }
 
     private CriteriaQuery<Tuple> artifactInfoQuery(

@@ -86,4 +86,11 @@ public interface ArtifactProvider
 
     Artifact getSpecificFromPurl(String purl);
 
+    Page<Artifact> getDeliveredArtifactsSharedInMilestones(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
+            String milestone1Id,
+            String milestone2Id);
 }
