@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.dingroguclient;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildCategory;
@@ -24,17 +32,11 @@ import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.enums.DingroguBuildBackend;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @ApplicationScoped
 public class DingroguClientImpl implements DingroguClient {
@@ -48,15 +50,26 @@ public class DingroguClientImpl implements DingroguClient {
 
     public static final Logger log = LoggerFactory.getLogger(DingroguClientImpl.class);
 
+    private static final String DINGROGU_BUILD_BACKEND_PARAMETER_KEY = "DINGROGU_BUILD_BACKEND";
+
     @Override
     public Request startBuildProcessInstance(
             RemoteBuildTask buildTask,
             List<Request.Header> headers,
             String correlationId) {
-        DingroguBuildWorkDTO dto = createDTO(buildTask, correlationId);
+        DingroguBuildWorkDTO dto;
+        final Map<String, String> genericParams = buildTask.getBuildConfigurationAudited().getGenericParameters();
+        final String urlPath;
+        if (genericParams.get(DINGROGU_BUILD_BACKEND_PARAMETER_KEY).equals(DingroguBuildBackend.KONFLUX)) {
+            dto = createKonfluxDTO(buildTask, correlationId);
+            urlPath = "/workflow/konflux-build/rex-start";
+        } else {
+            dto = createPncDTO(buildTask, correlationId);
+            urlPath = "/workflow/pnc-build/rex-start";
+        }
         return new Request(
                 Request.Method.POST,
-                URI.create(global.getExternalDingroguUrl() + "/workflow/build/rex-start"),
+                URI.create(global.getExternalDingroguUrl() + urlPath),
                 headers,
                 dto);
     }
@@ -122,29 +135,59 @@ public class DingroguClientImpl implements DingroguClient {
     }
 
     /**
-     * TODO: hardcoded values: buildToolVersion, javaVersion, buildTool
-     * 
+     * TODO: hardcoded values: javaVersion, buildToolVersion, buildTool, recipeImage, namespace
+     *
      * @param buildTask
      * @param correlationId
      * @return
      */
+    public DingroguBuildWorkDTO createKonfluxDTO(RemoteBuildTask buildTask, String correlationId) {
+        return createDTO(buildTask, correlationId)
+                .konfluxBuildDriverUrl(global.getExternalKonfluxBuildDriverUrl())
+                .buildScript(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildScript())
+                // TODO: temporary
+                .javaVersion("17")
+                // TODO: temporary
+                .buildToolVersion("3.9.5")
+                // TODO: temporary
+                .buildTool("maven")
+                // TODO: temporary
+                .recipeImage(global.getTempKonfluxRecipeImage())
+                // TODO: temporary
+                .namespace(global.tempKonfluxNamespace)
+                .build();
+    }
+
+    /**
+     * TODO: hardcoded values: environmentImage, environmentLabel, buildConfigId, buildCommand
+     *
+     * @param buildTask
+     * @param correlationId
+     * @return
+     */
+    public DingroguBuildWorkDTO createPncDTO(RemoteBuildTask buildTask, String correlationId) {
+        return createDTO(buildTask, correlationId)
+                .pncBuildDriverUrl(global.getExternalBuildDriverUrl())
+                .pncEnvironmentDriverUrl(global.getExternalEnvironmentDriverUrl())
+                .environmentImage("example.com/gcc-cpp-make:0.3") // TODO Where to get value from?
+                .environmentLabel("env1") // TODO Where to get value from?
+                .buildConfigId("foo") // TODO Where to get value from?
+                .buildCommand("bar") // TODO Where to get value from?
+                .build();
+    }
+
     @Override
-    public DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId) {
+    public DingroguBuildWorkDTO.DingroguBuildWorkDTOBuilder createDTO(RemoteBuildTask buildTask, String correlationId) {
 
         String podMemoryOverride = "";
         Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
         if (genericParameters.containsKey("BUILDER_POD_MEMORY")) {
             podMemoryOverride = genericParameters.get("BUILDER_POD_MEMORY");
         }
-        if (podMemoryOverride == null || podMemoryOverride.isBlank()) {
-            // default value
-            podMemoryOverride = "4";
-        }
         String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
         return DingroguBuildWorkDTO.builder()
                 .reqourUrl(global.getExternalReqourUrl())
                 .repositoryDriverUrl(global.getExternalRepositoryDriverUrl())
-                .konfluxBuildDriverUrl(global.getExternalKonfluxBuildDriverUrl())
                 .scmRepoURL(buildTask.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildTask.getBuildConfigurationAudited().getScmRevision())
                 .preBuildSyncEnabled(
@@ -162,19 +205,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .genericParameters(buildTask.getBuildConfigurationAudited().getGenericParameters())
                 .buildConfigurationId(buildTask.getBuildConfigurationAudited().getId().toString())
                 .correlationId(correlationId)
-                .buildScript(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildScript())
-                // TODO: temporary
-                .javaVersion("17")
-                // TODO: temporary
-                .buildToolVersion("3.9.5")
-                // TODO: temporary
-                .buildTool("maven")
-                .podMemoryOverride(podMemoryOverride)
-                // TODO: temporary
-                .recipeImage(global.getTempKonfluxRecipeImage())
-                // TODO: temporary
-                .namespace(global.getTempKonfluxNamespace())
-                .build();
+                .podMemoryOverride(podMemoryOverride);
     }
 
     private static BuildCategory getBuildCategory(Map<String, String> genericParameters) {

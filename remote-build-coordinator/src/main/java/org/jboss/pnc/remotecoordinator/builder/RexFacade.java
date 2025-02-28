@@ -18,8 +18,34 @@
 
 package org.jboss.pnc.remotecoordinator.builder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
+import static java.text.MessageFormat.format;
+
+import java.io.Serializable;
+import java.net.URI;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
@@ -71,32 +97,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
-import java.io.Serializable;
-import java.net.URI;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.text.MessageFormat.format;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -104,7 +107,7 @@ import static java.text.MessageFormat.format;
 @ApplicationScoped
 public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
-    private static final String DINGROGU_PARAMETER_KEY = "USE_DINGROGU";
+    private static final String DINGROGU_BUILD_BACKEND_PARAMETER_KEY = "DINGROGU_BUILD_BACKEND";
 
     private static final Logger log = LoggerFactory.getLogger(RexFacade.class);
 
@@ -503,6 +506,6 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     private boolean useDingrogu(RemoteBuildTask buildTask) {
         Map<String, String> genericParams = buildTask.getBuildConfigurationAudited().getGenericParameters();
-        return genericParams.containsKey(DINGROGU_PARAMETER_KEY);
+        return genericParams.containsKey(DINGROGU_BUILD_BACKEND_PARAMETER_KEY);
     }
 }

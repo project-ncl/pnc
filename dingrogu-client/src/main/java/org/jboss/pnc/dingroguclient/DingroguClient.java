@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.dingroguclient;
 
+import java.util.List;
+
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-
-import java.util.List;
 
 public interface DingroguClient {
     Request startBuildProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId);
@@ -35,5 +35,5 @@ public interface DingroguClient {
 
     Request cancelProcessInstance(List<Request.Header> headers, String correlationId);
 
-    DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId);
+    DingroguBuildWorkDTO.DingroguBuildWorkDTOBuilder createDTO(RemoteBuildTask buildTask, String correlationId);
 }
