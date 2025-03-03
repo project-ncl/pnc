@@ -1343,6 +1343,7 @@
               <exclude>**/*.properties</exclude>
               <exclude>**/.github/**</exclude>
               <exclude>**/rex-application.yaml</exclude>
+              <exclude>**/pnc-openapi.*</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.cache/**</exclude>
