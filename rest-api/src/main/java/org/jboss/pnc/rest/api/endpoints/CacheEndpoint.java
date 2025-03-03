@@ -43,6 +43,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
+import java.util.Map;
+
 @Tag(name = "Cache statistics")
 @Path("/cache")
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,6 +53,9 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
 public interface CacheEndpoint {
 
     static final String GET_GENERIC_STATS_DESC = "Get general statistics related to Hibernate.";
+
+    interface MapOfMaps extends Map<String, Map<String, Object>> {
+    }
 
     /**
      * {@value GET_GENERIC_STATS_DESC}
@@ -63,7 +68,7 @@ public interface CacheEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Response.class))),
+                            content = @Content(schema = @Schema(implementation = MapOfMaps.class))),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
@@ -86,7 +91,7 @@ public interface CacheEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Response.class))),
+                            content = @Content(schema = @Schema(implementation = MapOfMaps.class))),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
@@ -113,7 +118,7 @@ public interface CacheEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Response.class))),
+                            content = @Content(schema = @Schema(implementation = MapOfMaps.class))),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
@@ -140,7 +145,7 @@ public interface CacheEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Response.class))),
+                            content = @Content(schema = @Schema(implementation = MapOfMaps.class))),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
@@ -164,11 +169,7 @@ public interface CacheEndpoint {
     @Operation(
             summary = CLEAR_CACHE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Response.class))),
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
