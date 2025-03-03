@@ -72,22 +72,8 @@ public class DingroguClientImpl implements DingroguClient {
 
     @Override
     public void submitBuildPush(DingroguBuildPushDTO dto) {
-        String url = global.getExternalDingroguUrl() + "/workflow/build-push/start";
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("URL IS " + url);
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        System.out.println("#########################################");
-        HttpUtils.performHttpRequest(
+        String url = global.getExternalDingroguUrl() + "/workflow/brew-push/start";
+        submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
                 Optional.of(keycloakServiceClient.getAuthToken()));
@@ -96,15 +82,6 @@ public class DingroguClientImpl implements DingroguClient {
     @Override
     public void submitRepositoryCreation(DingroguRepositoryCreationDTO dto) {
         String url = global.getExternalDingroguUrl() + "/workflow/repository-creation/start";
-        submitRequestWithRetries(
-                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
-                dto,
-                Optional.of(keycloakServiceClient.getAuthToken()));
-    }
-
-    @Override
-    public void submitBrewPush(DingroguBrewPushDTO dto) {
-        String url = global.getExternalDingroguUrl() + "/workflow/brew-push/start";
         submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,

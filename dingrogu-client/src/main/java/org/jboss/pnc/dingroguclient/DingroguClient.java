@@ -31,8 +31,6 @@ public interface DingroguClient {
 
     void submitRepositoryCreation(DingroguRepositoryCreationDTO dto);
 
-    void submitBrewPush(DingroguBrewPushDTO dto);
-
     Request cancelProcessInstance(List<Request.Header> headers, String correlationId);
 
     DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId);
