@@ -56,11 +56,6 @@ public class DingroguClientMock implements DingroguClient {
     }
 
     @Override
-    public void submitBrewPush(DingroguBrewPushDTO dto) {
-
-    }
-
-    @Override
     public Request cancelProcessInstance(List<Request.Header> headers, String correlationId) {
         return null;
     }
