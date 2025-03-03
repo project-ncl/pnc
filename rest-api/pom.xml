@@ -143,8 +143,9 @@
                 <configuration>
                     <resourcePackages>
                         <resourcePackage>org.jboss.pnc.rest.api.endpoints</resourcePackage>
+                        <resourcePackage>org.jboss.pnc.rest.configuration</resourcePackage>
                     </resourcePackages>
-                    <outputDirectory>${basedir}/target/</outputDirectory>
+                    <outputDirectory>${basedir}</outputDirectory>
                     <outputFilename>pnc-openapi</outputFilename>
                     <outputFormats>JSON,YAML</outputFormats>
                     <prettyPrint>true</prettyPrint>
