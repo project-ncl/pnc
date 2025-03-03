@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dingroguclient.DingroguBuildPushDTO;
 import org.jboss.pnc.dingroguclient.DingroguClient;
@@ -90,6 +91,9 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Inject
     private DingroguClient dingroguClient;
+
+    @Inject
+    private GlobalModuleGroup globalConfig;
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.brewpush");
 
@@ -170,6 +174,9 @@ public class BrewPusherImpl implements BrewPusher {
                         .buildId(operation.getBuild().getId().getId())
                         .tagPrefix(tagPrefix)
                         .reimport(reimport)
+                        .orchUrl(globalConfig.getPncUrl())
+                        .causewayUrl(globalConfig.getExternalCausewayUrl())
+                        .username(operation.getUser().getUsername())
                         .build());
     }
 
