@@ -29,8 +29,11 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class DingroguBuildPushDTO {
+    String causewayUrl;
+    String orchUrl;
     String operationId;
     String buildId;
+    String username;
     String tagPrefix;
     boolean reimport;
 }
