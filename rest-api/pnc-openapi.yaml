@@ -2367,12 +2367,8 @@ paths:
             schema:
               $ref: '#/components/schemas/BuildPushCompleted'
       responses:
-        "201":
-          description: Entity successfully created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BuildPushReport'
+        "202":
+          description: Request was accepted for processing
         "400":
           description: Invalid input parameters or validation error
           content:
@@ -4754,6 +4750,11 @@ paths:
         required: true
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MilestoneCloseRequest'
       responses:
         "202":
           description: Request was accepted for processing
@@ -4775,7 +4776,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-      deprecated: true
     delete:
       tags:
       - Product Milestones
