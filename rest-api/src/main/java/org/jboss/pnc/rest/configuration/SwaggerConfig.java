@@ -25,10 +25,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 @OpenAPIDefinition(
         info = @Info(
                 title = "PNC",
+                version = org.jboss.pnc.environmentdriver.BuildInformationConstants.VERSION,
                 description = "PNC build system",
-                license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html")
-
-        ),
+                license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html")),
         servers = @Server(url = "/pnc-rest"))
 public class SwaggerConfig {
 }
