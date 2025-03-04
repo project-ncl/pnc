@@ -42,8 +42,9 @@ jobs:
             **Hello**
             🌏
             !
-            {{ teps.run-diff.outputs.diff-output }}
+            {{ steps.run-diff.outputs.diff-output }}
       - name: Check compatibility break
+        if: steps.check-change.outputs.changed == 'yes'
         run: |
           if grep "API changes broke backward compatibility" openapi-diff.out; then
             exit 1
