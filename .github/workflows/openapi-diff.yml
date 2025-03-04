@@ -9,7 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pull-requests: write
+      repository-projects: write
+      id-token: write
     steps:
       - name: Check out head branch
         uses: actions/checkout@v2
