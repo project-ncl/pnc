@@ -32,4 +32,4 @@ jobs:
           echo TODO: add comment
           if grep "API changes broke backward compatibility" openapi-diff.out; then
             exit 1
-          endif
+          fi
