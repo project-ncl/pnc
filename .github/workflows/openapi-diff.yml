@@ -19,7 +19,10 @@ jobs:
           ref: master
           path: base
       - name: Run OpenAPI Diff (from HEAD revision)
+        id: run-diff
         uses: janinko/openapi-diff-action@v0.0.1
         with:
           head-spec: head/rest-api/pnc-openapi.yaml
           base-spec: base/rest-api/pnc-openapi.yaml
+      - name: Test output
+        run: echo "!!!!" ${{ steps.run-diff.outputs.diff-output }} "!!!!"
