@@ -1,7 +1,7 @@
 name: OpeanAPI diff
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [ "master" ]
   workflow_dispatch:
 
@@ -42,7 +42,7 @@ jobs:
             **Hello**
             🌏
             !
-            {{ steps.run-diff.outputs.diff-output }}
+            ${{ steps.run-diff.outputs.diff-output }}
       - name: Check compatibility break
         if: steps.check-change.outputs.changed == 'yes'
         run: |
