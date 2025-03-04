@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Check out head branch
         uses: actions/checkout@v2
@@ -24,12 +26,25 @@ jobs:
         with:
           head-spec: head/rest-api/pnc-openapi.yaml
           base-spec: base/rest-api/pnc-openapi.yaml
-      - name: Test output
+      - name: Check changes
+        id: check-change
         run: |
           if grep "No differences. Specifications are equivalents" openapi-diff.out; then
-            return
+            echo "changed=no" >> $GITHUB_OUTPUT
+          else
+            echo "changed=yes" >> $GITHUB_OUTPUT
           fi
-          echo TODO: add comment
+      - name: Comment on PR
+        if: steps.check-change.outputs.changed == 'yes'
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            **Hello**
+            🌏
+            !
+            {{ teps.run-diff.outputs.diff-output }}
+      - name: Check compatibility break
+        run: |
           if grep "API changes broke backward compatibility" openapi-diff.out; then
             exit 1
           fi
