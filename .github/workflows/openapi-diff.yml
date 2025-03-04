@@ -3,6 +3,7 @@ name: OpeanAPI diff
 on:
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,7 +19,7 @@ jobs:
           ref: master
           path: base
       - name: Run OpenAPI Diff (from HEAD revision)
-        uses: mvegter/openapi-diff-action@v0.23.5
+        uses: janinko/openapi-diff-action@v0.0.1
         with:
           head-spec: head/rest-api/pnc-openapi.yaml
           base-spec: base/rest-api/pnc-openapi.yaml
