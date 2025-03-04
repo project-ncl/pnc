@@ -1,7 +1,7 @@
 name: OpeanAPI diff
 
 on:
-  pull_request_target:
+  pull_request:
     branches: [ "master" ]
   workflow_dispatch:
 
@@ -14,6 +14,7 @@ jobs:
       - name: Check out head branch
         uses: actions/checkout@v2
         with:
+          ref: ${{ GITHUB_SHA }}
           path: head
       - name: Check out master branch
         uses: actions/checkout@v2
@@ -34,6 +35,16 @@ jobs:
           else
             echo "changed=yes" >> $GITHUB_OUTPUT
           fi
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Thanks for reporting!'
+            })
       - name: Comment on PR
         if: steps.check-change.outputs.changed == 'yes'
         uses: mshick/add-pr-comment@v2
