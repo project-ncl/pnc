@@ -14,7 +14,6 @@ jobs:
       - name: Check out head branch
         uses: actions/checkout@v2
         with:
-          ref: ${{ GITHUB_SHA }}
           path: head
       - name: Check out master branch
         uses: actions/checkout@v2
