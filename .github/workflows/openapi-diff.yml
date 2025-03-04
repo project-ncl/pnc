@@ -26,8 +26,10 @@ jobs:
           base-spec: base/rest-api/pnc-openapi.yaml
       - name: Test output
         run: |
-          ls -l
-          echo "!!!!" "${{ steps.run-diff.outputs.diff-output }}" "!!!!"
-          if echo "${{ steps.run-diff.outputs.diff-output }}" | grep "API changes broke backward compatibility"; then
+          if grep "No differences. Specifications are equivalents" openapi-diff.out; then
+            return
+          fi
+          echo TODO: add comment
+          if grep "API changes broke backward compatibility" openapi-diff.out; then
             exit 1
           endif
