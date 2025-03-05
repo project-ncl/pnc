@@ -6409,6 +6409,89 @@
         }
       }
     },
+    "/product-milestones/delivered-artifacts/shared" : {
+      "get" : {
+        "tags" : [ "Product Milestones" ],
+        "summary" : "Fetches Artifacts delivered in both of the Milestones.",
+        "operationId" : "getDeliveredArtifactsSharedInMilestones",
+        "parameters" : [ {
+          "name" : "pageIndex",
+          "in" : "query",
+          "description" : "Index of the page to return. Index starts with 0.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "RSQL Query.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "ID of the product milestone",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArtifactPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/product-milestones/validate-version" : {
       "post" : {
         "tags" : [ "Product Milestones" ],

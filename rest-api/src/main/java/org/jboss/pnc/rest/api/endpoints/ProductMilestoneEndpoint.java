@@ -49,6 +49,7 @@ import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -494,6 +495,7 @@ public interface ProductMilestoneEndpoint {
      * {@value GET_MILESTONES_INTERCONNECTION_GRAPH}
      *
      * @param milestoneId
+     * @param depthLimit
      * @return
      */
     @Operation(
@@ -512,4 +514,36 @@ public interface ProductMilestoneEndpoint {
     Graph<ProductMilestone> getMilestonesSharingDeliveredArtifactsGraph(
             @Parameter(description = PM_ID) @PathParam("id") String milestoneId,
             @QueryParam("depthLimit") @Min(0) @Max(5) @DefaultValue("5") Integer depthLimit);
+
+    static final String GET_DELIVERED_ARTIFACTS_SHARED_IN_MILESTONES = "Fetches Artifacts delivered in both of the Milestones.";
+
+    /**
+     * {@value GET_DELIVERED_ARTIFACTS_SHARED_IN_MILESTONES}
+     *
+     * @param pageParameters
+     * @param milestone1Id
+     * @param milestone2Id
+     * @return
+     */
+    @Operation(
+            summary = GET_DELIVERED_ARTIFACTS_SHARED_IN_MILESTONES,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/delivered-artifacts/shared")
+    Page<Artifact> getDeliveredArtifactsSharedInMilestones(
+            @Valid @BeanParam PageParameters pageParameters,
+            @Parameter(description = PM_ID) @NotBlank @QueryParam("milestone1") String milestone1Id,
+            @Parameter(description = PM_ID) @NotBlank @QueryParam("milestone2") String milestone2Id);
 }

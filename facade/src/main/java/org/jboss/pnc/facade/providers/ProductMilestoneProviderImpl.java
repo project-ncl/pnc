@@ -45,6 +45,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.BrewPusher;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
@@ -83,7 +84,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -110,6 +110,7 @@ import java.util.stream.Stream;
 
 import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
 import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.deliveredInMilestones;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
@@ -134,6 +135,9 @@ public class ProductMilestoneProviderImpl extends
     private final BrewPusher brewPusher;
 
     private final BuildPushOperationRepository buildPushOperationRepository;
+
+    @Inject
+    private ArtifactProvider artifactProvider;
 
     private BuildPushOperationMapper buildPushOperationMapper;
 
@@ -231,6 +235,25 @@ public class ProductMilestoneProviderImpl extends
                     runningOperationsDTO);
         }
         doCloseMilestone(milestoneInDb, buildIds);
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getDeliveredArtifactsSharedInMilestones(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
+            String milestone1Id,
+            String milestone2Id) {
+        Integer milestone1IntId = Integer.valueOf(milestone1Id);
+        Integer milestone2IntId = Integer.valueOf(milestone2Id);
+
+        return artifactProvider.queryForCollection(
+                pageIndex,
+                pageSize,
+                sort,
+                q,
+                deliveredInMilestones(milestone1IntId, milestone2IntId));
     }
 
     private static Set<Base32LongID> buildsToPush(org.jboss.pnc.model.ProductMilestone milestoneInDb) {
