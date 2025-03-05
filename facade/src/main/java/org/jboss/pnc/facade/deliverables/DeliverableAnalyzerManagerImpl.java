@@ -28,6 +28,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.BuildSystemType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.WindowsArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
@@ -83,7 +84,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,6 +93,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -543,9 +544,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private org.jboss.pnc.model.Artifact createArtifact(
             org.jboss.pnc.model.Artifact artifact,
             TargetRepository targetRepo) {
-
         artifact.setTargetRepository(targetRepo);
-        artifact.setPurl(createGenericPurl(artifact.getFilename().toString(), artifact.getSha256()));
+        artifact.setPurl(createGenericPurl(artifact.getFilename(), artifact.getSha256()));
         org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
         targetRepo.getArtifacts().add(savedArtifact);
         return savedArtifact;
@@ -567,17 +567,12 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             String nvr,
             TargetRepository targetRepository,
             User user) {
-        if (artifact.getArtifactType() != ArtifactType.MAVEN) {
-            throw new UnsupportedOperationException("Brew artifact " + artifact + " is not Maven!");
-        }
-        MavenArtifact mavenArtifact = (MavenArtifact) artifact;
-
-        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(mavenArtifact, user);
-        builder.identifier(createIdentifier(mavenArtifact));
-        builder.filename(createFileName(mavenArtifact));
-        builder.deployPath(createDeployPath(mavenArtifact));
-        builder.originUrl(createBrewOriginURL(mavenArtifact, nvr));
-        builder.purl(createPURL(mavenArtifact));
+        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(artifact, user);
+        builder.identifier(createIdentifier(artifact));
+        builder.filename(createFileName(artifact));
+        builder.deployPath(createDeployPath(artifact));
+        builder.originUrl(createBrewOriginURL(artifact, nvr));
+        builder.purl(createPURL(artifact));
         builder.targetRepository(targetRepository);
 
         return builder.build();
@@ -603,25 +598,45 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return builder;
     }
 
-    private static String createDeployPath(MavenArtifact mavenArt) {
-        String filename = createFileName(mavenArt);
-        String deployPath = "/" + mavenArt.getGroupId().replace('.', '/') + "/" + mavenArt.getArtifactId() + "/"
-                + mavenArt.getVersion() + "/" + filename;
+    private static String createDeployPath(Artifact artifact) {
+        String filename = createFileName(artifact);
+        String deployPath;
+
+        if (artifact instanceof MavenArtifact) {
+            MavenArtifact mavenArtifact = (MavenArtifact) artifact;
+            deployPath = "/" + mavenArtifact.getGroupId().replace('.', '/') + "/" + mavenArtifact.getArtifactId() + "/"
+                    + mavenArtifact.getVersion() + "/" + filename;
+        } else if (artifact instanceof WindowsArtifact) {
+            deployPath = "/" + filename;
+        } else {
+            throw new IllegalArgumentException("Unsupported artifact type: " + artifact.getArtifactType());
+        }
+
         return deployPath;
     }
 
-    private static String createFileName(MavenArtifact mavenArt) {
-        String filename = mavenArt.getArtifactId() + "-" + mavenArt.getVersion();
-        if (!Strings.isEmpty(mavenArt.getClassifier())) {
-            filename += "-" + mavenArt.getClassifier();
+    private static String createFileName(Artifact artifact) {
+        String filename;
+
+        if (artifact instanceof MavenArtifact) {
+            MavenArtifact mavenArtifact = (MavenArtifact) artifact;
+            filename = mavenArtifact.getArtifactId() + "-" + mavenArtifact.getVersion();
+            if (!Strings.isEmpty(mavenArtifact.getClassifier())) {
+                filename += "-" + mavenArtifact.getClassifier();
+            }
+            filename += "." + mavenArtifact.getType();
+        } else if (artifact instanceof WindowsArtifact) {
+            WindowsArtifact windowsArtifact = (WindowsArtifact) artifact;
+            filename = windowsArtifact.getFilename();
+        } else {
+            throw new IllegalArgumentException("Unsupported artifact type: " + artifact.getArtifactType());
         }
-        filename += "." + mavenArt.getType();
+
         return filename;
     }
 
-    private String createBrewOriginURL(MavenArtifact mavenArt, String nvr) {
+    private String createBrewOriginURL(Artifact artifact, String nvr) {
         String brewContentUrl = globalConfig.getBrewContentUrl();
-
         Matcher matcher = NVR_PATTERN.matcher(nvr);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("NVR " + nvr + " does not match expected format.");
@@ -629,23 +644,39 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         String name = matcher.group(1);
         String version = matcher.group(2);
         String release = matcher.group(3);
-
-        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/maven" + createDeployPath(mavenArt);
+        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/"
+                + artifact.getArtifactType().name().toLowerCase(Locale.ENGLISH) + createDeployPath(artifact);
     }
 
-    private String createPURL(MavenArtifact mavenArtifact) {
+    private String createPURL(Artifact artifact) {
         try {
-            PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
-                    .withType(PackageURL.StandardTypes.MAVEN)
-                    .withNamespace(mavenArtifact.getGroupId())
-                    .withName(mavenArtifact.getArtifactId())
-                    .withVersion(mavenArtifact.getVersion())
-                    .withQualifier(
-                            "type",
-                            StringUtils.isEmpty(mavenArtifact.getType()) ? "jar" : mavenArtifact.getType());
+            PackageURLBuilder purlBuilder;
+            if (artifact instanceof MavenArtifact) {
+                MavenArtifact mavenArtifact = (MavenArtifact) artifact;
+                purlBuilder = PackageURLBuilder.aPackageURL()
+                        .withType(PackageURL.StandardTypes.MAVEN)
+                        .withNamespace(mavenArtifact.getGroupId())
+                        .withName(mavenArtifact.getArtifactId())
+                        .withVersion(mavenArtifact.getVersion())
+                        .withQualifier(
+                                "type",
+                                StringUtils.isEmpty(mavenArtifact.getType()) ? "jar" : mavenArtifact.getType());
 
-            if (!StringUtils.isEmpty(mavenArtifact.getClassifier())) {
-                purlBuilder.withQualifier("classifier", mavenArtifact.getClassifier());
+                if (!StringUtils.isEmpty(mavenArtifact.getClassifier())) {
+                    purlBuilder.withQualifier("classifier", mavenArtifact.getClassifier());
+                }
+
+            } else if (artifact instanceof WindowsArtifact) {
+                WindowsArtifact windowsArtifact = (WindowsArtifact) artifact;
+                purlBuilder = PackageURLBuilder.aPackageURL()
+                        .withType(PackageURL.StandardTypes.GENERIC)
+                        .withName(windowsArtifact.getName())
+                        .withVersion(windowsArtifact.getVersion())
+                        .withQualifier("filename", windowsArtifact.getFilename())
+                        .withQualifier("platforms", String.join(",", windowsArtifact.getPlatforms()));
+
+            } else {
+                throw new IllegalArgumentException("Unsupported artifact type: " + artifact.getArtifactType());
             }
             return purlBuilder.build().toString();
         } catch (MalformedPackageURLException e) {
@@ -655,7 +686,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
     /**
      * Compute the purl string for a generic download, that does not match package type specific files structure. See
-     * https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#generic
+     * <a href=
+     * "https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#generic">https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#generic</a>.
      *
      * @param filename the artifact filename
      * @param sha256 the SHA-256 of the artifact
@@ -673,17 +705,24 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
-    private String createIdentifier(MavenArtifact mavenArtifact) {
-        return Arrays
-                .asList(
-                        mavenArtifact.getGroupId(),
-                        mavenArtifact.getArtifactId(),
-                        mavenArtifact.getType(),
-                        mavenArtifact.getVersion(),
-                        mavenArtifact.getClassifier())
-                .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining(":"));
+    private String createIdentifier(Artifact artifact) {
+        if (artifact instanceof MavenArtifact) {
+            MavenArtifact mavenArtifact = (MavenArtifact) artifact;
+            return Stream
+                    .of(
+                            mavenArtifact.getGroupId(),
+                            mavenArtifact.getArtifactId(),
+                            mavenArtifact.getType(),
+                            mavenArtifact.getVersion(),
+                            mavenArtifact.getClassifier())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(":"));
+        } else if (artifact instanceof WindowsArtifact) {
+            WindowsArtifact windowsArtifact = (WindowsArtifact) artifact;
+            return String.join("-", windowsArtifact.getName(), windowsArtifact.getVersion());
+        } else {
+            throw new IllegalArgumentException("Unsupported artifact type: " + artifact.getArtifactType());
+        }
     }
 
     private TargetRepository getDistributionRepository(String distURL) {
