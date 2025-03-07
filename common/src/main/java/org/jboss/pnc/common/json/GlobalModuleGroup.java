@@ -48,15 +48,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalUiLoggerUrl;
     private String externalDingroguUrl;
     private String externalReqourUrl;
-    private String externalKonfluxBuildDriverUrl;
-    /**
-     * TODO: remove once we figure out where to put them
-     */
-    public String tempKonfluxRecipeImage;
-    /**
-     * TODO: remove once we figure out where to put them
-     */
-    public String tempKonfluxNamespace;
     /**
      * TODO: remove once we are comfortable with the new process
      */
@@ -231,30 +222,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalReqourUrl(String externalReqourUrl) {
         this.externalReqourUrl = externalReqourUrl;
-    }
-
-    public String getExternalKonfluxBuildDriverUrl() {
-        return externalKonfluxBuildDriverUrl;
-    }
-
-    public void setExternalKonfluxBuildDriverUrl(String externalKonfluxBuildDriverUrl) {
-        this.externalKonfluxBuildDriverUrl = externalKonfluxBuildDriverUrl;
-    }
-
-    public String getTempKonfluxRecipeImage() {
-        return tempKonfluxRecipeImage;
-    }
-
-    public void setTempKonfluxRecipeImage(String tempKonfluxRecipeImage) {
-        this.tempKonfluxRecipeImage = tempKonfluxRecipeImage;
-    }
-
-    public String getTempKonfluxNamespace() {
-        return tempKonfluxNamespace;
-    }
-
-    public void setTempKonfluxNamespace(String tempKonfluxNamespace) {
-        this.tempKonfluxNamespace = tempKonfluxNamespace;
     }
 
     public boolean isTempUseDingroguRepositoryCreation() {

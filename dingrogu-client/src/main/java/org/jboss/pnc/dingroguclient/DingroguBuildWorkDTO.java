@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.dingroguclient;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 // TODO: at some point sync this DTO with the one on the dingrogu url
 @Jacksonized
@@ -35,7 +36,8 @@ import java.util.Map;
 public class DingroguBuildWorkDTO {
     String reqourUrl;
     String repositoryDriverUrl;
-    String konfluxBuildDriverUrl;
+    String buildDriverUrl;
+    String environmentDriverUrl;
 
     String scmRepoURL;
     String scmRevision;
@@ -52,12 +54,10 @@ public class DingroguBuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
+    boolean debugEnabled; // TODO
+    String environmentLabel;
+    String environmentImage;
 
     String buildScript;
-    String buildTool;
-    String recipeImage;
     String podMemoryOverride;
-    String namespace;
-    String buildToolVersion;
-    String javaVersion;
 }
