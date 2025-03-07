@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.dingroguclient;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildCategory;
@@ -28,13 +36,6 @@ import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @ApplicationScoped
 public class DingroguClientImpl implements DingroguClient {
@@ -98,13 +99,6 @@ public class DingroguClientImpl implements DingroguClient {
                 null);
     }
 
-    /**
-     * TODO: hardcoded values: buildToolVersion, javaVersion, buildTool
-     * 
-     * @param buildTask
-     * @param correlationId
-     * @return
-     */
     @Override
     public DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId) {
 
@@ -121,7 +115,8 @@ public class DingroguClientImpl implements DingroguClient {
         return DingroguBuildWorkDTO.builder()
                 .reqourUrl(global.getExternalReqourUrl())
                 .repositoryDriverUrl(global.getExternalRepositoryDriverUrl())
-                .konfluxBuildDriverUrl(global.getExternalKonfluxBuildDriverUrl())
+                .buildDriverUrl(global.getExternalBuildDriverUrl())
+                .environmentDriverUrl(global.getExternalEnvironmentDriverUrl())
                 .scmRepoURL(buildTask.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildTask.getBuildConfigurationAudited().getScmRevision())
                 .preBuildSyncEnabled(
@@ -138,19 +133,11 @@ public class DingroguClientImpl implements DingroguClient {
                 .brewPullActive(buildTask.getBuildConfigurationAudited().isBrewPullActive())
                 .genericParameters(buildTask.getBuildConfigurationAudited().getGenericParameters())
                 .buildConfigurationId(buildTask.getBuildConfigurationAudited().getId().toString())
-                .correlationId(correlationId)
                 .buildScript(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildScript())
-                // TODO: temporary
-                .javaVersion("17")
-                // TODO: temporary
-                .buildToolVersion("3.9.5")
-                // TODO: temporary
-                .buildTool("maven")
+                .correlationId(correlationId)
                 .podMemoryOverride(podMemoryOverride)
-                // TODO: temporary
-                .recipeImage(global.getTempKonfluxRecipeImage())
-                // TODO: temporary
-                .namespace(global.getTempKonfluxNamespace())
+                .environmentImage(buildTask.getBuildConfigurationAudited().getBuildEnvironment().getSystemImageId())
+                .environmentLabel(buildTask.getId())
                 .build();
     }
 
