@@ -569,11 +569,7 @@ public interface BuildEndpoint {
     @Operation(
             summary = COMPLETE_PUSH_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = {
-                    @ApiResponse(
-                            responseCode = ENTITY_CREATED_CODE,
-                            description = ENTITY_CREATED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
+            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,

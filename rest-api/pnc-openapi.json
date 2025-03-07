@@ -3317,15 +3317,8 @@
           }
         },
         "responses" : {
-          "201" : {
-            "description" : "Entity successfully created",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushReport"
-                }
-              }
-            }
+          "202" : {
+            "description" : "Request was accepted for processing"
           },
           "400" : {
             "description" : "Invalid input parameters or validation error",
@@ -6794,6 +6787,15 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MilestoneCloseRequest"
+              }
+            }
+          }
+        },
         "responses" : {
           "202" : {
             "description" : "Request was accepted for processing"
@@ -6828,8 +6830,7 @@
               }
             }
           }
-        },
-        "deprecated" : true
+        }
       },
       "delete" : {
         "tags" : [ "Product Milestones" ],

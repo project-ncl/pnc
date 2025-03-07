@@ -247,26 +247,11 @@ public interface ProductMilestoneEndpoint {
      * @param id {@value PM_ID}
      * @return
      */
-    @Operation(
-            summary = CLOSE_MILESTONE_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
     @Deprecated(forRemoval = true, since = "3.2")
-    void closeMilestone(@Parameter(description = PM_ID) @PathParam("id") String id);
+    void closeMilestone(@PathParam("id") String id);
 
     /**
      * {@value CLOSE_MILESTONE_DESC}
