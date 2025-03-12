@@ -130,12 +130,22 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone productMilestone = ProductMilestone.builder()
                 .productVersion(productVersion)
                 .version("1.0.0.ER1")
+                .productVersionId("100")
+                .productId("100")
+                .productName("Project Newcastle Demo Product")
                 .startingDate(Instant.ofEpochMilli(100_000))
                 .plannedEndDate(Instant.ofEpochMilli(200_000))
                 .build();
+
+        ProductMilestone productMilestoneCreateDto = productMilestone.toBuilder()
+                .productVersionId(null)
+                .productId(null)
+                .productName(null)
+                .build();
+
         // when
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
-        ProductMilestone created = client.createNew(productMilestone);
+        ProductMilestone created = client.createNew(productMilestoneCreateDto);
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
 
@@ -204,14 +214,20 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
         final String version = "1.0.1.ER1";
         assertThat(milestone.getProductRelease()).isNotNull();
-        ProductMilestone toUpdate = milestone.toBuilder().version(version).build();
+        ProductMilestone productMilestone = milestone.toBuilder().version(version).build();
+
+        ProductMilestone productMilestoneUpdateDto = productMilestone.toBuilder()
+                .productVersionId(null)
+                .productId(null)
+                .productName(null)
+                .build();
 
         // when
-        client.update(milestone.getId(), toUpdate);
+        client.update(milestone.getId(), productMilestoneUpdateDto);
 
         // then
         ProductMilestone retrieved = client.getSpecific(milestone.getId());
-        assertThat(retrieved).isEqualTo(toUpdate);
+        assertThat(retrieved).isEqualTo(productMilestone);
         assertThat(retrieved).isEqualToIgnoringGivenFields(milestone, "version");
         assertThat(retrieved.getVersion()).isEqualTo(version);
     }

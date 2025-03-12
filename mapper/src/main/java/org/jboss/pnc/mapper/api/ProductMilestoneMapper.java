@@ -59,6 +59,9 @@ public interface ProductMilestoneMapper extends
     void updateEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity, @MappingTarget ProductMilestone target);
 
     @Override
+    @Mapping(target = "productVersionId", source = "productVersion.id")
+    @Mapping(target = "productId", source = "productVersion.product.id")
+    @Mapping(target = "productName", source = "productVersion.product.name")
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "productRelease", resultType = ProductReleaseRef.class)
     @Mapping(target = "distributedArtifactsImporter", source = "deliveredArtifactsImporter")
@@ -66,6 +69,9 @@ public interface ProductMilestoneMapper extends
     org.jboss.pnc.dto.ProductMilestone toDTO(ProductMilestone dbEntity);
 
     @Override
+    @Mapping(target = "productVersionId", source = "productVersion.id")
+    @Mapping(target = "productId", source = "productVersion.product.id")
+    @Mapping(target = "productName", source = "productVersion.product.name")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "productVersion", "productRelease", "performedBuilds",
                     "deliveredArtifacts" })
