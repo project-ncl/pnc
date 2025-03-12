@@ -71,6 +71,24 @@ public class ProductMilestoneRef implements DTOEntity {
     protected final String version;
 
     /**
+     * ID of a product version containing the milestone.
+     */
+    @Null(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    protected final String productVersionId;
+
+    /**
+     * ID of a product containing the milestone.
+     */
+    @Null(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    protected final String productId;
+
+    /**
+     * Name of a product containing the milestone.
+     */
+    @Null(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    protected final String productName;
+
+    /**
      * The time when the work on the milestone ended. If the endDate is set, the milestone is closed and no new content
      * can be added to it.
      */

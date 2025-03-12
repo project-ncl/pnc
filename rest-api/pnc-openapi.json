@@ -12580,11 +12580,20 @@
             "type" : "string",
             "format" : "date-time"
           },
+          "productId" : {
+            "type" : "string"
+          },
+          "productName" : {
+            "type" : "string"
+          },
           "productRelease" : {
             "$ref" : "#/components/schemas/ProductReleaseRef"
           },
           "productVersion" : {
             "$ref" : "#/components/schemas/ProductVersionRef"
+          },
+          "productVersionId" : {
+            "type" : "string"
           },
           "startingDate" : {
             "type" : "string",
@@ -12677,6 +12686,15 @@
           "plannedEndDate" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "productId" : {
+            "type" : "string"
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "productVersionId" : {
+            "type" : "string"
           },
           "startingDate" : {
             "type" : "string",
