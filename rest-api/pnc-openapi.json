@@ -6877,15 +6877,6 @@
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/MilestoneCloseRequest"
-              }
-            }
-          }
-        },
         "responses" : {
           "202" : {
             "description" : "Request was accepted for processing"
@@ -6920,7 +6911,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       },
       "delete" : {
         "tags" : [ "Product Milestones" ],
