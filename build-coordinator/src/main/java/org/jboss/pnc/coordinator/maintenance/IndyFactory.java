@@ -33,8 +33,10 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Produces;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -44,9 +46,17 @@ public class IndyFactory {
 
     private Integer defaultRequestTimeout;
     private String baseUrl;
+    private Indy indy;
 
     @Deprecated // CDI workaround
     public IndyFactory() {
+    }
+
+    @PreDestroy
+    void clean() {
+        if (indy != null) {
+            indy.close();
+        }
     }
 
     @Inject
@@ -60,7 +70,12 @@ public class IndyFactory {
         this.baseUrl = baseUrl;
     }
 
+    @Produces
     public Indy get(String accessToken) {
+        if (indy != null) {
+            return indy;
+        }
+
         IndyClientAuthenticator authenticator = null;
         if (accessToken != null) {
             authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
@@ -74,12 +89,13 @@ public class IndyFactory {
 
             IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
                     new IndyPromoteClientModule() };
-            return new Indy(
+            this.indy = new Indy(
                     siteConfig,
                     authenticator,
                     new IndyObjectMapper(true),
                     MDCUtils.HEADER_KEY_MAPPING,
                     modules);
+            return this.indy;
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }
