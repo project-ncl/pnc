@@ -8331,6 +8331,8 @@ components:
           - POM_XML
           - BUNDLE_LICENSE
           - TEXT
+        sourceUrl:
+          type: string
         spdxLicenseId:
           type: string
         url:

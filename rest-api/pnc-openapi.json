@@ -11692,6 +11692,9 @@
             "type" : "string",
             "enum" : [ "UNKNOWN", "POM", "POM_XML", "BUNDLE_LICENSE", "TEXT" ]
           },
+          "sourceUrl" : {
+            "type" : "string"
+          },
           "spdxLicenseId" : {
             "type" : "string"
           },
