@@ -32,6 +32,7 @@ import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.slf4j.Logger;
@@ -136,9 +137,26 @@ public class DingroguClientImpl implements DingroguClient {
                 .buildScript(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildScript())
                 .correlationId(correlationId)
                 .podMemoryOverride(podMemoryOverride)
-                .environmentImage(buildTask.getBuildConfigurationAudited().getBuildEnvironment().getSystemImageId())
+                .environmentImage(getEnvironmentImage(buildTask.getBuildConfigurationAudited().getBuildEnvironment()))
                 .environmentLabel(buildTask.getId())
                 .build();
+    }
+
+    /**
+     * return the full docker image url to use
+     * 
+     * @param buildEnvironment
+     * @return
+     */
+    private static String getEnvironmentImage(BuildEnvironment buildEnvironment) {
+        String repositoryUrl = buildEnvironment.getSystemImageRepositoryUrl();
+        String imageId = buildEnvironment.getSystemImageId();
+
+        if (repositoryUrl.endsWith("/")) {
+            return repositoryUrl + imageId;
+        } else {
+            return repositoryUrl + "/" + imageId;
+        }
     }
 
     private static BuildCategory getBuildCategory(Map<String, String> genericParameters) {
