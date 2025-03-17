@@ -2,7 +2,6 @@ name: OpeanAPI diff
 
 on:
   pull_request_target:
-    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
@@ -11,21 +10,16 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: debug
-        run: |
-          echo "PR_NUMBER=${{ github.event.number }}"
-          echo "PR_HEAD_REF=${{ github.event.pull_request.head.ref }}"
-          echo "PR_HEAD_REPO=${{ github.event.pull_request.head.repo.full_name }}"
-          echo ${{ github }}
       - name: Check out head branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
           path: head
       - name: Check out master branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          ref: master
+          ref: ${{ github.event.pull_request.base.ref }}
           path: base
       - name: Run OpenAPI Diff (from HEAD revision)
         id: run-diff
