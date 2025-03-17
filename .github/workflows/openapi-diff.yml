@@ -2,6 +2,8 @@ name: OpeanAPI diff
 
 on:
   pull_request_target:
+    paths:
+      - 'rest-api/pnc-openapi.yaml'
   workflow_dispatch:
 
 jobs:
