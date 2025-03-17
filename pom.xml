@@ -123,7 +123,7 @@
     <version.commons-lang>2.6</version.commons-lang>
     <version.commons-logging>1.2</version.commons-logging>
     <version.commons-collections>3.2.2</version.commons-collections>
-    <version.commons-validator>1.7</version.commons-validator>
+    <version.commons-validator>1.9.0</version.commons-validator>
     <version.commons-beanutils>1.10.1</version.commons-beanutils>
 
     <!-- OTEL Dependencies for Instrumentation -->
