@@ -11,6 +11,12 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - name: debug
+        run: |
+          echo "PR_NUMBER=${{ github.event.number }}"
+          echo "PR_HEAD_REF=${{ github.event.pull_request.head.ref }}"
+          echo "PR_HEAD_REPO=${{ github.event.pull_request.head.repo.full_name }}"
+          echo ${{ github }}
       - name: Check out head branch
         uses: actions/checkout@v2
         with:
