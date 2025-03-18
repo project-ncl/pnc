@@ -75,10 +75,13 @@ public class ProductMilestone extends ProductMilestoneRef {
             User deliveredArtifactsImporter,
             String id,
             String version,
+            String productVersionId,
+            String productId,
+            String productName,
             Instant endDate,
             Instant startingDate,
             Instant plannedEndDate) {
-        super(id, version, endDate, startingDate, plannedEndDate);
+        super(id, version, productVersionId, productId, productName, endDate, startingDate, plannedEndDate);
         this.productVersion = productVersion;
         this.productRelease = productRelease;
         this.distributedArtifactsImporter = distributedArtifactsImporter;
