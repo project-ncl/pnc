@@ -30,7 +30,6 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
-import org.jboss.pnc.api.enums.LicenseSource;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -77,12 +76,10 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
     private String spdxLicenseId;
 
     /**
-     * The type of source analyzed for the license information
+     * The relative url of the source analyzed for the license information
      */
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private LicenseSource source;
+    @Type(type = "org.hibernate.type.TextType")
+    private String source;
 
     /**
      * The delivered artifact associated to this license information.
