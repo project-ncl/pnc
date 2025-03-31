@@ -65,7 +65,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private Logger logger = LoggerFactory.getLogger(DefaultRemoteBuildsCleaner.class);
 
-    private IndyFactory indyFactory;
+    private final Indy indy;
 
     KeycloakServiceClient serviceClient;
 
@@ -78,11 +78,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     @Inject
     public DefaultRemoteBuildsCleaner(
             Configuration configuration,
-            IndyFactory indyFactory,
+            Indy indy,
             KeycloakServiceClient serviceClient,
             CausewayClient causewayClient,
             BuildPushOperationRepository buildPushOperationRepository) {
-        this.indyFactory = indyFactory;
+        this.indy = indy;
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
         this.buildPushOperationRepository = buildPushOperationRepository;
@@ -145,7 +145,6 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                     "BuildContentId is null. Nothing to be deleted from Indy.");
         }
 
-        Indy indy = indyFactory.get(authToken);
         try {
             IndyStoresClientModule indyStores = indy.stores();
             if (pkgKey != null) {
