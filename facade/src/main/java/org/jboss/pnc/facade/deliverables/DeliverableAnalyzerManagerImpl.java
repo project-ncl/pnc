@@ -380,7 +380,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .name(license.getName())
                 .spdxLicenseId(license.getSpdxLicenseId())
                 .url(license.getUrl())
-                .source(license.getSource())
+                .sourceUrl(license.getSourceUrl())
                 .artifact(deliverableArtifact)
                 .build();
     }
