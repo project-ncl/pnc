@@ -82,7 +82,14 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LicenseSource source;
+    @Deprecated(since = "3.1.3", forRemoval = true)
+    private LicenseSource source = LicenseSource.UNKNOWN;
+
+    /**
+     * The relative url of the source analyzed for the license information
+     */
+    @Type(type = "org.hibernate.type.TextType")
+    private String sourceUrl;
 
     /**
      * The delivered artifact associated to this license information.
