@@ -53,7 +53,8 @@ public class DeliverableAnalyzerReportPredicates {
             CriteriaBuilder cb,
             Path<DeliverableAnalyzerReport> deliverableAnalyzerReports,
             DeliverableAnalyzerReportLabel reportLabel) {
-        Expression reportLabels = deliverableAnalyzerReports.get(DeliverableAnalyzerReport_.labels).as(String.class);
+        Expression<String> reportLabels = deliverableAnalyzerReports.get(DeliverableAnalyzerReport_.labels)
+                .as(String.class);
         return cb.notLike(reportLabels, "%" + reportLabel.name() + "%");
     }
 }
