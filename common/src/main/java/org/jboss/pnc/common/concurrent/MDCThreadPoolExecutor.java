@@ -35,6 +35,7 @@ import io.opentelemetry.context.Context;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Deprecated // moved to pnc-common (NCL-9076)
 public class MDCThreadPoolExecutor implements ExecutorService {
 
     protected ExecutorService executorService;

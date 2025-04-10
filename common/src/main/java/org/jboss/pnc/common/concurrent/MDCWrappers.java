@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Deprecated // moved to pnc-common (NCL-9076)
 public class MDCWrappers {
 
     public static Runnable wrap(final Runnable runnable) {
