@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Deprecated // moved to pnc-common (NCL-9076)
 public class MDCExecutors {
 
     public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
