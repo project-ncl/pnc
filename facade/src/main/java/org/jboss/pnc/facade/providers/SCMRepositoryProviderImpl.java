@@ -401,7 +401,7 @@ public class SCMRepositoryProviderImpl
         if (globalConfig.isTempUseDingroguRepositoryCreation()) {
             log.info("Using new dingrogu repository creation process");
             DingroguRepositoryCreationDTO dto = DingroguRepositoryCreationDTO.builder()
-                    .repourUrl(globalConfig.getRepourUrl())
+                    .reqourUrl(globalConfig.getExternalReqourUrl())
                     .orchUrl(globalConfig.getPncUrl())
                     .externalRepoUrl(externalURL)
                     .preBuildSyncEnabled(preBuildSyncEnabled)
