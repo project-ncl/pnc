@@ -26,7 +26,7 @@ import org.jboss.pnc.dto.BuildConfiguration;
 @Builder
 public class DingroguRepositoryCreationDTO {
     String orchUrl;
-    String repourUrl;
+    String reqourUrl;
 
     String externalRepoUrl;
     String ref;
