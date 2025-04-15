@@ -408,6 +408,7 @@ public class SCMRepositoryProviderImpl
                     .ref(revision)
                     .jobNotificationType(org.jboss.pnc.api.enums.JobNotificationType.valueOf(jobType.toString()))
                     .buildConfiguration(buildConfiguration.orElse(null))
+                    .taskId(Objects.toString(id))
                     .build();
             dingroguClient.submitRepositoryCreation(dto);
         } else {
