@@ -33,4 +33,7 @@ public class DingroguRepositoryCreationDTO {
     boolean preBuildSyncEnabled;
     JobNotificationType jobNotificationType;
     BuildConfiguration buildConfiguration;
+
+    // needed for notification, TODO: maybe switch to operation id in the future?
+    String taskId;
 }
