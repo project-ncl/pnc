@@ -1120,7 +1120,7 @@ public class DatabaseDataInitializer {
                 .sha256("sha256-fake-123abc")
                 .size(13L)
                 .artifactQuality(ArtifactQuality.NEW)
-                .deployPath("/built13")
+                .deployPath("/demo/built-artifact13/1.0/built-artifact13-1.0.jar")
                 .build();
 
         Artifact builtArtifact14 = Artifact.Builder.newBuilder()
@@ -1351,6 +1351,26 @@ public class DatabaseDataInitializer {
                 .build();
         operation10 = deliverableAnalyzerOperationRepository.save(operation10);
 
+        DeliverableAnalyzerOperation operation11 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000011l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone6)
+                .build();
+        operation11 = deliverableAnalyzerOperationRepository.save(operation11);
+
+        DeliverableAnalyzerOperation operation12 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000012l))
+                .progressStatus(ProgressStatus.FINISHED)
+                .submitTime(TODAY)
+                .startTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone6)
+                .build();
+        operation12 = deliverableAnalyzerOperationRepository.save(operation12);
+
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
@@ -1404,6 +1424,18 @@ public class DatabaseDataInitializer {
                 .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
                 .build();
         report9 = deliverableAnalyzerReportRepository.save(report9);
+
+        DeliverableAnalyzerReport report10 = DeliverableAnalyzerReport.builder()
+                .operation(operation11)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report10 = deliverableAnalyzerReportRepository.save(report10);
+
+        DeliverableAnalyzerReport report11 = DeliverableAnalyzerReport.builder()
+                .operation(operation12)
+                .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .build();
+        report11 = deliverableAnalyzerReportRepository.save(report11);
 
         DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
@@ -1544,6 +1576,20 @@ public class DatabaseDataInitializer {
                 .brewBuildId(null)
                 .build();
 
+        DeliverableArtifact analyzedArtifact20 = DeliverableArtifact.builder()
+                .report(report10)
+                .artifact(builtArtifact13)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
+        DeliverableArtifact analyzedArtifact21 = DeliverableArtifact.builder()
+                .report(report11)
+                .artifact(builtArtifact13)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+
         deliverableArtifactRepository.save(analyzedArtifact1);
         deliverableArtifactRepository.save(analyzedArtifact2);
         deliverableArtifactRepository.save(analyzedArtifact3);
@@ -1564,6 +1610,8 @@ public class DatabaseDataInitializer {
         deliverableArtifactRepository.save(analyzedArtifact17);
         deliverableArtifactRepository.save(analyzedArtifact18);
         deliverableArtifactRepository.save(analyzedArtifact19);
+        deliverableArtifactRepository.save(analyzedArtifact20);
+        deliverableArtifactRepository.save(analyzedArtifact21);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {

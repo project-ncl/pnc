@@ -75,7 +75,7 @@ public class DeliverableAnalyzerReportEndpointTest {
                 RestClientConfiguration.asAnonymous());
         RemoteCollection<DeliverableAnalyzerReport> all = client.getAll();
 
-        assertThat(all).hasSize(9);
+        assertThat(all).hasSize(11);
     }
 
     @Test
