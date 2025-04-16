@@ -112,6 +112,7 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
                         productMilestones,
                         deliverableAnalyzerReports,
                         milestoneIds));
+        query.distinct(true);
 
         TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
         return typedQuery.getResultList();
