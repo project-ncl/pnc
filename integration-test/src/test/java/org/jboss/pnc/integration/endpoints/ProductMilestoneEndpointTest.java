@@ -425,14 +425,48 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
+    public void testCompareArtifactsDeliveredInMilestonesArtifactFoundInMultipleAnalysisOfSameMilestone()
+            throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        ParsedArtifact parsedArtifact = ParsedArtifact.builder()
+                .id("114")
+                .artifactVersion("1.0")
+                .type("jar")
+                .classifier(null)
+                .build();
+
+        DeliveredArtifactInMilestones expectedDeliveredArtifactsInMilestones = DeliveredArtifactInMilestones.builder()
+                .artifactIdentifierPrefix("demo:built-artifact13")
+                .productMilestoneArtifacts(Map.of("104", List.of(parsedArtifact), "105", List.of(parsedArtifact)))
+                .build();
+
+        // act
+        List<DeliveredArtifactInMilestones> actualDeliveredArtifactsInMilestonesList = client
+                .compareArtifactVersionsDeliveredInMilestones(List.of("104", "105"));
+
+        // assert
+        assertThat(actualDeliveredArtifactsInMilestonesList).hasSize(1);
+        var actualDeliveredArtifactsInMilestones = actualDeliveredArtifactsInMilestonesList.iterator().next();
+
+        assertThat(actualDeliveredArtifactsInMilestones.getArtifactIdentifierPrefix())
+                .isEqualTo(expectedDeliveredArtifactsInMilestones.getArtifactIdentifierPrefix());
+        assertThat(actualDeliveredArtifactsInMilestones.getProductMilestoneArtifacts())
+                .isEqualTo(expectedDeliveredArtifactsInMilestones.getProductMilestoneArtifacts());
+    }
+
+    @Test
     public void testGetMilestonesSharingDeliveredArtifactsGraph() throws ClientException {
         // arrange
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
-        Set<String> expectedVerticesKeys = Set.of("100", "101", "102", "104");
+        Set<String> expectedVerticesKeys = Set.of("100", "101", "102", "104", "105");
         List<Edge> expectedEdges = List.of(
                 Edge.builder().source("101").target("100").cost(1).build(),
                 Edge.builder().source("104").target("102").cost(2).build(),
+                Edge.builder().source("105").target("102").cost(1).build(),
+                Edge.builder().source("105").target("104").cost(1).build(),
                 Edge.builder().source("102").target("100").cost(1).build());
 
         // act

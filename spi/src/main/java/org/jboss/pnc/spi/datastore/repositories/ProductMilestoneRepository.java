@@ -32,7 +32,7 @@ public interface ProductMilestoneRepository extends Repository<ProductMilestone,
 
     /**
      * Fetches all Delivered Artifacts delivered in at least one of the specified Milestones (milestoneIds). Artifacts
-     * must be from Maven or NPM and not from SCRATCH analysis.
+     * must be from Maven or NPM and not from SCRATCH or DELETED analysis.
      * 
      * Returned tuple format: 0) Artifact ID (Integer); 1) Artifact deploy path (String); 2) Artifact repository type
      * (RepositoryType); 3+) (for each Milestone) Whether an Artifact was delivered in a Milestone (Boolean)
