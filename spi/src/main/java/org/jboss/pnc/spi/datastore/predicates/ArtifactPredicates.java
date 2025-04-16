@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
@@ -79,21 +78,27 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withDeliveredInProductMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
-            Root<DeliverableArtifact> deliverableArtifact = query.from(DeliverableArtifact.class);
-            Join<DeliverableArtifact, DeliverableAnalyzerReport> report = deliverableArtifact
-                    .join(DeliverableArtifact_.report);
-            Join<DeliverableAnalyzerReport, DeliverableAnalyzerOperation> operation = report
-                    .join(DeliverableAnalyzerReport_.operation);
+            Subquery<Artifact> subquery = query.subquery(Artifact.class);
 
-            return cb.and(
-                    DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis(cb, report),
-                    DeliverableAnalyzerReportPredicates.notFromScratchAnalysis(cb, report),
-                    cb.equal(
-                            operation.get(DeliverableAnalyzerOperation_.productMilestone).get(ProductMilestone_.id),
-                            productMilestoneId),
-                    cb.equal(
-                            deliverableArtifact.get(DeliverableArtifact_.artifact).get(Artifact_.id),
-                            root.get(Artifact_.id)));
+            Root<DeliverableAnalyzerOperation> deliverableAnalyzerOperations = subquery
+                    .from(DeliverableAnalyzerOperation.class);
+            Join<DeliverableAnalyzerOperation, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableAnalyzerOperations
+                    .join(DeliverableAnalyzerOperation_.report);
+            Join<DeliverableArtifact, Artifact> artifacts = deliverableAnalyzerReports
+                    .join(DeliverableAnalyzerReport_.artifacts)
+                    .join(DeliverableArtifact_.artifact);
+
+            subquery.select(artifacts);
+            subquery.where(
+                    cb.and(
+                            DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis(cb, deliverableAnalyzerReports),
+                            DeliverableAnalyzerReportPredicates.notFromScratchAnalysis(cb, deliverableAnalyzerReports),
+                            cb.equal(
+                                    deliverableAnalyzerOperations.get(DeliverableAnalyzerOperation_.productMilestone)
+                                            .get(ProductMilestone_.id),
+                                    productMilestoneId)));
+
+            return root.in(subquery);
         };
     }
 

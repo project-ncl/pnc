@@ -307,6 +307,20 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
+    public void testGetDeliveredArtifactsArtifactFoundInMultipleAnalysisOfSameMilestone() throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        // act
+        RemoteCollection<Artifact> all = client.getDeliveredArtifacts("105");
+
+        // assert
+        assertThat(all).hasSize(1); // despite coming from two analyses, included just once
+        Artifact artifact = all.iterator().next();
+        assertThat(artifact.getIdentifier()).isEqualTo("demo:built-artifact13:jar:1.0");
+    }
+
+    @Test
     public void testGetDeliverableAnalyzerOperations() throws ClientException {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
