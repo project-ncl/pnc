@@ -78,20 +78,27 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withDeliveredInProductMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
-            Root<DeliverableArtifact> deliverableArtifact = query.from(DeliverableArtifact.class);
-            Join<DeliverableAnalyzerReport, DeliverableAnalyzerOperation> operation = deliverableArtifact
-                    .join(DeliverableArtifact_.report)
-                    .join(DeliverableAnalyzerReport_.operation);
+            Subquery<Artifact> subquery = query.subquery(Artifact.class);
 
-            return cb
-                    .and(
+            Root<DeliverableAnalyzerOperation> deliverableAnalyzerOperations = subquery
+                    .from(DeliverableAnalyzerOperation.class);
+            Join<DeliverableAnalyzerOperation, DeliverableAnalyzerReport> deliverableAnalyzerReports = deliverableAnalyzerOperations
+                    .join(DeliverableAnalyzerOperation_.report);
+            Join<DeliverableArtifact, Artifact> artifacts = deliverableAnalyzerReports
+                    .join(DeliverableAnalyzerReport_.artifacts)
+                    .join(DeliverableArtifact_.artifact);
+
+            subquery.select(artifacts);
+            subquery.where(
+                    cb.and(
+                            DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis(cb, deliverableAnalyzerReports),
+                            DeliverableAnalyzerReportPredicates.notFromScratchAnalysis(cb, deliverableAnalyzerReports),
                             cb.equal(
-                                    operation.get(DeliverableAnalyzerOperation_.productMilestone)
+                                    deliverableAnalyzerOperations.get(DeliverableAnalyzerOperation_.productMilestone)
                                             .get(ProductMilestone_.id),
-                                    productMilestoneId),
-                            cb.equal(
-                                    deliverableArtifact.get(DeliverableArtifact_.artifact).get(Artifact_.id),
-                                    root.get(Artifact_.id)));
+                                    productMilestoneId)));
+
+            return root.in(subquery);
         };
     }
 

@@ -350,7 +350,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(11);
+        assertThat(all).hasSize(10);
         RemoteCollection<Artifact> built = client.getDeliveredArtifacts(
                 milestoneId,
                 Optional.empty(),
@@ -359,6 +359,20 @@ public class ProductMilestoneEndpointTest {
         assertThat(built).hasSize(1);
         Artifact builtArtifact = built.iterator().next();
         assertThat(builtArtifact.getIdentifier()).isEqualTo("demo:built-artifact1:jar:1.0");
+    }
+
+    @Test
+    public void testGetDeliveredArtifactsArtifactFoundInMultipleAnalysisOfSameMilestone() throws ClientException {
+        // arrange
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        // act
+        RemoteCollection<Artifact> all = client.getDeliveredArtifacts("105");
+
+        // assert
+        assertThat(all).hasSize(1); // despite coming from two analyses, included just once
+        Artifact artifact = all.iterator().next();
+        assertThat(artifact.getIdentifier()).isEqualTo("demo:built-artifact13:jar:1.0");
     }
 
     @Test
