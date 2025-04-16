@@ -197,7 +197,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
                             .name(license.getName())
                             .spdxLicenseId(license.getSpdxLicenseId())
                             .url(license.getUrl())
-                            .source(license.getSource())
+                            .sourceUrl(license.getSourceUrl())
                             .build();
                 })
                 .collect(Collectors.toSet());
