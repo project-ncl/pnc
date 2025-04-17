@@ -1302,7 +1302,7 @@
         <plugin>
           <groupId>org.wildfly.plugins</groupId>
           <artifactId>wildfly-maven-plugin</artifactId>
-          <version>1.2.0.Final</version>
+          <version>5.1.2.Final</version>
         </plugin>
 
         <plugin>
