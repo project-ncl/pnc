@@ -237,4 +237,24 @@ public class ArtifactPredicates {
             return root.in(subquery);
         };
     }
+
+    public static Predicate<Artifact> dependencyBetweenBuilds(
+            Base32LongID dependantBuildId,
+            Base32LongID dependencyBuildId) {
+        return (root, query, cb) -> {
+            Subquery<Artifact> subquery = query.subquery(Artifact.class);
+
+            Root<Artifact> artifacts = subquery.from(Artifact.class);
+            Join<Artifact, BuildRecord> producingBuilds = artifacts.join(Artifact_.buildRecord);
+            Join<Artifact, BuildRecord> dependantBuilds = artifacts.join(Artifact_.dependantBuildRecords);
+
+            subquery.select(artifacts).distinct(true);
+            subquery.where(
+                    cb.and(
+                            cb.equal(dependantBuilds.get(BuildRecord_.id), dependantBuildId),
+                            cb.equal(producingBuilds.get(BuildRecord_.id), dependencyBuildId)));
+
+            return root.in(subquery);
+        };
+    }
 }
