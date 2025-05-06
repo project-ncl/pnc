@@ -50,10 +50,13 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsP
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -844,4 +847,29 @@ public interface BuildEndpoint {
             @Parameter(description = SwaggerConstants.PAGE_INDEX_DESCRIPTION) @QueryParam("pageIndex") int pageIndex,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
 
+    static final String GET_IMPLICIT_DEPENDENCY_GRAPH = "Finds Builds which produced implicit Artifact dependencies and Builds which depend on produced Artifacts of a requested Build, and recursively so for those Builds to create a graph of build-time artifact dependencies. Maximum depth limit is 5.";
+
+    /**
+     * {@value GET_IMPLICIT_DEPENDENCY_GRAPH}
+     *
+     * @param buildId
+     * @param depthLimit
+     * @return
+     */
+    @Operation(
+            summary = GET_IMPLICIT_DEPENDENCY_GRAPH,
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/implicit-dependency-graph")
+    Graph<Build> getImplicitDependencyGraph(
+            @Parameter(description = B_ID) @PathParam("id") String buildId,
+            @QueryParam("depthLimit") @Min(0) @Max(5) @DefaultValue("5") Integer depthLimit);
 }
