@@ -1057,6 +1057,7 @@ public class DatabaseDataInitializer {
                 .executionRootVersion("7.0.3")
                 .temporaryBuild(false)
                 .dependency(importedArtifact1)
+                .dependency(builtArtifact10)
                 .build();
 
         nextId = Sequence.nextBase32Id();
