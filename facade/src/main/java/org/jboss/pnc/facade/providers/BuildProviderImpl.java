@@ -20,6 +20,8 @@ package org.jboss.pnc.facade.providers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.common.graph.VertexNeighbor;
+import org.jboss.pnc.common.graph.WeightedGraphBuilder;
 import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
@@ -77,6 +79,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ValidationException;
+import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +88,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.Tuple;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -745,6 +749,38 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         }
 
         return new Page<>(pageIndex, pageSize, totalPages, count, content);
+    }
+
+    @Override
+    public Graph<Build> getImplicitDependencyGraph(String buildId, Integer depthLimit) {
+        org.jboss.util.graph.Graph<Build> implicitDependencyGraph = createImplicitDependencyGraph(buildId, depthLimit);
+
+        return GraphDtoBuilder.from(implicitDependencyGraph, Build.class, Vertex::getData);
+    }
+
+    private org.jboss.util.graph.Graph<Build> createImplicitDependencyGraph(String buildId, Integer depthLimit) {
+        var graph = new org.jboss.util.graph.Graph<Build>();
+        var graphBuilder = new WeightedGraphBuilder<Build, String>(this::getSpecific, node -> {
+            var tuples = buildRecordRepository
+                    .getImplicitDependencies(buildMapper.getIdMapper().toEntity(node.getId()));
+            return parseVertexNeighborsFromTuples(tuples);
+        }, node -> {
+            var tuples = buildRecordRepository.getImplicitDependants(buildMapper.getIdMapper().toEntity(node.getId()));
+            return parseVertexNeighborsFromTuples(tuples);
+        });
+
+        graphBuilder.buildGraph(graph, buildId, depthLimit);
+        return graph;
+    }
+
+    private List<VertexNeighbor<String>> parseVertexNeighborsFromTuples(List<Tuple> tuples) {
+        return tuples.stream()
+                .map(
+                        tuple -> VertexNeighbor.<String> builder()
+                                .neighborId(tuple.get(0, Base32LongID.class).toString())
+                                .cost(tuple.get(1, Integer.class))
+                                .build())
+                .collect(Collectors.toList());
     }
 
     private DefaultPageInfo toPageInfo(BuildPageInfo buildPageInfo) {

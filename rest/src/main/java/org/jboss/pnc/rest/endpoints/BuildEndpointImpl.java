@@ -452,4 +452,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
         return provider.getAllBuildRecordInsightsNewerThanTimestamp(pageIndex, pageSize, new Date(timestamp));
     }
 
+    @Override
+    public Graph<Build> getImplicitDependencyGraph(String buildId, Integer depthLimit) {
+        return provider.getImplicitDependencyGraph(buildId, depthLimit);
+    }
 }

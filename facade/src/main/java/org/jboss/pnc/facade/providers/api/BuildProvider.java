@@ -25,7 +25,6 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.model.Base32LongID;
 
@@ -116,4 +115,6 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
             int pageIndex,
             int pageSize,
             Date lastupdatetime);
+
+    Graph<Build> getImplicitDependencyGraph(String buildId, Integer depthLimit);
 }
