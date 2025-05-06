@@ -19,6 +19,8 @@ package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -41,8 +43,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import java.math.BigInteger;
@@ -314,6 +320,41 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     @Override
     public List<Base32LongID> queryIdsWithPredicates(Predicate<BuildRecord>... predicates) {
         return queryIdsWithPredicates((r) -> r.get(BuildRecord_.id), predicates);
+    }
+
+    public List<Tuple> getImplicitDependencies(Base32LongID buildId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class);
+
+        Root<BuildRecord> builds = query.from(BuildRecord.class);
+        Join<BuildRecord, Artifact> dependencyArtifacts = builds.join(BuildRecord_.dependencies);
+        Join<Artifact, BuildRecord> dependencyBuilds = dependencyArtifacts.join(Artifact_.buildRecord);
+
+        query.multiselect(
+                dependencyBuilds.get(BuildRecord_.id),
+                cb.count(dependencyArtifacts.get(Artifact_.id)).as(Integer.class));
+        query.where(cb.equal(builds.get(BuildRecord_.id), buildId));
+        query.groupBy(dependencyBuilds.get(BuildRecord_.id));
+
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<Tuple> getImplicitDependants(Base32LongID buildId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class);
+
+        Root<BuildRecord> builds = query.from(BuildRecord.class);
+        Join<BuildRecord, Artifact> builtArtifacts = builds.join(BuildRecord_.builtArtifacts);
+        Join<Artifact, BuildRecord> dependentBuilds = builtArtifacts.join(Artifact_.dependantBuildRecords);
+
+        query.multiselect(
+                dependentBuilds.get(BuildRecord_.id),
+                cb.count(builtArtifacts.get(Artifact_.id)).as(Integer.class));
+        query.where(cb.equal(builds.get(BuildRecord_.id), buildId));
+        query.groupBy(dependentBuilds.get(BuildRecord_.id));
+
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override
