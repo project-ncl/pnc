@@ -41,7 +41,8 @@ import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.dto.requests.BuildPushParameters;
+import org.jboss.pnc.dto.response.Edge;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildStatus;
@@ -102,9 +103,11 @@ import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 public class BuildEndpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointTest.class);
-    private static String buildId;
-    private static String build2Id;
-    private static String build3Id;
+    private static String buildId; // buildRecord1
+    private static String build2Id; // tempRecord1
+    private static String build3Id; // buildRecord2
+    private static String build5Id; // buildRecord3
+    private static String build6Id; // buildRecord4
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -126,6 +129,9 @@ public class BuildEndpointTest {
         buildId = it.next().getId();
         build2Id = it.next().getId();
         build3Id = it.next().getId();
+        it.next().getId();
+        build5Id = it.next().getId();
+        build6Id = it.next().getId();
     }
 
     @Test
@@ -734,6 +740,51 @@ public class BuildEndpointTest {
         assertThat(attributes)
                 .containsEntry(org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME, "org.jboss.pnc:parent");
         assertThat(attributes).containsEntry(org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION, "1.2.4");
+    }
+
+    @Test
+    @InSequence(1)
+    public void testGetImplicitDependencyGraph() throws ClientException {
+        // arrange
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        Set<String> expectedVerticesKeys = Set.of(build6Id, buildId, build2Id, build5Id);
+        List<Edge<Build>> expectedEdges = List.of(
+                Edge.<Build> builder().source(build6Id).target(buildId).cost(1).build(), // importedArtifact1 (set to be
+                                                                                         // part of buildId Build in
+                                                                                         // shouldSetBuiltArtifacts)
+                Edge.<Build> builder().source(buildId).target(build2Id).cost(1).build(), // builtArtifact3 (set as a
+                                                                                         // dependency of buildId Build
+                                                                                         // in
+                                                                                         // shouldSetDependentArtifacts)
+                Edge.<Build> builder().source(build6Id).target(build5Id).cost(1).build()); // builtArtifact10
+
+        // act
+        Graph<Build> actualGraph = client.getImplicitDependencyGraph(build6Id, null);
+
+        // assert
+        assertThat(actualGraph.getVertices().keySet()).containsExactlyInAnyOrderElementsOf(expectedVerticesKeys);
+        assertThat(actualGraph.getEdges()).containsExactlyInAnyOrderElementsOf(expectedEdges);
+    }
+
+    @Test
+    @InSequence(2)
+    public void testGetImplicitDependencyGraphWithDependants() throws ClientException {
+        // arrange
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        Set<String> expectedVerticesKeys = Set.of(build6Id, buildId, build2Id, build3Id);
+        List<Edge<Build>> expectedEdges = List.of(
+                Edge.<Build> builder().source(build6Id).target(buildId).cost(1).build(), // importedArtifact1
+                Edge.<Build> builder().source(build3Id).target(buildId).cost(1).build(), // importedArtifact1
+                Edge.<Build> builder().source(buildId).target(build2Id).cost(1).build()); // builtArtifact3
+
+        // act
+        Graph<Build> actualGraph = client.getImplicitDependencyGraph(buildId, null);
+
+        // assert
+        assertThat(actualGraph.getVertices().keySet()).containsExactlyInAnyOrderElementsOf(expectedVerticesKeys);
+        assertThat(actualGraph.getEdges()).containsExactlyInAnyOrderElementsOf(expectedEdges);
     }
 
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
