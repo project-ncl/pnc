@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,6 +32,7 @@ import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -185,6 +187,16 @@ public class DingroguClientImpl implements DingroguClient {
         }
 
         try {
+
+            // Add MDC values, always
+            List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
+                    .entrySet()
+                    .stream()
+                    .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            request.getHeaders().addAll(headers);
+
             HttpUtils.performHttpRequest(request, payload, authToken);
         } catch (Exception e) {
             log.error("Exception for request: {}, attempts left: {}", request.getUri(), retries, e);
