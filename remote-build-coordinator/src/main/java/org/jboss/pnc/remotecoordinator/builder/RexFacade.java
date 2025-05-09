@@ -433,12 +433,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     private CreateTaskDTO getCreateNewTaskDingroguDTO(RemoteBuildTask buildTask) {
 
         log.info("Using dingrogu for build: {}", buildTask.getId());
-        List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
-                .entrySet()
-                .stream()
-                .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
 
+        List<Request.Header> headers = new ArrayList<>();
         headers.addAll(
                 List.of(
                         new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
