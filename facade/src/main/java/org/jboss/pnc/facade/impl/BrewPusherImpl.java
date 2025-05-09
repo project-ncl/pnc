@@ -168,16 +168,25 @@ public class BrewPusherImpl implements BrewPusher {
     }
 
     private void startPush(BuildPushOperation operation, String tagPrefix, boolean reimport) {
-        dingroguClient.submitBuildPush(
-                DingroguBuildPushDTO.builder()
-                        .operationId(operation.getId().getId())
-                        .buildId(operation.getBuild().getId().getId())
-                        .tagPrefix(tagPrefix)
-                        .reimport(reimport)
-                        .orchUrl(globalConfig.getPncUrl())
-                        .causewayUrl(globalConfig.getExternalCausewayUrl())
-                        .username(operation.getUser().getUsername())
-                        .build());
+        try {
+
+            MDCUtils.addProcessContext(operation.getId().getId());
+            MDCUtils.addCustomContext(BUILD_ID_KEY, operation.getBuild().getId().getId());
+
+            dingroguClient.submitBuildPush(
+                    DingroguBuildPushDTO.builder()
+                            .operationId(operation.getId().getId())
+                            .buildId(operation.getBuild().getId().getId())
+                            .tagPrefix(tagPrefix)
+                            .reimport(reimport)
+                            .orchUrl(globalConfig.getPncUrl())
+                            .causewayUrl(globalConfig.getExternalCausewayUrl())
+                            .username(operation.getUser().getUsername())
+                            .build());
+        } finally {
+            MDCUtils.removeProcessContext();
+            MDCUtils.removeCustomContext(BUILD_ID_KEY);
+        }
     }
 
     /**
