@@ -77,7 +77,8 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue" })
+                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
+                    "remoteRollback", "stoppedCause", "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(TaskDTO task, BuildMeta meta);
 
     @Mapping(target = "id", source = "task.name")
@@ -98,7 +99,8 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue" })
+                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
+                    "remoteRollback", "stoppedCause", "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(MinimizedTask task, BuildMeta meta);
 
     @BeforeMapping
