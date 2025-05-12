@@ -422,8 +422,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 buildTask.getId(),
                 BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
                 schedulerConfig.getQueueNameForBuilds(),
+                null,
                 remoteStart,
                 remoteCancel,
+                null,
                 callback,
                 Mode.ACTIVE,
                 null);
@@ -456,8 +458,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 buildTask.getId(),
                 BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
                 schedulerConfig.getQueueNameForBuilds(),
+                null,
                 remoteStart,
                 remoteCancel,
+                null,
                 callback,
                 Mode.ACTIVE,
                 null);
