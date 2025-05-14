@@ -1488,7 +1488,7 @@ public class DatabaseDataInitializer {
                 .report(report1)
                 .artifact(importedArtifact2)
                 .builtFromSource(false)
-                .brewBuildId(null)
+                .brewBuildId(42L)
                 .build();
         DeliverableArtifact analyzedArtifact8 = DeliverableArtifact.builder()
                 .report(report2)

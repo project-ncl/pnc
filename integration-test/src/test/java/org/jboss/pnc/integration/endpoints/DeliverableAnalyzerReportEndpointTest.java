@@ -43,6 +43,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -112,8 +113,27 @@ public class DeliverableAnalyzerReportEndpointTest {
 
         AnalyzedArtifact analyzedArtifact1 = it.next();
         assertThat(analyzedArtifact1.isBuiltFromSource()).isFalse();
-        assertThat(analyzedArtifact1.getBrewId()).isNull();
+        assertThat(analyzedArtifact1.getBrewId()).isEqualTo(42L);
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
+    }
+
+    @Test
+    public void testGetAnalyzedArtifactsByBrewId() throws ClientException {
+        // given
+        Long brewId = 42L;
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
+                RestClientConfiguration.asAnonymous());
+
+        // when
+        RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client
+                .getAnalyzedArtifacts(operationId, Optional.empty(), Optional.of("brewId==" + brewId.toString()));
+
+        // then
+        assertThat(analyzedArtifacts.size()).isEqualTo(1); // analyzedArtifact7 (from DatabaseDataInitializer)
+
+        Iterator<AnalyzedArtifact> it = analyzedArtifacts.iterator();
+        AnalyzedArtifact analyzedArtifact0 = it.next();
+        assertThat(analyzedArtifact0.getBrewId()).isEqualTo(brewId);
     }
 
     @Test

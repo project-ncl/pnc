@@ -51,7 +51,7 @@ public class DeliverableArtifactRSQLMapper extends AbstractRSQLMapper<Deliverabl
     @Override
     protected SingularAttribute<? super DeliverableArtifact, ?> toAttribute(String name) {
         switch (name) {
-            case "brewBuildId":
+            case "brewId":
                 return DeliverableArtifact_.brewBuildId;
             case "builtFromSource":
                 return DeliverableArtifact_.builtFromSource;
