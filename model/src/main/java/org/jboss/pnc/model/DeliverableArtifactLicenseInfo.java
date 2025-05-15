@@ -74,6 +74,8 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
     /**
      * The computed spdx license identifier associated with this license
      */
+    @NotNull
+    @Column(nullable = false)
     private String spdxLicenseId;
 
     /**
