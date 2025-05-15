@@ -88,6 +88,8 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
     /**
      * The relative url of the source analyzed for the license information
      */
+    @NotNull
+    @Column(nullable = false)
     @Type(type = "org.hibernate.type.TextType")
     private String sourceUrl;
 
