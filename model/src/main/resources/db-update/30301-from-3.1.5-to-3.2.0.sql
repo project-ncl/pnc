@@ -18,5 +18,6 @@
 
 BEGIN;
     -- new column that deliverableartifactlicenseinfo.sourceUrl that replaces deliverableartifactlicenseinfo.source
-    ALTER TABLE IF EXISTS deliverableartifactlicenseinfo ADD COLUMN sourceUrl text NOT NULL;
+    ALTER TABLE deliverableartifactlicenseinfo ADD COLUMN sourceUrl text NOT NULL;
+    ALTER TABLE deliverableartifactlicenseinfo ALTER COLUMN spdxLicenseId SET NOT NULL;
 COMMIT;
