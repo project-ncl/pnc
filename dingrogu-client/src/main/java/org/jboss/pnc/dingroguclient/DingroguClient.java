@@ -18,9 +18,12 @@
 package org.jboss.pnc.dingroguclient;
 
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface DingroguClient {
     Request startBuildProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId);
@@ -34,4 +37,24 @@ public interface DingroguClient {
     Request cancelProcessInstance(List<Request.Header> headers, String correlationId);
 
     DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId);
+
+    static List<Request.Header> addMdcValues(List<Request.Header> headers) {
+
+        List<Request.Header> result = null;
+        if (headers != null) {
+            result = new ArrayList<>(headers);
+        } else {
+            result = new ArrayList<>();
+        }
+
+        // Add MDC values, always
+        List<Request.Header> mdcHeaders = MDCUtils.getHeadersFromMDC()
+                .entrySet()
+                .stream()
+                .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        result.addAll(mdcHeaders);
+        return result;
+    }
 }

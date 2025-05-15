@@ -450,7 +450,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         Request callback = Request.builder()
                 .method(Request.Method.POST)
                 .uri(URI.create(format("{0}/build-tasks/{1}/notify", globalConfig.getPncUrl(), buildTask.getId())))
-                .headers(headers)
+                .headers(DingroguClient.addMdcValues(headers))
                 .attachment(buildMetadata)
                 .build();
 
@@ -464,7 +464,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 null,
                 callback,
                 Mode.ACTIVE,
-                null);
+                ConfigurationDTO.builder().mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING).build());
         return createTaskDTO;
     }
 
