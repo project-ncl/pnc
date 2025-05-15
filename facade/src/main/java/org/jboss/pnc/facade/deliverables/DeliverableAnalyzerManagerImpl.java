@@ -32,6 +32,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.WindowsArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.api.enums.LicenseSource;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
@@ -381,6 +382,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .spdxLicenseId(license.getSpdxLicenseId())
                 .url(license.getUrl())
                 .sourceUrl(license.getSourceUrl())
+                .source(LicenseSource.UNKNOWN) // set default value (it was replaced by sourceUrl)
                 .artifact(deliverableArtifact)
                 .build();
     }
