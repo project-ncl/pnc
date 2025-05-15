@@ -42,6 +42,7 @@ import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactAudited;
 import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
@@ -82,6 +83,7 @@ import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.deliveredInMilestones;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.dependencyBetweenBuilds;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDeliveredInProductMilestone;
@@ -402,6 +404,24 @@ public class ArtifactProviderImpl
                 sort,
                 q,
                 deliveredInMilestones(milestone1IntId, milestone2IntId));
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getDependencyArtifactsBetweenBuilds(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
+            String dependantBuildId,
+            String dependencyBuildId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sort,
+                q,
+                dependencyBetweenBuilds(
+                        BuildMapper.idMapper.toEntity(dependantBuildId),
+                        BuildMapper.idMapper.toEntity(dependencyBuildId)));
     }
 
     private CriteriaQuery<Tuple> artifactInfoQuery(

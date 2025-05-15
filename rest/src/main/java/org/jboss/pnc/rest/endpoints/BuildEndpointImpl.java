@@ -446,4 +446,22 @@ public class BuildEndpointImpl implements BuildEndpoint {
         return provider.getAllBuildRecordInsightsNewerThanTimestamp(pageIndex, pageSize, new Date(timestamp));
     }
 
+    @Override
+    public Graph<Build> getBuildArtifactDependencyGraph(String buildId, Integer depthLimit) {
+        return provider.getBuildArtifactDependencyGraph(buildId, depthLimit);
+    }
+
+    @Override
+    public Page<Artifact> getDependencyArtifactsBetweenBuilds(
+            PageParameters pageParams,
+            String dependantBuildId,
+            String dependencyBuildId) {
+        return artifactProvider.getDependencyArtifactsBetweenBuilds(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                dependantBuildId,
+                dependencyBuildId);
+    }
 }

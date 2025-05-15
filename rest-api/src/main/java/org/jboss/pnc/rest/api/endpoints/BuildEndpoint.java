@@ -48,10 +48,14 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsP
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -836,4 +840,61 @@ public interface BuildEndpoint {
             @Parameter(description = SwaggerConstants.PAGE_INDEX_DESCRIPTION) @QueryParam("pageIndex") int pageIndex,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
 
+    static final String GET_BUILD_ARTIFACT_DEPENDENCY_GRAPH = "Finds Builds which produced Artifact dependencies and Builds which depend on produced Artifacts of a requested Build, and recursively so for those Builds to create a graph of build-time artifact dependencies. Maximum depth limit is 5.";
+
+    /**
+     * {@value GET_BUILD_ARTIFACT_DEPENDENCY_GRAPH}
+     *
+     * @param buildId
+     * @param depthLimit
+     * @return
+     */
+    @Operation(
+            summary = GET_BUILD_ARTIFACT_DEPENDENCY_GRAPH,
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/artifacts/dependency-graph")
+    Graph<Build> getBuildArtifactDependencyGraph(
+            @Parameter(description = B_ID) @PathParam("id") String buildId,
+            @org.jboss.resteasy.annotations.jaxrs.QueryParam("depthLimit") @Min(0) @Max(5) @DefaultValue("5") Integer depthLimit);
+
+    static final String GET_DEPENDENCY_ARTIFACTS_BETWEEN_BUILDS = "Fetches Artifacts produced in one specified Build and used as a dependency in the other specified Build.";
+
+    /**
+     * {@value GET_DEPENDENCY_ARTIFACTS_BETWEEN_BUILDS}
+     *
+     * @param pageParameters
+     * @param dependantBuildId
+     * @param dependencyBuildId
+     * @return
+     */
+    @Operation(
+            summary = GET_DEPENDENCY_ARTIFACTS_BETWEEN_BUILDS,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/artifacts/dependencies/shared")
+    Page<Artifact> getDependencyArtifactsBetweenBuilds(
+            @Valid @BeanParam PageParameters pageParameters,
+            @Parameter(description = B_ID) @NotBlank @QueryParam("dependantId") String dependantBuildId,
+            @Parameter(description = B_ID) @NotBlank @QueryParam("dependencyId") String dependencyBuildId);
 }

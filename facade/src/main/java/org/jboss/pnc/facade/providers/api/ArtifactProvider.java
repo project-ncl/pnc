@@ -93,4 +93,12 @@ public interface ArtifactProvider
             String q,
             String milestone1Id,
             String milestone2Id);
+
+    Page<Artifact> getDependencyArtifactsBetweenBuilds(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
+            String dependantBuildId,
+            String dependencyBuildId);
 }

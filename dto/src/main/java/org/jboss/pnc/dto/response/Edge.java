@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Edge in graph of objects.
@@ -32,6 +33,7 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode
 @AllArgsConstructor
+@ToString
 @Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = Edge.Builder.class)
 public class Edge<T> {

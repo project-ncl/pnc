@@ -2275,6 +2275,94 @@
         }
       }
     },
+    "/builds/artifacts/dependencies/shared" : {
+      "get" : {
+        "tags" : [ "Builds" ],
+        "summary" : "Fetches Artifacts produced in one specified Build and used as a dependency in the other specified Build.",
+        "operationId" : "getDependencyArtifactsBetweenBuilds",
+        "parameters" : [ {
+          "name" : "pageIndex",
+          "in" : "query",
+          "description" : "Index of the page to return. Index starts with 0.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "RSQL Query.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "dependantId",
+          "in" : "query",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "dependencyId",
+          "in" : "query",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArtifactPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/builds/brew-push/{id}" : {
       "get" : {
         "tags" : [ "Builds" ],
@@ -3010,6 +3098,58 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/builds/{id}/artifacts/dependency-graph" : {
+      "get" : {
+        "tags" : [ "Builds" ],
+        "summary" : "Finds Builds which produced Artifact dependencies and Builds which depend on produced Artifacts of a requested Build, and recursively so for those Builds to create a graph of build-time artifact dependencies. Maximum depth limit is 5.",
+        "operationId" : "getBuildArtifactDependencyGraph",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "integer",
+                "format" : "int32",
+                "default" : 5
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success with results"
           },
           "400" : {
             "description" : "Invalid input parameters or validation error",
