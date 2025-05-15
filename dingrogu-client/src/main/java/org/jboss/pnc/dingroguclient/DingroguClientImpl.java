@@ -63,7 +63,7 @@ public class DingroguClientImpl implements DingroguClient {
         return new Request(
                 Request.Method.POST,
                 URI.create(global.getExternalDingroguUrl() + "/workflow/build/rex-start"),
-                addMdcValues(headers),
+                DingroguClient.addMdcValues(headers),
                 dto);
     }
 
@@ -100,7 +100,7 @@ public class DingroguClientImpl implements DingroguClient {
         return new Request(
                 Request.Method.POST,
                 URI.create(global.getExternalDingroguUrl() + "/workflow/id/" + correlationId + "/cancel"),
-                addMdcValues(headers),
+                DingroguClient.addMdcValues(headers),
                 null);
     }
 
@@ -211,25 +211,5 @@ public class DingroguClientImpl implements DingroguClient {
             // retry again
             submitRequestWithRetriesAttempt(request, payload, authToken, retries - 1);
         }
-    }
-
-    private static List<Request.Header> addMdcValues(List<Request.Header> headers) {
-
-        List<Request.Header> result = null;
-        if (headers != null) {
-            result = new ArrayList<>(headers);
-        } else {
-            result = new ArrayList<>();
-        }
-
-        // Add MDC values, always
-        List<Request.Header> mdcHeaders = MDCUtils.getHeadersFromMDC()
-                .entrySet()
-                .stream()
-                .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-
-        result.addAll(mdcHeaders);
-        return result;
     }
 }
