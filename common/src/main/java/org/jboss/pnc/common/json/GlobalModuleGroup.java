@@ -52,6 +52,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
      * TODO: remove once we are comfortable with the new process
      */
     public boolean tempUseDingroguRepositoryCreation;
+    public boolean useDingroguBuildProcess;
 
     private String externalEttUrl;
     private String brewContentUrl;
@@ -230,6 +231,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setTempUseDingroguRepositoryCreation(boolean tempUseDingroguRepositoryCreation) {
         this.tempUseDingroguRepositoryCreation = tempUseDingroguRepositoryCreation;
+    }
+
+    public boolean isUseDingroguBuildProcess() {
+        return useDingroguBuildProcess;
+    }
+
+    public void setUseDingroguBuildProcess(boolean useDingroguBuildProcess) {
+        this.useDingroguBuildProcess = useDingroguBuildProcess;
     }
 
     public String getExternalLogEventDurationUrl() {
