@@ -194,7 +194,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                                                 temporaryBuild)
                                         .toString());) {
                     CreateTaskDTO create;
-                    if (useDingrogu(buildTask)) {
+                    if (globalConfig.isUseDingroguBuildProcess() && useDingrogu(buildTask)) {
                         create = getCreateNewTaskDingroguDTO(buildTask);
                     } else {
                         create = getCreateNewTaskRHPAMDTO(bpmUrl, buildTask, user);
@@ -503,6 +503,6 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     private boolean useDingrogu(RemoteBuildTask buildTask) {
         Map<String, String> genericParams = buildTask.getBuildConfigurationAudited().getGenericParameters();
-        return genericParams.containsKey(DINGROGU_PARAMETER_KEY);
+        return !genericParams.containsKey(DINGROGU_PARAMETER_KEY);
     }
 }
