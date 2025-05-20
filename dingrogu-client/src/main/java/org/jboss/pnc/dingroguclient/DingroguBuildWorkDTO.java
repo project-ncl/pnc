@@ -47,6 +47,7 @@ public class DingroguBuildWorkDTO {
     AlignmentPreference alignmentPreference;
     @NotNull
     String buildContentId;
+    String buildConfigName;
     BuildType buildType;
     BuildCategory buildCategory;
     String defaultAlignmentParams;

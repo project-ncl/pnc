@@ -130,6 +130,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .tempBuild(buildTask.getBuildOptions().isTemporaryBuild())
                 .alignmentPreference(buildTask.getBuildOptions().getAlignmentPreference())
                 .buildContentId(contentId)
+                .buildConfigName(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getName())
                 .buildType(
                         BuildType.valueOf(
                                 buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildType().name()))
