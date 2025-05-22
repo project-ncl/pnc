@@ -18,16 +18,13 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import javax.persistence.Tuple;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -104,4 +101,18 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset);
 
     int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
+
+    /**
+     * Fetches Builds which produced Artifact Dependencies of the specified Build (buildId).
+     *
+     * Returned tuple format: 0) Build ID (Base32LongID); 1) Count of produced Artifacts (Integer)
+     */
+    List<Tuple> getBuildsProducingArtifactDependencies(Base32LongID buildId);
+
+    /**
+     * Fetches Builds which depend on Artifacts produced in the specified Build (buildId).
+     *
+     * Returned tuple format: 0) Build ID (Base32LongID); 1) Count of produced Artifacts (Integer)
+     */
+    List<Tuple> getBuildsDependingOnProducedArtifacts(Base32LongID buildId);
 }
