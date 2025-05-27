@@ -18,16 +18,15 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildPushOperation_;
 import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
-import org.jboss.pnc.model.DeliverableAnalyzerDistribution_;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -45,6 +44,30 @@ public class BuildPushPredicates {
             return Predicate.nonMatching();
         } else {
             return (root, query, cb) -> root.get(BuildPushOperation_.build).get(BuildRecord_.id).in(buildIds);
+        }
+    }
+
+    /**
+     * Predicate that filters for the latest operation by submit time for each of the provided Builds.
+     */
+    public static Predicate<BuildPushOperation> latestWithBuilds(Set<Base32LongID> buildIds) {
+        if (CollectionUtils.isEmpty(buildIds)) {
+            return Predicate.nonMatching();
+        } else {
+            return (root, query, cb) -> {
+                Subquery<Date> subquery = query.subquery(Date.class);
+                Root<BuildPushOperation> sqRoot = subquery.from(BuildPushOperation.class);
+                subquery.select(cb.greatest(sqRoot.get(BuildPushOperation_.submitTime)));
+                subquery.where(
+                        cb.equal(
+                                sqRoot.get(BuildPushOperation_.build).get(BuildRecord_.id),
+                                root.get(BuildPushOperation_.build).get(BuildRecord_.id)));
+                subquery.groupBy(sqRoot.get(BuildPushOperation_.build));
+
+                return cb.and(
+                        root.get(BuildPushOperation_.build).get(BuildRecord_.id).in(buildIds),
+                        cb.equal(root.get(BuildPushOperation_.submitTime), subquery));
+            };
         }
     }
 }
