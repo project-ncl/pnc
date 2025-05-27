@@ -104,12 +104,12 @@ public class BrewPusherImpl implements BrewPusher {
                 .reimport(false)
                 .build();
         Base32LongID id = GroupBuildMapper.idMapper.toEntity(buildGroupId);
-        List<BuildRecord> buildRecords = buildRecordRepository
-                .queryWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(id));
+        List<Base32LongID> buildRecords = buildRecordRepository
+                .queryIdsWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(id));
 
         Set<org.jboss.pnc.dto.BuildPushOperation> results = new HashSet<>();
-        for (BuildRecord buildRecord : buildRecords) {
-            BuildRecord build = getLatestSuccessfullyExecutedBuildRecord(buildRecord.getId());
+        for (Base32LongID buildId : buildRecords) {
+            BuildRecord build = getLatestSuccessfullyExecutedBuildRecord(buildId);
             org.jboss.pnc.dto.BuildPushOperation buildPushOperation = doPushBuild(build, buildPushParameters, null);
             results.add(buildPushOperation);
             MDCUtils.removeProcessContext();

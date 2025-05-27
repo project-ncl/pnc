@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore.repositories.internal;
 
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -32,11 +31,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -158,6 +155,26 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
             return Integer.MAX_VALUE;
         }
         return (int) countAsLong;
+    }
+
+    protected List<ID> queryIdsWithPredicates(Function<Root<T>, Selection<ID>> idSelector, Predicate<T>... predicates) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ID> query = builder.createQuery(idClass);
+
+        Objects.requireNonNull(query, "CriteriaQuery must not be null");
+
+        Root<T> root = query.from(entityClass);
+
+        if (predicates.length != 0) {
+            var jpaPredicates = Arrays.stream(predicates)
+                    .map(p -> p.apply(root, query, builder))
+                    .collect(Collectors.toList())
+                    .toArray(new javax.persistence.criteria.Predicate[predicates.length]);
+            query.where(builder.and(jpaPredicates));
+        }
+
+        query.select(idSelector.apply(root));
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override
