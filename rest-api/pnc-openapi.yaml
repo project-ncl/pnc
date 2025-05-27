@@ -4091,7 +4091,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /operations/build-push:
+  /operations/build-pushes:
     get:
       tags:
       - Operations
@@ -4142,7 +4142,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /operations/build-push/{id}:
+  /operations/build-pushes/{id}:
     get:
       tags:
       - Operations
