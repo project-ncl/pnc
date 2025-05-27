@@ -5826,7 +5826,7 @@
         }
       }
     },
-    "/operations/build-push" : {
+    "/operations/build-pushes" : {
       "get" : {
         "tags" : [ "Operations" ],
         "summary" : "Gets all build push operations.",
@@ -5898,7 +5898,7 @@
         }
       }
     },
-    "/operations/build-push/{id}" : {
+    "/operations/build-pushes/{id}" : {
       "get" : {
         "tags" : [ "Operations" ],
         "summary" : "Gets a specific build push operation.",
