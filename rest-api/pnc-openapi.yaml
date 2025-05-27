@@ -7670,6 +7670,13 @@ components:
           format: date-time
         id:
           type: string
+        progressStatus:
+          type: string
+          enum:
+          - NEW
+          - PENDING
+          - IN_PROGRESS
+          - FINISHED
         result:
           type: string
           enum:

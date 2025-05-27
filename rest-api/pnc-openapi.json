@@ -10869,6 +10869,10 @@
           "id" : {
             "type" : "string"
           },
+          "progressStatus" : {
+            "type" : "string",
+            "enum" : [ "NEW", "PENDING", "IN_PROGRESS", "FINISHED" ]
+          },
           "result" : {
             "type" : "string",
             "enum" : [ "SUCCESSFUL", "FAILED", "REJECTED", "CANCELLED", "TIMEOUT", "SYSTEM_ERROR" ]
