@@ -61,6 +61,7 @@ public interface BuildPushReportMapper extends
     @Mapping(target = "startTime", source = "dbEntity.operation.startTime")
     @Mapping(target = "endTime", source = "dbEntity.operation.endTime")
     @Mapping(target = "user", source = "dbEntity.operation.user")
+    @Mapping(target = "progressStatus", source = "dbEntity.operation.progressStatus")
     @Mapping(target = "result", source = "dbEntity.operation.result")
     @Mapping(target = "tagPrefix", source = "dbEntity.operation.tagPrefix")
     @Mapping(target = "build", source = "dbEntity.operation.build", resultType = BuildRef.class)

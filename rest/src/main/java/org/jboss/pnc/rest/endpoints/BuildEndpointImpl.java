@@ -281,6 +281,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
                     buildPushReport.getStartTime(),
                     buildPushReport.getEndTime(),
                     buildPushReport.getUser(),
+                    buildPushReport.getProgressStatus(),
                     buildPushReport.getResult(),
                     buildPushReport.getBuild(),
                     buildPushReport.getTagPrefix(),
