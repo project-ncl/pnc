@@ -68,6 +68,7 @@ BEGIN; -- New and updated tables
     ALTER table operation ADD build_id bigint;
     ALTER TABLE operation
         ADD CONSTRAINT fk_operation_buildrecord FOREIGN KEY (build_id) REFERENCES buildrecord(id);
+    CREATE INDEX idx_operation_build_id ON operation(build_id);
 
     CREATE TABLE buildpushreport
     (

@@ -18,8 +18,10 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
@@ -39,6 +41,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
@@ -60,6 +63,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
@@ -202,6 +206,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
+
+    @Inject
+    private BuildPushOperationRepository buildPushOperationRepository;
 
     @Inject
     private Datastore datastore;
@@ -813,6 +820,32 @@ public class DatabaseDataInitializer {
                 "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
                         + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
         buildRecords.add(buildRecord1);
+
+        BuildPushOperation buildPush1 = BuildPushOperation.builder()
+                .id(new Base32LongID(Sequence.nextBase32Id()))
+                .build(buildRecord1)
+                .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(7, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now().minus(6, ChronoUnit.MINUTES)))
+                .operationParameters(Map.of(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foobar"))
+                .progressStatus(ProgressStatus.FINISHED)
+                .result(OperationResult.FAILED)
+                .user(demoUser)
+                .build();
+        buildPushOperationRepository.save(buildPush1);
+
+        BuildPushOperation buildPush2 = BuildPushOperation.builder()
+                .id(new Base32LongID(Sequence.nextBase32Id()))
+                .build(buildRecord1)
+                .submitTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
+                .startTime(Timestamp.from(Instant.now().minus(4, ChronoUnit.MINUTES)))
+                .endTime(Timestamp.from(Instant.now().minus(3, ChronoUnit.MINUTES)))
+                .operationParameters(Map.of(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foo-bar"))
+                .progressStatus(ProgressStatus.FINISHED)
+                .result(OperationResult.SYSTEM_ERROR)
+                .user(demoUser)
+                .build();
+        buildPushOperationRepository.save(buildPush2);
 
         nextId = Sequence.nextBase32Id();
         log.info("####nextId: " + nextId);
