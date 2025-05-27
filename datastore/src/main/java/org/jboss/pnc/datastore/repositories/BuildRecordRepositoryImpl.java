@@ -30,6 +30,7 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
@@ -308,6 +309,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
         BigInteger count = ((BigInteger) query.getSingleResult());
 
         return count.intValue();
+    }
+
+    @Override
+    public List<Base32LongID> queryIdsWithPredicates(Predicate<BuildRecord>... predicates) {
+        return queryIdsWithPredicates((r) -> r.get(BuildRecord_.id), predicates);
     }
 
     @Override
