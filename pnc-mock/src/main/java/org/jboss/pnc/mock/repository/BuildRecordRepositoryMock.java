@@ -24,6 +24,7 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -260,6 +261,11 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     @Override
     public int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
         return 0;
+    }
+
+    @Override
+    public List<Base32LongID> queryIdsWithPredicates(Predicate<BuildRecord>... predicates) {
+        return List.of();
     }
 
 }

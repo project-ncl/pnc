@@ -18,15 +18,12 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -104,4 +101,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset);
 
     int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
+
+    List<Base32LongID> queryIdsWithPredicates(Predicate<BuildRecord>... predicates);
 }
