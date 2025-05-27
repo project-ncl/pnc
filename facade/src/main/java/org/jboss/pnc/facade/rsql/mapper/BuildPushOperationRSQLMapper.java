@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import org.jboss.pnc.model.BuildPushOperation;
+import org.jboss.pnc.model.BuildPushOperation_;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
 import org.jboss.pnc.model.GenericEntity;
@@ -29,25 +31,24 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class DeliverableAnalyzerOperationRSQLMapper extends GenericOperationRSQLMapper<DeliverableAnalyzerOperation> {
+public class BuildPushOperationRSQLMapper extends GenericOperationRSQLMapper<BuildPushOperation> {
 
-    public DeliverableAnalyzerOperationRSQLMapper() {
-        super(DeliverableAnalyzerOperation.class);
+    public BuildPushOperationRSQLMapper() {
+        super(BuildPushOperation.class);
     }
 
     @Override
-    protected SingularAttribute<? super DeliverableAnalyzerOperation, ? extends GenericEntity<?>> toEntity(
-            String name) {
+    protected SingularAttribute<? super BuildPushOperation, ? extends GenericEntity<?>> toEntity(String name) {
         switch (name) {
-            case "productMilestone":
-                return DeliverableAnalyzerOperation_.productMilestone;
+            case "build":
+                return BuildPushOperation_.build;
             default:
                 return super.toEntity(name);
         }
     }
 
     @Override
-    protected SingularAttribute<? super DeliverableAnalyzerOperation, ?> toAttribute(String name) {
+    protected SingularAttribute<? super BuildPushOperation, ?> toAttribute(String name) {
         switch (name) {
             default:
                 return super.toAttribute(name);

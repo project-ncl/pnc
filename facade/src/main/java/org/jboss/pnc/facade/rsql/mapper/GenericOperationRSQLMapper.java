@@ -36,7 +36,7 @@ public abstract class GenericOperationRSQLMapper<T extends Operation> extends Ab
     }
 
     @Override
-    protected SingularAttribute<? super T, ? extends GenericEntity<Integer>> toEntity(String name) {
+    protected SingularAttribute<? super T, ? extends GenericEntity<?>> toEntity(String name) {
         switch (name) {
             case "user":
                 return Operation_.user;
