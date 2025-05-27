@@ -140,42 +140,50 @@ public class OperationsManagerImpl implements OperationsManager {
         }
 
         String operationId = Sequence.nextBase32Id();
-        MDCUtils.addProcessContext(operationId);
-        org.jboss.pnc.model.DeliverableAnalyzerOperation operation = org.jboss.pnc.model.DeliverableAnalyzerOperation.Builder
-                .newBuilder()
-                .progressStatus(ProgressStatus.NEW)
-                .submitTime(Date.from(Instant.now()))
-                .productMilestone(milestone)
-                .operationParameters(inputParams)
-                .user(userService.currentUser())
-                .id(operationId)
-                .build();
-        operation = self.saveToDb(operation);
-        operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
-        return operation;
+        try {
+            MDCUtils.addProcessContext(operationId);
+            org.jboss.pnc.model.DeliverableAnalyzerOperation operation = org.jboss.pnc.model.DeliverableAnalyzerOperation.Builder
+                    .newBuilder()
+                    .progressStatus(ProgressStatus.NEW)
+                    .submitTime(Date.from(Instant.now()))
+                    .productMilestone(milestone)
+                    .operationParameters(inputParams)
+                    .user(userService.currentUser())
+                    .id(operationId)
+                    .build();
+            operation = self.saveToDb(operation);
+            operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
+            return operation;
+        } finally {
+            MDCUtils.removeProcessContext();
+        }
     }
 
     @Override
     public BuildPushOperation newBuildPushOperation(BuildRecord build, Map<String, String> inputParams) {
         Base32LongID operationId = new Base32LongID(Sequence.nextId());
-        MDCUtils.addProcessContext(operationId.toString());
-        BuildPushOperation operation = BuildPushOperation.builder()
-                .id(operationId)
-                .progressStatus(ProgressStatus.NEW)
-                .submitTime(Date.from(Instant.now()))
-                .operationParameters(inputParams)
-                .user(userService.currentUser())
-                .build(build)
-                .build();
-        operation = self.saveToDbExclusive(operation, () -> isBuildPushOperationNotRunning(build));
-        if (operation == null) {
-            throw new ConflictedEntryException(
-                    "Build Push operation for build " + build.getId() + " already in progress.",
-                    BuildPushOperation.class,
-                    null);
+        try {
+            MDCUtils.addProcessContext(operationId.toString());
+            BuildPushOperation operation = BuildPushOperation.builder()
+                    .id(operationId)
+                    .progressStatus(ProgressStatus.NEW)
+                    .submitTime(Date.from(Instant.now()))
+                    .operationParameters(inputParams)
+                    .user(userService.currentUser())
+                    .build(build)
+                    .build();
+            operation = self.saveToDbExclusive(operation, () -> isBuildPushOperationNotRunning(build));
+            if (operation == null) {
+                throw new ConflictedEntryException(
+                        "Build Push operation for build " + build.getId() + " already in progress.",
+                        BuildPushOperation.class,
+                        null);
+            }
+            operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
+            return operation;
+        } finally {
+            MDCUtils.removeProcessContext();
         }
-        operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
-        return operation;
     }
 
     private boolean isBuildPushOperationNotRunning(BuildRecord build) {
