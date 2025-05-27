@@ -42,8 +42,10 @@ import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -470,6 +472,38 @@ public interface BuildEndpoint {
     @TimedMetric
     @Deprecated(forRemoval = true, since = "3.2")
     BuildPushReport getPushResult(@Parameter(description = B_ID) @PathParam("id") String buildId);
+
+    static final String GET_PUSH_OPERATIONS_DESC = "Get build push operations for specified build.";
+
+    /**
+     * {@value GET_PUSH_OPERATIONS_DESC}
+     *
+     * @param id {@value B_ID}
+     * @param pageParameters
+     * @return
+     */
+    @Operation(
+            summary = GET_PUSH_OPERATIONS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushOperationPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("{id}/build-push-operations")
+    @TimedMetric
+    Page<BuildPushOperation> getPushOperations(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
 
     static final String PUSH_DESC = "Push build to Brew.";
 

@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -38,10 +39,12 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
@@ -306,6 +309,43 @@ public interface ProductMilestoneEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
     void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") String id);
+
+    static final String GET_PUSH_OPERATIONS_DESC = "Get build push operations for specified milestone.";
+    static final String LATEST_OPERATION_DESC = "Should return only latest operation for each build?";
+
+    /**
+     * {@value GET_PUSH_OPERATIONS_DESC}
+     *
+     * @param id {@value PM_ID}
+     * @param latest {@value LATEST_OPERATION_DESC}
+     * @param pageParameters
+     *
+     * @return
+     */
+    @Operation(
+            summary = GET_PUSH_OPERATIONS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    schema = @Schema(implementation = SwaggerPages.BuildPushOperationPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("{id}/build-push-operations")
+    @TimedMetric
+    Page<BuildPushOperation> getPushOperations(
+            @Parameter(description = PM_ID) @PathParam("id") String id,
+            @Parameter(description = LATEST_OPERATION_DESC) @QueryParam("latest") @DefaultValue("false") boolean latest,
+            @Valid @BeanParam PageParameters pageParameters);
 
     static final String GET_DELIVERABLES_DESC = "Gets artifacts delivered in this milestone.";
 

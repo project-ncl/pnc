@@ -3394,6 +3394,89 @@
         }
       }
     },
+    "/builds/{id}/build-push-operations" : {
+      "get" : {
+        "tags" : [ "Builds" ],
+        "summary" : "Get build push operations for specified build.",
+        "operationId" : "getPushOperations",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageIndex",
+          "in" : "query",
+          "description" : "Index of the page to return. Index starts with 0.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "RSQL Query.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BuildPushOperationPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/builds/{id}/cancel" : {
       "post" : {
         "tags" : [ "Builds" ],
@@ -6738,6 +6821,100 @@
                 }
               }
             }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product-milestones/{id}/build-push-operations" : {
+      "get" : {
+        "tags" : [ "Product Milestones" ],
+        "summary" : "Get build push operations for specified milestone.",
+        "operationId" : "getPushOperations_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the product milestone",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageIndex",
+          "in" : "query",
+          "description" : "Index of the page to return. Index starts with 0.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "RSQL Query.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Should return only latest operation for each build?",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "boolean",
+                "default" : false
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BuildPushOperationPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
           },
           "500" : {
             "description" : "Server error",
