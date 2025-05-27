@@ -62,12 +62,7 @@ public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
     }
 
     public static void addProcessContext(String processContext) {
-        String current = MDC.get(MDCKeys.PROCESS_CONTEXT_KEY);
-        if (StringUtils.isEmpty(current)) {
-            MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, processContext);
-        } else {
-            logger.warn("Did not set new processContext [{}] as value already exists [{}].", processContext, current);
-        }
+        MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, processContext);
     }
 
     public static void addUserId(String userId) {
