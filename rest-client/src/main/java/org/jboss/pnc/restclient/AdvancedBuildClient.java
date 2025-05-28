@@ -18,6 +18,7 @@
 package org.jboss.pnc.restclient;
 
 import org.jboss.pnc.client.BuildClient;
+import org.jboss.pnc.client.BuildPushesClient;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteResourceException;
@@ -65,7 +66,7 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
     }
 
     private BuildPushReport getBuildPushReport(OperationNotification operationNotification) {
-        try (BuildClient client = new BuildClient(configuration)) {
+        try (BuildPushesClient client = new BuildPushesClient(configuration)) {
             try {
                 return client.getPushReport(operationNotification.getOperationId());
             } catch (RemoteResourceException e) {
