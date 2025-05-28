@@ -41,6 +41,7 @@ import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.dingroguclient.DingroguDeliverablesAnalysisDTO;
@@ -70,6 +71,7 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactLicenseInfoRe
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
+import org.slf4j.MDC;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
@@ -174,6 +176,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         Base32LongID operationId = operationsManager.newDeliverableAnalyzerOperation(id, inputParams).getId();
 
         try {
+            MDCUtils.addProcessContext(operationId.getId());
             log.info("Starting analysis of deliverables for milestone {} from urls: {}.", id, deliverablesUrls);
             startAnalysis(id, deliverablesUrls, runAsScratchAnalysis, operationId);
             return deliverableAnalyzerOperationMapper.toDTO(
@@ -182,6 +185,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         } catch (RuntimeException ex) {
             operationsManager.setResult(operationId, OperationResult.SYSTEM_ERROR);
             throw ex;
+        } finally {
+            MDCUtils.removeProcessContext();
         }
     }
 
