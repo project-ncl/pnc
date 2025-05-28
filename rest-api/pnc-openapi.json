@@ -2169,6 +2169,47 @@
         }
       }
     },
+    "/build-pushes/{id}" : {
+      "get" : {
+        "tags" : [ "Build pushes" ],
+        "summary" : "Get specific Report of Build Push Operation.",
+        "operationId" : "getPushReport",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the Build Push Report.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BuildPushReport"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/builds" : {
       "get" : {
         "tags" : [ "Builds" ],
@@ -2261,47 +2302,6 @@
                 }
               }
             }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/builds/brew-push/{id}" : {
-      "get" : {
-        "tags" : [ "Builds" ],
-        "summary" : "Get specific report of build push operation.",
-        "operationId" : "getPushReport",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the build push operation",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushReport"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
           },
           "500" : {
             "description" : "Server error",

@@ -253,15 +253,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
         return new BuildPushReportCompatibility(brewPushResult);
     }
 
-    @Override
-    public BuildPushReport getPushReport(String operationId) {
-        BuildPushReport brewPushResult = brewPusher.getBrewPushReport(operationId);
-        if (brewPushResult == null) {
-            throw new NotFoundException("Build Push operation with id " + operationId + " not found.");
-        }
-        return brewPushResult;
-    }
-
     @Value
     @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
     @Deprecated(forRemoval = true, since = "3.2")

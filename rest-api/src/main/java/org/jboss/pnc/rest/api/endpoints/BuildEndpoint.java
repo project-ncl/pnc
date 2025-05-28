@@ -471,32 +471,6 @@ public interface BuildEndpoint {
     @Deprecated(forRemoval = true, since = "3.2")
     BuildPushReport getPushResult(@Parameter(description = B_ID) @PathParam("id") String buildId);
 
-    static final String GET_PUSH_REPORT_DESC = "Get specific report of build push operation.";
-    static final String BUILD_PUSH_RESULT_ID = "ID of the build push operation";
-
-    /**
-     * {@value GET_PUSH_REPORT_DESC}
-     *
-     * @param operationId {@value BUILD_PUSH_RESULT_ID}
-     * @return
-     */
-    @Operation(
-            summary = GET_PUSH_REPORT_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("/brew-push/{id}")
-    @TimedMetric
-    BuildPushReport getPushReport(@Parameter(description = BUILD_PUSH_RESULT_ID) @PathParam("id") String operationId);
-
     static final String PUSH_DESC = "Push build to Brew.";
 
     /**
