@@ -4521,14 +4521,14 @@ paths:
       summary: Gets Artifacts Delivered in at least two of the Milestones and their
         versions.
       operationId: compareArtifactVersionsDeliveredInMilestones
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: string
+      parameters:
+      - name: milestoneIds
+        in: query
         required: true
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: Success with results
@@ -4576,13 +4576,18 @@ paths:
         description: RSQL Query.
         schema:
           type: string
-      requestBody:
+      - name: milestone1
+        in: query
         description: ID of the product milestone
-        content:
-          application/json:
-            schema:
-              type: string
         required: true
+        schema:
+          type: string
+      - name: milestone2
+        in: query
+        description: ID of the product milestone
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Success with results
@@ -4791,6 +4796,12 @@ paths:
         required: true
         schema:
           type: string
+      - name: latest
+        in: query
+        description: Should return only latest operation for each build?
+        schema:
+          type: boolean
+          default: false
       - name: pageIndex
         in: query
         description: Index of the page to return. Index starts with 0.
@@ -4816,13 +4827,6 @@ paths:
         description: RSQL Query.
         schema:
           type: string
-      requestBody:
-        description: Should return only latest operation for each build?
-        content:
-          application/json:
-            schema:
-              type: boolean
-              default: false
       responses:
         "200":
           description: Success with results
@@ -5114,13 +5118,12 @@ paths:
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: integer
-              format: int32
-              default: 5
+      - name: depthLimit
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 5
       responses:
         "200":
           description: Success with results
