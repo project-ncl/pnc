@@ -22,6 +22,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
@@ -53,11 +54,14 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
         executorService.execute(() -> {
             ResultStatus result;
             try {
+                MDCUtils.addProcessContext(response.getOperationId());
                 resultProcessor.completeAnalysis(transformToModelAnalysisResult(response));
                 result = ResultStatus.SUCCESS;
             } catch (RuntimeException e) {
                 log.error("Storing results of deliverable operation with id={} failed: ", response.getOperationId(), e);
                 result = ResultStatus.SYSTEM_ERROR;
+            } finally {
+                MDCUtils.removeProcessContext();
             }
 
             HttpUtils.performHttpRequest(
