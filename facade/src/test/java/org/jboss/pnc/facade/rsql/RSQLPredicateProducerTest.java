@@ -19,8 +19,10 @@ package org.jboss.pnc.facade.rsql;
 
 import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 import org.jboss.pnc.common.Numbers;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.facade.rsql.converter.Value;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
@@ -215,6 +217,32 @@ public class RSQLPredicateProducerTest {
         } catch (RuntimeException ex) {
             // ok
         }
+    }
+
+    @Test
+    public void testStreamPredicateBooleanValueCaseDoesNotMatter() {
+        Predicate<Build> streamPredicate = producer.getStreamPredicate("temporaryBuild==\"tRuE\"");
+
+        Build build1 = Build.builder()
+                .id("1")
+                .status(BuildStatus.BUILDING)
+                .buildContentId("build-1")
+                .temporaryBuild(false)
+                .build();
+        Build build2 = Build.builder()
+                .id("2")
+                .status(BuildStatus.BUILDING)
+                .buildContentId("build-2")
+                .temporaryBuild(true)
+                .build();
+
+        List<Build> filteredBuilds = Arrays.asList(build1, build2)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(1, filteredBuilds.size());
+        assertEquals("2", filteredBuilds.get(0).getId());
     }
 
     @Test

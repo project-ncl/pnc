@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.rsql;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.NestedNullException;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,8 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
         String argument = node.getArguments().get(0);
         try {
             String propertyValue = BeanUtils.getProperty(instance, fieldName);
+            Class<?> propertyType = PropertyUtils.getPropertyType(instance, fieldName);
+
             if (node.getOperator().equals(RSQLProducerImpl.IS_NULL)) {
                 return Boolean.valueOf(propertyValue == null).equals(Boolean.valueOf(argument));
             }
@@ -88,8 +91,16 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
                 return false;
             }
             if (node.getOperator().equals(RSQLOperators.EQUAL)) {
+                if (propertyType == Boolean.class || propertyType == boolean.class) {
+                    return Boolean.valueOf(propertyValue).equals(Boolean.valueOf(argument));
+                }
+
                 return propertyValue.equals(argument);
             } else if (node.getOperator().equals(RSQLOperators.NOT_EQUAL)) {
+                if (propertyType == Boolean.class || propertyType == boolean.class) {
+                    return !Boolean.valueOf(propertyValue).equals(Boolean.valueOf(argument));
+                }
+
                 return !propertyValue.equals(argument);
             } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN)) {
                 NumberFormat numberFormat = NumberFormat.getInstance();
@@ -121,7 +132,10 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
         } catch (NestedNullException e) {
             // If a nested property is null (i.e. idRev.id is null), it is considered a false equality
             return false;
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException(
+                    "RSQL selector " + fieldName + " not applicable on the type " + instance.getClass());
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException("Reflections exception", e);
         } catch (ParseException e) {
             throw new IllegalStateException("RSQL parse exception", e);
