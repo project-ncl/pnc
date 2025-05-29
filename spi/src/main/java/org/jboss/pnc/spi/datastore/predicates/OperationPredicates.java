@@ -19,7 +19,7 @@ package org.jboss.pnc.spi.datastore.predicates;
 
 import javax.persistence.criteria.Join;
 
-import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
 import org.jboss.pnc.model.Operation;
@@ -42,7 +42,7 @@ public class OperationPredicates {
         return (root, query, cb) -> cb.isNull(root.get(Operation_.result));
     }
 
-    public static <T extends Operation> Predicate<T> withResult(ResultStatus result) {
+    public static <T extends Operation> Predicate<T> withResult(OperationResult result) {
         return (root, query, cb) -> cb.equal(root.get(Operation_.result), result);
     }
 

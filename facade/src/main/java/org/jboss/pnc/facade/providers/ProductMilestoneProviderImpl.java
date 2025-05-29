@@ -22,7 +22,6 @@ import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.graph.UndirectedGraphBuilder;
 import org.jboss.pnc.common.graph.VertexNeighbor;
@@ -332,7 +331,7 @@ public class ProductMilestoneProviderImpl extends
         Set<Base32LongID> successfullyPushed = buildPushOperationRepository
                 .queryWithPredicates(
                         BuildPushPredicates.withBuilds(buildIds),
-                        OperationPredicates.withResult(ResultStatus.SUCCESS))
+                        OperationPredicates.withResult(OperationResult.SUCCESSFUL))
                 .stream()
                 .map(o -> o.getBuild().getId())
                 .collect(Collectors.toSet());
