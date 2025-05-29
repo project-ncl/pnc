@@ -29,6 +29,7 @@ import org.commonjava.indy.model.core.dto.StoreListingDTO;
 import org.commonjava.indy.promote.client.IndyPromoteAdminClientModule;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
+import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.Configuration;
@@ -118,7 +119,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
         List<BuildPushOperation> buildPushOperations = buildPushOperationRepository.queryWithPredicates(
                 BuildPushPredicates.withBuild(buildRecord.getId()),
-                OperationPredicates.withResult(org.jboss.pnc.api.enums.ResultStatus.SUCCESS));
+                OperationPredicates.withResult(OperationResult.SUCCESSFUL));
         String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
         for (BuildPushOperation buildPushOperation : buildPushOperations) {
             BuildPushReport report = buildPushOperation.getReport();
