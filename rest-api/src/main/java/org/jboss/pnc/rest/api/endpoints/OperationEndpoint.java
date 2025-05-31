@@ -228,7 +228,7 @@ public interface OperationEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/build-push/{id}")
+    @Path("/build-pushes/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     BuildPushOperation getSpecificBuildPush(@Parameter(description = OP_ID) @PathParam("id") String id);
 
@@ -254,6 +254,6 @@ public interface OperationEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/build-push")
+    @Path("/build-pushes")
     Page<BuildPushOperation> getAllBuildPushOperation(@Valid @BeanParam PageParameters pageParams);
 }

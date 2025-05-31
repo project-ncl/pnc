@@ -48,6 +48,7 @@ import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
@@ -128,6 +129,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private ManagedExecutorService executorService;
+
+    @Inject
+    private BuildPushOperationProvider buildPushOperationProvider;
 
     private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
@@ -254,12 +258,13 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public BuildPushReport getPushReport(String operationId) {
-        BuildPushReport brewPushResult = brewPusher.getBrewPushReport(operationId);
-        if (brewPushResult == null) {
-            throw new NotFoundException("Build Push operation with id " + operationId + " not found.");
-        }
-        return brewPushResult;
+    public Page<BuildPushOperation> getPushOperations(String buildId, PageParameters pageParameters) {
+        return buildPushOperationProvider.getOperationsForBuild(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                buildId);
     }
 
     @Value
@@ -281,6 +286,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
                     buildPushReport.getStartTime(),
                     buildPushReport.getEndTime(),
                     buildPushReport.getUser(),
+                    buildPushReport.getProgressStatus(),
                     buildPushReport.getResult(),
                     buildPushReport.getBuild(),
                     buildPushReport.getTagPrefix(),

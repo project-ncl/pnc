@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
 
 import java.time.Instant;
 
@@ -61,6 +62,11 @@ public class BuildPushReport implements DTOEntity {
      * The user who started the build push.
      */
     private final User user;
+
+    /**
+     * The progress status of the operation.
+     */
+    private final ProgressStatus progressStatus;
 
     /**
      * The result status of the operation.

@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
@@ -29,6 +30,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
@@ -579,5 +581,14 @@ public class ProductMilestoneEndpointTest {
                         postRequestedFor(urlMatching(".*")).withRequestBody(
                                 matching(".*super-important-3.jar.*")
                                         .and(matching(".*\"runAsScratchAnalysis\":true.*"))));
+    }
+
+    @Test
+    public void shouldReturnBuildPushes() throws RemoteResourceException {
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<BuildPushOperation> pushOperations = client.getPushOperations(milestone.getId(), true);
+        assertThat(pushOperations).hasSize(1);
+        BuildPushOperation latest = pushOperations.iterator().next();
+        assertThat(latest.getParameters()).containsEntry(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foo-bar");
     }
 }

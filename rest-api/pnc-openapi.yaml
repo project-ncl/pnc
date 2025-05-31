@@ -1550,6 +1550,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /build-pushes/{id}:
+    get:
+      tags:
+      - Build pushes
+      summary: Get specific report of build push operation.
+      operationId: getPushReport
+      parameters:
+      - name: id
+        in: path
+        description: ID of the build push operation
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildPushReport'
+        "404":
+          description: Can not find specified result
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /builds:
     get:
       tags:
@@ -1624,34 +1652,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        "500":
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /builds/brew-push/{id}:
-    get:
-      tags:
-      - Builds
-      summary: Get specific report of build push operation.
-      operationId: getPushReport
-      parameters:
-      - name: id
-        in: path
-        description: ID of the build push operation
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Success with results
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BuildPushReport'
-        "404":
-          description: Can not find specified result
         "500":
           description: Server error
           content:
@@ -2407,6 +2407,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BuildConfigurationRevision'
+        "404":
+          description: Can not find specified result
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /builds/{id}/build-push-operations:
+    get:
+      tags:
+      - Builds
+      summary: Get build push operations for specified build.
+      operationId: getPushOperations
+      parameters:
+      - name: id
+        in: path
+        description: ID of the build
+        required: true
+        schema:
+          type: string
+      - name: pageIndex
+        in: query
+        description: Index of the page to return. Index starts with 0.
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: pageSize
+        in: query
+        description: Number of entries that should be included in a page. Maximum
+          page size is 200.
+        schema:
+          type: integer
+          format: int32
+          default: 50
+      - name: sort
+        in: query
+        description: "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=)."
+        schema:
+          type: string
+      - name: q
+        in: query
+        description: RSQL Query.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildPushOperationPage'
+        "400":
+          description: Invalid input parameters or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         "404":
           description: Can not find specified result
         "500":
@@ -4091,7 +4150,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /operations/build-push:
+  /operations/build-pushes:
     get:
       tags:
       - Operations
@@ -4142,7 +4201,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /operations/build-push/{id}:
+  /operations/build-pushes/{id}:
     get:
       tags:
       - Operations
@@ -4462,14 +4521,14 @@ paths:
       summary: Gets Artifacts Delivered in at least two of the Milestones and their
         versions.
       operationId: compareArtifactVersionsDeliveredInMilestones
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: string
+      parameters:
+      - name: milestoneIds
+        in: query
         required: true
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: Success with results
@@ -4517,13 +4576,18 @@ paths:
         description: RSQL Query.
         schema:
           type: string
-      requestBody:
+      - name: milestone1
+        in: query
         description: ID of the product milestone
-        content:
-          application/json:
-            schema:
-              type: string
         required: true
+        schema:
+          type: string
+      - name: milestone2
+        in: query
+        description: ID of the product milestone
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Success with results
@@ -4713,6 +4777,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /product-milestones/{id}/build-push-operations:
+    get:
+      tags:
+      - Product Milestones
+      summary: Get build push operations for specified milestone.
+      operationId: getPushOperations_1
+      parameters:
+      - name: id
+        in: path
+        description: ID of the product milestone
+        required: true
+        schema:
+          type: string
+      - name: latest
+        in: query
+        description: Should return only latest operation for each build?
+        schema:
+          type: boolean
+          default: false
+      - name: pageIndex
+        in: query
+        description: Index of the page to return. Index starts with 0.
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: pageSize
+        in: query
+        description: Number of entries that should be included in a page. Maximum
+          page size is 200.
+        schema:
+          type: integer
+          format: int32
+          default: 50
+      - name: sort
+        in: query
+        description: "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=)."
+        schema:
+          type: string
+      - name: q
+        in: query
+        description: RSQL Query.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildPushOperationPage'
+        "400":
+          description: Invalid input parameters or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: Can not find specified result
         "500":
           description: Server error
           content:
@@ -4989,13 +5118,12 @@ paths:
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: integer
-              format: int32
-              default: 5
+      - name: depthLimit
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 5
       responses:
         "200":
           description: Success with results
@@ -7670,6 +7798,13 @@ components:
           format: date-time
         id:
           type: string
+        progressStatus:
+          type: string
+          enum:
+          - NEW
+          - PENDING
+          - IN_PROGRESS
+          - FINISHED
         result:
           type: string
           enum:
