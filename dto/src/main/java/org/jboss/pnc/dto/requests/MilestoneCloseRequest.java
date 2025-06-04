@@ -23,7 +23,7 @@ import lombok.Data;
 
 @Data
 @Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = GroupBuildRequest.Builder.class)
+@JsonDeserialize(builder = MilestoneCloseRequest.Builder.class)
 public class MilestoneCloseRequest {
     private Boolean skipBrewPush;
 }
