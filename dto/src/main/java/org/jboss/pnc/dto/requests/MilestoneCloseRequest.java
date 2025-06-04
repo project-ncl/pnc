@@ -17,13 +17,15 @@
  */
 package org.jboss.pnc.dto.requests;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 @Data
 @Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = MilestoneCloseRequest.Builder.class)
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MilestoneCloseRequest {
     private Boolean skipBrewPush;
 }
