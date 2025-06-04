@@ -32,6 +32,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Product;
@@ -96,6 +97,7 @@ public class ProductMilestoneEndpointTest {
     private static ProductMilestone milestone2;
 
     private static ProductMilestone milestone3;
+    private static ProductMilestone milestone6;
 
     private static BPMWireMock bpm;
 
@@ -107,14 +109,22 @@ public class ProductMilestoneEndpointTest {
     @BeforeClass
     public static void prepareData() throws Exception {
         ProductClient productClient = new ProductClient(RestClientConfiguration.asAnonymous());
-        product = productClient.getAll().iterator().next();
+        Iterator<Product> productIt = productClient.getAll().iterator();
+        product = productIt.next();
+        Product product2 = productIt.next();
         productVersion = productClient.getProductVersions(product.getId()).iterator().next();
+        ProductVersion productVersion2 = productClient.getProductVersions(product2.getId()).iterator().next();
         ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asAnonymous());
-        Iterator<ProductMilestone> it = productVersionClient.getMilestones(productVersion.getId()).iterator();
-        milestone = it.next();
+        Iterator<ProductMilestone> milestoneIt1 = productVersionClient.getMilestones(productVersion.getId()).iterator();
+        milestone = milestoneIt1.next();
         milestoneId = milestone.getId();
-        milestone2 = it.next();
-        milestone3 = it.next();
+        milestone2 = milestoneIt1.next();
+        milestone3 = milestoneIt1.next();
+        Iterator<ProductMilestone> milestoneIt2 = productVersionClient.getMilestones(productVersion2.getId())
+                .iterator();
+        milestoneIt2.next(); // 5
+        milestone6 = milestoneIt2.next(); // 6
+
         var bpmPort = 8288;
         bpm = new BPMWireMock(bpmPort);
         log.info("Mocked BPM started at port: " + bpmPort);
@@ -590,5 +600,18 @@ public class ProductMilestoneEndpointTest {
         assertThat(pushOperations).hasSize(1);
         BuildPushOperation latest = pushOperations.iterator().next();
         assertThat(latest.getParameters()).containsEntry(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foo-bar");
+    }
+
+    @Test
+    public void shouldCloseMilestoneWithoutBuildPush() throws RemoteResourceException {
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+
+        ProductMilestone preClose = client.getSpecific(milestone6.getId());
+        assertThat(preClose.getEndDate()).isNull();
+
+        client.closeMilestone(milestone6.getId(), MilestoneCloseRequest.builder().skipBrewPush(true).build());
+
+        ProductMilestone postClose = client.getSpecific(milestone6.getId());
+        assertThat(postClose.getEndDate()).isNotNull();
     }
 }
