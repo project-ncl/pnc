@@ -26,6 +26,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import javax.persistence.Tuple;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -268,4 +269,12 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         return List.of();
     }
 
+    public List<Tuple> getImplicitDependencies(Base32LongID buildId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Tuple> getImplicitDependants(Base32LongID buildId) {
+        return List.of();
+    }
 }

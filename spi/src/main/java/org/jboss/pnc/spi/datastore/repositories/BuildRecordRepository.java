@@ -25,6 +25,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import javax.persistence.Tuple;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -103,4 +104,18 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
 
     List<Base32LongID> queryIdsWithPredicates(Predicate<BuildRecord>... predicates);
+
+    /**
+     * Fetches Builds which produced Artifact Dependencies of the specified Build (buildId).
+     *
+     * Returned tuple format: 0) Build ID (Base32LongID); 1) Count of produced Artifacts (Integer)
+     */
+    List<Tuple> getImplicitDependencies(Base32LongID buildId);
+
+    /**
+     * Fetches Builds which depend on Artifacts produced in the specified Build (buildId).
+     *
+     * Returned tuple format: 0) Build ID (Base32LongID); 1) Count of produced Artifacts (Integer)
+     */
+    List<Tuple> getImplicitDependants(Base32LongID buildId);
 }
