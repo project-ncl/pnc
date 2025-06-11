@@ -52,6 +52,7 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
+import org.jboss.pnc.facade.validation.ConflictedStateException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
@@ -216,13 +217,18 @@ public class ProductMilestoneProviderImpl extends
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
         }
         if (milestoneInDb.getPerformedBuilds().isEmpty()) {
-            throw new InvalidEntityException("No builds were performed in milestone!");
+            throw new ConflictedStateException("No builds were performed in milestone!");
         }
         if (skipPush) {
             close(milestoneInDb);
             return;
         }
         Set<Base32LongID> buildIds = buildsToPush(milestoneInDb);
+        if (buildIds.isEmpty()) {
+            throw new ConflictedStateException(
+                    "No successful builds were performed in milestone! "
+                            + "If you want to close the milestone anyway, use option to skip the Brew push.");
+        }
         List<org.jboss.pnc.model.BuildPushOperation> runningOperations = runningBuildPushes(buildIds);
         if (!runningOperations.isEmpty()) {
             List<BuildPushOperation> runningOperationsDTO = runningOperations.stream()
