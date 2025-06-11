@@ -22,6 +22,11 @@ import org.jboss.pnc.model.GenericEntity;
 
 import java.util.Optional;
 
+/**
+ * Exception thrown when there is a conflict with an existing entity.
+ * 
+ * @see ConflictedStateException
+ */
 public class ConflictedEntryException extends DTOValidationException {
 
     private final String conflictedRecordId;

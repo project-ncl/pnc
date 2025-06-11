@@ -63,6 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.EnumMap;
@@ -288,8 +289,10 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone created = client.createNew(newMilestone);
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
-        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId()))
-                .hasCauseInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId())).cause()
+                .isInstanceOfSatisfying(
+                        ClientErrorException.class,
+                        e -> assertThat(e.getResponse().getStatus()).isEqualTo(409));
     }
 
     @Test

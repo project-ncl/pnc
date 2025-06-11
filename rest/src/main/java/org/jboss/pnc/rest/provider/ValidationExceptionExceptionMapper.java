@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.facade.validation.ConflictedStateException;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -41,6 +42,9 @@ public class ValidationExceptionExceptionMapper implements ExceptionMapper<DTOVa
         if (e instanceof ConflictedEntryException) {
             status = Response.Status.CONFLICT;
             logger.debug("A ConflictedEntry error occurred when processing REST call", e);
+        } else if (e instanceof ConflictedStateException) {
+            status = Response.Status.CONFLICT;
+            logger.debug("A ConflictedStateException error occurred when processing REST call", e);
         } else if (e instanceof CorruptedDataException) {
             status = Response.Status.INTERNAL_SERVER_ERROR;
             logger.error("Inconsistent data found in the system.", e);
