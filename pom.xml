@@ -102,7 +102,7 @@
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.0</atlasVersion>
-    <indyVersion>3.4.1</indyVersion>
+    <indyVersion>3.4.3-SNAPSHOT</indyVersion>
     <version.keycloak>18.0.11.redhat-00001</version.keycloak>
     <version.swagger2>2.2.30</version.swagger2>
     <version.buildagent>1.0.0</version.buildagent>
@@ -1712,6 +1712,17 @@
       <releases>
         <enabled>false</enabled>
       </releases>
+    </repository>
+    <repository>
+      <name>Central Portal Snapshots</name>
+      <id>central-portal-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
 
     <repository>
