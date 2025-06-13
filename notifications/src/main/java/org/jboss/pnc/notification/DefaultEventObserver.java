@@ -20,14 +20,12 @@ package org.jboss.pnc.notification;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.BuildPushReportMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.BuildPushReport;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.notification.dist.DistributedEventHandler;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
@@ -112,8 +110,7 @@ public class DefaultEventObserver {
             buildPushOperation.setResult(operationChangedEvent.getResult());
             operationToSend = buildPushOperationMapper.toDTO(buildPushOperation);
             if (buildPushOperation.getProgressStatus() == ProgressStatus.FINISHED) { // TODO: Remove in next version
-                BuildPushReport buildPushReport = buildPushReportRepository.queryById(buildPushOperation.getId());
-                sendMessage(new BuildPushResultNotification(buildPushReportMapper.toDTO(buildPushReport)));
+                sendMessage(buildPushReportMapper.fromOperation(buildPushOperation));
             }
         } else {
             notificationType = "UNKNOWN-OPERATION";
