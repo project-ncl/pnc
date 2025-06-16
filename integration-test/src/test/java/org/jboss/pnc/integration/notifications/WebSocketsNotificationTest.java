@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.integration.notifications;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -45,6 +48,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -83,6 +87,8 @@ public class WebSocketsNotificationTest {
     private static String MILESTONE_START_DATE;
     private static String MILESTONE_END_DATE;
     private static String MILESTONE_PLANNED_END_DATE;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Inject
     Notifier notifier;
@@ -189,14 +195,19 @@ public class WebSocketsNotificationTest {
     public void shouldReceiveOperationChangedNotification() throws Exception {
         // when
         OPERATION = operationsManager.newDeliverableAnalyzerOperation(PRODUCT_MILESTONE_ID, Collections.emptyMap());
-        String expectedJsonResponse = "{\"job\":\"OPERATION\",\"notificationType\":\"DELIVERABLES_ANALYSIS\",\"progress\":\"PENDING\",\"oldProgress\":null,\"message\":null,\"operationId\":\""
+        String expectedJsonResponse = "{\"notificationType\":\"DELIVERABLES_ANALYSIS\",\"progress\":\"PENDING\",\"oldProgress\":null,\"message\":null,\"operationId\":\""
                 + OPERATION.getId() + "\",\"result\":null,\"operation\":{\"id\":\"" + OPERATION.getId()
                 + "\",\"submitTime\":\"" + getIso8601FormatFromDate(OPERATION.getSubmitTime())
                 + "\",\"startTime\":null,\"endTime\":null,\"progressStatus\":\"NEW\",\"result\":null,\"user\":{\"id\":\"100\",\"username\":\"demo-user\"},\"parameters\":{},\"productMilestone\":{\"id\":\"100\",\"version\":\"1.0.0.Build1\",\"endDate\":"
                 + asJsonValue(MILESTONE_END_DATE) + ",\"startingDate\":" + asJsonValue(MILESTONE_START_DATE)
-                + ",\"plannedEndDate\":" + asJsonValue(MILESTONE_PLANNED_END_DATE) + "}}}";
+                + ",\"plannedEndDate\":" + asJsonValue(MILESTONE_PLANNED_END_DATE) + "}},\"job\":\"OPERATION\"}";
         System.out.println("expected json: " + expectedJsonResponse);
 
+        /*
+         * Hello, reader! If you are here and wondering why the test is failing, I suggest you: 1. sleep for 10 seconds
+         * 2. Read the list in notificationCollector to figure out what's the expected JSON output. 3. Perhaps that test
+         * could be improved if we compare map objects instead of string?
+         */
         // then
         Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
     }
@@ -205,7 +216,21 @@ public class WebSocketsNotificationTest {
         logger.debug("notificationCollector: {}.", notificationCollector);
         List<String> messages = notificationCollector.getMessages();
         logger.debug("Current messages: {}.", messages.stream().collect(Collectors.joining()));
-        return messages.contains(expectedJsonResponse);
+
+        try {
+            JsonNode expectedJsonNode = OBJECT_MAPPER.readTree(expectedJsonResponse);
+
+            for (String message : messages) {
+                if (OBJECT_MAPPER.readTree(message).equals(expectedJsonNode)) {
+                    return true;
+                }
+            }
+        } catch (JsonProcessingException e) {
+            logger.warn("Couldn't parse string to JsonNode", e);
+        }
+
+        // if we're here, nothing matched
+        return false;
     }
 
     private void waitForWSClientConnection() {
