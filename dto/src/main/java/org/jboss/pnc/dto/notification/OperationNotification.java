@@ -18,6 +18,7 @@
 package org.jboss.pnc.dto.notification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
@@ -56,7 +57,6 @@ public class OperationNotification extends Notification {
 
     private final Operation operation;
 
-    @JsonCreator
     public OperationNotification(
             String notificationType,
             String operationId,
@@ -64,21 +64,20 @@ public class OperationNotification extends Notification {
             ProgressStatus oldStatus,
             OperationResult result,
             Operation operation) {
-        super(OPERATION, notificationType, convert(newStatus), convert(oldStatus));
-        this.operationId = operationId;
-        this.result = result;
-        this.operation = operation;
+        // Note: Only one constructor should have @JsonCreator!
+        this(notificationType, operationId, newStatus, oldStatus, null, result, operation);
     }
 
     @JsonCreator
     public OperationNotification(
-            String notificationType,
-            String operationId,
-            ProgressStatus newStatus,
-            ProgressStatus oldStatus,
-            String message,
-            OperationResult result,
-            Operation operation) {
+            @JsonProperty("notificationType") String notificationType,
+            @JsonProperty("operationId") String operationId,
+            @JsonProperty("progress") ProgressStatus newStatus,
+            @JsonProperty("oldProgress") ProgressStatus oldStatus,
+            @JsonProperty("message") String message,
+            @JsonProperty("result") OperationResult result,
+            @JsonProperty("operation") Operation operation) {
+        // When using @JsonCreator to a constructor with more than one parameter, we have to add the @JsonProperty
         super(OPERATION, notificationType, convert(newStatus), convert(oldStatus), message);
         this.operationId = operationId;
         this.result = result;
