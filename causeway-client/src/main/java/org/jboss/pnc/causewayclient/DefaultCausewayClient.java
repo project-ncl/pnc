@@ -53,7 +53,7 @@ public class DefaultCausewayClient implements CausewayClient {
     @Inject
     public DefaultCausewayClient(GlobalModuleGroup globalConfig) {
         String causewayBaseUrl = globalConfig.getExternalCausewayUrl();
-        untagEndpoint = causewayBaseUrl + "/untag/build";
+        untagEndpoint = causewayBaseUrl + "/untag";
     }
 
     boolean post(String url, String jsonMessage, String authToken) {
