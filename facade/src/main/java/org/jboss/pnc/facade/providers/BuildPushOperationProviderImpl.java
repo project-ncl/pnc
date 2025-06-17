@@ -17,21 +17,27 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.exception.MissingDataException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -52,6 +58,9 @@ public class BuildPushOperationProviderImpl
     ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
+    BuildCoordinator buildCoordinator;
+
+    @Inject
     public BuildPushOperationProviderImpl(BuildPushOperationRepository repository, BuildPushOperationMapper mapper) {
         super(repository, mapper, org.jboss.pnc.model.BuildPushOperation.class);
     }
@@ -63,10 +72,23 @@ public class BuildPushOperationProviderImpl
             String sortingRsql,
             String query,
             String buildId) {
+        validateBuildExists(buildId);
+
         Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
 
-        ValidationBuilder.validateObject(null).validateAgainstRepository(buildRecordRepository, id, true);
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, BuildPushPredicates.withBuild(id));
+    }
+
+    private void validateBuildExists(String buildId) {
+        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        if (buildRecordRepository.queryById(id) == null) {
+            try {
+                buildCoordinator.getSubmittedBuildTask(buildId)
+                        .orElseThrow(() -> new EmptyEntityException("Build with id " + buildId + " not found"));
+            } catch (RemoteRequestException | MissingDataException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
@@ -78,7 +100,9 @@ public class BuildPushOperationProviderImpl
             boolean latest,
             String milestoneId) {
         Integer id = ProductMilestoneMapper.idMapper.toEntity(milestoneId);
-        ValidationBuilder.validateObject(null).validateAgainstRepository(productMilestoneRepository, id, true);
+        if (productMilestoneRepository.queryById(id) == null) {
+            throw new EmptyEntityException("Milestone with id " + milestoneId + " not found");
+        }
 
         Set<Base32LongID> buildIds = new HashSet<>(
                 buildRecordRepository.queryIdsWithPredicates(
