@@ -24,12 +24,14 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildPushOperation;
+import org.jboss.pnc.model.BuildPushReport;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
@@ -60,6 +62,8 @@ public class TemporaryBuildsCleaner {
 
     private BuildPushOperationRepository buildPushOperationRepository;
 
+    private BuildPushReportRepository buildPushReportRepository;
+
     private RemoteBuildsCleaner remoteBuildsCleaner;
 
     @Deprecated
@@ -72,11 +76,13 @@ public class TemporaryBuildsCleaner {
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             ArtifactRepository artifactRepository,
             BuildPushOperationRepository buildPushOperationRepository,
+            BuildPushReportRepository buildPushReportRepository,
             RemoteBuildsCleaner remoteBuildsCleaner) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.artifactRepository = artifactRepository;
         this.buildPushOperationRepository = buildPushOperationRepository;
+        this.buildPushReportRepository = buildPushReportRepository;
         this.remoteBuildsCleaner = remoteBuildsCleaner;
     }
 
@@ -208,6 +214,10 @@ public class TemporaryBuildsCleaner {
         if (buildPushOperations != null) {
             for (BuildPushOperation buildPushOperation : buildPushOperations) {
                 log.debug("Deleting build push operation {}", buildPushOperation);
+                BuildPushReport report = buildPushOperation.getReport();
+                if (report != null) {
+                    buildPushReportRepository.delete(report);
+                }
                 buildPushOperationRepository.delete(buildPushOperation);
             }
         }
