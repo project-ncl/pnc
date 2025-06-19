@@ -23,10 +23,13 @@ import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
+import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
@@ -55,6 +58,8 @@ public class TemporaryBuildsCleaner {
 
     private ArtifactRepository artifactRepository;
 
+    private BuildPushOperationRepository buildPushOperationRepository;
+
     private RemoteBuildsCleaner remoteBuildsCleaner;
 
     @Deprecated
@@ -66,10 +71,12 @@ public class TemporaryBuildsCleaner {
             BuildRecordRepository buildRecordRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             ArtifactRepository artifactRepository,
+            BuildPushOperationRepository buildPushOperationRepository,
             RemoteBuildsCleaner remoteBuildsCleaner) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.artifactRepository = artifactRepository;
+        this.buildPushOperationRepository = buildPushOperationRepository;
         this.remoteBuildsCleaner = remoteBuildsCleaner;
     }
 
@@ -118,6 +125,7 @@ public class TemporaryBuildsCleaner {
         }
 
         removeBuiltArtifacts(buildRecord);
+        removeBuildPushOperations(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
@@ -183,6 +191,23 @@ public class TemporaryBuildsCleaner {
 
             artifact.setBuildRecord(null);
             deleteArtifact(artifact);
+        }
+    }
+
+    /**
+     * Remove build push operations linked to a build record
+     * 
+     * @param buildRecord build record to remove
+     */
+    private void removeBuildPushOperations(BuildRecord buildRecord) {
+
+        List<BuildPushOperation> buildPushOperations = buildPushOperationRepository
+                .queryWithPredicates(BuildPushPredicates.withBuild(buildRecord.getId()));
+
+        if (buildPushOperations != null) {
+            for (BuildPushOperation buildPushOperation : buildPushOperations) {
+                buildPushOperationRepository.delete(buildPushOperation);
+            }
         }
     }
 }
