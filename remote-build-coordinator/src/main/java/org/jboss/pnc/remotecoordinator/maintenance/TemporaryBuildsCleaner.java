@@ -201,11 +201,13 @@ public class TemporaryBuildsCleaner {
      */
     private void removeBuildPushOperations(BuildRecord buildRecord) {
 
+        log.debug("Deleting build record {} brew push operations", buildRecord.getId());
         List<BuildPushOperation> buildPushOperations = buildPushOperationRepository
                 .queryWithPredicates(BuildPushPredicates.withBuild(buildRecord.getId()));
 
         if (buildPushOperations != null) {
             for (BuildPushOperation buildPushOperation : buildPushOperations) {
+                log.debug("Deleting build push operation {}", buildPushOperation);
                 buildPushOperationRepository.delete(buildPushOperation);
             }
         }
