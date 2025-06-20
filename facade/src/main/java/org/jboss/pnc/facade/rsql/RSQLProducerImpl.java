@@ -94,11 +94,6 @@ public class RSQLProducerImpl implements RSQLProducer {
 
     @Override
     public <DB extends GenericEntity<?>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql) {
-        // TODO: Remove this empty check once NCL-8692, NCL-8693 are fixed
-        if (rsql == null || rsql.isEmpty()) {
-            return new EmptyRSQLPredicate();
-        }
-
         return getCriteriaPredicate(universalMapper.mapper(type), rsql);
     }
 
@@ -130,11 +125,6 @@ public class RSQLProducerImpl implements RSQLProducer {
 
     @Override
     public <DB extends GenericEntity<?>> SortInfo<DB> getSortInfo(Class<DB> type, String rsql) {
-        // TODO: Remove this empty check once NCL-8692, NCL-8693 are fixed
-        if (rsql == null || rsql.isEmpty()) {
-            return new StableEmptySortInfo<>();
-        }
-
         return getSortInfo(universalMapper.mapper(type), rsql);
     }
 
