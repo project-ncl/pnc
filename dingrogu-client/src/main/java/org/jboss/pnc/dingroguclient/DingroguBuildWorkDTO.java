@@ -55,7 +55,7 @@ public class DingroguBuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
-    boolean debugEnabled; // TODO
+    boolean debugEnabled;
     String environmentLabel;
     String environmentImage;
 

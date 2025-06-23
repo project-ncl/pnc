@@ -144,6 +144,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .podMemoryOverride(podMemoryOverride)
                 .environmentImage(getEnvironmentImage(buildTask.getBuildConfigurationAudited().getBuildEnvironment()))
                 .environmentLabel(buildTask.getId())
+                .debugEnabled(buildTask.getBuildOptions().isKeepPodOnFailure())
                 .build();
     }
 
