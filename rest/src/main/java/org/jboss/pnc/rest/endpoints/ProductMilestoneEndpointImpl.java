@@ -118,11 +118,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public void closeMilestone(String id) {
-        productMilestoneProvider.closeMilestone(id, false);
-    }
-
-    @Override
     public void cancelMilestoneClose(String id) {
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
     }

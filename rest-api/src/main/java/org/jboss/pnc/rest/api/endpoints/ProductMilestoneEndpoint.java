@@ -248,19 +248,6 @@ public interface ProductMilestoneEndpoint {
 
     /**
      * {@value CLOSE_MILESTONE_DESC}
-     *
-     * @param id {@value PM_ID}
-     * @return
-     */
-    @Hidden
-    @POST
-    @RespondWithStatus(Response.Status.ACCEPTED)
-    @Path("/{id}/close")
-    @Deprecated(forRemoval = true, since = "3.2")
-    void closeMilestone(@PathParam("id") String id);
-
-    /**
-     * {@value CLOSE_MILESTONE_DESC}
      * 
      * @param id {@value PM_ID}
      * @return
