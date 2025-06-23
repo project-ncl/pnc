@@ -31,6 +31,12 @@
 --  productmilestonerelease_id | bigint                 |           |          |
 --  userinitiator              | character varying(255) |           |          |
 
+--                    Table "operation_parameters"
+--     Column    |          Type           | Collation | Nullable | Default
+-- --------------+-------------------------+-----------+----------+---------
+--  operation_id | bigint                  |           | not null |
+--  value        | character varying(8192) |           | not null |
+--  key          | character varying(50)   |           | not null |
 
 -- New tables
 
@@ -47,13 +53,6 @@
 --  user_id             | integer                  |           | not null |
 --  productmilestone_id | integer                  |           |          |
 --  build_id            | bigint                   |           |          |
-
---                    Table "operation_parameters"
---     Column    |          Type           | Collation | Nullable | Default
--- --------------+-------------------------+-----------+----------+---------
---  operation_id | bigint                  |           | not null |
---  value        | character varying(8192) |           | not null |
---  key          | character varying(50)   |           | not null |
 
 --                     Table "buildpushreport"
 --    Column    |          Type          | Collation | Nullable | Default
@@ -107,14 +106,14 @@ BEGIN; -- Data migration
         NULL As productmilestone_id,
         bpr.buildrecord_id AS build_id
     FROM buildrecordpushresult bpr
-    WHERE bpr.id > 10000000000000000;
+    WHERE bpr.id >= 10000000000000000;
 
     -- workaround for pre-base32 ids
     INSERT INTO operation
     SELECT
         'BuildPush' AS operation_type,
         -- this id will not match the time, but at least keeps original order
-        (((bpr.id % 100000000) + 529820) << 22) + floor(random()*4194304)::bigint AS id,
+        (((bpr.id % 100000000) + 529820) << 22)::bigint AS id,
         b.endtime + INTERVAL '30 minutes' AS endtime,
         'FINISHED' AS progressstatus,
         CASE WHEN bpr.status = 'ACCEPTED' THEN 'TIMEOUT'
@@ -138,7 +137,9 @@ BEGIN; -- Data migration
 
     INSERT INTO operation_parameters
     SELECT
-        bpr.id AS operation_id,
+        CASE WHEN bpr.id < 10000000000000000 THEN (((bpr.id % 100000000) + 529820) << 22)::bigint
+             ELSE bpr.id
+        END AS operation_id,
         CASE WHEN bpr.tagprefix IS NOT NULL AND bpr.tagprefix != '' THEN bpr.tagprefix
              ELSE pva.value
             END AS value,
@@ -153,9 +154,17 @@ BEGIN; -- Data migration
     SELECT
         bpr.brewbuildid AS brewbuildid,
         bpr.brewbuildurl AS brewbuildurl,
-        bpr.id AS operation_id
+        CASE WHEN bpr.id < 10000000000000000 THEN (((bpr.id % 100000000) + 529820) << 22)::bigint
+             ELSE bpr.id
+        END AS operation_id
     FROM buildrecordpushresult bpr
-    WHERE status = 'SUCCESS';
+    WHERE status = 'SUCCESS' AND bpr.brewbuildid IS NOT NULL AND bpr.brewbuildurl IS NOT NULL;
+
+    -- mark successful operations that did not create report (because of missing brew build ID or URL) as SYSTEM_ERROR
+    UPDATE operation
+    SET result = 'SYSTEM_ERROR'
+    FROM operation o FULL OUTER JOIN buildpushreport r ON o.id = r.operation_id
+    WHERE r.operation_id IS NULL AND o.result = 'SUCCESSFUL' AND o.operation_type = 'BuildPush' ;
 
 COMMIT;
 
