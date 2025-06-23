@@ -289,7 +289,8 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone created = client.createNew(newMilestone);
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
-        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId())).cause()
+        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId(), MilestoneCloseRequest.builder().build()))
+                .cause()
                 .isInstanceOfSatisfying(
                         ClientErrorException.class,
                         e -> assertThat(e.getResponse().getStatus()).isEqualTo(409));
@@ -606,7 +607,6 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
-    @Ignore // Ignore it for now since this is a flaky test
     public void shouldCloseMilestoneWithoutBuildPush() throws RemoteResourceException {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
