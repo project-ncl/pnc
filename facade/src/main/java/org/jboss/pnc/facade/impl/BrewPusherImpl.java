@@ -30,6 +30,7 @@ import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
@@ -103,7 +104,7 @@ public class BrewPusherImpl implements BrewPusher {
                 .tagPrefix(tagPrefix)
                 .reimport(false)
                 .build();
-        Base32LongID id = GroupBuildMapper.idMapper.toEntity(buildGroupId);
+        Base32LongID id = IdMapperHelper.toEntity(GroupBuildMapper.idMapper, buildGroupId);
         List<Base32LongID> buildRecords = buildRecordRepository
                 .queryIdsWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(id));
 
@@ -119,7 +120,7 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public org.jboss.pnc.dto.BuildPushOperation pushBuild(String buildId, BuildPushParameters buildPushParameters) {
-        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(BuildMapper.idMapper, buildId);
         return pushBuild(id, buildPushParameters, null);
     }
 
@@ -223,7 +224,7 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public void cancelPushOfBuild(String buildId) {
-        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(BuildMapper.idMapper, buildId);
         List<BuildPushOperation> buildPushOperations = buildPushOperationRepository
                 .queryWithPredicates(OperationPredicates.inProgress(), BuildPushPredicates.withBuild(id));
         if (buildPushOperations.isEmpty()) {
@@ -252,10 +253,10 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public void brewPushComplete(String buildId, BuildPushCompleted buildPushCompletion) {
-        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(BuildMapper.idMapper, buildId);
         MDCUtils.addProcessContext(buildPushCompletion.getOperationId());
-        Base32LongID operationId = buildPushOperationMapper.getIdMapper()
-                .toEntity(buildPushCompletion.getOperationId());
+        Base32LongID operationId = IdMapperHelper
+                .toEntity(buildPushOperationMapper.getIdMapper(), buildPushCompletion.getOperationId());
         BuildPushOperation buildPushOperation = buildPushOperationRepository.queryById(operationId);
         if (buildPushOperation == null) {
             throw new EmptyEntityException("Build push operation with id " + operationId + " not found.");
@@ -284,7 +285,7 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public org.jboss.pnc.dto.BuildPushReport getBrewPushResult(String buildId) {
-        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(BuildMapper.idMapper, buildId);
 
         var buildPushOperations = buildPushOperationRepository.queryWithPredicates(BuildPushPredicates.withBuild(id));
 
@@ -316,7 +317,7 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public org.jboss.pnc.dto.BuildPushReport getBrewPushReport(String operationId) {
-        Base32LongID id = BuildMapper.idMapper.toEntity(operationId);
+        Base32LongID id = IdMapperHelper.toEntity(buildPushOperationMapper.getIdMapper(), operationId);
 
         BuildPushReport buildPushReport = buildPushReportRepository.queryById(id);
         if (buildPushReport != null) {

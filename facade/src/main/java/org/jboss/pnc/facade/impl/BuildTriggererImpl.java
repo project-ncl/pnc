@@ -24,8 +24,10 @@ import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -87,6 +89,9 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
     @Inject
     private GenericSettingProvider genericSettingProvider;
+
+    @Inject
+    private BuildConfigurationMapper buildConfigurationMapper;
 
     @Override
     public String triggerBuild(
@@ -188,16 +193,20 @@ public class BuildTriggererImpl implements BuildTriggerer {
             List<BuildConfigurationRevisionRef> buildConfigurationAuditedRests) throws InvalidEntityException {
         Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
 
-        Set<IdRev> buildConfigurationAuditedRevs = nullableStreamOf(buildConfigurationAuditedRests)
-                .map(bcrRef -> new IdRev(Integer.valueOf(bcrRef.getId()), bcrRef.getRev()))
+        Set<IdRev> buildConfigurationAuditedRevs = nullableStreamOf(buildConfigurationAuditedRests).map(
+                bcrRef -> new IdRev(
+                        IdMapperHelper.toEntity(buildConfigurationMapper.getIdMapper(), bcrRef.getId()),
+                        bcrRef.getRev()))
                 .collect(Collectors.toSet());
         if (!buildConfigurationAuditedRevs.isEmpty()) {
             Map<IdRev, BuildConfigurationAudited> buildConfigurationsAuditedMap = buildConfigurationAuditedRepository
                     .queryById(buildConfigurationAuditedRevs);
 
             for (BuildConfigurationRevisionRef bc : buildConfigurationAuditedRests) {
-                BuildConfigurationAudited buildConfigurationAudited = buildConfigurationsAuditedMap
-                        .get(new IdRev(Integer.valueOf(bc.getId()), bc.getRev()));
+                BuildConfigurationAudited buildConfigurationAudited = buildConfigurationsAuditedMap.get(
+                        new IdRev(
+                                IdMapperHelper.toEntity(buildConfigurationMapper.getIdMapper(), bc.getId()),
+                                bc.getRev()));
                 Preconditions.checkArgument(
                         buildConfigurationAudited != null,
                         "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());

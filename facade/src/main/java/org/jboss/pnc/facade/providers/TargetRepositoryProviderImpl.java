@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.facade.providers.api.TargetRepositoryProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
@@ -85,7 +86,7 @@ public class TargetRepositoryProviderImpl
         Integer targetRepositoryId = null;
 
         if (targetRepositoryRest.getId() != null) {
-            targetRepositoryId = Integer.valueOf(targetRepositoryRest.getId());
+            targetRepositoryId = IdMapperHelper.toEntity(mapper.getIdMapper(), targetRepositoryRest.getId());
         }
 
         // don't validate against myself

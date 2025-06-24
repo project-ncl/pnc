@@ -23,15 +23,17 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
@@ -54,10 +56,13 @@ public class GroupConfigurationProviderImpl
         implements GroupConfigurationProvider {
 
     @Inject
-    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    private BuildConfigurationRepository buildConfigurationRepository;
+    private ProductVersionMapper productVersionMapper;
+
+    @Inject
+    private BuildConfigurationMapper buildConfigurationMapper;
 
     @Inject
     public GroupConfigurationProviderImpl(BuildConfigurationSetRepository repository, GroupConfigurationMapper mapper) {
@@ -71,7 +76,7 @@ public class GroupConfigurationProviderImpl
 
     @Override
     public GroupConfiguration getSpecific(String id) {
-        BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
+        BuildConfigurationSet dbEntity = repository.queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         if (dbEntity != null && dbEntity.isArchived()) {
             return null;
         }
@@ -93,8 +98,8 @@ public class GroupConfigurationProviderImpl
                     BuildConfigurationSetPredicates.isNotArchived());
 
             // don't validate against myself
-            if (groupConfigurationFromDB != null && (restEntity.getId() == null
-                    || !groupConfigurationFromDB.getId().equals(Integer.valueOf(restEntity.getId())))) {
+            if (groupConfigurationFromDB != null && (restEntity.getId() == null || !groupConfigurationFromDB.getId()
+                    .equals(IdMapperHelper.toEntity(mapper.getIdMapper(), restEntity.getId())))) {
 
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         groupConfigurationFromDB.getId(),
@@ -107,7 +112,7 @@ public class GroupConfigurationProviderImpl
 
     @Override
     public void delete(String id) {
-        if (hasLink(repository.queryById(Integer.valueOf(id)))) {
+        if (hasLink(repository.queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id)))) {
             archive(id);
         } else {
             super.delete(id);
@@ -144,7 +149,7 @@ public class GroupConfigurationProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withProductVersionId(Integer.valueOf(productVersionId)),
+                withProductVersionId(IdMapperHelper.toEntity(productVersionMapper.getIdMapper(), productVersionId)),
                 isNotArchived());
     }
 
@@ -161,7 +166,7 @@ public class GroupConfigurationProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withBuildConfigurationId(Integer.valueOf(bcId)),
+                withBuildConfigurationId(IdMapperHelper.toEntity(buildConfigurationMapper.getIdMapper(), bcId)),
                 isNotArchived());
     }
 
@@ -171,8 +176,12 @@ public class GroupConfigurationProviderImpl
 
     private void archive(String groupConfigurationId) throws DTOValidationException {
         ValidationBuilder.validateObject(WhenUpdating.class)
-                .validateAgainstRepository(repository, Integer.valueOf(groupConfigurationId), true);
-        BuildConfigurationSet buildConfigurationSet = repository.queryById(Integer.valueOf(groupConfigurationId));
+                .validateAgainstRepository(
+                        repository,
+                        IdMapperHelper.toEntity(mapper.getIdMapper(), groupConfigurationId),
+                        true);
+        BuildConfigurationSet buildConfigurationSet = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), groupConfigurationId));
         buildConfigurationSet.setArchived(true);
 
         // if a build group is archived, unlink the build group from the build configurations is associated with
@@ -187,8 +196,9 @@ public class GroupConfigurationProviderImpl
 
     @Override
     public void addConfiguration(String id, String configId) throws DTOValidationException {
-        BuildConfigurationSet buildConfigSet = repository.queryById(Integer.valueOf(id));
-        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(Integer.valueOf(configId));
+        BuildConfigurationSet buildConfigSet = repository.queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
+        BuildConfiguration buildConfig = buildConfigurationRepository
+                .queryById(IdMapperHelper.toEntity(buildConfigurationMapper.getIdMapper(), configId));
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
                 .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
                 .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
@@ -200,8 +210,9 @@ public class GroupConfigurationProviderImpl
 
     @Override
     public void removeConfiguration(String id, String configId) {
-        BuildConfigurationSet buildConfigSet = repository.queryById(Integer.valueOf(id));
-        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(Integer.valueOf(configId));
+        BuildConfigurationSet buildConfigSet = repository.queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
+        BuildConfiguration buildConfig = buildConfigurationRepository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), configId));
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
                 .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
                 .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);

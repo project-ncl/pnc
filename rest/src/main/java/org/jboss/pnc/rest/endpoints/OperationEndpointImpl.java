@@ -33,6 +33,7 @@ import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.mapper.api.OperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.endpoints.OperationEndpoint;
@@ -70,7 +71,7 @@ public class OperationEndpointImpl implements OperationEndpoint {
 
     @Override
     public void finish(String id, OperationResult result) {
-        operationsManager.setResult(OperationMapper.idMapper.toEntity(id), result);
+        operationsManager.setResult(IdMapperHelper.toEntity(OperationMapper.idMapper, id), result);
     }
 
     @Override

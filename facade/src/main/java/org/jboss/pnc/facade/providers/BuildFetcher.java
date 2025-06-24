@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.MergeIterator;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -100,7 +101,7 @@ public class BuildFetcher {
         if (buildTask != null) {
             return new BuildWithDeps(buildMapper.fromBuildTask(buildTask), buildTask);
         }
-        Base32LongID dbid = buildMapper.getIdMapper().toEntity(id);
+        Base32LongID dbid = IdMapperHelper.toEntity(buildMapper.getIdMapper(), id);
         BuildRecord buildRecord = buildRecordCache.get(dbid);
         if (buildRecord == null) {
             buildRecord = buildRecordRepository.queryById(dbid);
@@ -191,7 +192,7 @@ public class BuildFetcher {
                 fetchRunningBuilds();
                 buildTasks.stream()
                         .map(BuildTask::getId)
-                        .map(buildMapper.getIdMapper()::toEntity)
+                        .map((id) -> IdMapperHelper.toEntity(buildMapper.getIdMapper(), id))
                         .forEach(buildIds::add);
             }
 
@@ -232,7 +233,7 @@ public class BuildFetcher {
      * to fetch if any is missing. This can happen when a dependency already finished, but parent is still running.
      */
     private void checkBuildTasksForMissingDeps(String id) {
-        Base32LongID dbId = buildMapper.getIdMapper().toEntity(id);
+        Base32LongID dbId = IdMapperHelper.toEntity(buildMapper.getIdMapper(), id);
         if (depsProcessed.contains(dbId)) {
             return;
         }
@@ -343,11 +344,11 @@ public class BuildFetcher {
             this.build = build;
             dependencies = buildRecord.getDependencyBuildRecordIds()
                     .stream()
-                    .map(BuildMapper.idMapper::toDto)
+                    .map((id) -> IdMapperHelper.toDto(BuildMapper.idMapper, id))
                     .collect(Collectors.toSet());
             dependants = buildRecord.getDependentBuildRecordIds()
                     .stream()
-                    .map(BuildMapper.idMapper::toDto)
+                    .map((id) -> IdMapperHelper.toDto(BuildMapper.idMapper, id))
                     .collect(Collectors.toSet());
         }
     }

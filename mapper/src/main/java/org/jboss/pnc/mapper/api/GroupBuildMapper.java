@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
-import org.jboss.pnc.mapper.LongIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;

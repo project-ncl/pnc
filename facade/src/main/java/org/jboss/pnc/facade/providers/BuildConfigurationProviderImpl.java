@@ -37,6 +37,7 @@ import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
@@ -48,6 +49,10 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.EnvironmentMapper;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
+import org.jboss.pnc.mapper.api.ProjectMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -152,13 +157,22 @@ public class BuildConfigurationProviderImpl extends
     private ProjectRepository projectRepository;
 
     @Inject
-    private BuildProvider buildProvider;
-
-    @Inject
     private UserService userService;
 
     @Inject
     private UserMapper userMapper;
+
+    @Inject
+    private ProductVersionMapper productVersionMapper;
+
+    @Inject
+    private ProjectMapper projectMapper;
+
+    @Inject
+    private GroupConfigurationMapper groupConfigurationMapper;
+
+    @Inject
+    private EnvironmentMapper environmentMapper;
 
     @Inject
     private AlignmentConfig alignmentConfig;
@@ -188,7 +202,8 @@ public class BuildConfigurationProviderImpl extends
 
     @Override
     public BuildConfiguration getSpecific(String id) {
-        org.jboss.pnc.model.BuildConfiguration dbEntity = repository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.BuildConfiguration dbEntity = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         if (dbEntity != null && dbEntity.isArchived()) {
             return null;
         }
@@ -244,7 +259,7 @@ public class BuildConfigurationProviderImpl extends
 
         for (String id : dependencies.keySet()) {
 
-            Integer dependencyId = Integer.valueOf(id);
+            Integer dependencyId = IdMapperHelper.toEntity(mapper.getIdMapper(), id);
 
             ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                     .validateCondition(
@@ -270,8 +285,9 @@ public class BuildConfigurationProviderImpl extends
                     .queryByPredicates(withName(buildConfigurationRest.getName()), isNotArchived());
 
             // don't validate against myself
-            if (buildConfigurationFromDB != null && (buildConfigurationRest.getId() == null
-                    || !buildConfigurationFromDB.getId().equals(Integer.valueOf(buildConfigurationRest.getId())))) {
+            if (buildConfigurationFromDB != null
+                    && (buildConfigurationRest.getId() == null || !buildConfigurationFromDB.getId()
+                            .equals(IdMapperHelper.toEntity(mapper.getIdMapper(), buildConfigurationRest.getId())))) {
 
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         buildConfigurationFromDB.getId(),
@@ -284,7 +300,8 @@ public class BuildConfigurationProviderImpl extends
 
     private void validateEnvironment(BuildConfiguration buildConfigurationRest) {
         String envId = buildConfigurationRest.getEnvironment().getId();
-        BuildEnvironment env = buildEnvironmentRepository.queryById(Integer.valueOf(envId));
+        BuildEnvironment env = buildEnvironmentRepository
+                .queryById(IdMapperHelper.toEntity(environmentMapper.getIdMapper(), envId));
         if (env == null) {
             throw new EmptyEntityException("Build environment " + envId + " does not exist.");
         }
@@ -304,13 +321,16 @@ public class BuildConfigurationProviderImpl extends
             String query,
             String productVersionId) {
         ValidationBuilder.validateObject(null)
-                .validateAgainstRepository(productVersionRepository, Integer.valueOf(productVersionId), true);
+                .validateAgainstRepository(
+                        productVersionRepository,
+                        IdMapperHelper.toEntity(productVersionMapper.getIdMapper(), productVersionId),
+                        true);
         return queryForCollection(
                 pageIndex,
                 pageSize,
                 sortingRsql,
                 query,
-                withProductVersionId(Integer.valueOf(productVersionId)),
+                withProductVersionId(IdMapperHelper.toEntity(productVersionMapper.getIdMapper(), productVersionId)),
                 isNotArchived());
     }
 
@@ -322,13 +342,16 @@ public class BuildConfigurationProviderImpl extends
             String query,
             String projectId) {
         ValidationBuilder.validateObject(null)
-                .validateAgainstRepository(projectRepository, Integer.valueOf(projectId), true);
+                .validateAgainstRepository(
+                        projectRepository,
+                        IdMapperHelper.toEntity(projectMapper.getIdMapper(), projectId),
+                        true);
         return queryForCollection(
                 pageIndex,
                 pageSize,
                 sortingRsql,
                 query,
-                withProjectId(Integer.valueOf(projectId)),
+                withProjectId(IdMapperHelper.toEntity(projectMapper.getIdMapper(), projectId)),
                 isNotArchived());
 
     }
@@ -341,13 +364,16 @@ public class BuildConfigurationProviderImpl extends
             String query,
             String scmRepositoryId) {
         ValidationBuilder.validateObject(null)
-                .validateAgainstRepository(repositoryConfigurationRepository, Integer.valueOf(scmRepositoryId), true);
+                .validateAgainstRepository(
+                        repositoryConfigurationRepository,
+                        IdMapperHelper.toEntity(scmRepositoryMapper.getIdMapper(), scmRepositoryId),
+                        true);
         return queryForCollection(
                 pageIndex,
                 pageSize,
                 sortingRsql,
                 query,
-                withScmRepositoryId(Integer.valueOf(scmRepositoryId)),
+                withScmRepositoryId(IdMapperHelper.toEntity(scmRepositoryMapper.getIdMapper(), scmRepositoryId)),
                 isNotArchived());
     }
 
@@ -365,7 +391,7 @@ public class BuildConfigurationProviderImpl extends
                 isNotArchived());
         List<Integer> configIds = buildConfigs.getContent()
                 .stream()
-                .map(bc -> mapper.getIdMapper().toEntity(bc.getId()))
+                .map(bc -> IdMapperHelper.toEntity(mapper.getIdMapper(), bc.getId()))
                 .collect(Collectors.toList());
         List<BuildRecord> latestBuilds = buildRecordRepository.getLatestBuildsForBuildConfigs(configIds);
         List<BuildTask> runningBuilds;
@@ -389,7 +415,7 @@ public class BuildConfigurationProviderImpl extends
             BuildConfiguration buildConfig,
             List<BuildRecord> latestBuilds,
             List<BuildTask> runningBuilds) {
-        Integer bcId = mapper.getIdMapper().toEntity(buildConfig.getId());
+        Integer bcId = IdMapperHelper.toEntity(mapper.getIdMapper(), buildConfig.getId());
         Optional<BuildTask> latestBuildTask = runningBuilds.stream()
                 .filter(Objects::nonNull)
                 .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(bcId))
@@ -411,10 +437,13 @@ public class BuildConfigurationProviderImpl extends
     @Override
     public BuildConfiguration clone(String buildConfigurationId) {
         ValidationBuilder.validateObject(WhenCreatingNew.class)
-                .validateAgainstRepository(repository, Integer.valueOf(buildConfigurationId), true);
+                .validateAgainstRepository(
+                        repository,
+                        IdMapperHelper.toEntity(mapper.getIdMapper(), buildConfigurationId),
+                        true);
 
         org.jboss.pnc.model.BuildConfiguration buildConfiguration = repository
-                .queryById(Integer.valueOf(buildConfigurationId));
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), buildConfigurationId));
         org.jboss.pnc.model.User user = userService.currentUser();
 
         org.jboss.pnc.model.BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
@@ -434,8 +463,10 @@ public class BuildConfigurationProviderImpl extends
     @Override
     public void addDependency(String configId, String dependencyId) {
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
-        org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), configId));
+        org.jboss.pnc.model.BuildConfiguration dependency = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), dependencyId));
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
@@ -454,8 +485,10 @@ public class BuildConfigurationProviderImpl extends
     @Override
     public void removeDependency(String configId, String dependencyId) {
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
-        org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), configId));
+        org.jboss.pnc.model.BuildConfiguration dependency = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), dependencyId));
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
@@ -478,7 +511,7 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantConfiguration(Integer.valueOf(configId)),
+                withDependantConfiguration(IdMapperHelper.toEntity(mapper.getIdMapper(), configId)),
                 isNotArchived());
     }
 
@@ -495,7 +528,7 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withDependencyConfiguration(Integer.valueOf(configId)),
+                withDependencyConfiguration(IdMapperHelper.toEntity(mapper.getIdMapper(), configId)),
                 isNotArchived());
     }
 
@@ -503,7 +536,7 @@ public class BuildConfigurationProviderImpl extends
     public Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, String id) {
 
         List<BuildConfigurationAudited> auditedBuildConfigs = buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(Integer.valueOf(id));
+                .findAllByIdOrderByRevDesc(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
 
         List<BuildConfigurationRevision> toReturn = nullableStreamOf(auditedBuildConfigs)
                 .map(buildConfigurationRevisionMapper::toDTO)
@@ -520,7 +553,7 @@ public class BuildConfigurationProviderImpl extends
     @Override
     public BuildConfigurationRevision getRevision(String id, Integer rev) {
 
-        IdRev idRev = new IdRev(Integer.valueOf(id), rev);
+        IdRev idRev = new IdRev(IdMapperHelper.toEntity(mapper.getIdMapper(), id), rev);
 
         BuildConfigurationAudited auditedBuildConfig = buildConfigurationAuditedRepository.queryById(idRev);
 
@@ -535,14 +568,18 @@ public class BuildConfigurationProviderImpl extends
             String query,
             String groupConfigId) {
         ValidationBuilder.validateObject(null)
-                .validateAgainstRepository(buildConfigurationSetRepository, Integer.valueOf(groupConfigId), true);
+                .validateAgainstRepository(
+                        buildConfigurationSetRepository,
+                        IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), groupConfigId),
+                        true);
 
         return queryForCollection(
                 pageIndex,
                 pageSize,
                 sortingRsql,
                 query,
-                withBuildConfigurationSetId(Integer.valueOf(groupConfigId)),
+                withBuildConfigurationSetId(
+                        IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), groupConfigId)),
                 isNotArchived());
     }
 
@@ -571,7 +608,7 @@ public class BuildConfigurationProviderImpl extends
             // scm is internal, not running a RepositoryCreationTask.
             createBuildConfigurationWithRepository(
                     null,
-                    Integer.parseInt(rcResponse.getRepository().getId()),
+                    IdMapperHelper.toEntity(scmRepositoryMapper.getIdMapper(), rcResponse.getRepository().getId()),
                     newBuildConfigurationWithId);
 
             org.jboss.pnc.model.BuildConfiguration buildConfigurationFromDB = repository
@@ -586,9 +623,10 @@ public class BuildConfigurationProviderImpl extends
 
     @Override
     public Optional<BuildConfiguration> restoreRevision(String id, int rev) {
-        IdRev idRev = new IdRev(Integer.valueOf(id), rev);
+        IdRev idRev = new IdRev(IdMapperHelper.toEntity(mapper.getIdMapper(), id), rev);
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
-        org.jboss.pnc.model.BuildConfiguration originalBC = repository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.BuildConfiguration originalBC = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         org.jboss.pnc.model.User user = userService.currentUser();
 
         if (buildConfigurationAudited == null || originalBC == null) {
@@ -644,7 +682,7 @@ public class BuildConfigurationProviderImpl extends
             bcSetIds = configuration.getGroupConfigs()
                     .keySet()
                     .stream()
-                    .map(Integer::valueOf)
+                    .map((id) -> IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), id))
                     .collect(Collectors.toSet());
         }
 
