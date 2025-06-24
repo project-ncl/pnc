@@ -42,7 +42,6 @@ import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -323,6 +322,22 @@ public class ArtifactEndpointTest {
         RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId());
 
         assertThat(builds).hasSize(3);
+    }
+
+    @Test
+    public void getBuildsThatDependOnArtifactWithNonIntegerIdShouldThrowException() throws RemoteResourceException {
+        var client = new ArtifactClient(RestClientConfiguration.asUser());
+
+        RemoteResourceException remoteResourceException = assertThrows(
+                RemoteResourceException.class,
+                () -> client.getDependantBuilds("invalidId"));
+
+        ErrorResponse errorResponse = remoteResourceException.getResponse().get();
+        var status = remoteResourceException.getStatus();
+
+        assertThat(status).isEqualTo(HttpStatus.NOT_FOUND_404);
+        assertThat(errorResponse.getErrorType()).isEqualTo("EmptyEntityException");
+        assertThat(errorResponse.getErrorMessage()).isEqualTo("Error parsing id invalidId");
     }
 
     @Test

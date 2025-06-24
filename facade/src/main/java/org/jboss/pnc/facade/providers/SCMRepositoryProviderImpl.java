@@ -46,6 +46,7 @@ import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.RepourClient;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -183,7 +184,9 @@ public class SCMRepositoryProviderImpl
         // otherwise the notification is sent on when the callback of cloning is processed
         if (scmRepository.getTaskId() == null) {
             notifySCMRepositoryCreated(
-                    new RepositoryCreated(null, Integer.valueOf(scmRepository.getRepository().getId())));
+                    new RepositoryCreated(
+                            null,
+                            IdMapperHelper.toEntity(mapper.getIdMapper(), scmRepository.getRepository().getId())));
         }
         return scmRepository;
     }
@@ -450,7 +453,7 @@ public class SCMRepositoryProviderImpl
                         result.isPreBuildSyncEnabled());
                 RepositoryCreated notification = new RepositoryCreated(
                         result.getTaskId(),
-                        Integer.parseInt(scmRepo.getId()));
+                        IdMapperHelper.toEntity(mapper.getIdMapper(), scmRepo.getId()));
                 log.debug("Repository created: {}", notification);
                 if (result.getJobType().equals(JobNotificationType.BUILD_CONFIG_CREATION)) {
                     buildConfigurationProvider.createBuildConfigurationWithRepository(

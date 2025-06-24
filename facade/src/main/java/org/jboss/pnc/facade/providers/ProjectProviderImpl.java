@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.mapper.api.ProjectMapper;
 import org.jboss.pnc.facade.providers.api.ProjectProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -74,7 +75,7 @@ public class ProjectProviderImpl
         Integer projectId = null;
 
         if (projectRest.getId() != null) {
-            projectId = Integer.valueOf(projectRest.getId());
+            projectId = IdMapperHelper.toEntity(mapper.getIdMapper(), projectRest.getId());
         }
 
         // don't validate against myself
