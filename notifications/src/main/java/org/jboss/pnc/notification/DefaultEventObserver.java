@@ -20,6 +20,7 @@ package org.jboss.pnc.notification;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
+import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
@@ -110,7 +111,7 @@ public class DefaultEventObserver {
             buildPushOperation.setResult(operationChangedEvent.getResult());
             operationToSend = buildPushOperationMapper.toDTO(buildPushOperation);
             if (buildPushOperation.getProgressStatus() == ProgressStatus.FINISHED) { // TODO: Remove in next version
-                sendMessage(buildPushReportMapper.fromOperation(buildPushOperation));
+                sendMessage(new BuildPushResultNotification(buildPushReportMapper.fromOperation(buildPushOperation)));
             }
         } else {
             notificationType = "UNKNOWN-OPERATION";
