@@ -48,6 +48,7 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.rsql.mapper.MilestoneInfoRSQLMapper;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -57,8 +58,10 @@ import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.Base32LongID;
@@ -135,16 +138,12 @@ public class ProductMilestoneProviderImpl extends
 
     private final BuildPushOperationRepository buildPushOperationRepository;
 
-    @Inject
-    private ArtifactProvider artifactProvider;
-
     private BuildPushOperationMapper buildPushOperationMapper;
+
+    private ProductVersionMapper productVersionMapper;
 
     @Inject
     private EntityManager em;
-
-    @Inject
-    private UserService userService;
 
     @Inject
     public ProductMilestoneProviderImpl(
@@ -154,7 +153,8 @@ public class ProductMilestoneProviderImpl extends
             MilestoneInfoRSQLMapper milestoneInfoRSQLMapper,
             BrewPusher brewPusher,
             BuildPushOperationRepository buildPushOperationRepository,
-            BuildPushOperationMapper buildPushOperationMapper) {
+            BuildPushOperationMapper buildPushOperationMapper,
+            ProductVersionMapper productVersionMapper) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
@@ -164,6 +164,7 @@ public class ProductMilestoneProviderImpl extends
         this.brewPusher = brewPusher;
         this.buildPushOperationRepository = buildPushOperationRepository;
         this.buildPushOperationMapper = buildPushOperationMapper;
+        this.productVersionMapper = productVersionMapper;
     }
 
     @Override
@@ -189,13 +190,15 @@ public class ProductMilestoneProviderImpl extends
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
             org.jboss.pnc.model.ProductMilestone milestoneFromDB = milestoneRepository.queryByPredicates(
                     withProductVersionIdAndVersion(
-                            Integer.valueOf(restEntity.getProductVersion().getId()),
+                            IdMapperHelper.toEntity(
+                                    productVersionMapper.getIdMapper(),
+                                    restEntity.getProductVersion().getId()),
                             restEntity.getVersion()));
 
             Integer restEntityId = null;
 
             if (restEntity.getId() != null) {
-                restEntityId = Integer.valueOf(restEntity.getId());
+                restEntityId = IdMapperHelper.toEntity(mapper.getIdMapper(), restEntity.getId());
             }
 
             // don't validate against myself
@@ -211,7 +214,8 @@ public class ProductMilestoneProviderImpl extends
 
     @Override
     public void closeMilestone(String id, boolean skipPush) {
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
 
         if (milestoneInDb.getEndDate() != null) {
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
@@ -283,7 +287,7 @@ public class ProductMilestoneProviderImpl extends
                 .reimport(false)
                 .build();
 
-        String milestoneId = mapper.getIdMapper().toDto(milestone.getId());
+        String milestoneId = IdMapperHelper.toDto(mapper.getIdMapper(), milestone.getId());
 
         for (Base32LongID buildId : buildIds) {
             brewPusher.pushBuild(buildId, buildPushParameters, milestoneId);
@@ -314,7 +318,7 @@ public class ProductMilestoneProviderImpl extends
         if (operation.getResult() != OperationResult.SUCCESSFUL) {
             return;
         }
-        Integer id = mapper.getIdMapper().toEntity(milestoneId);
+        Integer id = IdMapperHelper.toEntity(mapper.getIdMapper(), milestoneId);
         org.jboss.pnc.model.ProductMilestone milestone = repository.queryById(id);
         if (milestone == null) {
             throw new IllegalStateException("Product milestone with id " + id + " not found.");
@@ -355,7 +359,8 @@ public class ProductMilestoneProviderImpl extends
 
     @Override
     public void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException {
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         // If we want to close a milestone, make sure it's not already released (by checking end date)
         // and there are no release in progress
         if (milestoneInDb.getEndDate() != null) {
@@ -379,7 +384,7 @@ public class ProductMilestoneProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withProductVersionId(Integer.valueOf(productVersionId)));
+                withProductVersionId(IdMapperHelper.toEntity(productVersionMapper.getIdMapper(), productVersionId)));
     }
 
     @Override
@@ -432,8 +437,10 @@ public class ProductMilestoneProviderImpl extends
                     .build();
         }
 
-        org.jboss.pnc.model.ProductMilestone duplicate = milestoneRepository
-                .queryByPredicates(withProductVersionIdAndVersion(Integer.parseInt(productVersionId), version));
+        org.jboss.pnc.model.ProductMilestone duplicate = milestoneRepository.queryByPredicates(
+                withProductVersionIdAndVersion(
+                        IdMapperHelper.toEntity(productVersionMapper.getIdMapper(), productVersionId),
+                        version));
 
         if (duplicate != null) {
             return builder.isValid(false)
@@ -447,7 +454,7 @@ public class ProductMilestoneProviderImpl extends
 
     @Override
     public ProductMilestoneStatistics getStatistics(String id) {
-        Integer milestoneId = mapper.getIdMapper().toEntity(id);
+        Integer milestoneId = IdMapperHelper.toEntity(mapper.getIdMapper(), id);
 
         return ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(milestoneRepository.countBuiltArtifactsInMilestone(milestoneId))
@@ -477,7 +484,9 @@ public class ProductMilestoneProviderImpl extends
     @Override
     public List<DeliveredArtifactInMilestones> getArtifactsDeliveredInMilestonesGroupedByPrefix(
             List<String> milestoneIds) {
-        List<Integer> milestoneIntIds = milestoneIds.stream().map(Integer::valueOf).collect(Collectors.toList());
+        List<Integer> milestoneIntIds = milestoneIds.stream()
+                .map((id) -> IdMapperHelper.toEntity(mapper.getIdMapper(), id))
+                .collect(Collectors.toList());
 
         List<Tuple> artifactsDeliveredInMilestonesTuples = milestoneRepository
                 .getArtifactsDeliveredInMilestones(milestoneIntIds);
@@ -647,7 +656,8 @@ public class ProductMilestoneProviderImpl extends
             Integer depthLimit) {
         var graph = new org.jboss.util.graph.Graph<ProductMilestone>();
         var graphBuilder = new UndirectedGraphBuilder<ProductMilestone, String>(id -> getSpecific(id), node -> {
-            var tuples = milestoneRepository.getMilestonesSharingDeliveredArtifacts(Integer.valueOf(node.getId()));
+            var tuples = milestoneRepository.getMilestonesSharingDeliveredArtifacts(
+                    IdMapperHelper.toEntity(mapper.getIdMapper(), node.getId()));
             return parseVertexNeighborsFromTuples(tuples);
         });
 
@@ -744,7 +754,7 @@ public class ProductMilestoneProviderImpl extends
         Root<Artifact> artifact = buildQuery.from(Artifact.class);
         Join<Artifact, BuildRecord> buildRecords = artifact.join(Artifact_.buildRecord);
         buildQuery.select(buildRecords.get(BuildRecord_.productMilestone).get(ProductMilestone_.id));
-        buildQuery.where(cb.equal(artifact.get(Artifact_.id), Integer.valueOf(id)));
+        buildQuery.where(cb.equal(artifact.get(Artifact_.id), IdMapperHelper.toEntity(ArtifactMapper.idMapper, id)));
         buildQuery.distinct(true);
 
         Optional<Integer> singleResult;
@@ -761,7 +771,7 @@ public class ProductMilestoneProviderImpl extends
 
         Root<Artifact> artifact = buildQuery.from(Artifact.class);
         SetJoin<Artifact, BuildRecord> build = artifact.join(Artifact_.dependantBuildRecords);
-        buildQuery.where(cb.equal(artifact.get(Artifact_.id), Integer.valueOf(id)));
+        buildQuery.where(cb.equal(artifact.get(Artifact_.id), IdMapperHelper.toEntity(ArtifactMapper.idMapper, id)));
         buildQuery.select(build.get(BuildRecord_.productMilestone).get(ProductMilestone_.id));
         buildQuery.distinct(true);
 

@@ -27,6 +27,7 @@ import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.GroupBuildPageInfo;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
@@ -126,7 +127,7 @@ public class GroupBuildProviderImpl extends
         try {
             String accessToken = keycloakServiceClient.getAuthToken();
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
-                    mapper.getIdMapper().toEntity(id),
+                    IdMapperHelper.toEntity(mapper.getIdMapper(), id),
                     accessToken,
                     notifyOnDeletionCompletion(callback, accessToken));
         } catch (ValidationException e) {
@@ -151,7 +152,7 @@ public class GroupBuildProviderImpl extends
 
     @Override
     public Page<GroupBuild> getGroupBuilds(GroupBuildPageInfo groupBuildPageInfo, String groupConfigId) {
-        Integer groupConfigIdModel = groupConfigurationMapper.getIdMapper().toEntity(groupConfigId);
+        Integer groupConfigIdModel = IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), groupConfigId);
         if (groupBuildPageInfo.isLatest()) {
             PageInfo firstPageInfo = new DefaultPageInfo(0, 1);
             SortInfo<BuildConfigSetRecord> sortInfo = DefaultSortInfo.desc(BuildConfigSetRecord_.startTime);
@@ -172,7 +173,7 @@ public class GroupBuildProviderImpl extends
     @Override
     public void cancel(String id) {
         try {
-            buildCoordinator.cancelSet(mapper.getIdMapper().toEntity(id));
+            buildCoordinator.cancelSet(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         } catch (CoreException e) {
             throw new RuntimeException("Error when canceling buildConfigSetRecord with id: " + id, e);
         }

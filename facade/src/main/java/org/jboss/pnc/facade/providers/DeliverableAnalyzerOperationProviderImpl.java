@@ -19,27 +19,17 @@ package org.jboss.pnc.facade.providers;
 
 import static org.jboss.pnc.spi.datastore.predicates.OperationPredicates.withMilestoneId;
 
-import java.sql.Date;
-import java.time.Instant;
-import java.util.Map;
-
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
-import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.facade.validation.EmptyEntityException;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
-import org.jboss.pnc.mapper.api.UserMapper;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
@@ -86,13 +76,16 @@ public class DeliverableAnalyzerOperationProviderImpl
             String milestoneId) {
 
         ValidationBuilder.validateObject(null)
-                .validateAgainstRepository(productMilestoneRepository, Integer.valueOf(milestoneId), true);
+                .validateAgainstRepository(
+                        productMilestoneRepository,
+                        IdMapperHelper.toEntity(milestoneMapper.getIdMapper(), milestoneId),
+                        true);
         return queryForCollection(
                 pageIndex,
                 pageSize,
                 sortingRsql,
                 query,
-                withMilestoneId(Integer.valueOf(milestoneId)));
+                withMilestoneId(IdMapperHelper.toEntity(milestoneMapper.getIdMapper(), milestoneId)));
     }
 
 }

@@ -30,8 +30,11 @@ import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -76,6 +79,8 @@ public class ProductVersionProviderImpl extends
     private final BuildConfigurationSetRepository groupConfigRepository;
     private final SystemConfig systemConfig;
     private final ProductMilestoneMapper milestoneMapper;
+    private final ProductMapper productMapper;
+    private final GroupConfigurationMapper groupConfigurationMapper;
 
     @Inject
     public ProductVersionProviderImpl(
@@ -86,7 +91,9 @@ public class ProductVersionProviderImpl extends
             ProductMilestoneRepository milestoneRepository,
             DeliverableArtifactRepository deliverableArtifactRepository,
             BuildConfigurationSetRepository groupConfigRepository,
-            SystemConfig systemConfig) {
+            SystemConfig systemConfig,
+            ProductMapper productMapper,
+            GroupConfigurationMapper groupConfigurationMapper) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
@@ -97,6 +104,8 @@ public class ProductVersionProviderImpl extends
         this.systemConfig = systemConfig;
         this.milestoneRepository = milestoneRepository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
+        this.productMapper = productMapper;
+        this.groupConfigurationMapper = groupConfigurationMapper;
     }
 
     @Override
@@ -104,7 +113,8 @@ public class ProductVersionProviderImpl extends
         validateBeforeSaving(restEntity);
         org.jboss.pnc.model.ProductVersion productVersionRestDb = mapper.toEntity(restEntity);
 
-        Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
+        Product product = productRepository
+                .queryById(IdMapperHelper.toEntity(productMapper.getIdMapper(), restEntity.getProduct().getId()));
 
         productVersionRestDb.generateBrewTagPrefix(
                 product.getAbbreviation(),
@@ -124,7 +134,8 @@ public class ProductVersionProviderImpl extends
 
         super.validateBeforeSaving(restEntity);
 
-        Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
+        Product product = productRepository
+                .queryById(IdMapperHelper.toEntity(productMapper.getIdMapper(), restEntity.getProduct().getId()));
 
         if (product == null) {
             throw new InvalidEntityException(
@@ -174,7 +185,8 @@ public class ProductVersionProviderImpl extends
             throws InvalidEntityException, NumberFormatException, ConflictedEntryException {
         if (restEntity.getGroupConfigs() != null) {
             for (String groupConfigId : restEntity.getGroupConfigs().keySet()) {
-                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(groupConfigId));
+                BuildConfigurationSet set = groupConfigRepository
+                        .queryById(IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), groupConfigId));
                 if (set == null) {
                     throw new InvalidEntityException("Group config with id: " + groupConfigId + " does not exist.");
                 }
@@ -190,8 +202,8 @@ public class ProductVersionProviderImpl extends
 
     private void validateMilestone(Integer id, ProductVersion entity) {
         if (entity.getCurrentProductMilestone() != null) {
-            Integer newMilestoneId = milestoneMapper.getIdMapper()
-                    .toEntity(entity.getCurrentProductMilestone().getId());
+            Integer newMilestoneId = IdMapperHelper
+                    .toEntity(milestoneMapper.getIdMapper(), entity.getCurrentProductMilestone().getId());
             org.jboss.pnc.model.ProductVersion productVersion = repository.queryById(id);
             ProductMilestone currentMilestone = productVersion.getCurrentProductMilestone();
             if (currentMilestone == null || currentMilestone.getId() != newMilestoneId) {
@@ -214,12 +226,17 @@ public class ProductVersionProviderImpl extends
             String query,
             String productId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withProductId(IdMapperHelper.toEntity(productMapper.getIdMapper(), productId)));
     }
 
     @Override
     public ProductVersionStatistics getStatistics(String id) {
-        Integer productVersionId = mapper.getIdMapper().toEntity(id);
+        Integer productVersionId = IdMapperHelper.toEntity(mapper.getIdMapper(), id);
 
         return ProductVersionStatistics.builder()
                 .milestones(versionRepository.countMilestonesInThisVersion(productVersionId))
@@ -258,7 +275,7 @@ public class ProductVersionProviderImpl extends
             String sort,
             String query,
             String id) {
-        Integer entityId = mapper.getIdMapper().toEntity(id);
+        Integer entityId = IdMapperHelper.toEntity(mapper.getIdMapper(), id);
         List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
         List<Tuple> artifactQualities = deliverableArtifactRepository.getArtifactQualityStatistics(
                 productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet()));
@@ -283,7 +300,7 @@ public class ProductVersionProviderImpl extends
             String sort,
             String query,
             String id) {
-        Integer entityId = mapper.getIdMapper().toEntity(id);
+        Integer entityId = IdMapperHelper.toEntity(mapper.getIdMapper(), id);
         List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
         List<Tuple> repositoryTypes = deliverableArtifactRepository.getRepositoryTypesStatistics(
                 productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet()));
