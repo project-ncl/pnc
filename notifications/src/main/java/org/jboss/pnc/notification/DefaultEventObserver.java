@@ -111,11 +111,7 @@ public class DefaultEventObserver {
             buildPushOperation.setResult(operationChangedEvent.getResult());
             operationToSend = buildPushOperationMapper.toDTO(buildPushOperation);
             if (buildPushOperation.getProgressStatus() == ProgressStatus.FINISHED) { // TODO: Remove in next version
-                // this is sent for legacy reasons in the rest client code: for PNC < 3.2.0
                 sendMessage(new BuildPushResultNotification(buildPushReportMapper.fromOperation(buildPushOperation)));
-
-                // The new BuildPushReport is what we will use from PNC 3.2.0 and above
-                sendMessage(buildPushReportMapper.fromOperation(buildPushOperation));
             }
         } else {
             notificationType = "UNKNOWN-OPERATION";
