@@ -7,7 +7,7 @@
       "name" : "Apache 2.0",
       "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "3.2.3-SNAPSHOT"
+    "version" : "3.2.5-SNAPSHOT"
   },
   "servers" : [ {
     "url" : "/pnc-rest",
@@ -10633,7 +10633,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10709,7 +10709,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10749,7 +10749,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10810,7 +10810,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10850,7 +10850,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
           },
           "creationTime" : {
             "type" : "string",
