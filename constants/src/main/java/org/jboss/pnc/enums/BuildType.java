@@ -45,9 +45,15 @@ public enum BuildType {
      * Build using SBT (Scala Build Tool) as its build tool. Uses project-manipulator in pre-build oprations and
      * {@link RepositoryType#MAVEN} repository.
      */
-    SBT(RepositoryType.MAVEN);
+    SBT(RepositoryType.MAVEN),
 
-    private RepositoryType repoType;
+    /**
+     * Build wrapperRpms using modified pom file, rpm maven plugin and PME for alignment. The artifacts are published as
+     * maven artifacts to {@link RepositoryType#MAVEN} repository.
+     */
+    MVN_RPM(RepositoryType.MAVEN);
+
+    private final RepositoryType repoType;
 
     private BuildType(RepositoryType repoType) {
         this.repoType = repoType;

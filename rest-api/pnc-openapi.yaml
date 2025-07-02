@@ -5,7 +5,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 3.2.3-SNAPSHOT
+  version: 3.2.5-SNAPSHOT
 servers:
 - url: /pnc-rest
   variables: {}
@@ -7483,6 +7483,7 @@ components:
           - NPM
           - GRADLE
           - SBT
+          - MVN_RPM
         creationTime:
           type: string
           format: date-time
@@ -7542,6 +7543,7 @@ components:
           - NPM
           - GRADLE
           - SBT
+          - MVN_RPM
         creationTime:
           type: string
           format: date-time
@@ -7575,6 +7577,7 @@ components:
           - NPM
           - GRADLE
           - SBT
+          - MVN_RPM
         creationTime:
           type: string
           format: date-time
@@ -7622,6 +7625,7 @@ components:
           - NPM
           - GRADLE
           - SBT
+          - MVN_RPM
         creationTime:
           type: string
           format: date-time
@@ -7657,6 +7661,7 @@ components:
           - NPM
           - GRADLE
           - SBT
+          - MVN_RPM
         creationTime:
           type: string
           format: date-time
