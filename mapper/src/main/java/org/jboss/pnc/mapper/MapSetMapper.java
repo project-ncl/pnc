@@ -19,6 +19,7 @@ package org.jboss.pnc.mapper;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import static java.util.function.Function.identity;
@@ -82,7 +83,14 @@ public class MapSetMapper {
     }
 
     public Map<String, BuildConfigurationRef> mapBC(Collection<BuildConfiguration> value) {
-        return map(value, buildConfigurationMapper);
+        if (value == null) {
+            return null;
+        }
+
+        List<BuildConfiguration> notArchived = value.stream()
+                .filter(bc -> !bc.isArchived())
+                .collect(Collectors.toList());
+        return map(notArchived, buildConfigurationMapper);
     }
 
     public Set<ProductVersion> mapPV(Map<String, ProductVersionRef> value) {
