@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>ear-package</artifactId>
+  <name>ear-package</name>
   <packaging>ear</packaging>
 
   <properties>

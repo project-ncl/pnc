@@ -27,6 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>processor</artifactId>
+  <name>processor</name>
   <dependencies>
     <dependency>
       <groupId>com.squareup</groupId>

@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>web</artifactId>
+  <name>web</name>
   <packaging>war</packaging>
 
   <description>Web UI configurations.</description>

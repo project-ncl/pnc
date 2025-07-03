@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>common</artifactId>
+  <name>common</name>
   <packaging>jar</packaging>
 
   <dependencies>
