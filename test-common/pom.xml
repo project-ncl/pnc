@@ -28,6 +28,7 @@
   </parent>
 
   <artifactId>test-common</artifactId>
+  <name>test-common</name>
   <description>Group of common test dependencies and JUnit Categories for tests</description>
 
   <dependencies>

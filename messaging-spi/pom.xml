@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>messaging-spi</artifactId>
+  <name>messaging-spi</name>
   <packaging>jar</packaging>
 
   <dependencies>

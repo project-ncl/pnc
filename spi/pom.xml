@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>spi</artifactId>
+  <name>spi</name>
   <packaging>jar</packaging>
 
   <description>Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with model.</description>

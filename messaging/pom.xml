@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>messaging</artifactId>
+  <name>messaging</name>
   <packaging>jar</packaging>
 
   <dependencies>

@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>dingrogu-client</artifactId>
+  <name>dingrogu-client</name>
   <packaging>jar</packaging>
 
   <dependencies>

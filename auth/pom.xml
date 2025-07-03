@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>auth</artifactId>
+  <name>auth</name>
   <packaging>jar</packaging>
 
   <description>Authentication related classes and KeyCloak integration.</description>

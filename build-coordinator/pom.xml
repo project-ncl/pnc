@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>build-coordinator</artifactId>
+  <name>build-coordinator</name>
   <packaging>jar</packaging>
 
   <description>Contains implementations of action-controllers, which include the business logic for orchestrating build requests and collect the results. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios.</description>

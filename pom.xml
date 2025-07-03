@@ -1392,17 +1392,15 @@
             </execution>
           </executions>
         </plugin>
-
         <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.7.0</version>
-          <extensions>true</extensions>
-          <configuration>
-            <serverId>ossrh</serverId>
-            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-          </configuration>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
+            <extensions>true</extensions>
+            <configuration>
+                <!-- as defined in your settings.xml -->
+                <publishingServerId>central-publisher</publishingServerId>
+            </configuration>
         </plugin>
 
         <plugin>
@@ -1579,7 +1577,6 @@
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <useReleaseProfile>false</useReleaseProfile>
             <releaseProfiles>skip-integration-tests,release,production,auth</releaseProfiles>
-            <stagingRepository>https://oss.sonatype.org/service/local/staging/deploy/maven2/</stagingRepository>
             <goals>deploy</goals>
           </configuration>
         </plugin>
@@ -1704,16 +1701,6 @@
     </repository>
 
     <repository>
-      <id>sonatype-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-    <repository>
       <name>Central Portal Snapshots</name>
       <id>central-portal-snapshots</id>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
@@ -1746,13 +1733,6 @@
       </releases>
     </repository>
 
-    <repository>
-      <id>Nexus Staging</id>
-      <url>https://oss.sonatype.org/content/groups/staging</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
   </repositories>
 
   <pluginRepositories>

@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>pnc-mock</artifactId>
+  <name>pnc-mock</name>
   <packaging>jar</packaging>
 
   <description>Mock implementation of build-executor to be used in tests.</description>

@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>causeway-client</artifactId>
+  <name>causeway-client</name>
   <packaging>jar</packaging>
 
   <dependencies>

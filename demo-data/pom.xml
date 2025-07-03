@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>demo-data</artifactId>
+  <name>demo-data</name>
 
   <description>Imports for initial DEMO data.</description>
 
