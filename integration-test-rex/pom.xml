@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>integration-test-rex</artifactId>
+  <name>integration-test-rex</name>
   <packaging>jar</packaging>
 
   <description>Tests for REST endpoints. REST to DB related tests run against im memory database. REST to executor related tests use mocked executor to avoid using remote services.</description>

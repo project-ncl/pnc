@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>bpm</artifactId>
+  <name>bpm</name>
   <packaging>ejb</packaging>
 
   <description>Handles interaction with BPM server.</description>

@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>moduleconfig</artifactId>
+  <name>moduleconfig</name>
   <packaging>jar</packaging>
 
   <description>A set of classes to provide typed access to configurations. Contains also the template for the configuration file.</description>

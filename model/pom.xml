@@ -28,6 +28,7 @@
   </parent>
 
   <artifactId>model</artifactId>
+  <name>model</name>
   <packaging>jar</packaging>
 
   <description>Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration.</description>

@@ -29,6 +29,7 @@
   </parent>
 
   <artifactId>datastore</artifactId>
+  <name>datastore</name>
   <packaging>ejb</packaging>
 
   <description>Business logic for all DB operations (Implementation of spi:org.jboss.pnc.spi.datastore).</description>
