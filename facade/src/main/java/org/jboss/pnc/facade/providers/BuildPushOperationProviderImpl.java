@@ -17,18 +17,16 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
@@ -74,13 +72,13 @@ public class BuildPushOperationProviderImpl
             String buildId) {
         validateBuildExists(buildId);
 
-        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(BuildMapper.idMapper, buildId);
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, BuildPushPredicates.withBuild(id));
     }
 
     private void validateBuildExists(String buildId) {
-        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(BuildMapper.idMapper, buildId);
         if (buildRecordRepository.queryById(id) == null) {
             try {
                 buildCoordinator.getSubmittedBuildTask(buildId)
@@ -99,7 +97,7 @@ public class BuildPushOperationProviderImpl
             String query,
             boolean latest,
             String milestoneId) {
-        Integer id = ProductMilestoneMapper.idMapper.toEntity(milestoneId);
+        Integer id = IdMapperHelper.toEntity(ProductMilestoneMapper.idMapper, milestoneId);
         if (productMilestoneRepository.queryById(id) == null) {
             throw new EmptyEntityException("Milestone with id " + milestoneId + " not found");
         }

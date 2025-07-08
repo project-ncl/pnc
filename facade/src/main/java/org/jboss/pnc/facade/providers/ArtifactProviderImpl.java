@@ -29,6 +29,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -254,7 +255,8 @@ public class ArtifactProviderImpl
 
         update(id, artifact.toBuilder().artifactQuality(newQuality).qualityLevelReason(reason).build());
 
-        ArtifactAudited latestRevision = artifactAuditedRepository.findLatestById(Integer.parseInt(id));
+        ArtifactAudited latestRevision = artifactAuditedRepository
+                .findLatestById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         if (latestRevision == null) {
             throw new RepositoryViolationException("Entity should exist in the DB");
         }
@@ -308,7 +310,7 @@ public class ArtifactProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+                withBuildRecordId(IdMapperHelper.toEntity(BuildMapper.idMapper, buildId)));
     }
 
     @Override
@@ -334,7 +336,7 @@ public class ArtifactProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+                withDependantBuildRecordId(IdMapperHelper.toEntity(BuildMapper.idMapper, buildId)));
     }
 
     @Override
@@ -349,13 +351,14 @@ public class ArtifactProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withDeliveredInProductMilestone(productMilestoneMapper.getIdMapper().toEntity(milestoneId)));
+                withDeliveredInProductMilestone(
+                        IdMapperHelper.toEntity(productMilestoneMapper.getIdMapper(), milestoneId)));
     }
 
     @Override
     public Page<ArtifactRevision> getRevisions(int pageIndex, int pageSize, String id) {
         List<ArtifactAudited> auditedBuildConfigs = artifactAuditedRepository
-                .findAllByIdOrderByRevDesc(Integer.valueOf(id));
+                .findAllByIdOrderByRevDesc(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
 
         List<ArtifactRevision> toReturn = nullableStreamOf(auditedBuildConfigs).map(artifactRevisionMapper::toDTO)
                 .skip(pageIndex * pageSize)
@@ -370,7 +373,7 @@ public class ArtifactProviderImpl
 
     @Override
     public ArtifactRevision getRevision(String id, Integer rev) {
-        IdRev idRev = new IdRev(Integer.valueOf(id), rev);
+        IdRev idRev = new IdRev(IdMapperHelper.toEntity(mapper.getIdMapper(), id), rev);
         ArtifactAudited auditedArtifact = artifactAuditedRepository.queryById(idRev);
 
         return artifactRevisionMapper.toDTO(auditedArtifact);
@@ -393,8 +396,8 @@ public class ArtifactProviderImpl
             String q,
             String milestone1Id,
             String milestone2Id) {
-        Integer milestone1IntId = Integer.valueOf(milestone1Id);
-        Integer milestone2IntId = Integer.valueOf(milestone2Id);
+        Integer milestone1IntId = IdMapperHelper.toEntity(productMilestoneMapper.getIdMapper(), milestone1Id);
+        Integer milestone2IntId = IdMapperHelper.toEntity(productMilestoneMapper.getIdMapper(), milestone2Id);
 
         return queryForCollection(
                 pageIndex,

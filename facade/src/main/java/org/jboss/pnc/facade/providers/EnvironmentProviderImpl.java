@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -83,7 +84,7 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
                 .queryWithPredicates(withEnvironmentNameAndActive(restEntity.getName()));
 
         for (BuildEnvironment env : buildEnvironments) {
-            if (env.getId().equals(mapper.getIdMapper().toEntity(restEntity.getId()))) {
+            if (env.getId().equals(IdMapperHelper.toEntity(mapper.getIdMapper(), restEntity.getId()))) {
                 continue;
             }
             env.setDeprecated(true);
@@ -95,11 +96,13 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
     @Override
     @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     public Environment deprecateEnvironment(String id, String replacementId) {
-        BuildEnvironment deprecatedEnvironment = repository.queryById(mapper.getIdMapper().toEntity(id));
+        BuildEnvironment deprecatedEnvironment = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), id));
         if (deprecatedEnvironment == null) {
             throw new EmptyEntityException("Environment with id " + id + " doesn't exist");
         }
-        BuildEnvironment replacementEnvironment = repository.queryById(mapper.getIdMapper().toEntity(replacementId));
+        BuildEnvironment replacementEnvironment = repository
+                .queryById(IdMapperHelper.toEntity(mapper.getIdMapper(), replacementId));
         if (replacementEnvironment == null) {
             throw new EmptyEntityException("Replacement environment with id " + replacementId + " doesn't exist");
         }

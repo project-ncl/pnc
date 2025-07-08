@@ -28,6 +28,7 @@ import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -133,7 +134,8 @@ public class OperationsManagerImpl implements OperationsManager {
             Map<String, String> inputParams) {
         ProductMilestone milestone = null;
         if (milestoneId != null) {
-            milestone = productMilestoneRepository.queryById(ProductMilestoneMapper.idMapper.toEntity(milestoneId));
+            milestone = productMilestoneRepository
+                    .queryById(IdMapperHelper.toEntity(ProductMilestoneMapper.idMapper, milestoneId));
             if (milestone == null) {
                 throw new EmptyEntityException("Milestone with id " + milestoneId + " doesn't exist");
             }
@@ -247,7 +249,7 @@ public class OperationsManagerImpl implements OperationsManager {
     }
 
     private Base32LongID parseId(String operationId) {
-        return OperationMapper.idMapper.toEntity(operationId);
+        return IdMapperHelper.toEntity(OperationMapper.idMapper, operationId);
     }
 
     @AllArgsConstructor

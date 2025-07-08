@@ -30,6 +30,13 @@ import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.constants.Attributes;
+import org.jboss.pnc.facade.util.IdMapperHelper;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
+import org.jboss.pnc.mapper.api.ProjectMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -66,7 +73,6 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -142,7 +148,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private BuildRecordRepository buildRecordRepository;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
-    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
     private BuildMapper buildMapper;
@@ -157,6 +162,18 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     private KeycloakServiceClient keycloakServiceClient;
 
+    private ProductMilestoneMapper productMilestoneMapper;
+
+    private ProjectMapper projectMapper;
+
+    private BuildConfigurationMapper buildConfigurationMapper;
+
+    private GroupConfigurationMapper groupConfigurationMapper;
+
+    private ArtifactMapper artifactMapper;
+
+    private UserMapper userMapper;
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Inject
@@ -166,7 +183,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             BuildMapper mapper,
             BuildConfigurationRepository buildConfigurationRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
             BuildCoordinator buildCoordinator,
             UserService userService,
@@ -174,14 +190,19 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             ResultMapper resultMapper,
             GroupBuildMapper groupBuildMapper,
             BuildFetcher buildFetcher,
-            KeycloakServiceClient keycloakServiceClient) {
+            KeycloakServiceClient keycloakServiceClient,
+            ProductMilestoneMapper productMilestoneMapper,
+            ProjectMapper projectMapper,
+            BuildConfigurationMapper buildConfigurationMapper,
+            GroupConfigurationMapper groupConfigurationMapper,
+            ArtifactMapper artifactMapper,
+            UserMapper userMapper) {
         super(repository, mapper, BuildRecord.class);
 
         this.artifactRepository = artifactRepository;
         this.buildRecordRepository = repository;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
-        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
@@ -191,6 +212,12 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.groupBuildMapper = groupBuildMapper;
         this.buildFetcher = buildFetcher;
         this.keycloakServiceClient = keycloakServiceClient;
+        this.productMilestoneMapper = productMilestoneMapper;
+        this.projectMapper = projectMapper;
+        this.buildConfigurationMapper = buildConfigurationMapper;
+        this.groupConfigurationMapper = groupConfigurationMapper;
+        this.artifactMapper = artifactMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -351,9 +378,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, String milestoneId) {
         java.util.function.Predicate<BuildTask> predicate = t -> t.getProductMilestone() != null
-                && Integer.valueOf(milestoneId).equals(t.getProductMilestone().getId());
+                && IdMapperHelper.toEntity(productMilestoneMapper.getIdMapper(), milestoneId)
+                        .equals(t.getProductMilestone().getId());
         try {
-            return getBuildList(pageInfo, predicate, withPerformedInMilestone(Integer.valueOf(milestoneId)));
+            return getBuildList(
+                    pageInfo,
+                    predicate,
+                    withPerformedInMilestone(
+                            IdMapperHelper.toEntity(productMilestoneMapper.getIdMapper(), milestoneId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
@@ -363,12 +395,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     public Page<Build> getBuildsForProject(BuildPageInfo pageInfo, String projectId) {
         @SuppressWarnings("unchecked")
         Set<Integer> buildConfigIds = buildConfigurationRepository
-                .queryWithPredicates(withProjectId(Integer.valueOf(projectId)))
+                .queryWithPredicates(withProjectId(IdMapperHelper.toEntity(projectMapper.getIdMapper(), projectId)))
                 .stream()
                 .map(BuildConfiguration::getId)
                 .collect(Collectors.toSet());
 
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(projectId)
+        java.util.function.Predicate<BuildTask> predicate = t -> IdMapperHelper
+                .toEntity(projectMapper.getIdMapper(), projectId)
                 .equals(t.getBuildConfigurationAudited().getProject().getId());
         try {
             return getBuildList(pageInfo, predicate, withBuildConfigurationIds(buildConfigIds));
@@ -389,7 +422,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 pageSize,
                 sortingRsql,
                 query,
-                withArtifactProduced(Integer.valueOf(artifactId)));
+                withArtifactProduced(IdMapperHelper.toEntity(artifactMapper.getIdMapper(), artifactId)));
     }
 
     @Override
@@ -404,15 +437,20 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 pageSize,
                 sortingRsql,
                 query,
-                withArtifactDependency(Integer.valueOf(artifactId)));
+                withArtifactDependency(IdMapperHelper.toEntity(artifactMapper.getIdMapper(), artifactId)));
     }
 
     @Override
     public Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, String buildConfigurationId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(buildConfigurationId)
+        java.util.function.Predicate<BuildTask> predicate = t -> IdMapperHelper
+                .toEntity(buildConfigurationMapper.getIdMapper(), buildConfigurationId)
                 .equals(t.getBuildConfigurationAudited().getId());
         try {
-            return getBuildList(pageInfo, predicate, withBuildConfigurationId(Integer.valueOf(buildConfigurationId)));
+            return getBuildList(
+                    pageInfo,
+                    predicate,
+                    withBuildConfigurationId(
+                            IdMapperHelper.toEntity(buildConfigurationMapper.getIdMapper(), buildConfigurationId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
@@ -420,9 +458,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     @Override
     public Page<Build> getBuildsForUser(BuildPageInfo pageInfo, String userId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(userId).equals(t.getUser().getId());
+        java.util.function.Predicate<BuildTask> predicate = t -> IdMapperHelper
+                .toEntity(userMapper.getIdMapper(), userId)
+                .equals(t.getUser().getId());
         try {
-            return getBuildList(pageInfo, predicate, withUserId(Integer.valueOf(userId)));
+            return getBuildList(
+                    pageInfo,
+                    predicate,
+                    withUserId(IdMapperHelper.toEntity(userMapper.getIdMapper(), userId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
@@ -432,10 +475,16 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, String groupConfigurationId) {
         java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask()
                 .getBuildConfigSetRecord()
-                .map(gc -> Integer.valueOf(groupConfigurationId).equals(gc.getBuildConfigurationSet().getId()))
+                .map(
+                        gc -> IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), groupConfigurationId)
+                                .equals(gc.getBuildConfigurationSet().getId()))
                 .orElse(false);
         try {
-            return getBuildList(pageInfo, predicate, withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
+            return getBuildList(
+                    pageInfo,
+                    predicate,
+                    withBuildConfigSetId(
+                            IdMapperHelper.toEntity(groupConfigurationMapper.getIdMapper(), groupConfigurationId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
@@ -444,12 +493,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId) {
         java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigSetRecordId() != null
-                && t.getBuildConfigSetRecordId().equals(groupBuildMapper.getIdMapper().toEntity(groupBuildId));
+                && t.getBuildConfigSetRecordId()
+                        .equals(IdMapperHelper.toEntity(groupBuildMapper.getIdMapper(), groupBuildId));
         try {
             return getBuildList(
                     pageInfo,
                     predicate,
-                    withBuildConfigSetRecordId(groupBuildMapper.getIdMapper().toEntity(groupBuildId)));
+                    withBuildConfigSetRecordId(IdMapperHelper.toEntity(groupBuildMapper.getIdMapper(), groupBuildId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
@@ -457,7 +507,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
-        Base32LongID id = groupBuildMapper.getIdMapper().toEntity(groupBuildId);
+        Base32LongID id = IdMapperHelper.toEntity(groupBuildMapper.getIdMapper(), groupBuildId);
         Set<Base32LongID> buildIDs = buildFetcher.getGroupBuildContent(id);
         buildFetcher.precacheAllBuildsDeps(buildIDs);
 
@@ -477,7 +527,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     @Override
     public Graph<Build> getDependencyGraph(String buildId) {
-        Base32LongID id = buildMapper.getIdMapper().toEntity(buildId);
+        Base32LongID id = IdMapperHelper.toEntity(buildMapper.getIdMapper(), buildId);
         if (!buildFetcher.buildExists(id)) {
             throw new EmptyEntityException("there is no record for given buildId.");
         }
@@ -558,7 +608,9 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public void setBuiltArtifacts(String buildId, List<String> artifactIds) {
-        Set<Integer> ids = artifactIds.stream().map(Integer::valueOf).collect(Collectors.toSet());
+        Set<Integer> ids = artifactIds.stream()
+                .map((id) -> IdMapperHelper.toEntity(artifactMapper.getIdMapper(), id))
+                .collect(Collectors.toSet());
         List<Artifact> artifacts = artifactRepository.queryWithPredicates(withIds(ids));
 
         if (ids.size() != artifacts.size()) {
@@ -573,7 +625,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 throw new ConflictedEntryException(
                         "Artifact " + artifact.getId() + " is already marked as built by different build.",
                         BuildRecord.class,
-                        BuildMapper.idMapper.toDto(artifact.getBuildRecord().getId()));
+                        IdMapperHelper.toDto(BuildMapper.idMapper, artifact.getBuildRecord().getId()));
             }
             artifact.setBuildRecord(buildRecord);
         }
@@ -594,7 +646,10 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     public void setDependentArtifacts(String buildId, List<String> artifactIds) {
         BuildRecord buildRecord = repository.queryById(parseId(buildId));
         Set<Artifact> artifacts = artifactIds.stream()
-                .map(aId -> Artifact.Builder.newBuilder().id(Integer.valueOf(aId)).build())
+                .map(
+                        aId -> Artifact.Builder.newBuilder()
+                                .id(IdMapperHelper.toEntity(artifactMapper.getIdMapper(), aId))
+                                .build())
                 .collect(Collectors.toSet());
         buildRecord.setDependencies(artifacts);
         repository.save(buildRecord);
@@ -762,10 +817,11 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         var graph = new org.jboss.util.graph.Graph<Build>();
         var graphBuilder = new WeightedGraphBuilder<Build, String>(this::getSpecific, node -> {
             var tuples = buildRecordRepository
-                    .getImplicitDependencies(buildMapper.getIdMapper().toEntity(node.getId()));
+                    .getImplicitDependencies(IdMapperHelper.toEntity(buildMapper.getIdMapper(), node.getId()));
             return parseVertexNeighborsFromTuples(tuples);
         }, node -> {
-            var tuples = buildRecordRepository.getImplicitDependants(buildMapper.getIdMapper().toEntity(node.getId()));
+            var tuples = buildRecordRepository
+                    .getImplicitDependants(IdMapperHelper.toEntity(buildMapper.getIdMapper(), node.getId()));
             return parseVertexNeighborsFromTuples(tuples);
         });
 

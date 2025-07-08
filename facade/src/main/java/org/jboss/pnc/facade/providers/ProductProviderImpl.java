@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.validation.groups.ValidationGroup;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.mapper.api.ProductMapper;
 import org.jboss.pnc.facade.providers.api.ProductProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -82,7 +83,7 @@ public class ProductProviderImpl
             Integer productId = null;
 
             if (productRest.getId() != null) {
-                productId = Integer.valueOf(productRest.getId());
+                productId = IdMapperHelper.toEntity(mapper.getIdMapper(), productRest.getId());
             }
 
             if (product != null && !product.getId().equals(productId)) {
