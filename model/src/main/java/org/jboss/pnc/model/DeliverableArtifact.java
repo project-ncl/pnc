@@ -38,7 +38,14 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ *
  * Join table between {@link DeliverableAnalyzerReport} and {@link Artifact} with some additional information.
+ *
+ * NOTE: UPDATE the equals and hashCode method for equality check A Report (aka deliverable analysis run) can contain
+ * one or more distributions (archives to analyze). There can be multiple DeliverableArtifacts in a report which contain
+ * the same artifact and (obviously) belong to the same report, but also found in different distributions. We need to
+ * take this into account for the equals and hashCode method, since DeliverableAnalyzerReport stores DeliverableArtifact
+ * inside a set.
  *
  * @author Adam Kridl &lt;akridl@redhat.com&gt;
  */
@@ -115,6 +122,12 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
         licenses.remove(licenseInfo);
     }
 
+    /**
+     * Take into account the report, artifact, and distribution
+     * 
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,12 +137,18 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
             return false;
         }
         DeliverableArtifact that = (DeliverableArtifact) o;
-        return Objects.equals(report, that.report) && Objects.equals(artifact, that.artifact);
+        return Objects.equals(report, that.report) && Objects.equals(artifact, that.artifact)
+                && Objects.equals(distribution, that.distribution);
     }
 
+    /**
+     * Take into account the report, artifact, and distribution
+     * 
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
-        return Objects.hash(report, artifact);
+        return Objects.hash(report, artifact, distribution);
     }
 
     @Override
