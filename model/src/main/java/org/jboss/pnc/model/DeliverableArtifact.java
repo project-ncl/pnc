@@ -89,6 +89,7 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     @Type(type = "org.hibernate.type.TextType")
     private String archiveUnmatchedFilenames;
 
+    @Id
     @ManyToOne
     @JoinColumn(name = "distribution_id", foreignKey = @ForeignKey(name = "fk_deliverableartifact_distribution"))
     private DeliverableAnalyzerDistribution distribution;
@@ -100,7 +101,7 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     private Set<DeliverableArtifactLicenseInfo> licenses;
 
     public DeliverableArtifactPK getId() {
-        return new DeliverableArtifactPK(report, artifact);
+        return new DeliverableArtifactPK(report, artifact, distribution);
     }
 
     public void setId(DeliverableArtifactPK id) {
@@ -148,7 +149,7 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
      */
     @Override
     public int hashCode() {
-        return Objects.hash(report, artifact, distribution);
+        return Objects.hash(report, artifact.getId(), distribution);
     }
 
     @Override

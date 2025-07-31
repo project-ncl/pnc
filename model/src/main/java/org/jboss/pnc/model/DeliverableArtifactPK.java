@@ -43,4 +43,9 @@ public class DeliverableArtifactPK implements Serializable {
      * The id of the artifact.
      */
     private Artifact artifact;
+
+    /**
+     * The id of distribution
+     */
+    private DeliverableAnalyzerDistribution distribution;
 }

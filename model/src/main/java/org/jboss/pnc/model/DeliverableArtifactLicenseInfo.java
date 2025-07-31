@@ -109,6 +109,11 @@ public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongI
                     name = "delartifact_artifact_id",
                     referencedColumnName = "artifact_id",
                     foreignKey = @ForeignKey(name = "fk_delartifact"),
+                    nullable = false),
+            @JoinColumn(
+                    name = "delartifact_distribution_id",
+                    referencedColumnName = "distribution_id",
+                    foreignKey = @ForeignKey(name = "fk_delartifact"),
                     nullable = false) })
     private DeliverableArtifact artifact;
 
