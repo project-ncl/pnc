@@ -43,6 +43,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
@@ -65,6 +66,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
@@ -206,6 +208,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
+
+    @Inject
+    private DeliverableAnalyzerDistributionRepository deliverableAnalyzerDistributionRepository;
 
     @Inject
     private BuildPushOperationRepository buildPushOperationRepository;
@@ -1471,6 +1476,11 @@ public class DatabaseDataInitializer {
                 .build();
         report11 = deliverableAnalyzerReportRepository.save(report11);
 
+        DeliverableAnalyzerDistribution distribution = DeliverableAnalyzerDistribution.builder()
+                .distributionUrl("https://test.com")
+                .build();
+        distribution = deliverableAnalyzerDistributionRepository.save(distribution);
+
         DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
                 .changeOrder(1)
@@ -1485,78 +1495,91 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact1 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact1)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact2 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact5)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact3 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact9)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact4 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact10)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact5 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact11)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact6 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact12)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact7 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(importedArtifact2)
+                .distribution(distribution)
                 .builtFromSource(false)
                 .brewBuildId(42L)
                 .build();
         DeliverableArtifact analyzedArtifact8 = DeliverableArtifact.builder()
                 .report(report2)
                 .artifact(builtArtifact13)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact9 = DeliverableArtifact.builder()
                 .report(report3)
                 .artifact(builtArtifact14)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact10 = DeliverableArtifact.builder()
                 .report(report3)
                 .artifact(builtArtifact15)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact11a = DeliverableArtifact.builder()
                 .report(report4)
                 .artifact(builtArtifact16a)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact11b = DeliverableArtifact.builder()
                 .report(report4)
                 .artifact(builtArtifact16b)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact12 = DeliverableArtifact.builder()
                 .report(report5)
                 .artifact(builtArtifact16b)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1564,6 +1587,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact13 = DeliverableArtifact.builder()
                 .report(report5)
                 .artifact(builtArtifact17)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1571,6 +1595,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact14 = DeliverableArtifact.builder()
                 .report(report6)
                 .artifact(builtArtifact18)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1578,6 +1603,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact15 = DeliverableArtifact.builder()
                 .report(report7)
                 .artifact(builtArtifact18)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1585,6 +1611,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact16 = DeliverableArtifact.builder()
                 .report(report8)
                 .artifact(builtArtifact13)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1592,6 +1619,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact17 = DeliverableArtifact.builder()
                 .report(report8)
                 .artifact(builtArtifact2)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1599,6 +1627,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact18 = DeliverableArtifact.builder()
                 .report(report2)
                 .artifact(builtArtifact2)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1606,6 +1635,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact19 = DeliverableArtifact.builder()
                 .report(report9)
                 .artifact(builtArtifact18)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1613,6 +1643,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact20 = DeliverableArtifact.builder()
                 .report(report10)
                 .artifact(builtArtifact13)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();
@@ -1620,6 +1651,7 @@ public class DatabaseDataInitializer {
         DeliverableArtifact analyzedArtifact21 = DeliverableArtifact.builder()
                 .report(report11)
                 .artifact(builtArtifact13)
+                .distribution(distribution)
                 .builtFromSource(true)
                 .brewBuildId(null)
                 .build();

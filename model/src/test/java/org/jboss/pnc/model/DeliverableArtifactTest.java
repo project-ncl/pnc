@@ -37,10 +37,10 @@ public class DeliverableArtifactTest {
         report.setId(new Base32LongID(1235));
 
         DeliverableAnalyzerDistribution distribution1 = new DeliverableAnalyzerDistribution();
-        distribution1.setDistributionUrl("testme1");
+        distribution1.setId(new Base32LongID(123));
 
         DeliverableAnalyzerDistribution distribution2 = new DeliverableAnalyzerDistribution();
-        distribution2.setDistributionUrl("testme2");
+        distribution2.setId(new Base32LongID(321));
 
         DeliverableArtifact deliverableArtifact1 = new DeliverableArtifact();
         deliverableArtifact1.setArtifact(artifact);
@@ -68,7 +68,7 @@ public class DeliverableArtifactTest {
         report.setId(new Base32LongID(1235));
 
         DeliverableAnalyzerDistribution distribution1 = new DeliverableAnalyzerDistribution();
-        distribution1.setDistributionUrl("testme1");
+        distribution1.setId(new Base32LongID(321));
 
         DeliverableArtifact deliverableArtifact1 = new DeliverableArtifact();
         deliverableArtifact1.setArtifact(artifact1);
@@ -96,7 +96,7 @@ public class DeliverableArtifactTest {
         report2.setId(new Base32LongID(5321));
 
         DeliverableAnalyzerDistribution distribution1 = new DeliverableAnalyzerDistribution();
-        distribution1.setDistributionUrl("testme1");
+        distribution1.setId(new Base32LongID(123));
 
         DeliverableArtifact deliverableArtifact1 = new DeliverableArtifact();
         deliverableArtifact1.setArtifact(artifact);
@@ -121,7 +121,7 @@ public class DeliverableArtifactTest {
         report.setId(new Base32LongID(1235));
 
         DeliverableAnalyzerDistribution distribution = new DeliverableAnalyzerDistribution();
-        distribution.setDistributionUrl("testme1");
+        distribution.setId(new Base32LongID(89));
 
         DeliverableArtifact deliverableArtifact1 = new DeliverableArtifact();
         deliverableArtifact1.setArtifact(artifact);
@@ -136,5 +136,4 @@ public class DeliverableArtifactTest {
         assertEquals(deliverableArtifact1, deliverableArtifact2);
         assertEquals(deliverableArtifact1.hashCode(), deliverableArtifact2.hashCode());
     }
-
 }
