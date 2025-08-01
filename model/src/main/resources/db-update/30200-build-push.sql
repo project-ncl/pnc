@@ -160,11 +160,5 @@ BEGIN; -- Data migration
     FROM buildrecordpushresult bpr
     WHERE status = 'SUCCESS' AND bpr.brewbuildid IS NOT NULL AND bpr.brewbuildurl IS NOT NULL;
 
-    -- mark successful operations that did not create report (because of missing brew build ID or URL) as SYSTEM_ERROR
-    UPDATE operation
-    SET result = 'SYSTEM_ERROR'
-    FROM operation o FULL OUTER JOIN buildpushreport r ON o.id = r.operation_id
-    WHERE r.operation_id IS NULL AND o.result = 'SUCCESSFUL' AND o.operation_type = 'BuildPush' ;
-
 COMMIT;
 
