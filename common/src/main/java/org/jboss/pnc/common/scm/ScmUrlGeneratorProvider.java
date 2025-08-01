@@ -33,11 +33,16 @@ import java.util.Map;
 public class ScmUrlGeneratorProvider {
 
     public enum SCMProvider {
-        GERRIT, GITLAB
+        GERRIT, GITLAB, GITHUB
     }
 
-    private static final Map<SCMProvider, ScmUrlGenerator> scmUrlProviders = Map
-            .of(SCMProvider.GERRIT, new GerritScmUrlGenerator(), SCMProvider.GITLAB, new GitlabScmUrlGenerator());
+    private static final Map<SCMProvider, ScmUrlGenerator> scmUrlProviders = Map.of(
+            SCMProvider.GERRIT,
+            new GerritScmUrlGenerator(),
+            SCMProvider.GITLAB,
+            new GitlabScmUrlGenerator(),
+            SCMProvider.GITHUB,
+            new GithubScmUrlGenerator());
 
     /**
      * Returns an SCM url generator specific to a type of SCM
@@ -74,6 +79,8 @@ public class ScmUrlGeneratorProvider {
         // simple logic based on host name
         if (scmUri.getHost().contains("gitlab")) {
             return SCMProvider.GITLAB;
+        } else if (scmUri.getHost().contains("github")) {
+            return SCMProvider.GITHUB;
         } else if (scmUri.getHost().contains("gerrit") || scmUri.getPath().startsWith("/gerrit/")) {
             return SCMProvider.GERRIT;
         }
@@ -105,6 +112,8 @@ public class ScmUrlGeneratorProvider {
 
             if (scpUrl.getHost().contains("gitlab")) {
                 return SCMProvider.GITLAB;
+            } else if (scpUrl.getHost().contains("github")) {
+                return SCMProvider.GITHUB;
             } else if (scpUrl.getHost().contains("gerrit")) {
                 return SCMProvider.GERRIT;
             }
@@ -122,6 +131,8 @@ public class ScmUrlGeneratorProvider {
 
             if (internalUri.getHost().contains("gitlab")) {
                 return SCMProvider.GITLAB;
+            } else if (internalUri.getHost().contains("github")) {
+                return SCMProvider.GITHUB;
             } else if (internalUri.getHost().contains("gerrit")) {
                 return SCMProvider.GERRIT;
             }
