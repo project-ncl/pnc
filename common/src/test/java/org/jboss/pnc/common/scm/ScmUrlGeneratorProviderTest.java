@@ -22,6 +22,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GERRIT;
 import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GITLAB;
+import static org.jboss.pnc.common.scm.ScmUrlGeneratorProvider.SCMProvider.GITHUB;
 
 public class ScmUrlGeneratorProviderTest {
 
@@ -86,10 +87,31 @@ public class ScmUrlGeneratorProviderTest {
     }
 
     @Test
+    public void shouldReturnGithub() throws ScmException {
+        String scmUrl;
+        String internalUrl;
+
+        // scmUrl contains github
+        scmUrl = "https://github.company.com/workspace/project/repository.git";
+        internalUrl = "git+ssh://git@localhost.com/workspace/project/repository.git";
+
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITHUB);
+
+        // internalUrl contains github
+        scmUrl = "https://localhost.com/workspace/project/repository.git";
+        internalUrl = "git+ssh://git@github.company.com/workspace/project/repository.git";
+
+        assertThat(ScmUrlGeneratorProvider.determineScmProvider(scmUrl, internalUrl)).isEqualTo(GITHUB);
+    }
+
+    @Test
     public void testInternalScmProviderMethod() throws Exception {
 
         String internalUrl = "git+ssh://git@gitlab.com/workspace/project/repository.git";
         assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GITLAB);
+
+        internalUrl = "git+ssh://git@github.company.com/workspace/project/repository.git";
+        assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GITHUB);
 
         internalUrl = "git@gitlab.com:workspace/project/repository.git";
         assertThat(ScmUrlGeneratorProvider.determineInternalScmProvider(internalUrl)).isEqualTo(GITLAB);

@@ -290,10 +290,10 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException(
                     "Internal repository url has to start with: <protocol>://" + internalScmAuthority
                             + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
-        } else if (usingGitlabButNotScpFormat(internalRepoUrl)) {
-            log.info("Invalid internal repo url: We only allow internal gitlab repo url in scp format");
+        } else if (usingGithubOrGitlabButNotScpFormat(internalRepoUrl)) {
+            log.info("Invalid internal repo url: We only allow internal github or gitlab repo url in scp format");
             throw new InvalidEntityException(
-                    "Internal Gitlab repository url has to follow format: git@<server>:<path to git repo>.git");
+                    "Internal Github or Gitlab repository url has to follow format: git@<server>:<path to git repo>.git");
         } else if (internalRepoUrl.contains("/gerrit/")) {
             log.info("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException(
@@ -487,19 +487,20 @@ public class SCMRepositoryProviderImpl
     }
 
     /**
-     * [NCL-8685] Gitlab internal urls should *only* use the scp format: git@{server}:{path to git repo}.git
+     * [NCL-8685] Github and Gitlab internal urls should *only* use the scp format: git@{server}:{path to git repo}.git
      *
      * @param internalRepoUrl internal url to validate
-     * @return true if using gitlab internal url *and* the internal url is not in scp format
+     * @return true if using github or gitlab internal url *and* the internal url is not in scp format
      */
-    static boolean usingGitlabButNotScpFormat(String internalRepoUrl) {
+    static boolean usingGithubOrGitlabButNotScpFormat(String internalRepoUrl) {
 
         try {
             ScmUrlGeneratorProvider.SCMProvider provider = ScmUrlGeneratorProvider
                     .determineInternalScmProvider(internalRepoUrl);
 
-            if (ScmUrlGeneratorProvider.SCMProvider.GITLAB != provider) {
-                // not using gitlab
+            if (!(ScmUrlGeneratorProvider.SCMProvider.GITLAB == provider
+                    || ScmUrlGeneratorProvider.SCMProvider.GITHUB == provider)) {
+                // not using github or gitlab
                 return false;
             }
         } catch (ScmException e) {
@@ -512,7 +513,7 @@ public class SCMRepositoryProviderImpl
             // parsing done without MalformedUrlException,
             return false;
         } catch (MalformedURLException e) {
-            // we are using gitlab but the internal repo is not in scp format
+            // we are using github or gitlab but the internal repo is not in scp format
             return true;
         }
     }
