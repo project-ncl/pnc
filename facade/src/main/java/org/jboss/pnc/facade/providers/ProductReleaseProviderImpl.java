@@ -20,8 +20,10 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 
 import javax.annotation.security.PermitAll;
@@ -35,6 +37,9 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.wi
 public class ProductReleaseProviderImpl extends
         AbstractUpdatableProvider<Integer, org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef>
         implements ProductReleaseProvider {
+
+    @Inject
+    private ProductVersionMapper productVersionMapper;
 
     @Inject
     public ProductReleaseProviderImpl(ProductReleaseRepository repository, ProductReleaseMapper mapper) {
@@ -54,6 +59,6 @@ public class ProductReleaseProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withProductVersionId(Integer.valueOf(productVersionId)));
+                withProductVersionId(IdMapperHelper.toEntity(productVersionMapper.getIdMapper(), productVersionId)));
     }
 }

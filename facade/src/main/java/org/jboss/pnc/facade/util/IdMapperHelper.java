@@ -15,22 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper;
+package org.jboss.pnc.facade.util;
 
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.mapper.api.IdMapper;
-import org.jboss.pnc.model.Base32LongID;
 
-import java.util.Optional;
+/**
+ * @author Patrik Korytár &lt;pkorytar@redhat.com&gt;
+ */
+public class IdMapperHelper {
 
-public class Base32LongIdMapper implements IdMapper<Base32LongID, String> {
-
-    @Override
-    public Base32LongID toEntity(String id) {
-        return new Base32LongID(id);
+    /**
+     * Maps DTO ID to DAO ID while catching conversion exception and mapping it to the DTO exception.
+     */
+    public static <EntityId, DtoId> EntityId toEntity(IdMapper<EntityId, DtoId> idMapper, DtoId id) {
+        try {
+            return idMapper.toEntity(id);
+        } catch (IllegalArgumentException ex) {
+            throw new EmptyEntityException("Error parsing id " + id);
+        }
     }
 
-    @Override
-    public String toDto(Base32LongID id) {
-        return id.getId();
+    public static <EntityId, DtoId> DtoId toDto(IdMapper<EntityId, DtoId> idMapper, EntityId entity) {
+        return idMapper.toDto(entity);
     }
 }

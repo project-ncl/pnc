@@ -50,6 +50,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -918,7 +919,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.PNC)
                     .flatMap(b -> b.getArtifacts().stream())
                     .map(a -> a.getPncId())
-                    .map(artifactMapper.getIdMapper()::toEntity)
+                    .map((id) -> IdMapperHelper.toEntity(artifactMapper.getIdMapper(), id))
                     .collect(Collectors.toSet());
 
             if (!ids.isEmpty()) {
@@ -1025,7 +1026,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         public org.jboss.pnc.model.Artifact findPNCArtifact(Artifact art) {
-            org.jboss.pnc.model.Artifact artifact = pncCache.get(artifactMapper.getIdMapper().toEntity(art.getPncId()));
+            org.jboss.pnc.model.Artifact artifact = pncCache
+                    .get(IdMapperHelper.toEntity(artifactMapper.getIdMapper(), art.getPncId()));
             if (artifact == null) {
                 throw new IllegalArgumentException("PNC artifact with id " + art.getPncId() + " doesn't exist.");
             }

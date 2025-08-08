@@ -24,10 +24,9 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenDeleting;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
+import org.jboss.pnc.facade.util.IdMapperHelper;
 import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -154,10 +153,6 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     protected ID parseId(String stringId) {
-        try {
-            return mapper.getIdMapper().toEntity(stringId);
-        } catch (IllegalArgumentException ex) {
-            throw new EmptyEntityException("Error parsing id " + stringId);
-        }
+        return IdMapperHelper.toEntity(mapper.getIdMapper(), stringId);
     }
 }
