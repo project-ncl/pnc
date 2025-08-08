@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.jboss.pnc.facade.util.RepourClient;
+import org.jboss.pnc.facade.util.ReqourClient;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -66,7 +66,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     private ScmModuleConfig scmModuleConfig;
 
     @Mock
-    private RepourClient repour;
+    private ReqourClient reqourClient;
 
     @InjectMocks
     private SCMRepositoryProviderImpl provider;
@@ -227,7 +227,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     public void testUpdateWithOwnUrl() {
         // with
         String external = "http://external.sh/foo/bar";
-        when(repour.translateExternalUrl(external)).thenReturn(mockInternalOnly.getInternalUrl());
+        when(reqourClient.translateExternalUrl(external)).thenReturn(mockInternalOnly.getInternalUrl());
 
         SCMRepository toUpdate = createNewSCMRepository(
                 external,
@@ -246,7 +246,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     public void testUpdateShouldFailWithConflict() {
         // with
         String external = "http://external.sh/foo/bar";
-        when(repour.translateExternalUrl(external)).thenReturn(mock.getInternalUrl());
+        when(reqourClient.translateExternalUrl(external)).thenReturn(mock.getInternalUrl());
 
         SCMRepository toUpdate1 = createNewSCMRepository(
                 mockSecond.getExternalUrl(),

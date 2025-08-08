@@ -46,7 +46,7 @@ import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
-import org.jboss.pnc.facade.util.RepourClient;
+import org.jboss.pnc.facade.util.ReqourClient;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
@@ -108,7 +108,7 @@ public class SCMRepositoryProviderImpl
     private GlobalModuleGroup globalConfig;
 
     @Inject
-    private RepourClient repour;
+    private ReqourClient reqourClient;
 
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
@@ -362,7 +362,7 @@ public class SCMRepositoryProviderImpl
                     RepositoryConfiguration.class,
                     repositoryConfiguration.getId().toString());
         }
-        String internalUrl = repour.translateExternalUrl(externalUrl);
+        String internalUrl = reqourClient.translateExternalUrl(externalUrl);
         validateRepositoryWithInternalURLDoesNotExist(internalUrl, ignoreId);
     }
 
