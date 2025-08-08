@@ -26,16 +26,16 @@ public class SCMRepositoryProviderImplTest {
     public void testUsingGitlabButNotScpFormat() throws Exception {
 
         String internalUrl = "git+ssh://git@gitlab.com/project/repository.git";
-        assertThat(SCMRepositoryProviderImpl.usingGitlabButNotScpFormat(internalUrl)).isTrue();
+        assertThat(SCMRepositoryProviderImpl.usingGithubOrGitlabButNotScpFormat(internalUrl)).isTrue();
 
         internalUrl = "git@gitlab.com:workspace/project/repository.git";
-        assertThat(SCMRepositoryProviderImpl.usingGitlabButNotScpFormat(internalUrl)).isFalse();
+        assertThat(SCMRepositoryProviderImpl.usingGithubOrGitlabButNotScpFormat(internalUrl)).isFalse();
 
         internalUrl = "git+ssh://git@gerrit.com/project/repository.git";
-        assertThat(SCMRepositoryProviderImpl.usingGitlabButNotScpFormat(internalUrl)).isFalse();
+        assertThat(SCMRepositoryProviderImpl.usingGithubOrGitlabButNotScpFormat(internalUrl)).isFalse();
 
         internalUrl = "git@gerrit.com:workspace/project/repository.git";
-        assertThat(SCMRepositoryProviderImpl.usingGitlabButNotScpFormat(internalUrl)).isFalse();
+        assertThat(SCMRepositoryProviderImpl.usingGithubOrGitlabButNotScpFormat(internalUrl)).isFalse();
     }
 
 }
