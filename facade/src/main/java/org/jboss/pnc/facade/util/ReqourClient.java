@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.facade.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.api.reqour.dto.TranslateRequest;
+import org.jboss.pnc.api.reqour.dto.TranslateResponse;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.util.StringUtils;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.ProcessingException;
@@ -24,24 +30,12 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import org.jboss.pnc.api.repour.dto.TranslateRequest;
-import org.jboss.pnc.api.repour.dto.TranslateResponse;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author jbrazdil
- */
 @Dependent
-public class RepourClient {
+@Slf4j
+public class ReqourClient {
 
-    private Logger logger = LoggerFactory.getLogger(RepourClient.class);
-
-    private static final String TRANSLATE_ENDPOINT = "/git-external-to-internal";
+    private static final String TRANSLATE_ENDPOINT = "/external-to-internal";
 
     @Inject
     private GlobalModuleGroup globalModuleGroupConfiguration;
@@ -50,8 +44,8 @@ public class RepourClient {
 
     public String translateExternalUrl(String externalUrl) {
         try {
-            TranslateRequest request = new TranslateRequest(externalUrl);
-            TranslateResponse response = client.target(globalModuleGroupConfiguration.getRepourUrl())
+            TranslateRequest request = TranslateRequest.builder().externalUrl(externalUrl).build();
+            TranslateResponse response = client.target(globalModuleGroupConfiguration.getExternalReqourUrl())
                     .path(TRANSLATE_ENDPOINT)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE), TranslateResponse.class);
@@ -63,5 +57,4 @@ public class RepourClient {
             throw new RuntimeException("Failed to translate external URL to internal one.", ex);
         }
     }
-
 }
