@@ -21,6 +21,7 @@ import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.module.IndyStoresClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
+import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
@@ -36,6 +37,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -155,13 +157,25 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             if (pkgKey != null) {
                 // delete artifacts from consolidated repository
                 // (failed builds are not promoted and don't have artifacts in consolidated repository)
-                if (buildRecord.getStatus().completedSuccessfully()) {
+                // NO_REBUILD_REQUIRED builds also don't have artifacts, but are considered 'completed succesfully'
+                if (buildRecord.getStatus().completedSuccessfully()
+                        && !buildRecord.getStatus().equals(BuildStatus.NO_REBUILD_REQUIRED)) {
                     StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionGroup);
 
                     BatchDeleteRequest request = new BatchDeleteRequest();
                     request.setTrackingID(buildContentId);
                     request.setStoreKey(tempHostedKey);
-                    indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
+
+                    TrackedContentDTO trackedContentDTO = indy.module(IndyFoloAdminClientModule.class)
+                            .getTrackingReport(buildContentId);
+                    if (trackedContentDTO != null) {
+                        // if the tracking report for the tracking id exists, delete the files from the store
+                        indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
+                    } else {
+                        logger.info(
+                                "The tracking report for tracking id {} is not present in Indy anymore. No Indy deletion scheduled",
+                                buildContentId);
+                    }
                 }
 
                 // delete the content
@@ -185,8 +199,12 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             }
 
             // delete the tracking record
-            IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
-            foloAdmin.clearTrackingRecord(buildContentId);
+            try {
+                IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
+                foloAdmin.clearTrackingRecord(buildContentId);
+            } catch (IndyClientException e) {
+                logger.error("Error in clearing tracking record for build {}.", buildContentId, e);
+            }
 
             try {
                 // try to delete the promotion tracking record
