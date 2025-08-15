@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
@@ -32,7 +31,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -140,8 +138,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-    @BatchSize(size = 50)
+    @ManyToOne(cascade = CascadeType.REFRESH)
     private TargetRepository targetRepository;
 
     @Size(max = 255)
@@ -157,9 +154,8 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The record of the build which produced this artifact.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_buildrecord"))
-    @BatchSize(size = 50)
     private BuildRecord buildRecord;
 
     /**
@@ -192,18 +188,16 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * User who created the artifact (either triggering the build or e.g. creating via Deliverable Analyzer)
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_creation_user"), updatable = false)
-    @BatchSize(size = 50)
     private User creationUser;
 
     /**
      * User who last changed any audited field related to the Quality labels
      */
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_modification_user"), updatable = true)
-    @BatchSize(size = 50)
     private User modificationUser;
 
     @Column(columnDefinition = "timestamp with time zone", updatable = false)
