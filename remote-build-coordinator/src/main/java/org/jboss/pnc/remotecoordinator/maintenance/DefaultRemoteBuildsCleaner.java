@@ -168,7 +168,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
                     TrackedContentDTO trackedContentDTO = indy.module(IndyFoloAdminClientModule.class)
                             .getTrackingReport(buildContentId);
-                    if (trackedContentDTO != null) {
+                    if (doesTrackContentDTOExist(trackedContentDTO)) {
                         // if the tracking report for the tracking id exists, delete the files from the store
                         indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
                     } else {
@@ -229,6 +229,21 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         }
 
         return result;
+    }
+
+    private boolean doesTrackContentDTOExist(TrackedContentDTO trackedContentDTO) {
+        if (trackedContentDTO == null) {
+            return false;
+        } else if (trackedContentDTO.getUploads() == null || trackedContentDTO.getDownloads() == null) {
+            // According to the Indy team, if uploads or downloads are null, that means the trackContentDTO
+            // probably doesn't exist
+            return false;
+        } else if (trackedContentDTO.getUploads().isEmpty() && trackedContentDTO.getDownloads().isEmpty()) {
+            // if both downloads and uploads are empty, according to the Indy team, that means it doesn't exist
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
