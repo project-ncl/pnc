@@ -17,39 +17,24 @@
  */
 package org.jboss.pnc.rest.api.parameters;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Data;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-
 /**
- * Parameters for filtering build lists.
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
- * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
+ * Parameters for filtering build lists by build config parameters.
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class BuildsFilterParameters extends BuildsBuildConfigFilterParameters {
+public class BuildsBuildConfigFilterParameters {
 
     /**
-     * {@value SwaggerConstants#LATEST_BUILD_DESC}
+     * {@value SwaggerConstants#BC_NAME_FILTER_DESC}
      */
-    @Parameter(description = SwaggerConstants.LATEST_BUILD_DESC)
-    @QueryParam("latest")
-    @DefaultValue("false")
-    private boolean latest;
-
-    /**
-     * {@value SwaggerConstants#RUNNING_BUILDS_DESC}
-     */
-    @Parameter(description = SwaggerConstants.RUNNING_BUILDS_DESC)
-    @QueryParam("running")
-    @DefaultValue("false")
-    private boolean running;
+    @Parameter(description = SwaggerConstants.BC_NAME_FILTER_DESC)
+    @QueryParam("buildConfigName")
+    @DefaultValue("*")
+    private String buildConfigName;
 }

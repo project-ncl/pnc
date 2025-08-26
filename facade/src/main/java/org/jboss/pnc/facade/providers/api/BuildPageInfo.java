@@ -18,6 +18,9 @@
 package org.jboss.pnc.facade.providers.api;
 
 import lombok.Data;
+import org.jboss.pnc.rest.api.parameters.BuildsBuildConfigFilterParameters;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 /**
  *
@@ -34,4 +37,25 @@ public class BuildPageInfo {
     private final boolean running;
     private final String buildConfigName;
 
+    public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsBuildConfigFilterParameters builds) {
+        return new BuildPageInfo(
+                page.getPageIndex(),
+                page.getPageSize(),
+                page.getSort(),
+                page.getQ(),
+                false,
+                false,
+                builds.getBuildConfigName());
+    }
+
+    public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsFilterParameters builds) {
+        return new BuildPageInfo(
+                page.getPageIndex(),
+                page.getPageSize(),
+                page.getSort(),
+                page.getQ(),
+                builds.isLatest(),
+                builds.isRunning(),
+                builds.getBuildConfigName());
+    }
 }
