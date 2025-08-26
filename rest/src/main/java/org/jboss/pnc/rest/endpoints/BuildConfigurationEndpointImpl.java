@@ -35,6 +35,7 @@ import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
+
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
@@ -190,7 +191,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
-        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
+        BuildPageInfo pageInfo = BuildPageInfo.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForBuildConfiguration(pageInfo, id);
     }
 

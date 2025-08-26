@@ -393,18 +393,18 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     }
 
     @Override
-    public Page<Build> getDependantBuildsForArtifact(
-            int pageIndex,
-            int pageSize,
-            String sortingRsql,
-            String query,
-            String artifactId) {
+    public Page<Build> getDependantBuildsForArtifact(BuildPageInfo pageInfo, String artifactId) {
+        Predicate<BuildRecord>[] predicates = preparePredicates(
+                withArtifactDependency(Integer.valueOf(artifactId)),
+                "",
+                pageInfo.getBuildConfigName());
+
         return queryForCollection(
-                pageIndex,
-                pageSize,
-                sortingRsql,
-                query,
-                withArtifactDependency(Integer.valueOf(artifactId)));
+                pageInfo.getPageIndex(),
+                pageInfo.getPageSize(),
+                pageInfo.getSort(),
+                pageInfo.getQ(),
+                predicates);
     }
 
     @Override
