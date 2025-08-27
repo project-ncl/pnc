@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss.bom</groupId> <!-- Use BOM as parent to have access to the properties -->
     <artifactId>jboss-eap-jakartaee8</artifactId>
-    <version>7.4.7.GA</version>
+    <version>7.4.23.GA</version>
   </parent>
 
   <groupId>org.jboss.pnc</groupId>
