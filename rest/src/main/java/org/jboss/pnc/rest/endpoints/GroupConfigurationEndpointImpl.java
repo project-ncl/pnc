@@ -51,8 +51,8 @@ import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import static org.jboss.pnc.facade.providers.api.BuildPageInfo.toBuildPageInfo;
 import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
+import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 /**
  *

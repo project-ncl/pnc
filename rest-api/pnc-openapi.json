@@ -520,14 +520,6 @@
           "schema" : {
             "type" : "string"
           }
-        }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
         } ],
         "responses" : {
           "200" : {
@@ -1385,14 +1377,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -1407,6 +1391,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         } ],
         "responses" : {
@@ -2257,14 +2249,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -2279,6 +2263,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         }, {
           "name" : "attribute",
@@ -5075,14 +5067,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -5097,6 +5081,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         } ],
         "responses" : {
@@ -5820,14 +5812,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -5842,6 +5826,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         } ],
         "responses" : {
@@ -7032,14 +7024,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -7054,6 +7038,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         } ],
         "responses" : {
@@ -9225,14 +9217,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -9247,6 +9231,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         } ],
         "responses" : {
@@ -10024,14 +10016,6 @@
             "type" : "string"
           }
         }, {
-          "name" : "buildConfigName",
-          "in" : "query",
-          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
-          "schema" : {
-            "type" : "string",
-            "default" : "*"
-          }
-        }, {
           "name" : "latest",
           "in" : "query",
           "description" : "Should return only latest build?",
@@ -10046,6 +10030,14 @@
           "schema" : {
             "type" : "boolean",
             "default" : false
+          }
+        }, {
+          "name" : "buildConfigName",
+          "in" : "query",
+          "description" : "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*",
+          "schema" : {
+            "type" : "string",
+            "default" : ""
           }
         } ],
         "responses" : {

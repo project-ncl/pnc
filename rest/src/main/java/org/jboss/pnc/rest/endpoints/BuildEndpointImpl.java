@@ -46,6 +46,7 @@ import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.model.Base32LongID;
@@ -78,7 +79,6 @@ import java.util.Set;
 
 import static java.text.MessageFormat.format;
 import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
-import static org.jboss.pnc.facade.providers.api.BuildPageInfo.toBuildPageInfo;
 
 /**
  *
@@ -97,6 +97,17 @@ public class BuildEndpointImpl implements BuildEndpoint {
      * Param 2: build-log/alignment-log
      */
     private static final String BIFROST_LOGS_ENDPOINT = "/final-log/{0}/{1}";
+
+    public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsFilterParameters builds) {
+        return new BuildPageInfo(
+                page.getPageIndex(),
+                page.getPageSize(),
+                page.getSort(),
+                page.getQ(),
+                builds.isLatest(),
+                builds.isRunning(),
+                builds.getBuildConfigName());
+    }
 
     @Inject
     private BuildProvider provider;

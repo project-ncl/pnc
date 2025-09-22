@@ -107,7 +107,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
-        BuildPageInfo pageInfo = BuildPageInfo.toBuildPageInfo(page, filter);
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForMilestone(pageInfo, id);
     }
 

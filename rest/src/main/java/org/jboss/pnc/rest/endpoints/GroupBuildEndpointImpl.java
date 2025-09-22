@@ -40,7 +40,7 @@ import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import java.lang.invoke.MethodHandles;
 
-import static org.jboss.pnc.facade.providers.api.BuildPageInfo.toBuildPageInfo;
+import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 /**
  *
