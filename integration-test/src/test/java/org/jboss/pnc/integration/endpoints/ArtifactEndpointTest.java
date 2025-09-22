@@ -27,7 +27,6 @@ import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
@@ -40,8 +39,6 @@ import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
-import org.jboss.pnc.rest.api.parameters.BuildsBuildConfigFilterParameters;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
@@ -323,21 +320,9 @@ public class ArtifactEndpointTest {
     public void shouldGetBuildsThatDependsOnArtifact() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
-        RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId(), null);
+        RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId());
 
         assertThat(builds).hasSize(3);
-    }
-
-    @Test
-    public void shouldGetBuildsThatDependsOnArtifactFilteredByBuildConfigurationName() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
-
-        var filter = new BuildsBuildConfigFilterParameters();
-        filter.setBuildConfigName(DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID);
-
-        RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId(), filter);
-
-        assertThat(builds).hasSize(1);
     }
 
     @Test

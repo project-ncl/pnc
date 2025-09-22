@@ -90,7 +90,7 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
 
     @Override
     public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
-        BuildPageInfo pageInfo = BuildPageInfo.toBuildPageInfo(page, filter);
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForProject(pageInfo, id);
     }
 }

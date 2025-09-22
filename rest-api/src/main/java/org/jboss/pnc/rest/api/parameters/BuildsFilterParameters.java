@@ -22,8 +22,6 @@ import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
@@ -33,9 +31,7 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class BuildsFilterParameters extends BuildsBuildConfigFilterParameters {
+public class BuildsFilterParameters {
 
     /**
      * {@value SwaggerConstants#LATEST_BUILD_DESC}
@@ -52,4 +48,12 @@ public class BuildsFilterParameters extends BuildsBuildConfigFilterParameters {
     @QueryParam("running")
     @DefaultValue("false")
     private boolean running;
+
+    /**
+     * {@value SwaggerConstants#BC_NAME_FILTER_DESC}
+     */
+    @Parameter(description = SwaggerConstants.BC_NAME_FILTER_DESC)
+    @QueryParam("buildConfigName")
+    @DefaultValue("")
+    private String buildConfigName;
 }

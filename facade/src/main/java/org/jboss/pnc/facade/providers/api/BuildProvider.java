@@ -79,7 +79,12 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
 
     Page<Build> getBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId);
 
-    Page<Build> getDependantBuildsForArtifact(BuildPageInfo pageInfo, String artifactId);
+    Page<Build> getDependantBuildsForArtifact(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String artifactId);
 
     Graph<Build> getBuildGraphForGroupBuild(String id);
 
