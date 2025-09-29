@@ -110,7 +110,7 @@
     <version.mapstruct>1.6.3</version.mapstruct>
     <version.pncmetrics>1.1.3</version.pncmetrics>
     <version.pnc-api>3.2.4</version.pnc-api>
-    <version.pnc-common>3.3.3</version.pnc-common>
+    <version.pnc-common>3.3.4</version.pnc-common>
     <version.rex-api>1.2.1</version.rex-api>
     <bifrost-client.version>3.0.0</bifrost-client.version>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
