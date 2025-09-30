@@ -161,7 +161,10 @@ public class JaxRsActivatorNew extends Application {
             oas.addSecurityItem(new SecurityRequirement().addList(KEYCLOAK_AUTH));
         }
 
-        SwaggerConfiguration oasConfig = new SwaggerConfiguration().openAPI(oas);
+        // Restrict swagger definition to only the ones defined in org.jboss.pnc.rest. Do not pickup the definition
+        // from dependencies like pnc-api
+        SwaggerConfiguration oasConfig = new SwaggerConfiguration().openAPI(oas)
+                .resourcePackages(Set.of("org.jboss.pnc.rest"));
 
         try {
             new JaxrsOpenApiContextBuilder().servletConfig(servletConfig)
