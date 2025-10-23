@@ -30,8 +30,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import java.lang.invoke.MethodHandles;
-
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 /**
@@ -40,7 +38,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 @Provider
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(ConstraintViolationExceptionMapper.class);
 
     @Override
     public Response toResponse(ConstraintViolationException e) {

@@ -67,7 +67,6 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
-import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -88,7 +87,7 @@ import static org.junit.Assert.fail;
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class TemporaryBuildsCleanerTest {
-    protected static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    protected static Logger logger = LoggerFactory.getLogger(TemporaryBuildsCleanerTest.class);
 
     @Inject
     private TemporaryBuildsCleaner temporaryBuildsCleaner;

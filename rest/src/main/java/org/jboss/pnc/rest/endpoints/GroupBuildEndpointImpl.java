@@ -38,7 +38,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
-import java.lang.invoke.MethodHandles;
 
 import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
@@ -49,7 +48,7 @@ import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 @ApplicationScoped
 public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(GroupBuildEndpointImpl.class);
 
     @Inject
     private GroupBuildProvider provider;

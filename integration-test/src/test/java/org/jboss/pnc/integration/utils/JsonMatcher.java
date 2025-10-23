@@ -21,7 +21,6 @@ import org.hamcrest.CustomMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -29,7 +28,7 @@ import static io.restassured.path.json.JsonPath.from;
 
 public class JsonMatcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(JsonMatcher.class);
 
     public static CustomMatcher<String> containsJsonAttribute(
             String jsonAttribute,

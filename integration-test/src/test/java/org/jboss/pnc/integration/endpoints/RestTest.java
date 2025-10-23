@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +56,7 @@ import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_
 @Category(ContainerTest.class)
 public class RestTest {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(RestTest.class);
 
     private static final String USER_REST_ENDPOINT = BASE_REST_PATH + "/users/";
     private static final String PRODUCT_REST_ENDPOINT = BASE_REST_PATH + "/products/";

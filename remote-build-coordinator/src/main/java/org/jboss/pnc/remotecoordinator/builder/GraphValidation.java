@@ -28,13 +28,12 @@ import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Optional;
 
 public class GraphValidation {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(GraphValidation.class);
 
     /**
      * @throws BuildConflictException

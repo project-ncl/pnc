@@ -68,7 +68,6 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
@@ -89,7 +88,7 @@ import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
 @Slf4j
 public class BuildEndpointImpl implements BuildEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(BuildEndpointImpl.class);
 
     /**
      * Param 1: build-id

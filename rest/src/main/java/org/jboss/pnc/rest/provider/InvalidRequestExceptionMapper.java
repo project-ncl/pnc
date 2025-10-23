@@ -25,12 +25,11 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.lang.invoke.MethodHandles;
 
 @Provider
 public class InvalidRequestExceptionMapper implements ExceptionMapper<InvalidRequestException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(InvalidRequestExceptionMapper.class);
 
     @Override
     public Response toResponse(InvalidRequestException e) {

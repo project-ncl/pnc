@@ -48,7 +48,6 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +61,7 @@ import static org.junit.Assert.assertTrue;
 @Category(ContainerTest.class)
 public class ProcessProgressNotificationTest {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(ProcessProgressNotificationTest.class);
 
     NotificationCollector notificationCollector;
 

@@ -27,13 +27,12 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 
 @Singleton
 @Startup
 public class CustomSequenceConfiguration {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(CustomSequenceConfiguration.class);
 
     @Inject
     private DefaultSequenceHandlerRepository sequenceHandlerRepository;

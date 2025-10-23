@@ -38,7 +38,6 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +48,7 @@ import java.util.stream.Collectors;
 //@Alternative
 public class BuildCoordinatorMock implements BuildCoordinator { // TODO most likeley should be deleted
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(BuildCoordinatorMock.class);
 
     private List<BuildTask> activeTasks = new ArrayList<>();
 

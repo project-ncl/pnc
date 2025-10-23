@@ -59,7 +59,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -78,7 +77,7 @@ import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATI
 @Category(ContainerTest.class)
 public class WebSocketsNotificationTest {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(WebSocketsNotificationTest.class);
 
     private static NotificationCollector notificationCollector;
     private final JacksonProvider mapperProvider = new JacksonProvider();

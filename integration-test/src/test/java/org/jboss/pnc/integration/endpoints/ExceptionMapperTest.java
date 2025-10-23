@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.NotAuthorizedException;
-import java.lang.invoke.MethodHandles;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -46,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Category(ContainerTest.class)
 public class ExceptionMapperTest {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(ExceptionMapperTest.class);
 
     @Deployment
     public static EnterpriseArchive deploy() {

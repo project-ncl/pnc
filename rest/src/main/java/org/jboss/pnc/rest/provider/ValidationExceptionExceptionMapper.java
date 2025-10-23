@@ -29,12 +29,11 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.lang.invoke.MethodHandles;
 
 @Provider
 public class ValidationExceptionExceptionMapper implements ExceptionMapper<DTOValidationException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(ValidationExceptionExceptionMapper.class);
 
     @Override
     public Response toResponse(DTOValidationException e) {

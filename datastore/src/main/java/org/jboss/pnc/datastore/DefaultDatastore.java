@@ -47,8 +47,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,7 +65,7 @@ import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName
 @Stateless
 public class DefaultDatastore implements Datastore {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(DefaultDatastore.class);
 
     private ArtifactRepository artifactRepository;
 
