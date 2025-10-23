@@ -24,13 +24,12 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.lang.invoke.MethodHandles;
 import org.jboss.pnc.dto.response.ErrorResponse;
 
 @Provider
 public class BuildConflictExceptionMapper implements ExceptionMapper<BuildConflictException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(BuildConflictExceptionMapper.class);
 
     @Override
     public Response toResponse(BuildConflictException e) {

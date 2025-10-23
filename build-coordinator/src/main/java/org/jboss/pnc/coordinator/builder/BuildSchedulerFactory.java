@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -33,7 +32,7 @@ import java.lang.invoke.MethodHandles;
 @Dependent
 public class BuildSchedulerFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(BuildSchedulerFactory.class);
 
     private BuildScheduler configuredBuildScheduler;
 

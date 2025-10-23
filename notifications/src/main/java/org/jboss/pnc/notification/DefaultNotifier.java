@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.notification;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class DefaultNotifier implements Notifier {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(DefaultNotifier.class);
 
     private Set<AttachedClient> attachedClients = new CopyOnWriteArraySet<>();
 

@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
@@ -61,7 +60,7 @@ import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 @ApplicationScoped
 public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(GroupConfigurationEndpointImpl.class);
 
     @Inject
     private GroupConfigurationProvider provider;

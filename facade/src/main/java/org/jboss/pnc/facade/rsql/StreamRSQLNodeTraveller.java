@@ -23,7 +23,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -43,7 +42,7 @@ import cz.jirutka.rsql.parser.ast.RSQLOperators;
  */
 class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(StreamRSQLNodeTraveller.class);
 
     private final Object instance;
 

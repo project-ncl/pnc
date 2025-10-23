@@ -29,7 +29,6 @@ import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 
 /**
  * This class runs at startup to initialize the application data.
@@ -39,7 +38,7 @@ import java.lang.invoke.MethodHandles;
 @DependsOn("CustomSequenceConfiguration")
 public class DemoDataInitializer {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = Logger.getLogger(DemoDataInitializer.class);
 
     @Inject
     Configuration configuration;

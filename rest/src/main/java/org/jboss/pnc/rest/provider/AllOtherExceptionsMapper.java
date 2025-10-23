@@ -32,7 +32,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +46,7 @@ import java.util.Map;
 @Provider
 public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(AllOtherExceptionsMapper.class);
 
     @Override
     public Response toResponse(Exception e) {

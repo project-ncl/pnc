@@ -21,8 +21,6 @@ import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.DESC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
-
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.LogicalNode;
 import java.lang.reflect.Method;
@@ -35,7 +33,7 @@ import org.jboss.pnc.common.util.StringUtils;
  */
 class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(ComparatorRSQLNodeTraveller.class);
 
     @Override
     public Comparator<DTO> visit(LogicalNode logicalNode) {

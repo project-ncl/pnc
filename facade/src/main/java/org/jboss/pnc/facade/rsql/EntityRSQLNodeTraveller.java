@@ -33,14 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
-import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,7 +55,7 @@ import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_SINGLE_CHARACT
 class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
         extends RSQLNodeTraveller<javax.persistence.criteria.Predicate> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(EntityRSQLNodeTraveller.class);
     public static final char ESCAPE_CHAR = '\\';
 
     private final Root<DB> root;

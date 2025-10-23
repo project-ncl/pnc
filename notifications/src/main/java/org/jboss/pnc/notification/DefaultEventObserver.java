@@ -42,7 +42,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Observe build events
@@ -50,7 +49,7 @@ import java.lang.invoke.MethodHandles;
 @ApplicationScoped
 public class DefaultEventObserver {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(DefaultEventObserver.class);
 
     @Inject
     DistributedEventHandler handler;

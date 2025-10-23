@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.lang.invoke.MethodHandles;
 import org.jboss.pnc.dto.response.ErrorResponse;
 
 @Provider

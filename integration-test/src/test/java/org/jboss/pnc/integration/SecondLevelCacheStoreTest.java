@@ -19,7 +19,6 @@ package org.jboss.pnc.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
@@ -57,7 +56,7 @@ import org.slf4j.LoggerFactory;
 @Category(ContainerTest.class)
 public class SecondLevelCacheStoreTest {
 
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger logger = LoggerFactory.getLogger(SecondLevelCacheStoreTest.class);
 
     private static String environmentId;
     private static String dependencyBCId;

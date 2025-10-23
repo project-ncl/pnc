@@ -28,7 +28,6 @@ import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Web Sockets notification implementation.
@@ -36,7 +35,7 @@ import java.lang.invoke.MethodHandles;
 @ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
 public class NotificationsEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(NotificationsEndpoint.class);
 
     /** broadcasting endpoint, all events are sent to all subscribed users */
     public static final String ENDPOINT_PATH = "/notifications";

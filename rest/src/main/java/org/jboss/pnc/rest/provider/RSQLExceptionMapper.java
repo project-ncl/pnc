@@ -24,15 +24,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import java.lang.invoke.MethodHandles;
-
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.facade.rsql.RSQLException;
 
 @Provider
 public class RSQLExceptionMapper implements ExceptionMapper<RSQLException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(RSQLExceptionMapper.class);
 
     @Override
     public Response toResponse(RSQLException e) {
