@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
  */
 @ApplicationScoped
-public class DefaultNotifier implements Notifier {
+public class LocalNotifier implements Notifier {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultNotifier.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalNotifier.class);
 
     private Set<AttachedClient> attachedClients = new CopyOnWriteArraySet<>();
 
