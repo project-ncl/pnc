@@ -22,7 +22,9 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.notification.dist.DefaultDistributedEventHandlerFactory;
+import org.jboss.pnc.notification.dist.DistributedEventHandler;
 import org.jboss.pnc.notification.dist.DistributedEventHandlerFactory;
+import org.jboss.pnc.notification.dist.DistributedNotifier;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -30,6 +32,7 @@ import org.jboss.pnc.spi.notifications.Notifier;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.not;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,18 +41,23 @@ public class DefaultObserverTest {
 
     @Test
     public void testObserve() throws Exception {
-        Notifier notifier = new DefaultNotifier();
         AttachedClient attachedClient = mock(AttachedClient.class);
         doReturn(true).when(attachedClient).isEnabled();
-        notifier.attachClient(attachedClient);
 
         SystemConfig config = createConfiguration();
         // SystemConfig config = createKafkaConfiguration();
         // SystemConfig config = createInfinispanConfiguration();
 
         DistributedEventHandlerFactory factory = new DefaultDistributedEventHandlerFactory();
+        DistributedEventHandler handler = factory.createDistributedEventHandler(config);
+
+        Notifier notifier = new LocalNotifier();
+        Notifier distributedNotifier = new DistributedNotifier(notifier, handler);
+
+        distributedNotifier.attachClient(attachedClient);
+
         DefaultEventObserver observer = new DefaultEventObserver();
-        observer.handler = factory.createDistributedEventHandler(config, notifier);
+        observer.notifier = distributedNotifier;
 
         Thread.sleep(5000L); // wait for Kafka consumer to be subscribed
 
