@@ -19,12 +19,14 @@ package org.jboss.pnc.notification.dist;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
-import org.jboss.pnc.spi.notifications.Notifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractDistributedEventHandler implements DistributedEventHandler {
     private static final JacksonProvider mapperProvider = new JacksonProvider();
 
-    Notifier notifier;
+    protected List<EventConsumer> eventConsumers = new ArrayList<>();
 
     protected String toMessage(Object event) {
         try {
@@ -34,7 +36,11 @@ public abstract class AbstractDistributedEventHandler implements DistributedEven
         }
     }
 
+    public synchronized void registerSubscriber(EventConsumer eventConsumer) {
+        eventConsumers.add(eventConsumer);
+    }
+
     protected void sendMessage(Object json) {
-        notifier.sendMessage(json);
+        eventConsumers.forEach(consumer -> consumer.consume(json));
     }
 }

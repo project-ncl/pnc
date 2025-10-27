@@ -24,5 +24,5 @@ import org.jboss.pnc.spi.notifications.Notifier;
  * Create DistributedEventHandler e.g. Infinispan events, Kafka messages, ...
  */
 public interface DistributedEventHandlerFactory {
-    DistributedEventHandler createDistributedEventHandler(SystemConfig config, Notifier notifier);
+    DistributedEventHandler createDistributedEventHandler(SystemConfig config);
 }
