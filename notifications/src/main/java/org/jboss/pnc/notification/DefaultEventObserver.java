@@ -28,13 +28,13 @@ import org.jboss.pnc.mapper.api.BuildPushReportMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
-import org.jboss.pnc.notification.dist.DistributedEventHandler;
+import org.jboss.pnc.notification.dist.Distributed;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +52,15 @@ public class DefaultEventObserver {
     private static final Logger logger = LoggerFactory.getLogger(DefaultEventObserver.class);
 
     @Inject
-    DistributedEventHandler handler;
+    @Distributed
+    Notifier notifier;
 
     @Inject
     DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
+
     @Inject
     BuildPushOperationRepository buildPushOperationRepository;
-    @Inject
-    BuildPushReportRepository buildPushReportRepository;
+
     @Inject
     BuildPushReportMapper buildPushReportMapper;
 
@@ -69,13 +70,9 @@ public class DefaultEventObserver {
     @Inject
     BuildPushOperationMapper buildPushOperationMapper;
 
-    private void sendMessage(Object msg) {
-        handler.sendEvent(msg);
-    }
-
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
-        sendMessage(
+        notifier.sendMessage(
                 new BuildChangedNotification(
                         buildStatusChangedEvent.getOldStatus(),
                         buildStatusChangedEvent.getBuild()));
@@ -84,7 +81,7 @@ public class DefaultEventObserver {
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         logger.trace("Observed new set status changed event {}.", buildSetStatusChangedEvent);
-        sendMessage(
+        notifier.sendMessage(
                 new GroupBuildChangedNotification(
                         buildSetStatusChangedEvent.getGroupBuild(),
                         buildSetStatusChangedEvent.getOldBuildStatus()));
@@ -110,14 +107,15 @@ public class DefaultEventObserver {
             buildPushOperation.setResult(operationChangedEvent.getResult());
             operationToSend = buildPushOperationMapper.toDTO(buildPushOperation);
             if (buildPushOperation.getProgressStatus() == ProgressStatus.FINISHED) { // TODO: Remove in next version
-                sendMessage(new BuildPushResultNotification(buildPushReportMapper.fromOperation(buildPushOperation)));
+                notifier.sendMessage(
+                        new BuildPushResultNotification(buildPushReportMapper.fromOperation(buildPushOperation)));
             }
         } else {
             notificationType = "UNKNOWN-OPERATION";
             operationToSend = null;
         }
 
-        sendMessage(
+        notifier.sendMessage(
                 new OperationNotification(
                         notificationType,
                         operationChangedEvent.getId().toString(),
