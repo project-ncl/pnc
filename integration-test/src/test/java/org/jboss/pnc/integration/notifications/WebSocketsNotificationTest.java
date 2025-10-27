@@ -35,6 +35,7 @@ import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.notification.Local;
 import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
@@ -90,6 +91,7 @@ public class WebSocketsNotificationTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Inject
+    @Local
     Notifier notifier;
     @Inject
     Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
