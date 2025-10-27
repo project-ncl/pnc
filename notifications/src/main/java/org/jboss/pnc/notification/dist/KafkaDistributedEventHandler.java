@@ -131,6 +131,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
 
         producerProps.put(CommonClientConfigs.RETRIES_CONFIG, config.getKafkaNumOfRetries());
         producerProps.put(CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG, config.getKafkaRetryBackoffMillis());
+        producerProps.put(CommonClientConfigs.CLIENT_ID_CONFIG, UUID.randomUUID().toString());
         if (config.getKafkaAcks() != null) {
             producerProps.put(ProducerConfig.ACKS_CONFIG, config.getKafkaAcks());
         }
