@@ -17,14 +17,7 @@
  */
 package org.jboss.pnc.notification.dist;
 
-/**
- * Distributes events across cluster. To consume the distributed messages coming from other instances, you must
- * subscribe by using registerSubscriber() method.
- */
-public interface DistributedEventHandler extends AutoCloseable {
-    void start();
-
-    void registerSubscriber(EventConsumer consumer);
-
-    void sendEvent(Object event);
+@FunctionalInterface
+public interface EventConsumer {
+    void consume(Object event);
 }

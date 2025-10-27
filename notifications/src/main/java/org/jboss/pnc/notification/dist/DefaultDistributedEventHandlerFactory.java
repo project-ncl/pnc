@@ -35,7 +35,7 @@ public class DefaultDistributedEventHandlerFactory implements DistributedEventHa
 
     @Produces
     @ApplicationScoped
-    public DistributedEventHandler createDistributedEventHandler(SystemConfig config, Notifier notifier) {
+    public DistributedEventHandler createDistributedEventHandler(SystemConfig config) {
         AbstractDistributedEventHandler handler;
         if ("kafka".equalsIgnoreCase(config.getDistributedEventType())) {
             handler = new KafkaDistributedEventHandler(config);
@@ -44,7 +44,6 @@ public class DefaultDistributedEventHandlerFactory implements DistributedEventHa
         } else {
             handler = new LocalEventHandler();
         }
-        handler.notifier = notifier;
         handler.start();
         return handler;
     }
