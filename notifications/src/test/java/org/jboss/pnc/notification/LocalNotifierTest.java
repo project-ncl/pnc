@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.notification;
 
-import org.jboss.pnc.notification.DefaultNotifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -31,12 +30,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.verification.Times;
 
-public class DefaultNotifierTest {
+public class LocalNotifierTest {
 
     @Test
     public void shouldAddNotifier() throws Exception {
         // given
-        Notifier notifier = new DefaultNotifier();
+        Notifier notifier = new LocalNotifier();
         AttachedClient attachedClient = mock(AttachedClient.class);
 
         // when
@@ -49,7 +48,7 @@ public class DefaultNotifierTest {
     @Test
     public void shouldCleanItself() throws Exception {
         // given
-        DefaultNotifier notifier = new DefaultNotifier();
+        LocalNotifier notifier = new LocalNotifier();
         AttachedClient attachedClient = mock(AttachedClient.class);
         doReturn(false).when(attachedClient).isEnabled();
 
@@ -67,7 +66,7 @@ public class DefaultNotifierTest {
         // given
         Object messageBody = new Object();
 
-        Notifier notifier = new DefaultNotifier();
+        Notifier notifier = new LocalNotifier();
         AttachedClient attachedClient = mock(AttachedClient.class);
         doReturn(true).when(attachedClient).isEnabled();
         notifier.attachClient(attachedClient);
@@ -86,7 +85,7 @@ public class DefaultNotifierTest {
         ArgumentCaptor<MessageCallback> messageCallback = ArgumentCaptor.forClass(MessageCallback.class);
 
         // given
-        Notifier notifier = new DefaultNotifier();
+        Notifier notifier = new LocalNotifier();
 
         AttachedClient attachedClient = mock(AttachedClient.class);
         doReturn(true).when(attachedClient).isEnabled();
@@ -108,7 +107,7 @@ public class DefaultNotifierTest {
         // given
         Object messageBody = new Object();
 
-        Notifier notifier = new DefaultNotifier();
+        Notifier notifier = new LocalNotifier();
         AttachedClient attachedClient = mock(AttachedClient.class);
         doReturn(false).when(attachedClient).isEnabled();
         notifier.attachClient(attachedClient);
@@ -127,7 +126,7 @@ public class DefaultNotifierTest {
         ArgumentCaptor<MessageCallback> messageCallback = ArgumentCaptor.forClass(MessageCallback.class);
 
         // given
-        Notifier notifier = new DefaultNotifier();
+        Notifier notifier = new LocalNotifier();
 
         AttachedClient attachedClient = mock(AttachedClient.class);
         doReturn(true).when(attachedClient).isEnabled();
