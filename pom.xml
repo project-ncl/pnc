@@ -102,7 +102,7 @@
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.8</atlasVersion>
-    <indyVersion>3.4.3</indyVersion>
+    <indyVersion>3.4.5</indyVersion>
     <version.keycloak>18.0.11.redhat-00001</version.keycloak>
     <version.swagger2>2.2.37</version.swagger2>
     <version.buildagent>1.0.0</version.buildagent>
@@ -120,7 +120,6 @@
     <!-- -redhat version is missing some packages -->
     <version.com.github.json-patch>1.13</version.com.github.json-patch>
     <!-- SYNC commons-* with EAP provided versions (they can be found in eap-runtime-artifacts pom) -->
-    <version.commons-lang>2.6</version.commons-lang>
     <version.commons-logging>1.3.5</version.commons-logging>
     <version.commons-collections>3.2.2</version.commons-collections>
     <version.commons-validator>1.9.0</version.commons-validator>
@@ -147,10 +146,11 @@
     <version.arquillian-jacoco>1.1.0</version.arquillian-jacoco>
     <version.arquillian-transactions>1.0.5</version.arquillian-transactions>
     <version.arquillian-wildfly>3.0.1.Final</version.arquillian-wildfly>
-    <version.logback>1.2.3</version.logback>
+    <version.logback>1.5.20</version.logback>
     <version.git-commit-id-plugin>4.9.10</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.21.2</version.org.jsoup.jsoup>
+    <version.org.slf4j>2.0.17</version.org.slf4j>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -959,12 +959,6 @@
         <version>${version.com.fasterxml.jackson.datatype}</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${version.commons-lang}</version>
-        <scope>provided</scope>
-      </dependency>
 
       <dependency>
         <groupId>commons-beanutils</groupId>
@@ -1150,6 +1144,15 @@
           <groupId>org.jsoup</groupId>
           <artifactId>jsoup</artifactId>
           <version>${version.org.jsoup.jsoup}</version>
+      </dependency>
+
+      <!-- Managing vulnerable versions of netty (4.1.84.Final) from vertx (from pnc rest-client) to avoid CVE -->
+      <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-bom</artifactId>
+          <version>4.1.118.Final</version>
+          <type>pom</type>
+          <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
