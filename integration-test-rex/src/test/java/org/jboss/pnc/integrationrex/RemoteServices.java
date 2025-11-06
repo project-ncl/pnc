@@ -115,7 +115,7 @@ public class RemoteServices {
 
     private static KeycloakContainer createKeycloakContainer() {
         Consumer<OutputFrame> keycloakLogConsumer = frame -> logger
-                .debug("KEYCLOAK >>" + frame.getUtf8StringWithoutLineEnding());
+                .debug("KEYCLOAK >>{}", frame.getUtf8StringWithoutLineEnding());
 
         String keycloakHostPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
         String keycloakPortBinding = keycloakHostPort + ":" + 8080; // 8080 is in-container port
@@ -170,13 +170,17 @@ public class RemoteServices {
     }
 
     private static InfinispanContainer createInfinispanContainer() {
+        Consumer<OutputFrame> logConsumer = frame -> logger
+                .debug("Infinispan >>{}", frame.getUtf8StringWithoutLineEnding());
         return new InfinispanContainer(false).withNetwork(containerNetwork)
                 .withNetworkAliases("infinispan")
+                .withLogConsumer(logConsumer)
                 .withStartupAttempts(5);
     }
 
     private static GenericContainer createRexContainer(InfinispanContainer ispn, String portBinding) {
-        Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8StringWithoutLineEnding());
+        Consumer<OutputFrame> rexLogConsumer = frame -> logger
+                .debug("REX >>{}", frame.getUtf8StringWithoutLineEnding());
 
         GenericContainer rex = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle-devel/rex:latest"))
                 // DockerImageName.parse("localhost/<<your-name>>/rex:1.0.2-SNAPSHOT"))

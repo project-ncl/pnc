@@ -24,7 +24,7 @@ public class InfinispanContainer extends GenericContainer<InfinispanContainer> {
 
     private static final String INFINISPAN_USERNAME = "admin";
     private static final String INFINISPAN_PASSWORD = "password";
-    private static final String INFINISPAN_VERSION = "14.0.28.Final";
+    private static final String INFINISPAN_VERSION = "15.0.15.Final";
 
     public InfinispanContainer(boolean useNative) {
         this(

@@ -95,7 +95,9 @@ public class WebSocketClientTest extends RemoteServices {
 
     @AfterClass
     public static void stopBPM() throws IOException {
-        bpm.close();
+        if (bpm != null) {
+            bpm.close();
+        }
     }
 
     @Before

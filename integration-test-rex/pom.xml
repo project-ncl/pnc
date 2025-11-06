@@ -35,6 +35,11 @@
   <description>Tests for REST endpoints. REST to DB related tests run against im memory database. REST to executor related tests use mocked executor to avoid using remote services.</description>
 
   <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -171,25 +176,6 @@
       <groupId>org.jboss</groupId>
       <artifactId>jboss-common-core</artifactId>
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>com.fasterxml.jackson.datatype</groupId>-->
-      <!--<artifactId>jackson-datatype-joda</artifactId>-->
-    <!--</dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>com.fasterxml.jackson.datatype</groupId>-->
-<!--      <artifactId>jackson-datatype-jdk8</artifactId>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>com.fasterxml.jackson.datatype</groupId>-->
-<!--      <artifactId>jackson-datatype-jsr310</artifactId>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>org.jboss.resteasy</groupId>-->
-<!--      <artifactId>resteasy-jackson2-provider</artifactId>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
