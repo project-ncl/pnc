@@ -147,7 +147,7 @@
     <version.arquillian-transactions>1.0.5</version.arquillian-transactions>
     <version.arquillian-wildfly>3.0.1.Final</version.arquillian-wildfly>
     <version.logback>1.5.20</version.logback>
-    <version.git-commit-id-plugin>4.9.10</version.git-commit-id-plugin>
+    <version.git-commit-id-plugin>9.0.2</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.21.2</version.org.jsoup.jsoup>
     <version.org.slf4j>2.0.17</version.org.slf4j>
@@ -1447,8 +1447,8 @@
           </configuration>
         </plugin>
         <plugin>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
+            <groupId>io.github.git-commit-id</groupId>
+            <artifactId>git-commit-id-maven-plugin</artifactId>
             <version>${version.git-commit-id-plugin}</version>
         </plugin>
         <plugin>
