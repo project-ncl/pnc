@@ -51,7 +51,7 @@ public class BuildRecordInsights {
     private final String buildContentId;
 
     /**
-     * The time when the build was submited for building.
+     * The time when the build was submitted for building.
      */
     private final Instant submitTime;
 
@@ -146,9 +146,9 @@ public class BuildRecordInsights {
     private final String buildConfigurationName;
 
     /**
-     * The the build group ID of the build.
+     * The build group ID of the build.
      */
-    private final Integer buildConfigSetRecordId;
+    private final Long buildConfigSetRecordId;
 
     /**
      * The product milestone ID of the build.
