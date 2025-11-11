@@ -701,7 +701,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 Integer buildConfigurationId = (Integer) rawBuildInsight[18];
                 Integer buildConfigurationRev = (Integer) rawBuildInsight[19];
                 String buildConfigurationName = (String) rawBuildInsight[20];
-                Integer buildConfigSetRecordId = (Integer) rawBuildInsight[21];
+                Long buildConfigSetRecordId = ((BigInteger) rawBuildInsight[21]).longValue();
                 Integer productMilestoneId = (Integer) rawBuildInsight[22];
                 String productMilestoneVersion = (String) rawBuildInsight[23];
                 Integer projectId = (Integer) rawBuildInsight[24];
