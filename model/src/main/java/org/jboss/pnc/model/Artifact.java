@@ -147,8 +147,8 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * Path to repository where the artifact file is available.
      */
-    @Size(max = 500)
-    @Column(length = 500)
+    @Size(max = 1024)
+    @Column(length = 1024)
     private String deployPath;
 
     /**
@@ -169,8 +169,8 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The location from which this artifact was originally downloaded for import
      */
-    @Size(max = 500)
-    @Column(unique = false, length = 500)
+    @Size(max = 1024)
+    @Column(unique = false, length = 1024)
     private String originUrl;
 
     /**
