@@ -61,6 +61,11 @@ public class DingroguClientMock implements DingroguClient {
     }
 
     @Override
+    public void submitCancelProcessInstance(String correlationId) {
+
+    }
+
+    @Override
     public DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId) {
         return null;
     }

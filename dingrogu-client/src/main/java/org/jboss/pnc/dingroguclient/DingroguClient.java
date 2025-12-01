@@ -36,6 +36,8 @@ public interface DingroguClient {
 
     Request cancelProcessInstance(List<Request.Header> headers, String correlationId);
 
+    void submitCancelProcessInstance(String correlationId);
+
     DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId);
 
     static List<Request.Header> addMdcValues(List<Request.Header> headers) {

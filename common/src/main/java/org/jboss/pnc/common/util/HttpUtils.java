@@ -199,12 +199,14 @@ public class HttpUtils {
             default:
                 throw new IllegalArgumentException(method + " HTTP method does not support payload.");
         }
-        try {
-            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(payload), "UTF-8");
-            entity.setContentType(MediaType.APPLICATION_JSON);
-            httpRequest.setEntity(entity);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Cannot map payload to JSON", e);
+        if (payload != null) {
+            try {
+                StringEntity entity = new StringEntity(objectMapper.writeValueAsString(payload), "UTF-8");
+                entity.setContentType(MediaType.APPLICATION_JSON);
+                httpRequest.setEntity(entity);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Cannot map payload to JSON", e);
+            }
         }
         request.getHeaders().forEach(h -> httpRequest.setHeader(h.getName(), h.getValue()));
         authToken.ifPresent(s -> httpRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + s));
