@@ -247,7 +247,7 @@ public class BrewPusherImpl implements BrewPusher {
             throw new EmptyEntityException("There is no running push operation for milestone: " + milestoneId);
         }
         buildPushOperations
-                .forEach(operation -> dingroguClient.cancelProcessInstance(List.of(), operation.getId().getId()));
+                .forEach(operation -> dingroguClient.submitCancelProcessInstance(operation.getId().getId()));
     }
 
     @Override
