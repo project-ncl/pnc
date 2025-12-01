@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Edge;
@@ -58,6 +59,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -142,6 +147,35 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         when(repository.findByIdFetchProperties(any())).thenAnswer(inv -> {
             Base32LongID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
+        });
+
+        when(repository.countAllBuildRecordInsightsNewerThanTimestamp(any())).thenAnswer(inv -> repositoryList.size());
+
+        when(repository.getAllBuildRecordInsightsNewerThanTimestamp(any(), anyInt(), anyInt())).thenAnswer(inv -> {
+            return repositoryList.stream()
+                    .findFirst()
+                    .map(
+                            a -> Collections.singletonList(
+                                    new Object[] { BigInteger.valueOf(a.getId().getLongId()), a.getBuildContentId(),
+                                            a.getSubmitTime(), a.getStartTime(), a.getEndTime(), a.getLastUpdateTime(),
+                                            a.getSubmitTime().getYear(), a.getSubmitTime().getMonth(),
+                                            a.getSubmitTime()
+                                                    .toInstant()
+                                                    .atZone(ZoneId.systemDefault())
+                                                    .toLocalDate()
+                                                    .get(IsoFields.QUARTER_OF_YEAR),
+                                            a.getStatus(), a.isTemporaryBuild(), false, false, "",
+                                            a.getExecutionRootName(), a.getExecutionRootVersion(), 0, "username",
+                                            a.getBuildConfigurationId(), a.getBuildConfigurationAuditedIdRev().getId(),
+                                            a.getBuildConfigurationAudited().getName(),
+                                            BigInteger.valueOf(a.getBuildConfigSetRecord().getId().getLongId()), 0, // productMilestone
+                                            "", // milestoneVersion
+                                            0, "", // projectName
+                                            0, // productVersionId
+                                            "", // productVersion
+                                            0, // productId
+                                            "" }))
+                    .get();
         });
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
@@ -238,6 +272,8 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                                 .build())
                 .buildConfigurationAuditedId(buildConfigurationId)
                 .buildConfigurationAuditedRev(1)
+                .buildConfigSetRecord(
+                        BuildConfigSetRecord.Builder.newBuilder().id(buildRecordId).temporaryBuild(false).build())
                 .build();
         try {
             Thread.sleep(1L); // make sure there are no two builds with the same start date
@@ -283,6 +319,21 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         // Verify
         assertEquals(1, builds.getTotalHits());
         assertEquals(BuildMapper.idMapper.toDto(latestBuild.getId()), builds.getContent().iterator().next().getId());
+    }
+
+    @Test
+    public void testGetAllBuildRecordInsights() {
+        // Prepare
+        mockBuildTask();
+        BuildRecord latestBuild = mockBuildRecord();
+        logger.debug("Task id: {}", latestBuild.getId());
+
+        // When
+        Page<BuildRecordInsights> builds = provider
+                .getAllBuildRecordInsightsNewerThanTimestamp(0, 1, new Date(1735693260000L));
+
+        // Verify
+        assertEquals(1, builds.getTotalHits());
     }
 
     @Test
