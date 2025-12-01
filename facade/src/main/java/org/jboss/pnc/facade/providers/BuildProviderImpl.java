@@ -393,18 +393,12 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     }
 
     @Override
-    public Page<Build> getDependantBuildsForArtifact(
-            int pageIndex,
-            int pageSize,
-            String sortingRsql,
-            String query,
-            String artifactId) {
-        return queryForCollection(
-                pageIndex,
-                pageSize,
-                sortingRsql,
-                query,
-                withArtifactDependency(Integer.valueOf(artifactId)));
+    public Page<Build> getDependantBuildsForArtifact(BuildPageInfo pageInfo, String artifactId) {
+        try {
+            return getBuildList(pageInfo, _t -> true, withArtifactDependency(Integer.valueOf(artifactId)));
+        } catch (RemoteRequestException | MissingDataException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

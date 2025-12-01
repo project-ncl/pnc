@@ -35,6 +35,7 @@ import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
@@ -333,7 +334,8 @@ public interface ArtifactEndpoint {
     @Path("/{id}/dependant-builds")
     Page<Build> getDependantBuilds(
             @Parameter(description = A_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams,
+            @BeanParam BuildsFilterParameters buildParams);
 
     static final String GET_MILESTONES_INFO_DESC = "Gets the milestones that produced or consumed this artifact.";
 
