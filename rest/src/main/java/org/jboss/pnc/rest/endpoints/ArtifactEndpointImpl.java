@@ -28,9 +28,11 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ArtifactEndpoint;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.slf4j.Logger;
@@ -123,13 +125,12 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public Page<Build> getDependantBuilds(String id, PageParameters pageParams) {
-        return buildProvider.getDependantBuildsForArtifact(
-                pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                pageParams.getSort(),
-                pageParams.getQ(),
-                id);
+    public Page<Build> getDependantBuilds(
+            String artifactId,
+            PageParameters pageParams,
+            BuildsFilterParameters filterParams) {
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(pageParams, filterParams);
+        return buildProvider.getDependantBuildsForArtifact(pageInfo, artifactId);
     }
 
     @Override
