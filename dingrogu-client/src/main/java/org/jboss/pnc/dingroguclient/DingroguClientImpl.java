@@ -105,6 +105,15 @@ public class DingroguClientImpl implements DingroguClient {
     }
 
     @Override
+    public void submitCancelProcessInstance(String correlationId) {
+        String url = global.getExternalDingroguUrl() + "/workflow/id/" + correlationId + "/cancel";
+        submitRequestWithRetries(
+                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
+                null,
+                Optional.of(keycloakServiceClient.getAuthToken()));
+    }
+
+    @Override
     public DingroguBuildWorkDTO createDTO(RemoteBuildTask buildTask, String correlationId) {
 
         String podMemoryOverride = "";
