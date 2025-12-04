@@ -95,6 +95,11 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>web</artifactId>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>messaging-spi</artifactId>
     </dependency>
     <dependency>
@@ -300,6 +305,12 @@
               <artifactId>rest</artifactId>
               <bundleDir>/</bundleDir>
               <contextRoot>/pnc-rest</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>web</artifactId>
+              <bundleDir>/</bundleDir>
+              <contextRoot>/pnc-web-config</contextRoot>
             </webModule>
           </modules>
         </configuration>
