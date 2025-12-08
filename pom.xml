@@ -905,7 +905,7 @@
         <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
+            <artifactId>logback-core</artifactId>
           </exclusion>
           <!-- EXCLUDE o11yphant; it breaks EAP deployment because of broken CDI -->
           <exclusion>
@@ -930,12 +930,6 @@
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-folo-client-java</artifactId>
         <version>${indyVersion}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -1088,6 +1082,7 @@
         <groupId>com.squareup</groupId>
         <artifactId>javapoet</artifactId>
         <version>1.13.0</version>
+        <scope>compile</scope>
       </dependency>
 
       <dependency>
