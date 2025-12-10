@@ -19,6 +19,8 @@ package org.jboss.pnc.auth;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wildfly.security.http.oidc.AccessToken;
+import org.wildfly.security.http.oidc.OidcSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
@@ -30,44 +32,50 @@ public class ElytronLoggedInUser implements LoggedInUser {
 
     public final static String MSG = "Authentication could not be enabled";
 
-    private SecurityContext securityContext;
+    private AccessToken accessToken;
 
-    public ElytronLoggedInUser(SecurityContext securityContext) {
-        if (securityContext == null) {
-            handleAuthenticationProblem("SecurityContext not available", null);
-        } else {
-            this.securityContext = securityContext;
+    public ElytronLoggedInUser(HttpServletRequest httpServletRequest) {
+        try {
+            OidcSecurityContext oidcSecurityContext = (OidcSecurityContext) httpServletRequest
+                    .getAttribute(OidcSecurityContext.class.getName());
+            if (oidcSecurityContext == null) {
+                handleAuthenticationProblem("OidcSecurityContext not available in the HttpServletRequest.", null);
+            } else {
+                this.accessToken = oidcSecurityContext.getToken();
+            }
+        } catch (NoClassDefFoundError ncdfe) {
+            handleAuthenticationProblem(ncdfe.getMessage(), ncdfe);
         }
     }
 
     @Override
     public String getEmail() {
-        return securityContext.getUserPrincipal().getName();
+        return "no-email@haha.com";
     }
 
     @Override
     public String getUserName() {
-        return securityContext.getUserPrincipal().getName();
+        return accessToken.getID();
     }
 
     @Override
     public String getFirstName() {
-        return securityContext.getUserPrincipal().getName();
+        return accessToken.getID();
     }
 
     @Override
     public String getLastName() {
-        return securityContext.getUserPrincipal().getName();
+        return accessToken.getID();
     }
 
     @Override
     public Set<String> getRole() {
-        return Set.of();
+        return accessToken.getClaimNames();
     }
 
     @Override
     public boolean isUserInRole(String role) {
-        return securityContext.isUserInRole(role);
+        return accessToken.hasClaim(role);
     }
 
     @Override
