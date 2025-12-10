@@ -32,17 +32,11 @@ public class ElytronLoggedInUser implements LoggedInUser {
 
     private SecurityContext securityContext;
 
-    public ElytronLoggedInUser(HttpServletRequest httpServletRequest) {
-        if (httpServletRequest == null) {
-            throw new NullPointerException();
-        }
-        try {
-            securityContext = (SecurityContext) httpServletRequest.getAttribute(SecurityContext.class.getName());
-            if (securityContext == null) {
-                handleAuthenticationProblem("SecurityContext not available in the HttpServletRequest.", null);
-            }
-        } catch (NoClassDefFoundError ncdfe) {
-            handleAuthenticationProblem(ncdfe.getMessage(), ncdfe);
+    public ElytronLoggedInUser(SecurityContext securityContext) {
+        if (securityContext == null) {
+            handleAuthenticationProblem("SecurityContext not available", null);
+        } else {
+            this.securityContext = securityContext;
         }
     }
 
