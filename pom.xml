@@ -338,6 +338,11 @@
         <artifactId>keycloak-core</artifactId>
         <version>${version.keycloak}</version>
       </dependency>
+      <dependency>
+        <groupId>org.wildfly.security</groupId>
+        <artifactId>wildfly-elytron-http-oidc</artifactId>
+        <version>1.15.9.Final</version>
+      </dependency>
 
       <!-- OTEL Dependencies for Instrumentation -->
       <!-- BOMs -->

@@ -33,12 +33,9 @@ public class ElytronAuthenticationProvider implements AuthenticationProvider {
 
     public final static Logger log = LoggerFactory.getLogger(ElytronAuthenticationProvider.class);
 
-    @Inject
-    private SecurityContext securityContext;
-
     @Override
     public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
-        return new ElytronLoggedInUser(securityContext);
+        return new ElytronLoggedInUser(httpServletRequest);
     }
 
     @Override
