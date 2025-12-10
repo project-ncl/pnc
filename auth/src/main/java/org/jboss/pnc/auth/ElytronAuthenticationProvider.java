@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
 
 @Dependent
 @AuthProvider
@@ -31,9 +33,12 @@ public class ElytronAuthenticationProvider implements AuthenticationProvider {
 
     public final static Logger log = LoggerFactory.getLogger(ElytronAuthenticationProvider.class);
 
+    @Inject
+    private SecurityContext securityContext;
+
     @Override
     public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
-        return new ElytronLoggedInUser(httpServletRequest);
+        return new ElytronLoggedInUser(securityContext);
     }
 
     @Override
