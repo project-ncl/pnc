@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss.bom</groupId> <!-- Use BOM as parent to have access to the properties -->
     <artifactId>jboss-eap-jakartaee8</artifactId>
-    <version>7.4.7.GA</version>
+    <version>7.4.21.GA</version>
   </parent>
 
   <groupId>org.jboss.pnc</groupId>
@@ -237,7 +237,7 @@
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-xp-microprofile</artifactId>
-        <version>4.0.2.GA-7.4.16.GA</version>
+        <version>4.0.2.GA-7.4.21.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -246,25 +246,19 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>${version.com.fasterxml.jackson.core.jackson-core}</version>
+        <version>${version.com.fasterxml.jackson.core}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
+        <version>${version.com.fasterxml.jackson.core}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${version.com.fasterxml.jackson.core.jackson-annotations}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-jaxrs</artifactId>
-        <version>${version.org.codehaus.jackson}</version>
+        <version>${version.com.fasterxml.jackson.core}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1148,6 +1142,12 @@
           <groupId>org.jsoup</groupId>
           <artifactId>jsoup</artifactId>
           <version>${version.org.jsoup.jsoup}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.infinispan</groupId>
+          <artifactId>infinispan-jboss-marshalling</artifactId>
+          <version>11.0.15.Final-redhat-00001</version>
+          <scope>test</scope>
       </dependency>
 
       <!-- Managing vulnerable versions of netty (4.1.84.Final) from vertx (from pnc rest-client) to avoid CVE -->
