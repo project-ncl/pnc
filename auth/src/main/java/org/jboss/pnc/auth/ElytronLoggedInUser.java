@@ -24,6 +24,7 @@ import org.wildfly.security.http.oidc.OidcSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
+import java.util.HashSet;
 import java.util.Set;
 
 public class ElytronLoggedInUser implements LoggedInUser {
@@ -50,32 +51,32 @@ public class ElytronLoggedInUser implements LoggedInUser {
 
     @Override
     public String getEmail() {
-        return "no-email@haha.com";
+        return accessToken.getClaimValueAsString("email");
     }
 
     @Override
     public String getUserName() {
-        return accessToken.getID();
+        return accessToken.getClaimValueAsString("preferred_username");
     }
 
     @Override
     public String getFirstName() {
-        return accessToken.getID();
+        return accessToken.getClaimValueAsString("firstName");
     }
 
     @Override
     public String getLastName() {
-        return accessToken.getID();
+        return accessToken.getClaimValueAsString("lastName");
     }
 
     @Override
     public Set<String> getRole() {
-        return accessToken.getClaimNames();
+        return new HashSet<>(accessToken.getRealmAccessClaim().getRoles());
     }
 
     @Override
     public boolean isUserInRole(String role) {
-        return accessToken.hasClaim(role);
+        return accessToken.getRealmAccessClaim().getRoles().contains(role);
     }
 
     @Override
