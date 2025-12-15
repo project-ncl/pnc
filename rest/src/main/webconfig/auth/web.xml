@@ -27,7 +27,6 @@
 
     <login-config>
         <auth-method>OIDC</auth-method>
-        <realm-name>this is ignored currently</realm-name>
     </login-config>
     <security-role>
         <role-name>pnc-app-build-delete</role-name>
