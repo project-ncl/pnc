@@ -26,7 +26,7 @@
     <module-name>rest</module-name>
 
     <login-config>
-        <auth-method>KEYCLOAK</auth-method>
+        <auth-method>OIDC</auth-method>
         <realm-name>this is ignored currently</realm-name>
     </login-config>
     <security-role>
