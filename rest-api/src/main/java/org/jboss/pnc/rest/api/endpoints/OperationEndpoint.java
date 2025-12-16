@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
@@ -32,7 +32,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
@@ -47,7 +46,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -76,7 +74,6 @@ public interface OperationEndpoint {
     static final String GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_DESC = "Gets all deliverable analyzer operations.";
     static final String GET_ALL_BUILD_PUSH_OPERATIONS_DESC = "Gets all build push operations.";
     static final String COMPLETE_OPERATION_DESC = "Complete a running operation.";
-    static final String OPERATION_RESULT = "Result of completed operation.";
     static final String UPDATE_DEL_ANALYZER_DESC = "Updates an existing deliverable analyzer operation.";
     static final String START_DELIVERABLE_ANALYSIS = "Starts a new deliverable analysis of deliverables given by URLs";
     static final String GET_SPECIFIC_DEL_ANALYZER_DESC = "Gets a specific delivarable analyzer operation.";
@@ -106,9 +103,7 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/complete")
-    void finish(
-            @Parameter(description = OP_ID) @PathParam("id") String id,
-            @Parameter(description = OPERATION_RESULT, required = true) @QueryParam("result") OperationResult result);
+    void finish(@Parameter(description = OP_ID) @PathParam("id") String id, @NotNull OperationOutcome operationOutcome);
 
     /**
      * {@value UPDATE_DEL_ANALYZER_DESC}

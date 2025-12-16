@@ -6328,16 +6328,17 @@
           "schema" : {
             "type" : "string"
           }
-        }, {
-          "name" : "result",
-          "in" : "query",
-          "description" : "Result of completed operation.",
-          "required" : true,
-          "schema" : {
-            "type" : "string",
-            "enum" : [ "SUCCESSFUL", "FAILED", "REJECTED", "CANCELLED", "TIMEOUT", "SYSTEM_ERROR" ]
-          }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OperationOutcome"
+              }
+            }
+          },
+          "required" : true
+        },
         "responses" : {
           "204" : {
             "description" : "Entity successfully updated"
@@ -11030,6 +11031,9 @@
           "id" : {
             "type" : "string"
           },
+          "outcome" : {
+            "$ref" : "#/components/schemas/OperationOutcome"
+          },
           "parameters" : {
             "type" : "object",
             "additionalProperties" : {
@@ -11452,6 +11456,9 @@
           },
           "id" : {
             "type" : "string"
+          },
+          "outcome" : {
+            "$ref" : "#/components/schemas/OperationOutcome"
           },
           "parameters" : {
             "type" : "object",
@@ -12034,6 +12041,21 @@
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
+          }
+        }
+      },
+      "OperationOutcome" : {
+        "type" : "object",
+        "properties" : {
+          "proposal" : {
+            "type" : "string"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "result" : {
+            "type" : "string",
+            "enum" : [ "SUCCESSFUL", "FAILED", "REJECTED", "CANCELLED", "TIMEOUT", "SYSTEM_ERROR" ]
           }
         }
       },

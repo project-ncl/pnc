@@ -29,11 +29,12 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.WindowsArtifact;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.LicenseSource;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.Connector;
@@ -71,12 +72,10 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactLicenseInfoRe
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
-import org.slf4j.MDC;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -101,6 +100,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -183,7 +183,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
                             .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
         } catch (RuntimeException ex) {
-            operationsManager.setResult(operationId, OperationResult.SYSTEM_ERROR);
+            final String errorId = UUID.randomUUID().toString();
+            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
+                    .reason("Unknown system error")
+                    .proposal(
+                            String.format(
+                                    "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
+                                    errorId))
+                    .build();
+            operationsManager.setResult(operationId, OperationOutcome.systemError(exceptionResolution));
+            log.warn(
+                    "ErrorId={} Analysis of deliverables failed. {}",
+                    errorId,
+                    ex.getMessage() == null ? "" : ex.getMessage(),
+                    ex);
             throw ex;
         } finally {
             MDCUtils.removeProcessContext();

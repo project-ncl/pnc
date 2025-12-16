@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.facade;
 
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildPushOperation;
@@ -32,7 +32,7 @@ public interface OperationsManager {
 
     Operation updateProgress(Base32LongID operationId, ProgressStatus status);
 
-    Operation setResult(Base32LongID operationId, OperationResult result);
+    Operation setResult(Base32LongID entity, OperationOutcome operationOutcome);
 
     DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(String milestoneId, Map<String, String> inputParams);
 

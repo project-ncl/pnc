@@ -4448,19 +4448,12 @@ paths:
         required: true
         schema:
           type: string
-      - name: result
-        in: query
-        description: Result of completed operation.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperationOutcome'
         required: true
-        schema:
-          type: string
-          enum:
-          - SUCCESSFUL
-          - FAILED
-          - REJECTED
-          - CANCELLED
-          - TIMEOUT
-          - SYSTEM_ERROR
       responses:
         "204":
           description: Entity successfully updated
@@ -7788,6 +7781,8 @@ components:
           format: date-time
         id:
           type: string
+        outcome:
+          $ref: '#/components/schemas/OperationOutcome'
         parameters:
           type: object
           additionalProperties:
@@ -8129,6 +8124,8 @@ components:
           format: date-time
         id:
           type: string
+        outcome:
+          $ref: '#/components/schemas/OperationOutcome'
         parameters:
           type: object
           additionalProperties:
@@ -8589,6 +8586,22 @@ components:
         totalPages:
           type: integer
           format: int32
+    OperationOutcome:
+      type: object
+      properties:
+        proposal:
+          type: string
+        reason:
+          type: string
+        result:
+          type: string
+          enum:
+          - SUCCESSFUL
+          - FAILED
+          - REJECTED
+          - CANCELLED
+          - TIMEOUT
+          - SYSTEM_ERROR
     PageAnalyzedArtifact:
       type: object
       properties:

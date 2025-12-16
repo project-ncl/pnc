@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
@@ -69,8 +70,8 @@ public class OperationEndpointImpl implements OperationEndpoint {
     }
 
     @Override
-    public void finish(String id, OperationResult result) {
-        operationsManager.setResult(OperationMapper.idMapper.toEntity(id), result);
+    public void finish(String id, OperationOutcome operationOutcome) {
+        operationsManager.setResult(OperationMapper.idMapper.toEntity(id), operationOutcome);
     }
 
     @Override

@@ -19,6 +19,8 @@ package org.jboss.pnc.facade.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.OperationParameters;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -60,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.api.constants.MDCKeys.BUILD_ID_KEY;
@@ -162,7 +165,16 @@ public class BrewPusherImpl implements BrewPusher {
                     (BuildPushOperation) operationsManager
                             .updateProgress(operation.getId(), ProgressStatus.IN_PROGRESS));
         } catch (RuntimeException ex) {
-            operationsManager.setResult(operation.getId(), OperationResult.SYSTEM_ERROR);
+            final String errorId = UUID.randomUUID().toString();
+            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
+                    .reason("Unknown system error")
+                    .proposal(
+                            String.format(
+                                    "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
+                                    errorId))
+                    .build();
+            operationsManager.setResult(operation.getId(), OperationOutcome.systemError(exceptionResolution));
+            log.warn("ErrorId={} Brew push failed. {}", errorId, ex.getMessage() == null ? "" : ex.getMessage(), ex);
             throw ex;
         }
     }

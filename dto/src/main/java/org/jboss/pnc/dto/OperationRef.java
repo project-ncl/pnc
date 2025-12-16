@@ -29,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.validator.NoHtml;
@@ -78,6 +79,14 @@ public class OperationRef implements DTOEntity {
 
     /**
      * The result status of the operation.
+     * 
+     * @deprecated Waiting for UI to use outcome before removal
      */
+    @Deprecated(forRemoval = true)
     protected final OperationResult result;
+
+    /**
+     * The result status of the operation including exception resolution if any.
+     */
+    protected final OperationOutcome outcome;
 }
