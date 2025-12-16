@@ -41,10 +41,16 @@ public interface DeliverableAnalyzerOperationMapper extends
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "parameters", source = "operationParameters")
+    @Mapping(target = "outcome.result", source = "result")
+    @Mapping(target = "outcome.reason", source = "reason")
+    @Mapping(target = "outcome.proposal", source = "proposal")
     org.jboss.pnc.dto.DeliverableAnalyzerOperation toDTO(DeliverableAnalyzerOperation dbEntity);
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
+    @Mapping(target = "outcome.result", source = "result")
+    @Mapping(target = "outcome.reason", source = "reason")
+    @Mapping(target = "outcome.proposal", source = "proposal")
     @BeanMapping(ignoreUnmappedSourceProperties = { "operationParameters", "user", "productMilestone" })
     OperationRef toRef(DeliverableAnalyzerOperation dbEntity);
 
@@ -53,6 +59,7 @@ public interface DeliverableAnalyzerOperationMapper extends
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     @Mapping(target = "operationParameters", source = "parameters")
     @Mapping(target = "productMilestone", ignore = true)
+    @Mapping(target = ".", source = "outcome")
     DeliverableAnalyzerOperation toEntity(org.jboss.pnc.dto.DeliverableAnalyzerOperation dtoEntity);
 
     @Override
@@ -61,6 +68,7 @@ public interface DeliverableAnalyzerOperationMapper extends
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "startTime", ignore = true)
     @Mapping(target = "productMilestone", ignore = true)
+    @Mapping(target = ".", source = "outcome")
     public abstract void updateEntity(
             org.jboss.pnc.dto.DeliverableAnalyzerOperation dtoEntity,
             @MappingTarget DeliverableAnalyzerOperation target);
@@ -69,5 +77,4 @@ public interface DeliverableAnalyzerOperationMapper extends
     default IdMapper<Base32LongID, String> getIdMapper() {
         return idMapper;
     }
-
 }

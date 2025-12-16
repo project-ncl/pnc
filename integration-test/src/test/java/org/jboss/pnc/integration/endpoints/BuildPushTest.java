@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
@@ -126,7 +127,7 @@ public class BuildPushTest {
 
         Thread.sleep(500); // Wait for the result to be stored in DB. Assume success.
 
-        operationClient.finish(result.getId(), OperationResult.SUCCESSFUL);
+        operationClient.finish(result.getId(), OperationOutcome.success());
 
         // get result from db
         BuildPushReport successPushResult = client.getPushResult(buildId);

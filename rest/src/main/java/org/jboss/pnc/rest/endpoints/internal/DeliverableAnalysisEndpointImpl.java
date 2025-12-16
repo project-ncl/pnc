@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.auth.ServiceAccountClient;
@@ -32,6 +33,7 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 @Slf4j
@@ -52,21 +54,37 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     @Override
     public void completeAnalysis(AnalysisResult response) {
         executorService.execute(() -> {
-            ResultStatus result;
+            ResultStatus resultStatus;
+            ExceptionResolution exceptionResolution = null;
             try {
                 MDCUtils.addProcessContext(response.getOperationId());
                 resultProcessor.completeAnalysis(transformToModelAnalysisResult(response));
-                result = ResultStatus.SUCCESS;
+                resultStatus = ResultStatus.SUCCESS;
             } catch (RuntimeException e) {
-                log.error("Storing results of deliverable operation with id={} failed: ", response.getOperationId(), e);
-                result = ResultStatus.SYSTEM_ERROR;
+                final String errorId = UUID.randomUUID().toString();
+                log.error(
+                        "ErrorId={} Storing results of deliverable operation with id={} failed: ",
+                        errorId,
+                        response.getOperationId(),
+                        e);
+                resultStatus = ResultStatus.SYSTEM_ERROR;
+                exceptionResolution = ExceptionResolution.builder()
+                        .reason(
+                                String.format(
+                                        "Storing results of deliverable operation with id=%s failed",
+                                        response.getOperationId()))
+                        .proposal(
+                                String.format(
+                                        "There is an internal system error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
+                                        errorId))
+                        .build();
             } finally {
                 MDCUtils.removeProcessContext();
             }
 
             HttpUtils.performHttpRequest(
                     response.getCallback(),
-                    new Result(result, null),
+                    new Result(resultStatus, exceptionResolution),
                     Optional.of(serviceAccountClient.getAuthHeaderValue()));
         });
     }

@@ -70,9 +70,11 @@ public class BuildPushOperation extends Operation {
             @lombok.Builder.ObtainVia(method = "getOperationParameters") Map<String, String> operationParameters,
             @lombok.Builder.ObtainVia(method = "getProgressStatus") ProgressStatus progressStatus,
             @lombok.Builder.ObtainVia(method = "getResult") OperationResult result,
+            @lombok.Builder.ObtainVia(method = "getReason") String reason,
+            @lombok.Builder.ObtainVia(method = "getProposal") String proposal,
             BuildRecord build,
             BuildPushReport report) {
-        super(id, submitTime, startTime, endTime, user, operationParameters, progressStatus, result);
+        super(id, submitTime, startTime, endTime, user, operationParameters, progressStatus, result, reason, proposal);
         this.build = build;
         this.report = report;
     }
