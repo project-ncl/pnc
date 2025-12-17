@@ -31,7 +31,6 @@ import org.commonjava.indy.promote.client.IndyPromoteAdminClientModule;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.Configuration;
