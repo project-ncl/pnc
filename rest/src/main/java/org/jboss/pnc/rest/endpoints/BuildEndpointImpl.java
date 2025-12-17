@@ -24,7 +24,7 @@ import org.jboss.pnc.api.bifrost.enums.Format;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.constants.Attributes;
@@ -124,7 +124,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     private GlobalModuleGroup globalConfig;
 
     @Inject
-    private KeycloakServiceClient keycloakServiceClient;
+    private ServiceAccountClient serviceAccountClient;
 
     @Inject
     private ManagedExecutorService executorService;
@@ -369,7 +369,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             HttpUtils.performHttpRequest(
                     buildPushCompleted.getCallback(),
                     new Result(result),
-                    Optional.of(keycloakServiceClient.getAuthToken()));
+                    Optional.of(serviceAccountClient.getAuthHeaderValue()));
         });
     }
 

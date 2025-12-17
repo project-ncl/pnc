@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
@@ -44,7 +44,7 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
 
     @Inject
-    private KeycloakServiceClient keycloakServiceClient;
+    private ServiceAccountClient serviceAccountClient;
 
     @Inject
     private ManagedExecutorService executorService;
@@ -67,7 +67,7 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
             HttpUtils.performHttpRequest(
                     response.getCallback(),
                     new Result(result),
-                    Optional.of(keycloakServiceClient.getAuthToken()));
+                    Optional.of(serviceAccountClient.getAuthHeaderValue()));
         });
     }
 

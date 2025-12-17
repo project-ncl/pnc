@@ -18,7 +18,6 @@
 package org.jboss.pnc.dingroguclient;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +30,7 @@ import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
@@ -49,7 +48,7 @@ public class DingroguClientImpl implements DingroguClient {
     private GlobalModuleGroup global;
 
     @Inject
-    private KeycloakServiceClient keycloakServiceClient;
+    private ServiceAccountClient serviceAccountClient;
 
     public static final Logger log = LoggerFactory.getLogger(DingroguClientImpl.class);
 
@@ -73,7 +72,7 @@ public class DingroguClientImpl implements DingroguClient {
         submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
-                Optional.of(keycloakServiceClient.getAuthToken()));
+                Optional.of(serviceAccountClient.getAuthHeaderValue()));
     }
 
     @Override
@@ -82,7 +81,7 @@ public class DingroguClientImpl implements DingroguClient {
         submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
-                Optional.of(keycloakServiceClient.getAuthToken()));
+                Optional.of(serviceAccountClient.getAuthHeaderValue()));
     }
 
     @Override
@@ -91,7 +90,7 @@ public class DingroguClientImpl implements DingroguClient {
         submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 dto,
-                Optional.of(keycloakServiceClient.getAuthToken()));
+                Optional.of(serviceAccountClient.getAuthHeaderValue()));
     }
 
     @Override
@@ -110,7 +109,7 @@ public class DingroguClientImpl implements DingroguClient {
         submitRequestWithRetries(
                 Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
                 null,
-                Optional.of(keycloakServiceClient.getAuthToken()));
+                Optional.of(serviceAccountClient.getAuthHeaderValue()));
     }
 
     @Override
@@ -185,14 +184,14 @@ public class DingroguClientImpl implements DingroguClient {
                 : BuildCategory.STANDARD;
     }
 
-    public static void submitRequestWithRetries(Request request, Object payload, Optional<String> authToken) {
-        submitRequestWithRetriesAttempt(request, payload, authToken, MAX_RETRIES);
+    public static void submitRequestWithRetries(Request request, Object payload, Optional<String> authHeaderValue) {
+        submitRequestWithRetriesAttempt(request, payload, authHeaderValue, MAX_RETRIES);
     }
 
     public static void submitRequestWithRetriesAttempt(
             Request request,
             Object payload,
-            Optional<String> authToken,
+            Optional<String> authHeaderValue,
             int retries) {
 
         if (retries < 0) {
@@ -210,7 +209,7 @@ public class DingroguClientImpl implements DingroguClient {
 
             request.getHeaders().addAll(headers);
 
-            HttpUtils.performHttpRequest(request, payload, authToken);
+            HttpUtils.performHttpRequest(request, payload, authHeaderValue);
         } catch (Exception e) {
             log.error("Exception for request: {}, attempts left: {}", request.getUri(), retries, e);
             try {
@@ -220,7 +219,7 @@ public class DingroguClientImpl implements DingroguClient {
             }
 
             // retry again
-            submitRequestWithRetriesAttempt(request, payload, authToken, retries - 1);
+            submitRequestWithRetriesAttempt(request, payload, authHeaderValue, retries - 1);
         }
     }
 }

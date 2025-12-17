@@ -20,14 +20,9 @@ package org.jboss.pnc.common.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -181,7 +176,7 @@ public class HttpUtils {
         performHttpRequest(URI.create(uri), payload, request);
     }
 
-    public static void performHttpRequest(Request request, Object payload, Optional<String> authToken) {
+    public static void performHttpRequest(Request request, Object payload, Optional<String> authHeaderValue) {
         URI uri = request.getUri();
         Request.Method method = request.getMethod();
         LOG.debug("Sending HTTP {} request to {} with payload {}", method, uri, payload);
@@ -209,7 +204,7 @@ public class HttpUtils {
             }
         }
         request.getHeaders().forEach(h -> httpRequest.setHeader(h.getName(), h.getValue()));
-        authToken.ifPresent(s -> httpRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + s));
+        authHeaderValue.ifPresent(s -> httpRequest.setHeader(HttpHeaders.AUTHORIZATION, s));
         performHttpRequest(uri, payload, httpRequest);
     }
 
