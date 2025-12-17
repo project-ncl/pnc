@@ -100,8 +100,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     @Override
-    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        Result result = deleteBuildsFromIndy(buildRecord, authToken);
+    public Result deleteRemoteBuilds(BuildRecord buildRecord) {
+        Result result = deleteBuildsFromIndy(buildRecord);
         if (!result.isSuccess()) {
             return result;
         }
@@ -132,7 +132,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         return new Result(externalBuildId, ResultStatus.SUCCESS);
     }
 
-    private Result deleteBuildsFromIndy(BuildRecord buildRecord, String authToken) {
+    private Result deleteBuildsFromIndy(BuildRecord buildRecord) {
         String buildContentId = buildRecord.getBuildContentId();
         BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
         String pkgKey = getRepoPkgKey(buildType);
