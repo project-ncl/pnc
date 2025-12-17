@@ -20,7 +20,9 @@ package org.jboss.pnc.causewayclient;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.auth.DefaultServiceAccountClient;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -39,13 +41,15 @@ import java.io.IOException;
 @Category(DebugTest.class)
 public class CausewayClientRemoteTest {
 
-    KeycloakServiceClient serviceClient;
+    KeycloakServiceClient keycloakServiceClient;
+    ServiceAccountClient serviceAccountClient;
 
     private CausewayClient causewayClient;
 
     public CausewayClientRemoteTest() throws IOException, ConfigurationParseException {
         SystemConfig systemConfig = SystemConfigMock.withKeycloakServiceAccount();
-        serviceClient = new DefaultKeycloakServiceClient(systemConfig);
+        keycloakServiceClient = new DefaultKeycloakServiceClient(systemConfig);
+        serviceAccountClient = new DefaultServiceAccountClient(keycloakServiceClient);
 
         GlobalModuleGroup globalConfig = GlobalModuleGroupMock.get();
         causewayClient = new DefaultCausewayClient(globalConfig);
@@ -54,7 +58,7 @@ public class CausewayClientRemoteTest {
     @Test
     public void shouldUntagBrewBuilds() {
         UntagRequest untagRequest = prepareUntagRequest("", 1);
-        boolean accepted = causewayClient.untagBuild(untagRequest, serviceClient.getAuthToken());
+        boolean accepted = causewayClient.untagBuild(untagRequest, serviceAccountClient.getAuthHeaderValue());
 
         Assert.assertTrue(accepted);
     }

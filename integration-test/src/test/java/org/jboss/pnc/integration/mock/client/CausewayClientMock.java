@@ -26,7 +26,7 @@ import javax.enterprise.context.ApplicationScoped;
 public class CausewayClientMock implements CausewayClient {
 
     @Override
-    public boolean untagBuild(UntagRequest untagRequest, String authToken) {
+    public boolean untagBuild(UntagRequest untagRequest, String authHeaderValue) {
         return true;
     }
 

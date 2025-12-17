@@ -24,5 +24,5 @@ import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
  */
 public interface CausewayClient {
 
-    boolean untagBuild(UntagRequest untagRequest, String authToken);
+    boolean untagBuild(UntagRequest untagRequest, String authHeaderValue);
 }
