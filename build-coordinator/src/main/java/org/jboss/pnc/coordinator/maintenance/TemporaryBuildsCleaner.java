@@ -77,21 +77,20 @@ public class TemporaryBuildsCleaner {
      * Deletes a temporary build and artifacts created during the build or orphan dependencies used
      *
      * @param buildRecordId BuildRecord to be deleted
-     * @param authToken
      * @return true if success
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuild(Base32LongID buildRecordId, String authToken) throws ValidationException {
+    public Result deleteTemporaryBuild(Base32LongID buildRecordId) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {
             throw new ValidationException(
                     "Cannot delete temporary build with id " + BuildMapper.idMapper.toDto(buildRecordId)
                             + " as no build with this id exists");
         }
-        return deleteTemporaryBuild(buildRecord, authToken);
+        return deleteTemporaryBuild(buildRecord);
     }
 
-    private Result deleteTemporaryBuild(BuildRecord buildRecord, String authToken) throws ValidationException {
+    private Result deleteTemporaryBuild(BuildRecord buildRecord) throws ValidationException {
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
@@ -102,7 +101,7 @@ public class TemporaryBuildsCleaner {
         for (BuildRecord noRebuildBR : noRebuildBRs) {
             log.info(
                     "Deleting build " + noRebuildBR.getId() + " which has noRebuildCause " + buildRecord.getId() + ".");
-            deleteTemporaryBuild(noRebuildBR.getId(), authToken);
+            deleteTemporaryBuild(noRebuildBR.getId());
         }
 
         // delete the build itself
@@ -111,7 +110,7 @@ public class TemporaryBuildsCleaner {
                         + buildRecord.getBuiltArtifacts() + "; Dependencies: " + buildRecord.getDependencies());
 
         String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
-        Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken);
+        Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord);
         if (!result.isSuccess()) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
             return new Result(externalBuildId, ResultStatus.FAILED, "Failed to delete remote temporary builds.");

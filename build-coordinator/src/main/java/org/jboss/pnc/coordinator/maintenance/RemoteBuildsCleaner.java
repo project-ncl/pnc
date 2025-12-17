@@ -25,5 +25,5 @@ import org.jboss.pnc.spi.coordinator.Result;
  */
 public interface RemoteBuildsCleaner {
 
-    Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken);
+    Result deleteRemoteBuilds(BuildRecord buildRecord);
 }

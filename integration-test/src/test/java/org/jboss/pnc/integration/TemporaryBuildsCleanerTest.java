@@ -187,7 +187,7 @@ public class TemporaryBuildsCleanerTest {
         buildRecordRepository.save(nonTempBr);
 
         // when - then
-        temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr.getId());
 
         fail("Deletion of non-temporary build should be prohibited");
     }
@@ -203,7 +203,7 @@ public class TemporaryBuildsCleanerTest {
         int numberOfBuilds = givenBuilds.size();
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
 
         // then
         assertEquals(numberOfBuilds - 1, buildRecordRepository.queryAll().size());
@@ -236,7 +236,7 @@ public class TemporaryBuildsCleanerTest {
         int numberOfBuilds = givenBuilds.size();
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
 
         // then
         assertEquals(numberOfBuilds - 1, buildRecordRepository.queryAll().size());
@@ -263,7 +263,7 @@ public class TemporaryBuildsCleanerTest {
 
         // when - then
         try {
-            temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
+            temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
         } catch (Exception ex) {
             logger.info("Received exception:", ex);
             if (ex.getCause().getClass().equals(PersistenceException.class)) {
@@ -351,14 +351,14 @@ public class TemporaryBuildsCleanerTest {
         assertThat(builds.getContent()).doNotHave(hasBr1).doNotHave(hasBr2).doNotHave(hasBr3).haveExactly(1, hasBr4);
 
         // when #2
-        temporaryBuildsCleaner.deleteTemporaryBuild(br4.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuild(br4.getId());
         builds = buildProvider.getAllIndependentTemporaryOlderThanTimestamp(0, 50, null, null, new Date().getTime());
 
         // then #2
         assertThat(builds.getContent()).doNotHave(hasBr1).doNotHave(hasBr2).haveExactly(1, hasBr3).doNotHave(hasBr4);
 
         // when #3
-        temporaryBuildsCleaner.deleteTemporaryBuild(br3.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuild(br3.getId());
         builds = buildProvider.getAllIndependentTemporaryOlderThanTimestamp(0, 50, null, null, new Date().getTime());
 
         // then #3

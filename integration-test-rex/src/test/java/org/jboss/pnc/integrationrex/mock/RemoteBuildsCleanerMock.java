@@ -32,7 +32,7 @@ import javax.enterprise.context.Dependent;
 public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
 
     @Override
-    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
+    public Result deleteRemoteBuilds(BuildRecord buildRecord) {
         return new Result(BuildMapper.idMapper.toDto(buildRecord.getId()), ResultStatus.SUCCESS);
     }
 }
