@@ -912,11 +912,11 @@ paths:
         description: What should varant rebuild?
         schema:
           type: string
-          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
+          default: IMPLICIT_DEPENDENCY_CHECK
       - name: buildDependencies
         in: query
         description: Should we build also dependencies of this Build Config?
@@ -1476,11 +1476,11 @@ paths:
         description: What should varant rebuild?
         schema:
           type: string
-          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
+          default: IMPLICIT_DEPENDENCY_CHECK
       - name: buildDependencies
         in: query
         description: Should we build also dependencies of this Build Config?
@@ -3892,11 +3892,11 @@ paths:
         description: IMPLICIT_DEPENDENCY_CHECK
         schema:
           type: string
-          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
+          default: IMPLICIT_DEPENDENCY_CHECK
       - name: timestampAlignment
         in: query
         description: This feature was disabled. Setting this value has no effect on

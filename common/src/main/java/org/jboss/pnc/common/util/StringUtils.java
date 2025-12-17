@@ -291,7 +291,7 @@ public class StringUtils {
         }
 
         String[] elements = myString.split(DELIMITER);
-        return new ArrayList<String>(List.of(elements));
+        return new ArrayList<String>(Arrays.asList(elements));
     }
 
 }

@@ -26,6 +26,12 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <properties>
+    <!--  Java 8 enforced since this module is a DTO dependency  -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
   <artifactId>processor</artifactId>
   <name>processor</name>
   <dependencies>
@@ -51,10 +57,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
           <compilerArgument>-proc:none</compilerArgument>
         </configuration>
       </plugin>

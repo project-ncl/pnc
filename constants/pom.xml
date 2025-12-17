@@ -35,6 +35,12 @@
   <name>PNC :: constants</name>
   <description>Module with constants, enums, etc.</description>
 
+  <properties>
+    <!--  Java 8 enforced since this module is a DTO dependency  -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
   <dependencies>
       <!-- Build dependencies -->
     <dependency>
