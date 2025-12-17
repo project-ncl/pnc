@@ -24,6 +24,8 @@ import javax.validation.constraints.NotNull;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,13 +38,15 @@ public class ScmUrlGeneratorProvider {
         GERRIT, GITLAB, GITHUB
     }
 
-    private static final Map<SCMProvider, ScmUrlGenerator> scmUrlProviders = Map.of(
-            SCMProvider.GERRIT,
-            new GerritScmUrlGenerator(),
-            SCMProvider.GITLAB,
-            new GitlabScmUrlGenerator(),
-            SCMProvider.GITHUB,
-            new GithubScmUrlGenerator());
+    private static final Map<SCMProvider, ScmUrlGenerator> scmUrlProviders;
+
+    static {
+        Map<SCMProvider, ScmUrlGenerator> providers = new HashMap<>();
+        providers.put(SCMProvider.GERRIT, new GerritScmUrlGenerator());
+        providers.put(SCMProvider.GITLAB, new GitlabScmUrlGenerator());
+        providers.put(SCMProvider.GITHUB, new GithubScmUrlGenerator());
+        scmUrlProviders = Collections.unmodifiableMap(providers);
+    }
 
     /**
      * Returns an SCM url generator specific to a type of SCM
@@ -52,7 +56,7 @@ public class ScmUrlGeneratorProvider {
      * @throws ScmException throws if provider is unknown
      */
     public static ScmUrlGenerator getScmUrlGenerator(@NotNull SCMProvider provider) throws ScmException {
-        var generator = scmUrlProviders.get(provider);
+        ScmUrlGenerator generator = scmUrlProviders.get(provider);
         if (generator == null) {
             throw new ScmException("Unknown SCM provider: " + provider);
         }

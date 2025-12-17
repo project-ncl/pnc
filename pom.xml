@@ -109,7 +109,7 @@
     <version.lombok>1.18.36</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
     <version.pncmetrics>1.1.3</version.pncmetrics>
-    <version.pnc-api>3.2.4</version.pnc-api>
+    <version.pnc-api>3.2.5-SNAPSHOT</version.pnc-api>
     <version.pnc-common>3.3.4</version.pnc-common>
     <version.rex-api>1.2.2</version.rex-api>
     <bifrost-client.version>3.0.0</bifrost-client.version>
@@ -654,6 +654,11 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-api</artifactId>
+        <version>${version.pnc-api}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-api-constants</artifactId>
         <version>${version.pnc-api}</version>
       </dependency>
       <dependency>

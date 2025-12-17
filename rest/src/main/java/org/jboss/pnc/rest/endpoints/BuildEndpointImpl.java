@@ -368,7 +368,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
             HttpUtils.performHttpRequest(
                     buildPushCompleted.getCallback(),
-                    new Result(result),
+                    new Result(result, null),
                     Optional.of(keycloakServiceClient.getAuthToken()));
         });
     }

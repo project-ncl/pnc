@@ -66,7 +66,7 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
 
             HttpUtils.performHttpRequest(
                     response.getCallback(),
-                    new Result(result),
+                    new Result(result, null),
                     Optional.of(keycloakServiceClient.getAuthToken()));
         });
     }
