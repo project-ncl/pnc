@@ -30,7 +30,7 @@ import org.commonjava.indy.model.core.dto.StoreListingDTO;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -68,7 +68,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private final Indy indy;
 
-    KeycloakServiceClient serviceClient;
+    ServiceAccountClient serviceClient;
 
     CausewayClient causewayClient;
 
@@ -80,7 +80,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     public DefaultRemoteBuildsCleaner(
             Configuration configuration,
             Indy indy,
-            KeycloakServiceClient serviceClient,
+            ServiceAccountClient serviceClient,
             CausewayClient causewayClient,
             BuildPushOperationRepository buildPushOperationRepository) {
         this.indy = indy;
@@ -232,10 +232,10 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     private boolean causewayUntag(String tagPrefix, int brewBuildId) {
-        String authToken = serviceClient.getAuthToken();
+        String authHeaderValue = serviceClient.getAuthHeaderValue();
 
         UntagRequest untagRequest = prepareUntagRequest(tagPrefix, brewBuildId);
-        return causewayClient.untagBuild(untagRequest, authToken);
+        return causewayClient.untagBuild(untagRequest, authHeaderValue);
     }
 
     private UntagRequest prepareUntagRequest(String tagPrefix, int brewBuildId) {
