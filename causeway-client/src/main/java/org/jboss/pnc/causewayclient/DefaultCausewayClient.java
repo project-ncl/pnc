@@ -23,7 +23,6 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
@@ -56,8 +55,8 @@ public class DefaultCausewayClient implements CausewayClient {
         untagEndpoint = causewayBaseUrl + "/untag";
     }
 
-    boolean post(String url, String jsonMessage, String authToken) {
-        Header authHeader = new BasicHeader("Authorization", "Bearer " + authToken);
+    boolean post(String url, String jsonMessage, String authHeaderValue) {
+        Header authHeader = new BasicHeader("Authorization", authHeaderValue);
         HttpResponse response;
         try {
             logger.info("Making POST request to {}.", url);
@@ -93,9 +92,9 @@ public class DefaultCausewayClient implements CausewayClient {
     }
 
     @Override
-    public boolean untagBuild(UntagRequest untagRequest, String authToken) {
+    public boolean untagBuild(UntagRequest untagRequest, String authHeaderValue) {
         String jsonMessage = JsonOutputConverterMapper.apply(untagRequest);
-        return post(untagEndpoint, jsonMessage, authToken);
+        return post(untagEndpoint, jsonMessage, authHeaderValue);
     }
 
     /**
@@ -105,7 +104,8 @@ public class DefaultCausewayClient implements CausewayClient {
      * @return JSON string without token information
      */
     String secureBodyLog(String jsonMessage) {
-        return jsonMessage.replaceAll("Bearer \\p{Print}+?\"", "Bearer ***\"");
+        return jsonMessage.replaceAll("Bearer \\p{Print}+?\"", "Bearer ***\"")
+                .replaceAll("Basic \\p{Print}+?\"", "Basic ***\"");
     }
 
 }
