@@ -148,13 +148,13 @@ public class HttpUtils {
      *
      * @param uri URI of a remote endpoint
      * @param jsonPayload Request content, already formatted as json string
-     * @param authToken The authorization token
+     * @param authHeaderValue The value for the Authorization header
      */
-    public static void performHttpPostRequest(String uri, String jsonPayload, String authToken)
+    public static void performHttpPostRequest(String uri, String jsonPayload, String authHeaderValue)
             throws JsonProcessingException {
         StringEntity entity = new StringEntity(jsonPayload, "UTF-8");
         entity.setContentType(MediaType.APPLICATION_JSON);
-        performHttpPostRequest(uri, entity, Optional.ofNullable(authToken));
+        performHttpPostRequest(uri, entity, Optional.ofNullable(authHeaderValue));
     }
 
     /**
@@ -162,15 +162,15 @@ public class HttpUtils {
      *
      * @param uri URI of a remote endpoint
      * @param payload Request content
-     * @param authToken The authorization token
+     * @param authHeaderValue The value for the Authorization header
      */
-    public static void performHttpPostRequest(String uri, HttpEntity payload, Optional<String> authToken) {
+    public static void performHttpPostRequest(String uri, HttpEntity payload, Optional<String> authHeaderValue) {
         LOG.debug("Sending HTTP POST request to {} with payload {}", uri, payload);
 
         HttpPost request = new HttpPost(uri);
         request.setEntity(payload);
-        if (authToken.isPresent()) {
-            request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.get());
+        if (authHeaderValue.isPresent()) {
+            request.setHeader(HttpHeaders.AUTHORIZATION, authHeaderValue.get());
         }
 
         performHttpRequest(URI.create(uri), payload, request);

@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
@@ -92,6 +93,9 @@ public class GroupBuildProviderImpl extends
     @Inject
     private KeycloakServiceClient keycloakServiceClient;
 
+    @Inject
+    private ServiceAccountClient serviceAccountClient;
+
     private UserService userService;
 
     private ResultMapper resultMapper;
@@ -123,25 +127,27 @@ public class GroupBuildProviderImpl extends
     @Override
     public boolean delete(String id, String callback) {
 
+        // TODO: stop using authToken
+        String authToken = keycloakServiceClient.getAuthToken();
+        String authHeaderValue = serviceAccountClient.getAuthHeaderValue();
         try {
-            String accessToken = keycloakServiceClient.getAuthToken();
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
                     mapper.getIdMapper().toEntity(id),
-                    accessToken,
-                    notifyOnDeletionCompletion(callback, accessToken));
+                    authToken,
+                    notifyOnDeletionCompletion(callback, authHeaderValue));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
     }
 
-    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl, String accessToken) {
+    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl, String accessHeaderValue) {
         return (result) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 try {
                     HttpUtils.performHttpPostRequest(
                             callbackUrl,
                             OBJECT_MAPPER.writeValueAsString(resultMapper.toDTO(result)),
-                            accessToken);
+                            accessHeaderValue);
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform a callback of BuildConfigSetRecord delete operation.", e);
                 }

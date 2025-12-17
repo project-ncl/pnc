@@ -71,14 +71,14 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      * Deletes a temporary BuildConfigSetRecord.
      *
      * @param buildConfigSetRecordId ID of the BuildConfigSetRecord to be deleted
-     * @param authToken Bearer token
+     * @param authHeaderValue HTTP Header Authorization value
      * @param onComplete Operation to be executed after deletion operation
      * @return True if the build exists and deletion started otherwise, false is build doesn't exist
      * @throws ValidationException Thrown when build cannot be deleted
      */
     public boolean deleteTemporaryBuildConfigSetRecord(
             Base32LongID buildConfigSetRecordId,
-            String authToken,
+            String authHeaderValue,
             Consumer<Result> onComplete) throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
         if (buildConfigSetRecord == null) {
@@ -92,7 +92,7 @@ public class TemporaryBuildsCleanerAsyncInvoker {
         executorService.submit(() -> {
             try {
                 Result result = temporaryBuildsCleaner
-                        .deleteTemporaryBuildConfigSetRecord(buildConfigSetRecordId, authToken);
+                        .deleteTemporaryBuildConfigSetRecord(buildConfigSetRecordId, authHeaderValue);
                 onComplete.accept(result);
             } catch (ValidationException e) {
                 logger.error("Failed to delete temporary buildConfigSetRecord.id: " + buildConfigSetRecordId + ".", e);

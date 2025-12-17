@@ -138,10 +138,10 @@ public class TemporaryBuildsCleaner {
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
      *
      * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
-     * @param authToken
+     * @param authHeaderValue
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuildConfigSetRecord(Base32LongID buildConfigSetRecordId, String authToken)
+    public Result deleteTemporaryBuildConfigSetRecord(Base32LongID buildConfigSetRecordId, String authHeaderValue)
             throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
 
