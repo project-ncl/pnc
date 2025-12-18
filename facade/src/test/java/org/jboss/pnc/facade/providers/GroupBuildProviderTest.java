@@ -161,34 +161,36 @@ public class GroupBuildProviderTest extends AbstractBase32LongIDProviderTest<Bui
         final Base32LongID buildId = new Base32LongID(88L);
         final String buildIdString = buildId.getId();
         final String callbackUrl = "http://localhost:8088/callback";
-
         WireMockServer wireMockServer = new WireMockServer(8088);
-        wireMockServer.start();
-        wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
+        try {
+            wireMockServer.start();
+            wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
 
-        given(
-                temporaryBuildsCleanerAsyncInvoker
-                        .deleteTemporaryBuildConfigSetRecord(eq(buildId), eq(USER_TOKEN), any()))
-                                .willAnswer(invocation -> {
-                                    Result result = new Result(
-                                            buildIdString,
-                                            ResultStatus.SUCCESS,
-                                            "BuildConfigSetRecord was deleted " + "successfully");
+            given(
+                    temporaryBuildsCleanerAsyncInvoker
+                            .deleteTemporaryBuildConfigSetRecord(eq(buildId), eq(USER_TOKEN), any()))
+                                    .willAnswer(invocation -> {
+                                        Result result = new Result(
+                                                buildIdString,
+                                                ResultStatus.SUCCESS,
+                                                "BuildConfigSetRecord was deleted " + "successfully");
 
-                                    ((Consumer<Result>) invocation.getArgument(2)).accept(result);
-                                    return true;
-                                });
+                                        ((Consumer<Result>) invocation.getArgument(2)).accept(result);
+                                        return true;
+                                    });
 
-        // when
-        boolean result = provider.delete(buildIdString, callbackUrl);
+            // when
+            boolean result = provider.delete(buildIdString, callbackUrl);
 
-        // then
-        assertThat(result).isTrue();
-        wireMockServer.verify(
-                1,
-                postRequestedFor(urlEqualTo("/callback"))
-                        .withRequestBody(matchingJsonPath("$.id", equalTo(buildIdString))));
-        wireMockServer.stop();
+            // then
+            assertThat(result).isTrue();
+            wireMockServer.verify(
+                    1,
+                    postRequestedFor(urlEqualTo("/callback"))
+                            .withRequestBody(matchingJsonPath("$.id", equalTo(buildIdString))));
+        } finally {
+            wireMockServer.stop();
+        }
     }
 
     private BuildConfigSetRecord prepareBCSetRecord(BuildConfigurationSet buildConfigurationSet) {

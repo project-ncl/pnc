@@ -110,8 +110,8 @@
     <version.mapstruct>1.6.3</version.mapstruct>
     <version.pncmetrics>1.1.3</version.pncmetrics>
     <version.pnc-api>3.2.5-SNAPSHOT</version.pnc-api>
-    <version.pnc-common>3.3.4</version.pnc-common>
-    <version.rex-api>1.2.2</version.rex-api>
+    <version.pnc-common>3.3.5-SNAPSHOT</version.pnc-common>
+    <version.rex-api>1.2.3-SNAPSHOT</version.rex-api>
     <bifrost-client.version>3.0.0</bifrost-client.version>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
     <version.vertx-core>3.9.14</version.vertx-core>
@@ -962,7 +962,11 @@
         <version>${version.com.fasterxml.jackson.datatype}</version>
         <scope>provided</scope>
       </dependency>
-
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-parameter-names</artifactId>
+        <version>${version.com.fasterxml.jackson.module}</version>
+      </dependency>
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>

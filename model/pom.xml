@@ -36,7 +36,7 @@
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>pnc-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -91,11 +91,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>com.sun.activation</groupId>
       <artifactId>jakarta.activation</artifactId>
       <scope>provided</scope>
@@ -103,6 +98,16 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Test dependencies -->
     <dependency>

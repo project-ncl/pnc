@@ -21,7 +21,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.enums.BuildStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -714,26 +714,26 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     public void setDependentBuildRecordIds(Base32LongID[] dependentBuildRecordIds) {
         if (dependentBuildRecordIds != null) {
             Long[] longIds = Arrays.stream(dependentBuildRecordIds).map(Base32LongID::getLongId).toArray(Long[]::new);
-            this.dependentBuildRecordIds = StringUtils.serializeLong(longIds);
+            this.dependentBuildRecordIds = Strings.serializeLong(longIds);
         } else {
             this.dependentBuildRecordIds = "";
         }
     }
 
     public Set<Base32LongID> getDependentBuildRecordIds() {
-        Long[] longIds = StringUtils.deserializeLong(dependentBuildRecordIds);
+        Long[] longIds = Strings.deserializeLong(dependentBuildRecordIds);
         return Arrays.stream(longIds).map(Base32LongID::new).collect(Collectors.toSet());
     }
 
     public Set<Base32LongID> getDependencyBuildRecordIds() {
-        Long[] longIds = StringUtils.deserializeLong(dependencyBuildRecordIds);
+        Long[] longIds = Strings.deserializeLong(dependencyBuildRecordIds);
         return Arrays.stream(longIds).map(Base32LongID::new).collect(Collectors.toSet());
     }
 
     public void setDependencyBuildRecordIds(Base32LongID[] dependencyBuildRecordIds) {
         if (dependencyBuildRecordIds != null) {
             Long[] longIds = Arrays.stream(dependencyBuildRecordIds).map(Base32LongID::getLongId).toArray(Long[]::new);
-            this.dependencyBuildRecordIds = StringUtils.serializeLong(longIds);
+            this.dependencyBuildRecordIds = Strings.serializeLong(longIds);
         } else {
             this.dependencyBuildRecordIds = "";
         }

@@ -85,11 +85,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-common</artifactId>
+      <artifactId>pnc-api-constants</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>

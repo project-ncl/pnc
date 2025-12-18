@@ -25,8 +25,8 @@ import javax.inject.Inject;
 
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -37,8 +37,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.common.util.UrlUtils;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.Urls;
 
 /**
  * The JPA entity class that contains configuration of the SCM repositories.
@@ -75,9 +75,9 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     }
 
     private void setNormalizedUrls() {
-        internalUrlNormalized = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(internalUrl), ".git");
+        internalUrlNormalized = Strings.stripSuffix(Urls.keepHostAndPathOnly(internalUrl), ".git");
         externalUrlNormalized = externalUrl == null ? null
-                : StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(externalUrl), ".git");
+                : Strings.stripSuffix(Urls.keepHostAndPathOnly(externalUrl), ".git");
     }
 
     @Id

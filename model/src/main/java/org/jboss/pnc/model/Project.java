@@ -38,7 +38,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
-import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.Strings;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -137,7 +137,7 @@ public class Project implements GenericEntity<Integer> {
      * @param description the description to set
      */
     public void setDescription(String description) {
-        this.description = StringUtils.nullIfBlank(description);
+        this.description = Strings.nullIfBlank(description);
     }
 
     /**
@@ -151,7 +151,7 @@ public class Project implements GenericEntity<Integer> {
      * @param issueTrackerUrl the issueTrackerUrl to set
      */
     public void setIssueTrackerUrl(String issueTrackerUrl) {
-        this.issueTrackerUrl = StringUtils.nullIfBlank(issueTrackerUrl);
+        this.issueTrackerUrl = Strings.nullIfBlank(issueTrackerUrl);
     }
 
     /**
@@ -165,7 +165,7 @@ public class Project implements GenericEntity<Integer> {
      * @param projectUrl the projectUrl to set
      */
     public void setProjectUrl(String projectUrl) {
-        this.projectUrl = StringUtils.nullIfBlank(projectUrl);
+        this.projectUrl = Strings.nullIfBlank(projectUrl);
     }
 
     /**
@@ -213,7 +213,7 @@ public class Project implements GenericEntity<Integer> {
      * @param engineeringTeam the engineeringTeam to set
      */
     public void setEngineeringTeam(String engineeringTeam) {
-        this.engineeringTeam = StringUtils.nullIfBlank(engineeringTeam);
+        this.engineeringTeam = Strings.nullIfBlank(engineeringTeam);
     }
 
     /**
@@ -227,7 +227,7 @@ public class Project implements GenericEntity<Integer> {
      * @param technicalLeader the technicalLeader to set
      */
     public void setTechnicalLeader(String technicalLeader) {
-        this.technicalLeader = StringUtils.nullIfBlank(technicalLeader);
+        this.technicalLeader = Strings.nullIfBlank(technicalLeader);
     }
 
     @Override

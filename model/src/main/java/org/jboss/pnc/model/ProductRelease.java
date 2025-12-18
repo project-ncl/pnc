@@ -19,7 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.enums.SupportLevel;
 
 import javax.persistence.Cacheable;
@@ -177,7 +177,7 @@ public class ProductRelease implements GenericEntity<Integer> {
      * @return the common platform enumeration (cpe) of the product release to set
      */
     public void setCommonPlatformEnumeration(String commonPlatformEnumeration) {
-        this.commonPlatformEnumeration = StringUtils.nullIfBlank(commonPlatformEnumeration);
+        this.commonPlatformEnumeration = Strings.nullIfBlank(commonPlatformEnumeration);
     }
 
     /**
@@ -191,7 +191,7 @@ public class ProductRelease implements GenericEntity<Integer> {
      * @param productPagesCode the code of the product release from product pages to set
      */
     public void setProductPagesCode(String productPagesCode) {
-        this.productPagesCode = StringUtils.nullIfBlank(productPagesCode);
+        this.productPagesCode = Strings.nullIfBlank(productPagesCode);
     }
 
     @Override

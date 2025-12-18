@@ -18,10 +18,10 @@
 package org.jboss.pnc.mapper.abstracts;
 
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
@@ -99,12 +99,12 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
             } else {
                 try {
                     deployUrlSetter.accept(
-                            UrlUtils.buildUrl(
+                            Urls.buildUrl(
                                     globalConfig.getIndyUrl(),
                                     targetRepository.getRepositoryPath(),
                                     artifactDB.getDeployPath()));
                     publicUrlSetter.accept(
-                            UrlUtils.buildUrl(
+                            Urls.buildUrl(
                                     globalConfig.getExternalIndyUrl(),
                                     targetRepository.getRepositoryPath(),
                                     artifactDB.getDeployPath()));

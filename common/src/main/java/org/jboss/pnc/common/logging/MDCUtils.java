@@ -17,20 +17,32 @@
  */
 package org.jboss.pnc.common.logging;
 
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- * @deprecated use MDCUtils from pnc-common
+ * @deprecated use MDCUtils from pnc-common (unless you need Java 8 at compilation)
  */
-public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
+public class MDCUtils {
+
+    public static final Map<String, String> HEADER_KEY_MAPPING;
+    static {
+        Map<String, String> mapping = new HashMap<>();
+        for (MDCHeaderKeys headerKey : MDCHeaderKeys.values()) {
+            mapping.put(headerKey.getMdcKey(), headerKey.getHeaderName());
+        }
+        HEADER_KEY_MAPPING = Collections.unmodifiableMap(mapping);
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 

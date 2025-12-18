@@ -48,12 +48,6 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>facade</artifactId>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion> <!-- brings in wrong jaxrs-api -->
-                    <groupId>org.kie.remote</groupId>
-                    <artifactId>kie-remote-client</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>

@@ -56,8 +56,8 @@
             <artifactId>spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>common</artifactId>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>pnc-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
@@ -76,10 +76,10 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>bpm</artifactId>
         </dependency>
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>notifications</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>notifications</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>build-coordinator</artifactId>
@@ -137,6 +137,22 @@
         <dependency>
             <groupId>com.github.package-url</groupId>
             <artifactId>packageurl-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-parameter-names</artifactId>
         </dependency>
 
         <!-- Build dependencies -->

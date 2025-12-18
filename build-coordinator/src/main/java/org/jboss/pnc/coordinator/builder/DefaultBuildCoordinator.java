@@ -19,9 +19,9 @@ package org.jboss.pnc.coordinator.builder;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
-import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.concurrent.mdc.MDCExecutors;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -473,14 +473,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             log.warn("Cannot find task {} to cancel.", buildTaskId);
             return false;
         }
-    }
-
-    @Override
-    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
-        return getSubmittedBuildTasks().stream()
-                .filter(buildTask -> buildTaskId.equals(buildTask.getId()))
-                .map(this::getMDCMeta)
-                .findAny();
     }
 
     private BuildTaskContext getMDCMeta(BuildTask buildTask) {

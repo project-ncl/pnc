@@ -63,7 +63,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.enums.BuildType;
 
 /**
@@ -298,7 +298,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     public void setDescription(String description) {
-        this.description = StringUtils.nullIfBlank(description);
+        this.description = Strings.nullIfBlank(description);
     }
 
     public Project getProject() {
@@ -633,7 +633,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @param defaultAlignmentParams the default alignment parameters
      */
     public void setDefaultAlignmentParams(String defaultAlignmentParams) {
-        this.defaultAlignmentParams = StringUtils.nullIfBlank(defaultAlignmentParams);
+        this.defaultAlignmentParams = Strings.nullIfBlank(defaultAlignmentParams);
     }
 
     public boolean isBrewPullActive() {

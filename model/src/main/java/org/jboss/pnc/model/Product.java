@@ -39,7 +39,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
-import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.constants.Patterns;
 
 /**
@@ -99,7 +99,7 @@ public class Product implements GenericEntity<Integer> {
     public Product(String name, String description) {
         this();
         this.name = name;
-        this.description = StringUtils.nullIfBlank(description);
+        this.description = Strings.nullIfBlank(description);
     }
 
     /**
@@ -142,7 +142,7 @@ public class Product implements GenericEntity<Integer> {
      * @param description the description to set
      */
     public void setDescription(String description) {
-        this.description = StringUtils.nullIfBlank(description);
+        this.description = Strings.nullIfBlank(description);
     }
 
     /**
@@ -181,7 +181,7 @@ public class Product implements GenericEntity<Integer> {
      * @param productManagers comma-separated list of Product Managers to set
      */
     public void setProductManagers(String productManagers) {
-        this.productManagers = StringUtils.nullIfBlank(productManagers);
+        this.productManagers = Strings.nullIfBlank(productManagers);
     }
 
     /**
@@ -195,7 +195,7 @@ public class Product implements GenericEntity<Integer> {
      * @param productPagesCode the code of the product from product pages to set
      */
     public void setProductPagesCode(String productPagesCode) {
-        this.productPagesCode = StringUtils.nullIfBlank(productPagesCode);
+        this.productPagesCode = Strings.nullIfBlank(productPagesCode);
     }
 
     /**
