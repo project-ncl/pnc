@@ -19,7 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
@@ -90,7 +90,7 @@ public class GroupBuildProviderImpl extends
     private HttpServletRequest httpServletRequest;
 
     @Inject
-    private KeycloakServiceClient keycloakServiceClient;
+    private ServiceAccountClient serviceAccountClient;
 
     private UserService userService;
 
@@ -124,24 +124,22 @@ public class GroupBuildProviderImpl extends
     public boolean delete(String id, String callback) {
 
         try {
-            String accessToken = keycloakServiceClient.getAuthToken();
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
                     mapper.getIdMapper().toEntity(id),
-                    accessToken,
-                    notifyOnDeletionCompletion(callback, accessToken));
+                    notifyOnDeletionCompletion(callback, serviceAccountClient.getAuthHeaderValue()));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
     }
 
-    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl, String accessToken) {
+    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl, String authHttpValue) {
         return (result) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 try {
                     HttpUtils.performHttpPostRequest(
                             callbackUrl,
                             OBJECT_MAPPER.writeValueAsString(resultMapper.toDTO(result)),
-                            accessToken);
+                            authHttpValue);
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform a callback of BuildConfigSetRecord delete operation.", e);
                 }
