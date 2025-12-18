@@ -448,12 +448,6 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
-        throw new UnsupportedOperationException(
-                "Remote build coordinator cannot provide more MDC details than the endpoint has.");
-    }
-
-    @Override
     public boolean cancelSet(Base32LongID buildConfigSetRecordId) throws CoreException {
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildConfigSetRecordId);
         if (record == null) {

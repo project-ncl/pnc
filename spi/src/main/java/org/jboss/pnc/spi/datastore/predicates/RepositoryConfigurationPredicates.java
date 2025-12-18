@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.common.util.UrlUtils;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -37,7 +37,7 @@ public class RepositoryConfigurationPredicates {
      * Queries against normalized version with stripped protocol and .git extension
      */
     public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
-        String urlStripped = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(internalUrl), ".git");
+        String urlStripped = Strings.stripSuffix(Urls.keepHostAndPathOnly(internalUrl), ".git");
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrlNormalized), urlStripped);
     }
 
@@ -45,13 +45,13 @@ public class RepositoryConfigurationPredicates {
      * Queries against normalized version with stripped protocol and .git extension
      */
     public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(String externalScmRepoUrl) {
-        String urlStripped = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(externalScmRepoUrl), ".git");
+        String urlStripped = Strings.stripSuffix(Urls.keepHostAndPathOnly(externalScmRepoUrl), ".git");
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.externalUrlNormalized), urlStripped);
     }
 
     public static Predicate<RepositoryConfiguration> searchByScmUrl(String scmUrl) {
-        String urlStripped = UrlUtils.keepHostAndPathOnly(scmUrl);
-        urlStripped = StringUtils.stripSuffix(urlStripped, ".git");
+        String urlStripped = Urls.keepHostAndPathOnly(scmUrl);
+        urlStripped = Strings.stripSuffix(urlStripped, ".git");
 
         String pattern = "%" + urlStripped + "%";
         logger.trace("Searching for pattern: {}.", pattern);
@@ -62,7 +62,7 @@ public class RepositoryConfigurationPredicates {
     }
 
     public static Predicate<RepositoryConfiguration> matchByScmUrl(String scmUrl) {
-        final String urlStripped = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(scmUrl), ".git");
+        final String urlStripped = Strings.stripSuffix(Urls.keepHostAndPathOnly(scmUrl), ".git");
 
         logger.trace("Searching for pattern: {}.", urlStripped);
 

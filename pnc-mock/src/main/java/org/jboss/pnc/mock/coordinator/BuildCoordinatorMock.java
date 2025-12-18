@@ -152,11 +152,6 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
-        return Optional.empty();
-    }
-
-    @Override
     public void storeAndNotifyBuildConfigSetRecord(
             BuildConfigSetRecord setRecord,
             BuildStatus status,

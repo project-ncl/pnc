@@ -39,10 +39,11 @@ import static org.jboss.pnc.enums.JobNotificationType.BREW_PUSH;
  * 
  * <pre>
  * 
+ * @deprecated since = "3.2", forRemoval = true;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Deprecated(forRemoval = true, since = "3.2")
+@Deprecated
 public class BuildPushResultNotification extends Notification {
 
     private static final String BREW_PUSH_RESULT = "BREW_PUSH_RESULT";

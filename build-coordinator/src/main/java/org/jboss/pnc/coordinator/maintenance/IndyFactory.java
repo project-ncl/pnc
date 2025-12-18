@@ -31,7 +31,7 @@ import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.log.MDCUtils;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;

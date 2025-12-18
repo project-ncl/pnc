@@ -20,7 +20,7 @@ package org.jboss.pnc.facade.providers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;

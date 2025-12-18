@@ -115,11 +115,6 @@ public class BuildTriggererImpl implements BuildTriggerer {
         return buildCoordinator.cancel(buildId);
     }
 
-    @Override
-    public Optional<BuildTaskContext> getMdcMeta(String buildId) {
-        return buildCoordinator.getMDCMeta(buildId);
-    }
-
     private BuildSetTask doTriggerBuild(
             final int buildConfigId,
             OptionalInt buildConfigurationRevision,

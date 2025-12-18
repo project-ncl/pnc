@@ -30,7 +30,7 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.patch.GroupConfigurationPatchBuilder;
 import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.concurrent.mdc.MDCExecutors;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.GroupBuild;

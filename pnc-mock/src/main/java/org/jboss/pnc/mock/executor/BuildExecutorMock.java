@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.mock.executor;
 
-import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.common.concurrent.mdc.MDCExecutors;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;

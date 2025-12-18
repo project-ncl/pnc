@@ -18,7 +18,6 @@
 package org.jboss.pnc.dingroguclient;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,9 +31,9 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;

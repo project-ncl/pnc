@@ -23,17 +23,17 @@ import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.net.GitSCPUrl;
+import org.jboss.pnc.common.scm.GitSCPUrl;
 import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.dingroguclient.DingroguRepositoryCreationDTO;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -317,7 +317,7 @@ public class SCMRepositoryProviderImpl
         if (internalRepoUrl.startsWith("git@")) {
             internalRepoUrlNoProto = internalRepoUrl.substring(4);
         } else {
-            internalRepoUrlNoProto = UrlUtils.stripProtocol(internalRepoUrl);
+            internalRepoUrlNoProto = Urls.stripProtocol(internalRepoUrl);
         }
 
         String internalRepoName;

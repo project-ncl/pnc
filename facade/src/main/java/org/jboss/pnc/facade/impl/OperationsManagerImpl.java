@@ -232,7 +232,7 @@ public class OperationsManagerImpl implements OperationsManager {
 
     private void addOTELHeaders(List<Request.Header> headers) {
 
-        Map<String, String> otelHeaders = MDCUtils.getOtelHeadersFromMDC();
+        Map<String, String> otelHeaders = org.jboss.pnc.common.log.MDCUtils.getOtelHeadersFromMDC();
         otelHeaders.forEach((key, value) -> {
             log.debug("Setting {}: {}", key, value);
             headers.add(new Request.Header(key, value));

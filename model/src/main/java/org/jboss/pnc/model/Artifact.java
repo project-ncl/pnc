@@ -21,7 +21,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 
@@ -551,7 +551,7 @@ public class Artifact implements GenericEntity<Integer> {
      * @param qualityLevelReason The reason for the Quality level setting (change) of this artifact
      */
     public void setQualityLevelReason(String qualityLevelReason) {
-        this.qualityLevelReason = StringUtils.nullIfBlank(qualityLevelReason);
+        this.qualityLevelReason = Strings.nullIfBlank(qualityLevelReason);
     }
 
     @Override

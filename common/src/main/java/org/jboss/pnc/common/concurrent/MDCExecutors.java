@@ -47,10 +47,4 @@ public class MDCExecutors {
     public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
         return new MDCScheduledThreadPoolExecutor(corePoolSize);
     }
-
-    public static ScheduledExecutorService newScheduledThreadPool(
-            int corePoolSize,
-            NamedThreadFactory namedThreadFactory) {
-        return new MDCScheduledThreadPoolExecutor(corePoolSize, namedThreadFactory);
-    }
 }
