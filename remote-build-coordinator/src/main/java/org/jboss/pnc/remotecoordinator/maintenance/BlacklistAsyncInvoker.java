@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -40,7 +40,7 @@ public class BlacklistAsyncInvoker {
 
     private GlobalModuleGroup globalModuleGroupConfiguration;
 
-    private KeycloakServiceClient keycloakServiceClient;
+    private ServiceAccountClient serviceAccountClient;
 
     private ExecutorService executorService;
 
@@ -51,9 +51,9 @@ public class BlacklistAsyncInvoker {
     @Inject
     public BlacklistAsyncInvoker(
             GlobalModuleGroup globalModuleGroupConfiguration,
-            KeycloakServiceClient keycloakServiceClient) {
+            ServiceAccountClient serviceAccountClient) {
         this.globalModuleGroupConfiguration = globalModuleGroupConfiguration;
-        this.keycloakServiceClient = keycloakServiceClient;
+        this.serviceAccountClient = serviceAccountClient;
 
         executorService = Executors
                 .newSingleThreadExecutor(new NamedThreadFactory("build-coordinator.BlacklistAsyncInvoker"));
@@ -64,11 +64,10 @@ public class BlacklistAsyncInvoker {
             logger.debug("Sending blacklisting payload to DA: {}", jsonPayload);
             executorService.submit(() -> {
                 try {
-                    String authToken = keycloakServiceClient.getAuthToken();
                     HttpUtils.performHttpPostRequest(
                             globalModuleGroupConfiguration.getDaUrl() + BLACKLIST_ENDPOINT,
                             jsonPayload,
-                            authToken);
+                            serviceAccountClient.getAuthHeaderValue());
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform blacklist or deletion notification in DA.", e);
                 }

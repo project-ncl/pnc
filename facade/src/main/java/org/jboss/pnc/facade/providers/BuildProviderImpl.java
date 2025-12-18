@@ -19,7 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.graph.VertexNeighbor;
 import org.jboss.pnc.common.graph.WeightedGraphBuilder;
 import org.jboss.pnc.common.http.HttpUtils;
@@ -155,7 +155,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private GroupBuildMapper groupBuildMapper;
     private BuildFetcher buildFetcher;
 
-    private KeycloakServiceClient keycloakServiceClient;
+    private ServiceAccountClient serviceAccountClient;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -174,7 +174,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             ResultMapper resultMapper,
             GroupBuildMapper groupBuildMapper,
             BuildFetcher buildFetcher,
-            KeycloakServiceClient keycloakServiceClient) {
+            ServiceAccountClient serviceAccountClient) {
         super(repository, mapper, BuildRecord.class);
 
         this.artifactRepository = artifactRepository;
@@ -190,7 +190,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.resultMapper = resultMapper;
         this.groupBuildMapper = groupBuildMapper;
         this.buildFetcher = buildFetcher;
-        this.keycloakServiceClient = keycloakServiceClient;
+        this.serviceAccountClient = serviceAccountClient;
     }
 
     @Override
@@ -233,7 +233,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                     HttpUtils.performHttpPostRequest(
                             callback,
                             OBJECT_MAPPER.writeValueAsString(resultMapper.toDTO(result)),
-                            keycloakServiceClient.getAuthToken());
+                            serviceAccountClient.getAuthHeaderValue());
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform a callback of delete operation.", e);
                 }

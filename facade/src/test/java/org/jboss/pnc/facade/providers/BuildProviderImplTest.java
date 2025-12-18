@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
@@ -123,6 +124,9 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     private KeycloakServiceClient keycloakServiceClient;
 
     @Mock
+    private ServiceAccountClient serviceAccountClient;
+
+    @Mock
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     @InjectMocks
@@ -194,6 +198,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         when(rsqlPredicateProducer.getSortInfo(any(Class.class), any())).thenAnswer(i -> mock(SortInfo.class));
 
         when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
+        when(serviceAccountClient.getAuthHeaderValue()).thenReturn("Bearer " + USER_TOKEN);
 
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .id(new Base32LongID(1L))

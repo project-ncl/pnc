@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.response.Page;
@@ -89,6 +90,9 @@ public class GroupBuildProviderTest extends AbstractBase32LongIDProviderTest<Bui
     @Mock
     private KeycloakServiceClient keycloakServiceClient;
 
+    @Mock
+    private ServiceAccountClient serviceAccountClient;
+
     @Spy
     @InjectMocks
     protected GroupBuildProviderImpl provider;
@@ -108,6 +112,7 @@ public class GroupBuildProviderTest extends AbstractBase32LongIDProviderTest<Bui
         fillRepository(records);
 
         when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
+        when(serviceAccountClient.getAuthHeaderValue()).thenReturn("Bearer " + USER_TOKEN);
     }
 
     @Override
@@ -166,18 +171,16 @@ public class GroupBuildProviderTest extends AbstractBase32LongIDProviderTest<Bui
             wireMockServer.start();
             wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
 
-            given(
-                    temporaryBuildsCleanerAsyncInvoker
-                            .deleteTemporaryBuildConfigSetRecord(eq(buildId), eq(USER_TOKEN), any()))
-                                    .willAnswer(invocation -> {
-                                        Result result = new Result(
-                                                buildIdString,
-                                                ResultStatus.SUCCESS,
-                                                "BuildConfigSetRecord was deleted " + "successfully");
+            given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(eq(buildId), any()))
+                    .willAnswer(invocation -> {
+                        Result result = new Result(
+                                buildIdString,
+                                ResultStatus.SUCCESS,
+                                "BuildConfigSetRecord was deleted " + "successfully");
 
-                                        ((Consumer<Result>) invocation.getArgument(2)).accept(result);
-                                        return true;
-                                    });
+                        ((Consumer<Result>) invocation.getArgument(1)).accept(result);
+                        return true;
+                    });
 
             // when
             boolean result = provider.delete(buildIdString, callbackUrl);

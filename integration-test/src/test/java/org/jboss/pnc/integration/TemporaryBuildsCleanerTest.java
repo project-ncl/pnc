@@ -382,7 +382,7 @@ public class TemporaryBuildsCleanerTest {
         buildConfigSetRecordRepository.save(buildConfigSetRecord);
 
         // when - then
-        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId());
 
         fail("Deletion of non-temporary build should be prohibited");
     }
@@ -399,7 +399,7 @@ public class TemporaryBuildsCleanerTest {
         buildRecordRepository.save(tempBr);
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId(), "");
+        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId());
 
         // then
         assertNull(buildConfigSetRecordRepository.queryById(buildConfigSetRecord.getId()));
