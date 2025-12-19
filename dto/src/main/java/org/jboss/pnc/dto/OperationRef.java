@@ -82,7 +82,7 @@ public class OperationRef implements DTOEntity {
      * 
      * @deprecated Waiting for UI to use outcome before removal
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated()
     protected final OperationResult result;
 
     /**

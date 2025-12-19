@@ -42,6 +42,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -97,6 +98,13 @@ public class Operation implements GenericEntity<Base32LongID> {
 
     @Type(type = "org.hibernate.type.TextType")
     private String proposal;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.reason != null && this.reason.length() > 1020) {
+            this.reason = this.reason.substring(0, 950) + "... [Message trimmed]";
+        }
+    }
 
     /**
      * Gets the id.

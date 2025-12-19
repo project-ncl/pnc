@@ -103,7 +103,9 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/complete")
-    void finish(@Parameter(description = OP_ID) @PathParam("id") String id, @NotNull OperationOutcome operationOutcome);
+    void finish(
+            @Parameter(description = OP_ID) @PathParam("id") String id,
+            @NotNull @Valid OperationOutcome operationOutcome);
 
     /**
      * {@value UPDATE_DEL_ANALYZER_DESC}

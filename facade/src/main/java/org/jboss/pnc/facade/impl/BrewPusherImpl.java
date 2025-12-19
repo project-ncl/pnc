@@ -167,14 +167,14 @@ public class BrewPusherImpl implements BrewPusher {
         } catch (RuntimeException ex) {
             final String errorId = UUID.randomUUID().toString();
             final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
-                    .reason("Unknown system error")
+                    .reason("Can not contact dingrogu.")
                     .proposal(
                             String.format(
                                     "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
                                     errorId))
                     .build();
             operationsManager.setResult(operation.getId(), OperationOutcome.systemError(exceptionResolution));
-            log.warn("ErrorId={} Brew push failed. {}", errorId, ex.getMessage() == null ? "" : ex.getMessage(), ex);
+            log.error("ErrorId={} Brew push failed. {}", errorId, ex.getMessage() == null ? "" : ex.getMessage(), ex);
             throw ex;
         }
     }
