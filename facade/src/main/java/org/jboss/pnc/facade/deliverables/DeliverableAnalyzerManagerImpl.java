@@ -32,6 +32,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.WindowsArtifact;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.dto.exception.ReasonedException;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.LicenseSource;
@@ -182,22 +183,36 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return deliverableAnalyzerOperationMapper.toDTO(
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
                             .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
-        } catch (RuntimeException ex) {
+        } catch (ReasonedException e) {
+            operationsManager.setResult(operationId, OperationOutcome.systemError(e.getExceptionResolution()));
+            log.error(
+                    "ErrorId={} Analysis with ID {} failed: {}",
+                    e.getErrorId(),
+                    id,
+                    e.getMessage() == null ? e.toString() : e.getMessage(),
+                    e.getCause());
+            throw e;
+        } catch (RuntimeException e) {
             final String errorId = UUID.randomUUID().toString();
+            final String errorReason = String.format(
+                    "Analysis with ID %s failed: %s",
+                    id,
+                    e.getMessage() == null ? e.toString() : e.getMessage());
+            final String errorProposal = String.format(
+                    "There is an internal system error, please contact PNC team "
+                            + "at #forum-pnc-users (with the following ID: %s)",
+                    errorId);
             final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
-                    .reason("Can not contact dingrogu.")
-                    .proposal(
-                            String.format(
-                                    "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
-                                    errorId))
+                    .reason(errorReason)
+                    .proposal(errorProposal)
                     .build();
             operationsManager.setResult(operationId, OperationOutcome.systemError(exceptionResolution));
             log.error(
                     "ErrorId={} Analysis of deliverables failed. {}",
                     errorId,
-                    ex.getMessage() == null ? "" : ex.getMessage(),
-                    ex);
-            throw ex;
+                    e.getMessage() == null ? "" : e.getMessage(),
+                    e);
+            throw e;
         } finally {
             MDCUtils.removeProcessContext();
         }
