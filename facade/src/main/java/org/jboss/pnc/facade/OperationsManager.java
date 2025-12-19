@@ -32,7 +32,7 @@ public interface OperationsManager {
 
     Operation updateProgress(Base32LongID operationId, ProgressStatus status);
 
-    Operation setResult(Base32LongID entity, OperationOutcome operationOutcome);
+    Operation setResult(Base32LongID operationId, OperationOutcome operationOutcome);
 
     DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(String milestoneId, Map<String, String> inputParams);
 
