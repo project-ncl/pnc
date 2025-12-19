@@ -28,9 +28,11 @@ import javax.inject.Inject;
 
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.dto.exception.ReasonedException;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.auth.ServiceAccountClient;
+import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.log.MDCUtils;
@@ -193,13 +195,7 @@ public class DingroguClientImpl implements DingroguClient {
             Object payload,
             Optional<String> authHttpValue,
             int retries) {
-
-        if (retries < 0) {
-            throw new RuntimeException("Maximum number of retries attempted!");
-        }
-
         try {
-
             // Add MDC values, always
             List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
                     .entrySet()
@@ -218,7 +214,11 @@ public class DingroguClientImpl implements DingroguClient {
                 log.error("Exception thrown during sleeping", er);
             }
 
-            // retry again
+            // Maximum number of retries attempted
+            if (retries <= 0) {
+                throw new ReasonedException(ResultStatus.SYSTEM_ERROR, "Can not contact dingrogu", e);
+            }
+            // Retry again
             submitRequestWithRetriesAttempt(request, payload, authHttpValue, retries - 1);
         }
     }

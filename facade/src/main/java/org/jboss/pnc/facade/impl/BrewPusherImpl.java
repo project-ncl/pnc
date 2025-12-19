@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.OperationOutcome;
+import org.jboss.pnc.api.dto.exception.ReasonedException;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -164,18 +165,33 @@ public class BrewPusherImpl implements BrewPusher {
             return buildPushOperationMapper.toDTO(
                     (BuildPushOperation) operationsManager
                             .updateProgress(operation.getId(), ProgressStatus.IN_PROGRESS));
-        } catch (RuntimeException ex) {
+        } catch (ReasonedException e) {
+            operationsManager.setResult(operation.getId(), OperationOutcome.systemError(e.getExceptionResolution()));
+            log.error(
+                    "ErrorId={} Brew push failed: {}",
+                    e.getErrorId(),
+                    e.getMessage() == null ? e.toString() : e.getMessage(),
+                    e.getCause());
+            throw e;
+        } catch (RuntimeException e) {
             final String errorId = UUID.randomUUID().toString();
+            final String errorReason = String
+                    .format("Brew push failed: %s", e.getMessage() == null ? e.toString() : e.getMessage());
+            final String errorProposal = String.format(
+                    "There is an internal system error, please contact PNC team "
+                            + "at #forum-pnc-users (with the following ID: %s)",
+                    errorId);
             final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
-                    .reason("Can not contact dingrogu.")
-                    .proposal(
-                            String.format(
-                                    "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
-                                    errorId))
+                    .reason(errorReason)
+                    .proposal(errorProposal)
                     .build();
             operationsManager.setResult(operation.getId(), OperationOutcome.systemError(exceptionResolution));
-            log.error("ErrorId={} Brew push failed. {}", errorId, ex.getMessage() == null ? "" : ex.getMessage(), ex);
-            throw ex;
+            log.error(
+                    "ErrorId={} Brew push failed: {}",
+                    errorId,
+                    e.getMessage() == null ? e.toString() : e.getMessage(),
+                    e);
+            throw e;
         }
     }
 
