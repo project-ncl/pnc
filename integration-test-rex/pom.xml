@@ -351,7 +351,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.6.2</version>
+            <version>3.6.3</version>
             <configuration>
               <mainClass>org.jboss.pnc.integrationrex.GetFreePort</mainClass>
               <arguments>${project.build.directory}</arguments>
