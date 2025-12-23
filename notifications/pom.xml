@@ -128,6 +128,10 @@
             <artifactId>hibernate-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.redhat.resilience.otel</groupId>
+            <artifactId>opentelemetry-ext-cli-java</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

@@ -42,6 +42,10 @@ public class LocalNotifier implements Notifier {
 
     private Set<AttachedClient> attachedClients = new CopyOnWriteArraySet<>();
 
+    /**
+     * FIXME can't use pnc-common's MDCExecutors because the project won't compile with newer versions of opentelemetry
+     * libraries. EAP forces old version.
+     */
     private final ScheduledExecutorService scheduler = MDCExecutors.newScheduledThreadPool(1);
 
     private final MessageCallback messageCallback = new MessageCallback() {
