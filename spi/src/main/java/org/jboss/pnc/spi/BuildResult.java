@@ -20,7 +20,7 @@ package org.jboss.pnc.spi;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;

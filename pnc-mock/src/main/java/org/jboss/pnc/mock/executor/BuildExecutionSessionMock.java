@@ -22,7 +22,7 @@ import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.DebugData;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;

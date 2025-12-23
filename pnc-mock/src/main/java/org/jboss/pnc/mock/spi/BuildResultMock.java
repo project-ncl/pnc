@@ -21,7 +21,7 @@ package org.jboss.pnc.mock.spi;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
