@@ -55,7 +55,6 @@ public class Deployments {
     public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
     public static final String DINGROGU_CLIENT_JAR = "/lib/dingrogu-client.jar";
 
-    public static final String BPM_JAR = "/bpm.jar";
     public static final String REST_WAR = "/rest.war";
 
     private static final PomEquippedResolveStage resolver = Maven.resolver()
@@ -189,7 +188,7 @@ public class Deployments {
         jar.addClass(RepositoryManagerResultMock.class);
         jar.addClass(ArtifactBuilder.class);
 
-        jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+        jar.addAsManifestResource("beans-use-mock-remote-clients-and-local-scheduler.xml", "beans.xml");
 
         logger.info(jar.toString(true));
 

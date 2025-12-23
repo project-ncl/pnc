@@ -66,7 +66,6 @@ import org.jboss.pnc.rest.endpoints.internal.PncStatusEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
 import org.jboss.pnc.rest.provider.AlreadyRunningExceptionsMapper;
-import org.jboss.pnc.rest.provider.BpmExceptionMapper;
 import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
 import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
 import org.jboss.pnc.rest.provider.EJBExceptionMapper;
@@ -243,7 +242,6 @@ public class JaxRsActivatorNew extends Application {
     private void addExceptionMappers(Set<Class<?>> resources) {
         resources.add(AllOtherExceptionsMapper.class);
         resources.add(AlreadyRunningExceptionsMapper.class);
-        resources.add(BpmExceptionMapper.class);
         resources.add(BuildConflictExceptionMapper.class);
         resources.add(ConstraintViolationExceptionMapper.class);
         resources.add(EJBExceptionMapper.class);

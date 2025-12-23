@@ -46,9 +46,6 @@
     <java>moduleconfig.jar</java>
   </module>
   <module>
-    <java>bpm.jar</java>
-  </module>
-  <module>
     <java>datastore.jar</java>
   </module>
   <module>

@@ -36,7 +36,6 @@ import org.jboss.pnc.api.enums.LicenseSource;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -71,12 +70,10 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactLicenseInfoRe
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
-import org.slf4j.MDC;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -158,9 +155,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     @Inject
     private Event<DeliverableAnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
     @Inject
-    private Connector connector;
-    @Inject
-    DingroguClient dingroguClient;
+    private DingroguClient dingroguClient;
 
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(
@@ -792,27 +787,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                 .started(id, milestoneId, deliverablesUrls);
         analysisStatusChangedEventNotifier.fireAsync(analysisStatusChanged);
-        // try {
-        //
-        // AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
-        // id,
-        // deliverablesUrls,
-        // runAsScratchAnalysis);
-        // AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
-        //
-        // connector.startProcess(
-        // bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
-        // analyzeTask,
-        // id,
-        // keycloakServiceClient.getAuthToken());
-        //
-        // DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
-        // .started(id, milestoneId, deliverablesUrls);
-        // analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
-        // } catch (ProcessManagerException e) {
-        // log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
-        // throw new RuntimeException(e);
-        // }
     }
 
     public void observeEvent(@ObservesAsync OperationChangedEvent event) {

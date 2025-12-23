@@ -87,7 +87,6 @@
     <module>integration-test</module>
     <module>integration-test-rex</module>
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
-    <module>bpm</module>
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
@@ -551,12 +550,6 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>notifications</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>bpm</artifactId>
         <version>${project.version}</version>
       </dependency>
 
