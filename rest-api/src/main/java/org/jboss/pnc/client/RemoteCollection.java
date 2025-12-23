@@ -34,7 +34,7 @@ public interface RemoteCollection<T> extends Iterable<T> {
     Collection<T> getAll();
 
     static <T> RemoteCollection<T> empty() {
-        return new RemoteCollection<>() {
+        return new RemoteCollection() {
             @Override
             public int size() {
                 return 0;
@@ -47,7 +47,7 @@ public interface RemoteCollection<T> extends Iterable<T> {
 
             @Override
             public Iterator<T> iterator() {
-                return new Iterator<>() {
+                return new Iterator() {
                     @Override
                     public boolean hasNext() {
                         return false;

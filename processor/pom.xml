@@ -57,7 +57,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.0</version>
         <configuration>
+          <!--  Java 8 enforced because users depending on REST-CLIENT with Java 8 -->
+          <!--  Feel free to remove once this is not the case  -->
+          <source>1.8</source>
+          <target>1.8</target>
           <compilerArgument>-proc:none</compilerArgument>
         </configuration>
       </plugin>
