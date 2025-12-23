@@ -19,15 +19,23 @@ package org.jboss.pnc.integrationrex.mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.jboss.pnc.bpm.model.BuildResultRest;
-import org.jboss.pnc.bpm.model.RepositoryManagerResultRest;
-import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
-import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.api.orch.dto.RepositoryManagerResultRest;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.mapper.ArtifactRepositoryMapperImpl;
+import org.jboss.pnc.mapper.BuildDriverResultMapperImpl;
+import org.jboss.pnc.mapper.BuildExecutionConfigurationMapperImpl;
+import org.jboss.pnc.mapper.BuildResultMapperImpl;
+import org.jboss.pnc.mapper.EnvironmentDriverResultMapperImpl;
+import org.jboss.pnc.mapper.ProcessExceptionMapper;
+import org.jboss.pnc.mapper.RepositoryManagerResultMapperImpl;
+import org.jboss.pnc.mapper.RepourResultMapperImpl;
+import org.jboss.pnc.mapper.SshCredentialsMapperImpl;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.spi.BuildExecutionConfigurationMock;
@@ -36,7 +44,6 @@ import org.jboss.pnc.mock.spi.RepourResultMock;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +78,7 @@ public class BPMResultsMock {
 
     @SneakyThrows
     public static String mockBuildResult() {
-        BuildResultMapper mapper = new BuildResultMapper(new RepositoryManagerResultMapper(new ArtifactMapperMock()));
+        var mapper = getBuildResultMapper();
 
         BuildResult result = new BuildResult(
                 CompletionStatus.SUCCESS,
@@ -96,7 +103,7 @@ public class BPMResultsMock {
 
     @SneakyThrows
     public static String mockFailedBuildResult() {
-        BuildResultMapper mapper = new BuildResultMapper(new RepositoryManagerResultMapper(new ArtifactMapperMock()));
+        var mapper = getBuildResultMapper();
 
         BuildResult result = new BuildResult(
                 CompletionStatus.FAILED,
@@ -117,6 +124,18 @@ public class BPMResultsMock {
         String s = objectMapper.writeValueAsString(dto);
         logger.trace("MOCK-BPM JSON reply: " + s);
         return s;
+    }
+
+    private static BuildResultMapperImpl getBuildResultMapper() {
+        var art = new ArtifactRepositoryMapperImpl();
+        var becMapper = new BuildExecutionConfigurationMapperImpl(art);
+        var envMapper = new EnvironmentDriverResultMapperImpl(new SshCredentialsMapperImpl());
+        var bdrMapper = new BuildDriverResultMapperImpl();
+        var rrMapper = new RepourResultMapperImpl();
+        var rmrMapper = new RepositoryManagerResultMapperImpl(new ArtifactMapperMock());
+        var peMapper = new ProcessExceptionMapper();
+        var resultMapper = new BuildResultMapperImpl(becMapper, envMapper, bdrMapper, rrMapper, rmrMapper, peMapper);
+        return resultMapper;
     }
 
     public static RepositoryManagerResultRest mockRepositoryManagerResultRest(String buildID) {

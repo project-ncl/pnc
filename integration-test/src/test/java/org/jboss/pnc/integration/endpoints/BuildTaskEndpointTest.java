@@ -29,8 +29,10 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.pnc.bpm.model.BuildDriverResultRest;
-import org.jboss.pnc.bpm.model.BuildResultRest;
+import org.jboss.pnc.api.orch.dto.BuildDriverResultRest;
+import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.mapper.BuildDriverResultMapperImpl;
+import org.jboss.pnc.mapper.api.BuildDriverResultMapper;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
@@ -70,6 +72,8 @@ public class BuildTaskEndpointTest {
     @ArquillianResource
     URL url;
 
+    private final BuildDriverResultMapper driverResultMapper = new BuildDriverResultMapperImpl();
+
     private static final Logger log = LoggerFactory.getLogger(BuildTaskEndpointTest.class);
 
     @Deployment
@@ -81,7 +85,7 @@ public class BuildTaskEndpointTest {
     public void shouldAcceptCompletionResultAsSingleJson() throws RemoteResourceException {
         // given
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(BuildStatus.SYSTEM_ERROR);
-        BuildDriverResultRest buildDriverResultRest = new BuildDriverResultRest(buildDriverResult);
+        BuildDriverResultRest buildDriverResultRest = driverResultMapper.toDTO(buildDriverResult);
         BuildResultRest buildResultRest = new BuildResultRest();
         buildResultRest.setBuildDriverResult(buildDriverResultRest);
 

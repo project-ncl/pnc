@@ -15,18 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.repositorymanager;
+package org.jboss.pnc.spi.builddriver;
 
-public interface ArtifactRepository {
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.jboss.pnc.enums.BuildStatus;
 
-    String getId();
+import java.util.Optional;
 
-    String getName();
+@Getter
+@AllArgsConstructor
+@Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = GeneralBuildDriverResult.Builder.class)
+public class GeneralBuildDriverResult implements BuildDriverResult {
+    private final BuildStatus buildStatus;
 
-    String getUrl();
-
-    Boolean getReleases();
-
-    Boolean getSnapshots();
-
+    private final Optional<String> outputChecksum;
 }
