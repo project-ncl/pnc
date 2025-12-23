@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mock.spi;
 
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.repour.RepourResult;
 
 /**

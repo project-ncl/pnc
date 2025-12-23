@@ -27,7 +27,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
@@ -45,10 +45,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.jboss.pnc.spi.coordinator.CompletionStatus.CANCELLED;
-import static org.jboss.pnc.spi.coordinator.CompletionStatus.FAILED;
-import static org.jboss.pnc.spi.coordinator.CompletionStatus.NO_REBUILD_REQUIRED;
-import static org.jboss.pnc.spi.coordinator.CompletionStatus.SYSTEM_ERROR;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.CANCELLED;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.FAILED;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.NO_REBUILD_REQUIRED;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.SYSTEM_ERROR;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
