@@ -74,6 +74,9 @@ public class UnreliableMessageSender extends DefaultMessageSender implements Mes
     public void init() {
         workQueue = new ArrayBlockingQueue<>(workQueueSize);
         RejectedExecutionHandler handler = (r, executor) -> logUnsent(r);
+
+        // FIXME can't use pnc-common's MDCExecutors because the project won't compile with newer versions of
+        // opentelemetry libraries.
         executor = new MDCThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, workQueue, handler);
 
         executor.execute(super::init);
