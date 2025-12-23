@@ -9785,6 +9785,170 @@
         }
       }
     },
+    "/slsa/build-provenance/v1/artifact/digest/{digest}" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate build provenance for an artifact identified by an algorithm-qualified digest (for example: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef).",
+        "operationId" : "getFromArtifactDigest",
+        "parameters" : [ {
+          "name" : "digest",
+          "in" : "path",
+          "description" : "Digest of the artifact",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slsa/build-provenance/v1/artifact/id/{id}" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate the build provenance for an artifact identified by id.",
+        "operationId" : "getFromArtifactId",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the artifact",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slsa/build-provenance/v1/artifact/purl/{purl}" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate the build provenance for an artifact identified by purl.",
+        "operationId" : "getFromArtifactPurl",
+        "parameters" : [ {
+          "name" : "purl",
+          "in" : "path",
+          "description" : "Purl of the artifact",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slsa/build-provenance/v1/build/id/{id}" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate the build provenance for a build identified by id.",
+        "operationId" : "getFromBuildId",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/target-repositories" : {
       "get" : {
         "tags" : [ "Target Repositories" ],
@@ -11028,6 +11192,32 @@
           }
         }
       },
+      "BuildDefinition" : {
+        "type" : "object",
+        "properties" : {
+          "buildType" : {
+            "type" : "string"
+          },
+          "externalParameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "internalParameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "resolvedDependencies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceDescriptor"
+            }
+          }
+        }
+      },
       "BuildEnvironmentPage" : {
         "type" : "object",
         "properties" : {
@@ -11423,6 +11613,26 @@
           },
           "temporaryBuild" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "Builder" : {
+        "type" : "object",
+        "properties" : {
+          "builderDependencies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceDescriptor"
+            }
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -12049,6 +12259,22 @@
         "properties" : {
           "empty" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "Metadata" : {
+        "type" : "object",
+        "properties" : {
+          "finishedOn" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "invocationId" : {
+            "type" : "string"
+          },
+          "startedOn" : {
+            "type" : "string",
+            "format" : "date-time"
           }
         }
       },
@@ -12889,6 +13115,17 @@
           }
         }
       },
+      "Predicate" : {
+        "type" : "object",
+        "properties" : {
+          "buildDefinition" : {
+            "$ref" : "#/components/schemas/BuildDefinition"
+          },
+          "runDetails" : {
+            "$ref" : "#/components/schemas/RunDetails"
+          }
+        }
+      },
       "Product" : {
         "required" : [ "abbreviation", "id", "name" ],
         "type" : "object",
@@ -13512,6 +13749,26 @@
           }
         }
       },
+      "Provenance" : {
+        "type" : "object",
+        "properties" : {
+          "_type" : {
+            "type" : "string"
+          },
+          "predicate" : {
+            "$ref" : "#/components/schemas/Predicate"
+          },
+          "predicateType" : {
+            "type" : "string"
+          },
+          "subject" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceDescriptor"
+            }
+          }
+        }
+      },
       "RepositoryCreationResponse" : {
         "type" : "object",
         "properties" : {
@@ -13544,6 +13801,55 @@
           "uri" : {
             "type" : "string",
             "format" : "uri"
+          }
+        }
+      },
+      "ResourceDescriptor" : {
+        "type" : "object",
+        "properties" : {
+          "annotations" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "content" : {
+            "type" : "string"
+          },
+          "digest" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "downloadLocation" : {
+            "type" : "string"
+          },
+          "mediaType" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "uri" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RunDetails" : {
+        "type" : "object",
+        "properties" : {
+          "builder" : {
+            "$ref" : "#/components/schemas/Builder"
+          },
+          "byproducts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ResourceDescriptor"
+            }
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
           }
         }
       },
