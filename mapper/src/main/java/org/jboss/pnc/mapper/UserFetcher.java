@@ -31,8 +31,16 @@ import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName
 @Transactional
 public class UserFetcher {
 
-    @Inject
     private UserRepository userRepository;
+
+    // CDI
+    public UserFetcher() {
+    }
+
+    @Inject
+    public UserFetcher(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @ByUsername
     public User toUserReference(String username) {
