@@ -22,15 +22,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.bpm.model.BuildResultRest;
-import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -45,21 +44,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Path("/build-tasks")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Client
 public interface BuildTaskEndpoint {
-
-    @Operation(
-            summary = "DEPRECATED: use single json instead of form parameters.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION) })
-    @POST
-    @Path("/{taskId}/completed")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Deprecated
-    Response buildTaskCompleted(
-            @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
-            @Parameter(
-                    description = "Build result",
-                    required = true) @FormParam("buildResult") BuildResultRest buildResult)
-            throws InvalidEntityException;
 
     @Operation(
             summary = "Notifies the completion of externally managed build task process.",
@@ -68,10 +54,9 @@ public interface BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_JSON)
     @Deprecated
-    Response buildTaskCompletedJson(
+    Response buildTaskCompleted(
             @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
-            @Parameter(description = "Build result", required = true) BuildResultRest buildResult)
-            throws InvalidEntityException;
+            @Parameter(description = "Build result", required = true) BuildResultRest buildResult);
 
     @Operation(
             summary = "Persists build or notifies client about a status transition in a active build process.",
@@ -81,6 +66,5 @@ public interface BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     Response buildTaskNotification(
             @Parameter(description = "Build id") @PathParam("buildId") @NotBlank String buildId,
-            @Parameter(description = "Notification body", required = true) @NotNull NotificationRequest notification)
-            throws InvalidEntityException;
+            @Parameter(description = "Notification body", required = true) @NotNull NotificationRequest notification);
 }
