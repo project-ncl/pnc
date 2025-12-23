@@ -12045,6 +12045,7 @@
         }
       },
       "OperationOutcome" : {
+        "required" : [ "result" ],
         "type" : "object",
         "properties" : {
           "proposal" : {

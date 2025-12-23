@@ -8587,6 +8587,8 @@ components:
           type: integer
           format: int32
     OperationOutcome:
+      required:
+      - result
       type: object
       properties:
         proposal:

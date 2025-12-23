@@ -52,6 +52,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
+import org.jboss.pnc.facade.util.ResultStatusMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -151,6 +152,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private KeycloakServiceClient keycloakServiceClient;
 
     @Inject
+    ResultStatusMapper resultStatusMapper;
+
+    @Inject
     private BpmModuleConfig bpmConfig;
     @Inject
     private GlobalModuleGroup globalConfig;
@@ -184,9 +188,13 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
                             .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
         } catch (ReasonedException e) {
-            operationsManager.setResult(operationId, OperationOutcome.systemError(e.getExceptionResolution()));
+            operationsManager.setResult(
+                    operationId,
+                    OperationOutcome.process(
+                            resultStatusMapper.mapResultStatusToOperationResult(e.getResult()),
+                            e.getExceptionResolution()));
             log.error(
-                    "ErrorId={} Analysis with ID {} failed: {}",
+                    "ErrorId={} Analysis of deliverables with ID {} failed: {}",
                     e.getErrorId(),
                     id,
                     e.getMessage() == null ? e.toString() : e.getMessage(),
@@ -208,8 +216,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .build();
             operationsManager.setResult(operationId, OperationOutcome.systemError(exceptionResolution));
             log.error(
-                    "ErrorId={} Analysis of deliverables failed. {}",
+                    "ErrorId={} Analysis of deliverables with ID {} failed. {}",
                     errorId,
+                    id,
                     e.getMessage() == null ? "" : e.getMessage(),
                     e);
             throw e;
