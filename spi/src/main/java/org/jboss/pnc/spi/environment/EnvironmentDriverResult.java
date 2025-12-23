@@ -22,8 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.SshCredentials;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
 
 import java.io.Serializable;
 import java.util.Optional;
