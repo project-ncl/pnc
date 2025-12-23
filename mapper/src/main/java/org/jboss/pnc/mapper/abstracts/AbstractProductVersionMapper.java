@@ -37,7 +37,10 @@ import org.mapstruct.Mapper;
         uses = { RefToReferenceMapper.class, ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class })
 public abstract class AbstractProductVersionMapper implements ProductVersionMapper {
 
-    @Inject
     protected CollectionMerger cm;
 
+    @Inject
+    public void setCm(CollectionMerger cm) {
+        this.cm = cm;
+    }
 }

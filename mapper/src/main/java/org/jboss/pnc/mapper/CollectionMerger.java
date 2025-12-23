@@ -36,8 +36,16 @@ import org.jboss.pnc.model.ProductVersion;
 @ApplicationScoped
 public class CollectionMerger {
 
-    @Inject
     private MapSetMapper mapSetMapper;
+
+    // CDI
+    public CollectionMerger() {
+    }
+
+    @Inject
+    public CollectionMerger(MapSetMapper mapSetMapper) {
+        this.mapSetMapper = mapSetMapper;
+    }
 
     public <C> void merge(Collection<C> oldContent, Collection<C> newContent, Consumer<C> adder, Consumer<C> remover) {
         if (newContent == null) {

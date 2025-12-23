@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
 
@@ -28,6 +29,7 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         implementationPackage = "org.jboss.pnc.mapper",
-        componentModel = "cdi")
+        componentModel = "cdi",
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface MapperCentralConfig {
 }

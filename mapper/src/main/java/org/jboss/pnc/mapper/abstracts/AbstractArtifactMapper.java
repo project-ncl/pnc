@@ -53,8 +53,12 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactMapper.class);
 
-    @Inject
     private Configuration config;
+
+    @Inject
+    public void setConfiguration(Configuration config) {
+        this.config = config;
+    }
 
     @BeforeMapping
     protected void fillDeployAndPublicUrl(
