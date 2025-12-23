@@ -22,6 +22,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.bifrost.enums.Format;
 import org.jboss.pnc.api.constants.MDCKeys;
+import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.auth.ServiceAccountClient;
@@ -358,17 +359,25 @@ public class BuildEndpointImpl implements BuildEndpoint {
     public void completePush(String id, BuildPushCompleted buildPushCompleted) {
         executorService.execute(() -> {
             ResultStatus result;
+            ExceptionResolution exceptionResolution = null;
             try {
                 brewPusher.brewPushComplete(id, buildPushCompleted);
                 result = ResultStatus.SUCCESS;
             } catch (RuntimeException e) {
                 log.error("Storing results of build push with id={} failed: ", buildPushCompleted.getOperationId(), e);
                 result = ResultStatus.SYSTEM_ERROR;
+                exceptionResolution = ExceptionResolution.builder()
+                        .reason(
+                                String.format(
+                                        "Storing results of deliverable operation with id=%s failed",
+                                        buildPushCompleted.getOperationId()))
+                        .proposal("Contact PNC IT Support")
+                        .build();
             }
 
             HttpUtils.performHttpRequest(
                     buildPushCompleted.getCallback(),
-                    new Result(result, null),
+                    new Result(result, exceptionResolution),
                     Optional.of(serviceAccountClient.getAuthHeaderValue()));
         });
     }

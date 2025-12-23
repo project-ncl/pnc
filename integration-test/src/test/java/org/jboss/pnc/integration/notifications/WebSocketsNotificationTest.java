@@ -196,12 +196,16 @@ public class WebSocketsNotificationTest {
     public void shouldReceiveOperationChangedNotification() throws Exception {
         // when
         OPERATION = operationsManager.newDeliverableAnalyzerOperation(PRODUCT_MILESTONE_ID, Collections.emptyMap());
-        String expectedJsonResponse = "{\"notificationType\":\"DELIVERABLES_ANALYSIS\",\"progress\":\"PENDING\",\"oldProgress\":null,\"message\":null,\"operationId\":\""
-                + OPERATION.getId() + "\",\"result\":null,\"operation\":{\"id\":\"" + OPERATION.getId()
-                + "\",\"submitTime\":\"" + getIso8601FormatFromDate(OPERATION.getSubmitTime())
-                + "\",\"startTime\":null,\"endTime\":null,\"progressStatus\":\"NEW\",\"result\":null,\"user\":{\"id\":\"100\",\"username\":\"demo-user\"},\"parameters\":{},\"productMilestone\":{\"id\":\"100\",\"version\":\"1.0.0.Build1\",\"endDate\":"
-                + asJsonValue(MILESTONE_END_DATE) + ",\"startingDate\":" + asJsonValue(MILESTONE_START_DATE)
-                + ",\"plannedEndDate\":" + asJsonValue(MILESTONE_PLANNED_END_DATE) + "}},\"job\":\"OPERATION\"}";
+        String expectedJsonResponse = "{\"notificationType\":\"DELIVERABLES_ANALYSIS\",\"operationId\":\""
+                + OPERATION.getId() + "\",\"progress\":\"PENDING\",\"oldProgress\":null,\"message\":null,"
+                + "\"result\":null,\"operation\":{\"id\":\"" + OPERATION.getId() + "\",\"submitTime\":\""
+                + getIso8601FormatFromDate(OPERATION.getSubmitTime())
+                + "\",\"startTime\":null,\"endTime\":null,\"progressStatus\":\"NEW\",\"result\":null,\"outcome\":"
+                + "{\"result\":null,\"reason\":null,\"proposal\":null},\"user\":{\"id\":\"100\",\"username\":"
+                + "\"demo-user\"},\"parameters\":{},\"productMilestone\":{\"id\":\"100\",\"version\":\"1.0.0.Build1\","
+                + "\"endDate\":" + asJsonValue(MILESTONE_END_DATE) + ",\"startingDate\":"
+                + asJsonValue(MILESTONE_START_DATE) + ",\"plannedEndDate\":" + asJsonValue(MILESTONE_PLANNED_END_DATE)
+                + "}},\"job\":\"OPERATION\"}";
         System.out.println("expected json: " + expectedJsonResponse);
 
         /*

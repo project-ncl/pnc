@@ -19,6 +19,9 @@ package org.jboss.pnc.facade.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.OperationParameters;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
+import org.jboss.pnc.api.dto.exception.ReasonedException;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -30,6 +33,7 @@ import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.util.ResultStatusMapper;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
@@ -60,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.api.constants.MDCKeys.BUILD_ID_KEY;
@@ -91,6 +96,9 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Inject
     private DingroguClient dingroguClient;
+
+    @Inject
+    ResultStatusMapper resultStatusMapper;
 
     @Inject
     private GlobalModuleGroup globalConfig;
@@ -161,9 +169,37 @@ public class BrewPusherImpl implements BrewPusher {
             return buildPushOperationMapper.toDTO(
                     (BuildPushOperation) operationsManager
                             .updateProgress(operation.getId(), ProgressStatus.IN_PROGRESS));
-        } catch (RuntimeException ex) {
-            operationsManager.setResult(operation.getId(), OperationResult.SYSTEM_ERROR);
-            throw ex;
+        } catch (ReasonedException e) {
+            operationsManager.setResult(
+                    operation.getId(),
+                    OperationOutcome.process(
+                            resultStatusMapper.mapResultStatusToOperationResult(e.getResult()),
+                            e.getExceptionResolution()));
+            log.error(
+                    "ErrorId={} Brew push failed: {}",
+                    e.getErrorId(),
+                    e.getMessage() == null ? e.toString() : e.getMessage(),
+                    e.getCause());
+            throw e;
+        } catch (RuntimeException e) {
+            final String errorId = UUID.randomUUID().toString();
+            final String errorReason = String
+                    .format("Brew push failed: %s", e.getMessage() == null ? e.toString() : e.getMessage());
+            final String errorProposal = String.format(
+                    "There is an internal system error, please contact PNC team "
+                            + "at #forum-pnc-users (with the following ID: %s)",
+                    errorId);
+            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
+                    .reason(errorReason)
+                    .proposal(errorProposal)
+                    .build();
+            operationsManager.setResult(operation.getId(), OperationOutcome.systemError(exceptionResolution));
+            log.error(
+                    "ErrorId={} Brew push failed: {}",
+                    errorId,
+                    e.getMessage() == null ? e.toString() : e.getMessage(),
+                    e);
+            throw e;
         }
     }
 

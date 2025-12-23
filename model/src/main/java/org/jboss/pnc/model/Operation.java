@@ -42,8 +42,11 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 
@@ -89,6 +92,19 @@ public class Operation implements GenericEntity<Base32LongID> {
 
     @Enumerated(EnumType.STRING)
     private OperationResult result;
+
+    @Size(max = 1024)
+    private String reason;
+
+    @Type(type = "org.hibernate.type.TextType")
+    private String proposal;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.reason != null && this.reason.length() > 1020) {
+            this.reason = this.reason.substring(0, 950) + "... [Message trimmed]";
+        }
+    }
 
     /**
      * Gets the id.
@@ -236,6 +252,22 @@ public class Operation implements GenericEntity<Base32LongID> {
             setProgressStatus(ProgressStatus.FINISHED);
         }
         this.result = result;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getProposal() {
+        return proposal;
+    }
+
+    public void setProposal(String proposal) {
+        this.proposal = proposal;
     }
 
     @Override

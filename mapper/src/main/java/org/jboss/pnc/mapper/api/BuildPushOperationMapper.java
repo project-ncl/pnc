@@ -39,10 +39,18 @@ public interface BuildPushOperationMapper extends
     @Mapping(target = "build", resultType = BuildRef.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "parameters", source = "operationParameters")
+    @Mapping(target = "result", source = "result")
+    @Mapping(target = "outcome.result", source = "result")
+    @Mapping(target = "outcome.reason", source = "reason")
+    @Mapping(target = "outcome.proposal", source = "proposal")
     org.jboss.pnc.dto.BuildPushOperation toDTO(BuildPushOperation dbEntity);
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
+    @Mapping(target = "result", source = "result")
+    @Mapping(target = "outcome.result", source = "result")
+    @Mapping(target = "outcome.reason", source = "reason")
+    @Mapping(target = "outcome.proposal", source = "proposal")
     @BeanMapping(ignoreUnmappedSourceProperties = { "operationParameters", "user", "build" })
     OperationRef toRef(BuildPushOperation dbEntity);
 
@@ -52,6 +60,7 @@ public interface BuildPushOperationMapper extends
     @Mapping(target = "operationParameters", source = "parameters")
     @Mapping(target = "build", ignore = true)
     @Mapping(target = "report", ignore = true)
+    @Mapping(target = ".", source = "outcome")
     BuildPushOperation toEntity(org.jboss.pnc.dto.BuildPushOperation dtoEntity);
 
     @Override
@@ -61,6 +70,7 @@ public interface BuildPushOperationMapper extends
     @Mapping(target = "startTime", ignore = true)
     @Mapping(target = "build", ignore = true)
     @Mapping(target = "report", ignore = true)
+    @Mapping(target = ".", source = "outcome")
     public abstract void updateEntity(
             org.jboss.pnc.dto.BuildPushOperation dtoEntity,
             @MappingTarget BuildPushOperation target);
@@ -69,5 +79,4 @@ public interface BuildPushOperationMapper extends
     default IdMapper<Base32LongID, String> getIdMapper() {
         return idMapper;
     }
-
 }

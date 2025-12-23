@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.assertj.core.api.Condition;
 
+import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.dto.response.Page;
@@ -141,6 +142,30 @@ public class DeliverableAnalyzerOperationProviderImplTest
         return operation;
     }
 
+    private DeliverableAnalyzerOperation mockDeliverableAnalyzerFinishedOperation() {
+        Map<String, String> operationParameters = new HashMap<String, String>();
+        operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
+        operationParameters.put("url-1", "https://github.com/project-ncl/pnc-common/archive/refs/tags/2.1.0.zip");
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(getNextId())
+                .startTime(new Date())
+                .progressStatus(ProgressStatus.FINISHED)
+                .operationParameters(operationParameters)
+                .build();
+
+        operation.setResult(OperationResult.FAILED);
+        operation.setReason("Failed for Test");
+        operation.setProposal("Be happy about failure.");
+
+        try {
+            Thread.sleep(1L); // make sure there are no two builds with the same start date
+        } catch (InterruptedException e) {
+            logger.error("I can get no sleep.", e);
+        }
+        repositoryList.add(0, operation);
+        return operation;
+    }
+
     @Test
     public void testGetSpecificOperation() {
         DeliverableAnalyzerOperation operation = mockDeliverableAnalyzerOperation();
@@ -171,5 +196,20 @@ public class DeliverableAnalyzerOperationProviderImplTest
                 .haveExactly(
                         1,
                         new Condition<>(op -> operation3.getId().getId().equals(op.getId()), "Operation 3 present"));
+    }
+
+    @Test
+    public void testGetOperationOutcome() {
+        DeliverableAnalyzerOperation operation = mockDeliverableAnalyzerFinishedOperation();
+
+        org.jboss.pnc.dto.DeliverableAnalyzerOperation specific = provider
+                .getSpecific(DeliverableAnalyzerOperationMapper.idMapper.toDto(operation.getId()));
+        assertThat(specific.getId()).isEqualTo(DeliverableAnalyzerOperationMapper.idMapper.toDto(operation.getId()));
+        assertThat(specific.getStartTime()).isEqualTo(operation.getStartTime().toInstant());
+        assertThat(specific.getProgressStatus()).isEqualTo(operation.getProgressStatus());
+
+        assertThat(specific.getOutcome().getResult()).isEqualTo(operation.getResult());
+        assertThat(specific.getOutcome().getReason()).isEqualTo(operation.getReason());
+        assertThat(specific.getOutcome().getProposal()).isEqualTo(operation.getProposal());
     }
 }

@@ -476,6 +476,41 @@ public class DatastoreTest {
         Assert.assertTrue("No operations were found", operations.size() > 0);
     }
 
+    @Test
+    @InSequence(6)
+    @Transactional
+    public void testOperationPrePersist() {
+        User user = User.Builder.newBuilder().username("pnc4").email("pnc4@redhat.com").build();
+        user = userRepository.save(user);
+        Assert.assertNotNull(user.getId());
+
+        Operation operation = new Operation();
+        operation.setId(new Base32LongID(Sequence.nextBase32Id()));
+        operation.setSubmitTime(new Date());
+        operation.setUser(user);
+        operation.setProgressStatus(ProgressStatus.FINISHED);
+        operation.setReason(
+                "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed. Very long reason to be trimmed. "
+                        + "Very long reason to be trimmed. Very long reason to be trimmed.");
+        operation.setProposal("Test");
+        operation = operationRepository.save(operation);
+
+        Assert.assertNotNull(operation);
+        Assert.assertTrue(operation.getReason().contains("... [Message trimmed]"));
+    }
+
     public List<RepositoryConfiguration> searchForRepositoryConfigurations(String scmUrl) {
         Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.searchByScmUrl(scmUrl);
         return repositoryConfigurationRepository.queryWithPredicates(predicate);

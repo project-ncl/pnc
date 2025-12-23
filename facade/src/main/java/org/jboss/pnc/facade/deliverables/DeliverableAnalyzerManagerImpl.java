@@ -29,11 +29,13 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.WindowsArtifact;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.dto.exception.ReasonedException;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.LicenseSource;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.Connector;
@@ -50,6 +52,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
+import org.jboss.pnc.facade.util.ResultStatusMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -71,12 +74,10 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactLicenseInfoRe
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
-import org.slf4j.MDC;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -101,6 +102,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -150,6 +152,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private KeycloakServiceClient keycloakServiceClient;
 
     @Inject
+    ResultStatusMapper resultStatusMapper;
+
+    @Inject
     private BpmModuleConfig bpmConfig;
     @Inject
     private GlobalModuleGroup globalConfig;
@@ -182,9 +187,41 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return deliverableAnalyzerOperationMapper.toDTO(
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
                             .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
-        } catch (RuntimeException ex) {
-            operationsManager.setResult(operationId, OperationResult.SYSTEM_ERROR);
-            throw ex;
+        } catch (ReasonedException e) {
+            operationsManager.setResult(
+                    operationId,
+                    OperationOutcome.process(
+                            resultStatusMapper.mapResultStatusToOperationResult(e.getResult()),
+                            e.getExceptionResolution()));
+            log.error(
+                    "ErrorId={} Analysis of deliverables with ID {} failed: {}",
+                    e.getErrorId(),
+                    id,
+                    e.getMessage() == null ? e.toString() : e.getMessage(),
+                    e.getCause());
+            throw e;
+        } catch (RuntimeException e) {
+            final String errorId = UUID.randomUUID().toString();
+            final String errorReason = String.format(
+                    "Analysis with ID %s failed: %s",
+                    id,
+                    e.getMessage() == null ? e.toString() : e.getMessage());
+            final String errorProposal = String.format(
+                    "There is an internal system error, please contact PNC team "
+                            + "at #forum-pnc-users (with the following ID: %s)",
+                    errorId);
+            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
+                    .reason(errorReason)
+                    .proposal(errorProposal)
+                    .build();
+            operationsManager.setResult(operationId, OperationOutcome.systemError(exceptionResolution));
+            log.error(
+                    "ErrorId={} Analysis of deliverables with ID {} failed. {}",
+                    errorId,
+                    id,
+                    e.getMessage() == null ? "" : e.getMessage(),
+                    e);
+            throw e;
         } finally {
             MDCUtils.removeProcessContext();
         }

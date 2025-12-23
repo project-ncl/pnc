@@ -20,6 +20,8 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.client.ClientException;
@@ -104,7 +106,7 @@ public class OperationEndpointTest {
         DeliverableAnalyzerOperation originalOperation = client.getSpecificDeliverableAnalyzer(id);
         assertThat(originalOperation).isNotNull();
         assertThat(originalOperation.getProgressStatus()).isNotEqualTo(ProgressStatus.FINISHED);
-        assertThat(originalOperation.getResult()).isNotEqualTo(OperationResult.SUCCESSFUL);
+        assertThat(originalOperation.getOutcome().getResult()).isNotEqualTo(OperationResult.SUCCESSFUL);
         assertThat(originalOperation.getParameters()).hasSize(1);
 
         // Create a new object for the same operation with same id but different values
@@ -114,7 +116,7 @@ public class OperationEndpointTest {
                 .id(id)
                 .startTime(Instant.now())
                 .progressStatus(ProgressStatus.FINISHED)
-                .result(OperationResult.SUCCESSFUL)
+                .outcome(OperationOutcome.success())
                 .parameters(operationParameters)
                 .endTime(Instant.now())
                 .build();
@@ -129,7 +131,7 @@ public class OperationEndpointTest {
         assertThat(finishedOperationReturned.getId()).isEqualTo(id);
         assertThat(finishedOperationReturned.getStartTime()).isEqualTo(originalOperation.getStartTime());
         assertThat(finishedOperationReturned.getProgressStatus()).isEqualTo(ProgressStatus.FINISHED);
-        assertThat(finishedOperationReturned.getResult()).isEqualTo(OperationResult.SUCCESSFUL);
+        assertThat(finishedOperationReturned.getOutcome().getResult()).isEqualTo(OperationResult.SUCCESSFUL);
         assertThat(finishedOperationReturned.getEndTime())
                 .isEqualTo(finishedOperation.getEndTime().truncatedTo(ChronoUnit.MILLIS)); // Date conversion looses
         // microseconds
@@ -144,12 +146,14 @@ public class OperationEndpointTest {
         DeliverableAnalyzerOperation originalOperation = client.getSpecificDeliverableAnalyzer(id);
         assertThat(originalOperation).isNotNull();
         assertThat(originalOperation.getProgressStatus()).isNotEqualTo(ProgressStatus.FINISHED);
-        assertThat(originalOperation.getResult()).isNull();
+        assertThat(originalOperation.getOutcome().getResult()).isNull();
         assertThat(originalOperation.getEndTime()).isNull();
 
         // when
         Instant beforeFinish = Instant.now();
-        client.finish(id, OperationResult.FAILED);
+        client.finish(
+                id,
+                OperationOutcome.fail(ExceptionResolution.builder().reason("test fail").proposal("test fail").build()));
 
         DeliverableAnalyzerOperation finishedOperationReturned = client.getSpecificDeliverableAnalyzer(id);
 
@@ -159,7 +163,9 @@ public class OperationEndpointTest {
         assertThat(finishedOperationReturned.getId()).isEqualTo(id);
         assertThat(finishedOperationReturned.getStartTime()).isEqualTo(originalOperation.getStartTime());
         assertThat(finishedOperationReturned.getProgressStatus()).isEqualTo(ProgressStatus.FINISHED);
-        assertThat(finishedOperationReturned.getResult()).isEqualTo(OperationResult.FAILED);
+        assertThat(finishedOperationReturned.getOutcome().getResult()).isEqualTo(OperationResult.FAILED);
+        assertThat(finishedOperationReturned.getOutcome().getReason()).isEqualTo("test fail");
+        assertThat(finishedOperationReturned.getOutcome().getProposal()).isEqualTo("test fail");
         assertThat(finishedOperationReturned.getEndTime()).isAfter(beforeFinish);
     }
 

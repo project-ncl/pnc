@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.dto.OperationRef;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
@@ -37,10 +38,16 @@ public interface OperationMapper
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "parameters", source = "operationParameters")
+    @Mapping(target = "outcome.result", source = "result")
+    @Mapping(target = "outcome.reason", source = "reason")
+    @Mapping(target = "outcome.proposal", source = "proposal")
     org.jboss.pnc.dto.Operation toDTO(Operation dbEntity);
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
+    @Mapping(target = "outcome.result", source = "result")
+    @Mapping(target = "outcome.reason", source = "reason")
+    @Mapping(target = "outcome.proposal", source = "proposal")
     @BeanMapping(ignoreUnmappedSourceProperties = { "operationParameters", "user" })
     OperationRef toRef(Operation dbEntity);
 
@@ -48,16 +55,17 @@ public interface OperationMapper
     @Mapping(target = "id", expression = "java( getIdMapper().toEntity(dtoEntity.getId()) )")
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     @Mapping(target = "operationParameters", source = "parameters")
+    @Mapping(target = ".", source = "outcome")
     Operation toEntity(org.jboss.pnc.dto.Operation dtoEntity);
 
     @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "operationParameters", source = "parameters")
+    @Mapping(target = ".", source = "outcome")
     public abstract void updateEntity(org.jboss.pnc.dto.Operation dtoEntity, @MappingTarget Operation target);
 
     @Override
     default IdMapper<Base32LongID, String> getIdMapper() {
         return idMapper;
     }
-
 }

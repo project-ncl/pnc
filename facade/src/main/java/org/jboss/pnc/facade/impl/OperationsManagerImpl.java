@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
@@ -106,8 +107,8 @@ public class OperationsManagerImpl implements OperationsManager {
     }
 
     @Override
-    public Operation setResult(Base32LongID id, OperationResult result) {
-        Tuple tuple = self._setResult(id, result);
+    public Operation setResult(Base32LongID id, OperationOutcome operationOutcome) {
+        Tuple tuple = self._setResult(id, operationOutcome);
         operationStatusChangedEventNotifier
                 .fireAsync(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
         return tuple.operation;
@@ -115,14 +116,16 @@ public class OperationsManagerImpl implements OperationsManager {
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
-    public Tuple _setResult(Base32LongID id, OperationResult result) {
+    public Tuple _setResult(Base32LongID id, OperationOutcome operationOutcome) {
         Operation operation = repository.queryById(id);
         if (operation.getEndTime() != null) {
             throw new InvalidEntityException("Operation " + operation + " is already finished!");
         }
-        log.debug("Updating result of operation " + operation + " to " + result);
+        log.debug("Updating result of operation " + operation + " to " + operationOutcome.getResult());
         ProgressStatus previousProgress = operation.getProgressStatus();
-        operation.setResult(result);
+        operation.setResult(operationOutcome.getResult());
+        operation.setReason(operationOutcome.getReason());
+        operation.setProposal(operationOutcome.getProposal());
         operation.setEndTime(Date.from(Instant.now()));
         return new Tuple(operation, previousProgress);
     }
