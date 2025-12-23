@@ -46,20 +46,33 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class BuildBCRevisionFetcher {
 
-    @Inject
     private BuildConfigurationRevisionMapper bcRevisionMapper;
 
-    @Inject
     private ProjectMapper projectMapper;
 
-    @Inject
     private EnvironmentMapper environmentMapper;
 
-    @Inject
     private SCMRepositoryMapper scmRepositoryMapper;
 
-    @Inject
     private BuildConfigurationAuditedRepository bcAuditedRepository;
+
+    // CDI
+    public BuildBCRevisionFetcher() {
+    }
+
+    @Inject
+    public BuildBCRevisionFetcher(
+            BuildConfigurationRevisionMapper bcRevisionMapper,
+            ProjectMapper projectMapper,
+            EnvironmentMapper environmentMapper,
+            SCMRepositoryMapper scmRepositoryMapper,
+            BuildConfigurationAuditedRepository bcAuditedRepository) {
+        this.bcRevisionMapper = bcRevisionMapper;
+        this.projectMapper = projectMapper;
+        this.environmentMapper = environmentMapper;
+        this.scmRepositoryMapper = scmRepositoryMapper;
+        this.bcAuditedRepository = bcAuditedRepository;
+    }
 
     @BeforeMapping
     @BuildHelpers

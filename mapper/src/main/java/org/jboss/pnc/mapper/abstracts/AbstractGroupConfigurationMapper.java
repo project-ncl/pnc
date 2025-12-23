@@ -36,7 +36,10 @@ import org.mapstruct.Mapper;
         uses = { RefToReferenceMapper.class, ProductVersionMapper.class, MapSetMapper.class })
 public abstract class AbstractGroupConfigurationMapper implements GroupConfigurationMapper {
 
-    @Inject
     protected CollectionMerger cm;
 
+    @Inject
+    public void setCm(CollectionMerger cm) {
+        this.cm = cm;
+    }
 }

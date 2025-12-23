@@ -44,16 +44,33 @@ import java.io.Serializable;
 @Transactional
 public class IDToReferenceMapper {
 
-    @Inject
     private EntityManager em;
-    @Inject
+
     private BuildMapper buildMapper;
-    @Inject
+
     private ProductMilestoneMapper productMilestoneMapper;
-    @Inject
+
     private GroupBuildMapper groupBuildMapper;
-    @Inject
+
     private Datastore datastore;
+
+    // CDI
+    public IDToReferenceMapper() {
+    }
+
+    @Inject
+    public IDToReferenceMapper(
+            EntityManager em,
+            BuildMapper buildMapper,
+            ProductMilestoneMapper productMilestoneMapper,
+            GroupBuildMapper groupBuildMapper,
+            Datastore datastore) {
+        this.em = em;
+        this.buildMapper = buildMapper;
+        this.productMilestoneMapper = productMilestoneMapper;
+        this.groupBuildMapper = groupBuildMapper;
+        this.datastore = datastore;
+    }
 
     public <ID extends Serializable, DB extends GenericEntity<ID>, DTOID> DB map(
             DTOID id,
