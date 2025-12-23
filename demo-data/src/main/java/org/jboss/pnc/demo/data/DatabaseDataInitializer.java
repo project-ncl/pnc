@@ -693,6 +693,8 @@ public class DatabaseDataInitializer {
                 .size(10L)
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.STANDARD)
+                .purl("pkg:maven/demo/built-artifact1@1.0?type=jar")
+                .originUrl("http://indy/built-artifact1.jar")
                 .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact2:jar:1.0")
@@ -705,6 +707,8 @@ public class DatabaseDataInitializer {
                 .size(11L)
                 .artifactQuality(ArtifactQuality.VERIFIED)
                 .buildCategory(BuildCategory.STANDARD)
+                .purl("pkg:maven/demo/built-artifact2@1.0?type=jar")
+                .originUrl("http://indy/built-artifact2.jar")
                 .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact11:pom:1.0")
@@ -717,6 +721,8 @@ public class DatabaseDataInitializer {
                 .size(10L)
                 .artifactQuality(ArtifactQuality.DELETED)
                 .buildCategory(BuildCategory.SERVICE)
+                .purl("pkg:maven/demo/built-artifact11@1.0?type=pom")
+                .originUrl("http://indy/built-artifact11.pom")
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact22:jar:1.0")
@@ -729,6 +735,8 @@ public class DatabaseDataInitializer {
                 .size(11L)
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.SERVICE)
+                .purl("pkg:maven/demo/built-artifact22@1.0?type=jar")
+                .originUrl("http://indy/built-artifact22.jar")
                 .build();
         // builtArtifact9 defined in this place in order to be part of savedBuildRecord1
         Artifact builtArtifact9 = Artifact.Builder.newBuilder()
@@ -741,6 +749,8 @@ public class DatabaseDataInitializer {
                 .size(10L)
                 .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built7")
+                .purl("pkg:maven/demo/built-artifact7@1.0?type=jar")
+                .originUrl("http://indy/built-artifact7.jar")
                 .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
@@ -761,6 +771,7 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.STANDARD)
                 .deployPath("/imported1")
+                .purl("pkg:maven/demo/imported-artifact1@1.0?type=jar")
                 .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact2:jar:1.0")
@@ -775,6 +786,7 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.IMPORTED)
                 .buildCategory(BuildCategory.STANDARD)
                 .deployPath("/imported2")
+                .purl("pkg:maven/demo/imported-artifact2@1.0?type=jar")
                 .build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
@@ -809,6 +821,7 @@ public class DatabaseDataInitializer {
                 .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
                 .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildConfigAudited1.getScmRevision())
+                .scmTag(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl() + ".pnc-tag")
                 .executionRootName("org.jboss.pnc:parent")
                 .executionRootVersion("1.2.3")
                 .temporaryBuild(false)
@@ -866,6 +879,7 @@ public class DatabaseDataInitializer {
                 .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
                 .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildConfigAudited1.getScmRevision())
+                .scmTag(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl() + ".pnc-tag")
                 .executionRootName("org.jboss.pnc:parent")
                 .executionRootVersion("1.2.3")
                 .temporaryBuild(true)
