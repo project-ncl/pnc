@@ -280,12 +280,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${version.com.fasterxml.jackson.module}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${version.commons-io}</version>
@@ -1025,12 +1019,6 @@
         <version>${version.org.jboss.spec.javax.el}</version>
         <scope>provided</scope>
       </dependency>
-      <!--dependency>
-        <groupId>org.jboss.spec.javax.xml.bind</groupId>
-        <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
-        <version>${version.org.jboss.spec.javax.xml.bind}</version>
-        <scope>provided</scope>
-      </dependency-->
       <dependency>
         <groupId>org.jboss.spec.javax.xml.ws</groupId>
         <artifactId>jboss-jaxws-api_2.3_spec</artifactId>
@@ -1092,13 +1080,6 @@
         <artifactId>javapoet</artifactId>
         <version>1.13.0</version>
         <scope>compile</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>jakarta.xml.bind</groupId>
-        <artifactId>jakarta.xml.bind-api</artifactId>
-        <version>2.3.3</version>
-        <scope>provided</scope>
       </dependency>
 
       <!-- Second level cache required for tests -->
