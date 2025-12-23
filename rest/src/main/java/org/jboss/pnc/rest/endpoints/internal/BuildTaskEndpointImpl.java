@@ -19,9 +19,10 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.api.dto.ErrorResponse;
-import org.jboss.pnc.bpm.model.BuildResultRest;
-import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
+import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.common.Date.ExpiresDate;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
@@ -46,7 +47,7 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildMeta;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -156,7 +157,9 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                             .build();
                 }
                 if (logger.isTraceEnabled()) {
-                    logger.trace("Received build result wit full log: {}.", buildResult.toFullLogString());
+                    logger.trace(
+                            "Received build result with full log: {}.",
+                            JsonOutputConverterMapper.apply(buildResult));
                 }
                 logger.debug("Completing buildTask [{}] ...", buildId);
 
@@ -170,13 +173,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("No active build with id: " + buildId).build();
         }
-    }
-
-    @Override
-    @Deprecated // TODO remove once fully migrated to Rex
-    public Response buildTaskCompletedJson(String buildId, BuildResultRest buildResult)
-            throws org.jboss.pnc.facade.validation.InvalidEntityException {
-        return buildTaskCompleted(buildId, buildResult);
     }
 
     @Override
