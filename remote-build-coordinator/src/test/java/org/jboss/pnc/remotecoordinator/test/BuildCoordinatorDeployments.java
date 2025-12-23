@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.remotecoordinator.test;
 
-import org.jboss.pnc.bpm.Connector;
-import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.api.enums.orch.BpmEventType;
+import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
@@ -155,7 +155,7 @@ public class BuildCoordinatorDeployments {
 
     private static JavaArchive bpmArchive() {
         return ShrinkWrap.create(JavaArchive.class)
-                .addPackages(false, Connector.class.getPackage(), BpmBuildTask.class.getPackage());
+                .addPackages(false, BpmEventType.class.getPackage(), BuildResultRest.class.getPackage());
     }
 
 }
