@@ -906,23 +906,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
           </exclusion>
-          <!-- EXCLUDE o11yphant; it breaks EAP deployment because of broken CDI -->
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-trace-otel</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-trace-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-trace-helper-jhttpc</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-metrics-common</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
