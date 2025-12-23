@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoints.internal.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.GET;
@@ -34,13 +35,14 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 @Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/health")
 @Produces(MediaType.APPLICATION_JSON)
+@Client
 public interface HealthCheckEndpoint {
 
     @Operation(
             summary = "Performs health checks on the system to see if all the components are go",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success"),
+            responses = { @ApiResponse(responseCode = SwaggerConstants.SUCCESS_CODE, description = "Success"),
                     @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
+                            responseCode = SwaggerConstants.SERVER_ERROR_CODE,
                             description = "At least one of the health checks has failed") })
     @GET
     Response check();

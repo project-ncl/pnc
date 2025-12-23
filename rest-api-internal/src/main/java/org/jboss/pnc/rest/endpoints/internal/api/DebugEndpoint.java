@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.response.LongResponse;
+import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
