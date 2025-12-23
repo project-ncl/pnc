@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -48,11 +49,14 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 @Path("/deliverable-analyses")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Client
 public interface DeliverableAnalysisEndpoint {
 
     @Operation(
             summary = "Notify PNC about finished Deliverable anaylysis.",
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION) })
+            responses = { @ApiResponse(
+                    responseCode = SwaggerConstants.ACCEPTED_CODE,
+                    description = SwaggerConstants.ACCEPTED_DESCRIPTION) })
     @POST
     @Path("/complete")
     @Consumes(MediaType.APPLICATION_JSON)

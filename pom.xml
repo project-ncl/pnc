@@ -90,6 +90,8 @@
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
+    <module>rest-api-internal</module>
+    <module>rest-client-internal</module>
   </modules>
 
   <properties>
@@ -236,7 +238,7 @@
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-xp-microprofile</artifactId>
-        <version>4.0.2.GA-7.4.16.GA</version>
+        <version>4.0.2.GA-7.4.21.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -444,6 +446,25 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>remote-build-coordinator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api-internal</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api-internal</artifactId>
+        <version>${project.version}</version>
+        <classifier>java-client</classifier>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-client-internal</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -1281,6 +1302,12 @@
           <groupId>org.wildfly.plugins</groupId>
           <artifactId>wildfly-maven-plugin</artifactId>
           <version>1.2.0.Final</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.21.0</version>
         </plugin>
 
         <plugin>
