@@ -17,16 +17,24 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-public interface ArtifactRepository {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.model.Artifact;
 
-    String getId();
+import java.util.List;
 
-    String getName();
+@Getter
+@AllArgsConstructor
+@Builder(builderClassName = "Builder")
+public class GeneralRepositoryManagerResult implements RepositoryManagerResult {
+    private final List<Artifact> builtArtifacts;
 
-    String getUrl();
+    private final List<Artifact> dependencies;
 
-    Boolean getReleases();
+    private final String buildContentId;
 
-    Boolean getSnapshots();
+    private final CompletionStatus completionStatus;
 
 }
