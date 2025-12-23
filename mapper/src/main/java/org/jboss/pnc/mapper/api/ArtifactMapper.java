@@ -24,6 +24,7 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 /**
  *
@@ -76,6 +77,7 @@ public interface ArtifactMapper
      */
     @InheritConfiguration(name = "toEntity")
     @Mapping(target = "targetRepository")
+    @TransientTargetRepo
     Artifact toEntityWithTransientTargetRepository(org.jboss.pnc.dto.Artifact dtoEntity);
 
     @Override
