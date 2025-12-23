@@ -81,41 +81,81 @@ import org.jboss.pnc.model.User;
 @Transactional
 public class RefToReferenceMapper {
 
-    @Inject
     private EntityManager em;
 
-    @Inject
     private ArtifactMapper artifactMapper;
-    @Inject
+
     private BuildConfigurationMapper buildConfigurationMapper;
-    @Inject
+
     private BuildMapper buildMapper;
-    @Inject
+
     private EnvironmentMapper environmentMapper;
-    @Inject
+
     private UserMapper userMapper;
-    @Inject
+
     private SCMRepositoryMapper scmRepositoryMapper;
-    @Inject
+
     private ProjectMapper projectMapper;
-    @Inject
+
     private ProductVersionMapper productVersionMapper;
-    @Inject
+
     private ProductReleaseMapper productReleaseMapper;
-    @Inject
+
     private GroupBuildMapper groupBuildMapper;
-    @Inject
+
     private GroupConfigurationMapper groupConfigurationMapper;
-    @Inject
+
     private ProductMapper productMapper;
-    @Inject
+
     private ProductMilestoneMapper productMilestoneMapper;
-    @Inject
+
     private TargetRepositoryMapper targetRepositoryMapper;
-    @Inject
+
     private OperationMapper operationMapper;
-    @Inject
+
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
+
+    // CDI
+    public RefToReferenceMapper() {
+    }
+
+    @Inject
+    public RefToReferenceMapper(
+            EntityManager em,
+            ArtifactMapper artifactMapper,
+            BuildConfigurationMapper buildConfigurationMapper,
+            BuildMapper buildMapper,
+            EnvironmentMapper environmentMapper,
+            UserMapper userMapper,
+            SCMRepositoryMapper scmRepositoryMapper,
+            ProjectMapper projectMapper,
+            ProductVersionMapper productVersionMapper,
+            ProductReleaseMapper productReleaseMapper,
+            GroupBuildMapper groupBuildMapper,
+            GroupConfigurationMapper groupConfigurationMapper,
+            ProductMapper productMapper,
+            ProductMilestoneMapper productMilestoneMapper,
+            TargetRepositoryMapper targetRepositoryMapper,
+            OperationMapper operationMapper,
+            DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper) {
+        this.em = em;
+        this.artifactMapper = artifactMapper;
+        this.buildConfigurationMapper = buildConfigurationMapper;
+        this.buildMapper = buildMapper;
+        this.environmentMapper = environmentMapper;
+        this.userMapper = userMapper;
+        this.scmRepositoryMapper = scmRepositoryMapper;
+        this.projectMapper = projectMapper;
+        this.productVersionMapper = productVersionMapper;
+        this.productReleaseMapper = productReleaseMapper;
+        this.groupBuildMapper = groupBuildMapper;
+        this.groupConfigurationMapper = groupConfigurationMapper;
+        this.productMapper = productMapper;
+        this.productMilestoneMapper = productMilestoneMapper;
+        this.targetRepositoryMapper = targetRepositoryMapper;
+        this.operationMapper = operationMapper;
+        this.deliverableAnalyzerOperationMapper = deliverableAnalyzerOperationMapper;
+    }
 
     public <ID extends Serializable, DB extends GenericEntity<ID>, REF extends DTOEntity> DB map(
             REF dtoEntity,

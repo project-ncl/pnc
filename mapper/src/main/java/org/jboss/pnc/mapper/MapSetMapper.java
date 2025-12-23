@@ -52,23 +52,37 @@ import org.jboss.pnc.model.ProductVersion;
 @ApplicationScoped
 public class MapSetMapper {
 
-    @Inject
     private BuildConfigurationMapper buildConfigurationMapper;
 
-    @Inject
     private GroupConfigurationMapper groupConfigurationMapper;
 
-    @Inject
     private ProductMilestoneMapper productMilestoneMapper;
 
-    @Inject
     private ProductReleaseMapper productReleaseMapper;
 
-    @Inject
     private ProductVersionMapper productVersionMapper;
 
-    @Inject
     private RefToReferenceMapper referenceMapper;
+
+    // CDI
+    public MapSetMapper() {
+    }
+
+    @Inject
+    public MapSetMapper(
+            BuildConfigurationMapper buildConfigurationMapper,
+            GroupConfigurationMapper groupConfigurationMapper,
+            ProductMilestoneMapper productMilestoneMapper,
+            ProductReleaseMapper productReleaseMapper,
+            ProductVersionMapper productVersionMapper,
+            RefToReferenceMapper referenceMapper) {
+        this.buildConfigurationMapper = buildConfigurationMapper;
+        this.groupConfigurationMapper = groupConfigurationMapper;
+        this.productMilestoneMapper = productMilestoneMapper;
+        this.productReleaseMapper = productReleaseMapper;
+        this.productVersionMapper = productVersionMapper;
+        this.referenceMapper = referenceMapper;
+    }
 
     public Set<BuildConfigurationSet> mapGC(Map<String, GroupConfigurationRef> value) {
         return map(value, groupConfigurationMapper, BuildConfigurationSet.class);

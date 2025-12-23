@@ -22,6 +22,7 @@ import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.GeneralBuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     }
 
     public static BuildExecutionConfiguration mock() {
-        return BuildExecutionConfiguration.build(
+        return new GeneralBuildExecutionConfiguration(
                 "1",
                 "condent-id",
                 "1",

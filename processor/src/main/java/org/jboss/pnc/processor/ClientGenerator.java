@@ -23,6 +23,7 @@ import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.processor.annotation.Client;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -74,19 +75,22 @@ public class ClientGenerator extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         logger.info("Running annotation processor ...");
         try {
-            return process0(annotations, roundEnv);
+            return process0(annotations, roundEnv, processingEnv);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to process annotated sources.", e);
         }
         return false;
     }
 
-    private boolean process0(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) throws IOException {
+    private boolean process0(
+            Set<? extends TypeElement> annotations,
+            RoundEnvironment roundEnv,
+            ProcessingEnvironment processingEnv) throws IOException {
         Set<? extends Element> restApiInterfaces = roundEnv.getElementsAnnotatedWith(Client.class);
 
         for (Element endpointApi : restApiInterfaces) {
-
             String restInterfaceName = endpointApi.getSimpleName().toString();
+            String restInterfacePackage = processingEnv.getElementUtils().getPackageOf(endpointApi).toString();
             logger.info("Generating client for " + restInterfaceName);
 
             List<MethodSpec> methods = new ArrayList<>();
@@ -284,7 +288,7 @@ public class ClientGenerator extends AbstractProcessor {
                 }
             }
 
-            ClassName restInterfaceClassName = ClassName.get("org.jboss.pnc.rest.api.endpoints", restInterfaceName);
+            ClassName restInterfaceClassName = ClassName.get(restInterfacePackage, restInterfaceName);
 
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
@@ -304,7 +308,7 @@ public class ClientGenerator extends AbstractProcessor {
                                     .get(ClassName.get("org.jboss.pnc.client", "ClientBase"), restInterfaceClassName))
                     .build();
 
-            JavaFile.builder("org.jboss.pnc.client", javaClientClass).build().writeTo(processingEnv.getFiler());
+            JavaFile.builder("org.jboss.pnc.client", javaClientClass).build().writeTo(this.processingEnv.getFiler());
 
         }
         return true;

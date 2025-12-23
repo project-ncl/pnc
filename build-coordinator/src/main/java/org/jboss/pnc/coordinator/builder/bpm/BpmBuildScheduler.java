@@ -18,19 +18,12 @@
 
 package org.jboss.pnc.coordinator.builder.bpm;
 
-import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.bpm.Connector;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Collections;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -38,42 +31,13 @@ import java.util.Collections;
 @ApplicationScoped
 public class BpmBuildScheduler implements BuildScheduler {
 
-    private BpmModuleConfig bpmConfig;
-
-    private GlobalModuleGroup globalConfig;
-
-    private Connector connector;
-
-    private KeycloakServiceClient keycloakServiceClient;
-
     @Deprecated
     public BpmBuildScheduler() { // CDI workaround
     }
 
-    @Inject
-    public BpmBuildScheduler(
-            BpmModuleConfig bpmConfig,
-            GlobalModuleGroup globalConfig,
-            Connector connector,
-            KeycloakServiceClient keycloakServiceClient) {
-        this.bpmConfig = bpmConfig;
-        this.globalConfig = globalConfig;
-        this.connector = connector;
-        this.keycloakServiceClient = keycloakServiceClient;
-    }
-
     @Override
     public void startBuilding(BuildTask buildTask) throws CoreException {
-        try {
-            BpmBuildTask task = new BpmBuildTask(buildTask, globalConfig);
-            connector.startProcess(
-                    bpmConfig.getBpmNewBuildProcessName(),
-                    Collections.singletonMap("processParameters", task.getProcessParameters()),
-                    buildTask.getId(),
-                    keycloakServiceClient.getAuthToken());
-        } catch (Exception e) {
-            throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
-        }
+        throw new UnsupportedOperationException("Will be removed.");
     }
 
     @Override
@@ -83,6 +47,6 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public boolean cancel(BuildTask buildTask) {
-        return connector.cancelByCorrelation(buildTask.getId(), keycloakServiceClient.getAuthToken());
+        throw new UnsupportedOperationException("Will be removed.");
     }
 }

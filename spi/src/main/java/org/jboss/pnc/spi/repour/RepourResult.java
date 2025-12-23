@@ -22,9 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /**
@@ -33,7 +32,6 @@ import java.io.Serializable;
 @JsonDeserialize(builder = RepourResult.RepourResultBuilder.class)
 @Builder
 @AllArgsConstructor
-@XmlRootElement
 public class RepourResult implements Serializable {
 
     @Getter

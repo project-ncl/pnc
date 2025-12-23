@@ -87,10 +87,11 @@
     <module>integration-test</module>
     <module>integration-test-rex</module>
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
-    <module>bpm</module>
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
+    <module>rest-api-internal</module>
+    <module>rest-client-internal</module>
   </modules>
 
   <properties>
@@ -237,7 +238,7 @@
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-xp-microprofile</artifactId>
-        <version>4.0.2.GA-7.4.16.GA</version>
+        <version>4.0.2.GA-7.4.21.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -277,12 +278,6 @@
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
         <artifactId>jackson-jaxrs-base</artifactId>
         <version>${version.com.fasterxml.jackson.jaxrs}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${version.com.fasterxml.jackson.module}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -456,6 +451,25 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api-internal</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api-internal</artifactId>
+        <version>${project.version}</version>
+        <classifier>java-client</classifier>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-client-internal</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-mock</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
@@ -557,12 +571,6 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>notifications</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>bpm</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -912,23 +920,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
           </exclusion>
-          <!-- EXCLUDE o11yphant; it breaks EAP deployment because of broken CDI -->
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-trace-otel</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-trace-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-trace-helper-jhttpc</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-metrics-common</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -1025,12 +1016,6 @@
         <version>${version.org.jboss.spec.javax.el}</version>
         <scope>provided</scope>
       </dependency>
-      <!--dependency>
-        <groupId>org.jboss.spec.javax.xml.bind</groupId>
-        <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
-        <version>${version.org.jboss.spec.javax.xml.bind}</version>
-        <scope>provided</scope>
-      </dependency-->
       <dependency>
         <groupId>org.jboss.spec.javax.xml.ws</groupId>
         <artifactId>jboss-jaxws-api_2.3_spec</artifactId>
@@ -1092,13 +1077,6 @@
         <artifactId>javapoet</artifactId>
         <version>1.13.0</version>
         <scope>compile</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>jakarta.xml.bind</groupId>
-        <artifactId>jakarta.xml.bind-api</artifactId>
-        <version>2.3.3</version>
-        <scope>provided</scope>
       </dependency>
 
       <!-- Second level cache required for tests -->
@@ -1324,6 +1302,12 @@
           <groupId>org.wildfly.plugins</groupId>
           <artifactId>wildfly-maven-plugin</artifactId>
           <version>1.2.0.Final</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.21.0</version>
         </plugin>
 
         <plugin>

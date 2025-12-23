@@ -19,7 +19,6 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.test.mock.BifrostLogUploaderMock;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
@@ -39,14 +38,13 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Date;
 import java.util.List;
