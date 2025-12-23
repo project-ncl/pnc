@@ -33,6 +33,7 @@ import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.util.ResultStatusMapper;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
@@ -95,6 +96,9 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Inject
     private DingroguClient dingroguClient;
+
+    @Inject
+    ResultStatusMapper resultStatusMapper;
 
     @Inject
     private GlobalModuleGroup globalConfig;
@@ -166,7 +170,11 @@ public class BrewPusherImpl implements BrewPusher {
                     (BuildPushOperation) operationsManager
                             .updateProgress(operation.getId(), ProgressStatus.IN_PROGRESS));
         } catch (ReasonedException e) {
-            operationsManager.setResult(operation.getId(), OperationOutcome.systemError(e.getExceptionResolution()));
+            operationsManager.setResult(
+                    operation.getId(),
+                    OperationOutcome.process(
+                            resultStatusMapper.mapResultStatusToOperationResult(e.getResult()),
+                            e.getExceptionResolution()));
             log.error(
                     "ErrorId={} Brew push failed: {}",
                     e.getErrorId(),
