@@ -25,7 +25,6 @@ import lombok.Getter;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Optional;
 
@@ -35,7 +34,6 @@ import java.util.Optional;
 @JsonDeserialize(builder = EnvironmentDriverResult.EnvironmentDriverResultBuilder.class)
 @Builder
 @AllArgsConstructor
-@XmlRootElement
 public class EnvironmentDriverResult implements Serializable {
 
     @Getter

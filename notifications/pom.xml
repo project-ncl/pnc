@@ -88,12 +88,6 @@
             <artifactId>jboss-annotations-api_1.3_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- javax.xml.bind not in Java 11: this needs to be added -->
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>io.apicurio</groupId>
