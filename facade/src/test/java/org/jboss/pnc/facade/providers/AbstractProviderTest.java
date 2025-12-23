@@ -44,8 +44,6 @@ import org.jboss.pnc.mapper.ResultMapperImpl;
 import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
 import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
-import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
-import org.jboss.pnc.mapper.abstracts.AbstractProductVersionMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
@@ -78,7 +76,6 @@ import org.mockito.stubbing.Answer;
 
 import javax.persistence.EntityManager;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -87,6 +84,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -107,73 +105,74 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
     @Mock
     protected BuildBCRevisionFetcher buildBCRevisionFetcher;
 
-    @Spy
-    protected ArtifactMapper artifactMapper = new AbstractArtifactMapperImpl();
-
-    @Spy
-    protected ArtifactRevisionMapper artifactRevisionMapper = new ArtifactRevisionMapperImpl();
-
-    @Spy
-    protected BuildConfigurationRevisionMapper buildConfigurationRevisionMapper = new BuildConfigurationRevisionMapperImpl();
-
-    @Spy
-    protected BuildMapper buildMapper = new BuildMapperImpl();
-
-    @Spy
-    protected EnvironmentMapper environmentMapper = new EnvironmentMapperImpl();
-
-    @Spy
-    protected GroupBuildMapper groupBuildMapper = new GroupBuildMapperImpl();
-
-    @Spy
-    protected ProjectMapper projectMapper = new ProjectMapperImpl();
-
-    @Spy
-    protected ProductMapper productMapper = new ProductMapperImpl();
-
-    @Spy
-    protected SCMRepositoryMapper sCMRepositoryMapper = new SCMRepositoryMapperImpl();
-
-    @Spy
-    protected TargetRepositoryMapper targetRepositoryMapper = new TargetRepositoryMapperImpl();
-
-    @Spy
-    protected UserMapper userMapper = new UserMapperImpl();
-
-    @Spy
-    protected ProductVersionMapper productVersionMapper = new ProductVersionMapperImpl();
-
-    @Spy
-    protected GroupConfigurationMapper groupConfigurationMapper = new GroupConfigurationMapperImpl();
-
-    @Spy
-    protected BuildConfigurationMapper buildConfigurationMapper = new BuildConfigurationMapperImpl();
-
-    @Spy
-    protected ProductMilestoneMapper productMilestoneMapper = new ProductMilestoneMapperImpl();
-
-    @Spy
-    protected ProductReleaseMapper productReleaseMapper = new ProductReleaseMapperImpl();
-
-    @Spy
-    protected MapSetMapper mapSetMapper = new MapSetMapper();
-
-    @Spy
-    protected ResultMapper resultMapper = new ResultMapperImpl();
-
-    @Spy
-    protected DeliverableAnalyzerOperationMapper delAnalyzerOperationMapper = new DeliverableAnalyzerOperationMapperImpl();
-
-    @Spy
     @InjectMocks
-    protected CollectionMerger collectionMerger = new CollectionMerger();
+    protected ArtifactMapper artifactMapper = spy(new AbstractArtifactMapperImpl());
+
+    @InjectMocks
+    protected ArtifactRevisionMapper artifactRevisionMapper = spy(new ArtifactRevisionMapperImpl());
+
+    @InjectMocks
+    protected BuildConfigurationRevisionMapper buildConfigurationRevisionMapper = spy(
+            new BuildConfigurationRevisionMapperImpl());
+
+    @InjectMocks
+    protected BuildMapper buildMapper = spy(new BuildMapperImpl());
+
+    @InjectMocks
+    protected EnvironmentMapper environmentMapper = spy(new EnvironmentMapperImpl());
+
+    @InjectMocks
+    protected GroupBuildMapper groupBuildMapper = spy(new GroupBuildMapperImpl());
+
+    @InjectMocks
+    protected ProjectMapper projectMapper = spy(new ProjectMapperImpl());
+
+    @InjectMocks
+    protected ProductMapper productMapper = spy(new ProductMapperImpl());
+
+    @InjectMocks
+    protected SCMRepositoryMapper sCMRepositoryMapper = spy(new SCMRepositoryMapperImpl());
+
+    @InjectMocks
+    protected TargetRepositoryMapper targetRepositoryMapper = spy(new TargetRepositoryMapperImpl());
+
+    @InjectMocks
+    protected UserMapper userMapper = spy(new UserMapperImpl());
+
+    @InjectMocks
+    protected ProductVersionMapper productVersionMapper = spy(new ProductVersionMapperImpl());
+
+    @InjectMocks
+    protected GroupConfigurationMapper groupConfigurationMapper = spy(new GroupConfigurationMapperImpl());
+
+    @InjectMocks
+    protected BuildConfigurationMapper buildConfigurationMapper = spy(new BuildConfigurationMapperImpl());
+
+    @InjectMocks
+    protected ProductMilestoneMapper productMilestoneMapper = spy(new ProductMilestoneMapperImpl());
+
+    @InjectMocks
+    protected ProductReleaseMapper productReleaseMapper = spy(new ProductReleaseMapperImpl());
+
+    @InjectMocks
+    protected MapSetMapper mapSetMapper = spy(new MapSetMapper());
+
+    @InjectMocks
+    protected ResultMapper resultMapper = spy(new ResultMapperImpl());
+
+    @InjectMocks
+    protected DeliverableAnalyzerOperationMapper delAnalyzerOperationMapper = spy(
+            new DeliverableAnalyzerOperationMapperImpl());
+
+    @InjectMocks
+    protected CollectionMerger collectionMerger = spy(new CollectionMerger());
 
     @Mock
     protected EntityManager em;
 
     @Spy
     @InjectMocks
-    protected RefToReferenceMapper refMapper = new RefToReferenceMapper();
+    protected RefToReferenceMapper refMapper = spy(new RefToReferenceMapper());
 
     protected final List<T> repositoryList = new ArrayList<>();
 
@@ -181,161 +180,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     protected AbstractProviderTest(Class<ID> idType) {
         this.idType = idType;
-    }
-
-    @Before
-    public void injectMappers() throws ReflectiveOperationException, IllegalArgumentException {
-        injectMethod(
-                "targetRepositoryMapper",
-                artifactMapper,
-                targetRepositoryMapper,
-                AbstractArtifactMapperImpl.class);
-        injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
-        injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
-        injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
-        injectMethod("refToReferenceMapper", artifactMapper, refMapper, AbstractArtifactMapperImpl.class);
-        injectMethod("artifactMapper", refMapper, artifactMapper, RefToReferenceMapper.class);
-
-        injectMethod(
-                "buildConfigurationRevisionMapper",
-                buildMapper,
-                buildConfigurationRevisionMapper,
-                BuildMapperImpl.class);
-        injectMethod("environmentMapper", buildMapper, environmentMapper, BuildMapperImpl.class);
-        injectMethod("groupBuildMapper", buildMapper, groupBuildMapper, BuildMapperImpl.class);
-        injectMethod("projectMapper", buildMapper, projectMapper, BuildMapperImpl.class);
-        injectMethod("productMilestoneMapper", buildMapper, productMilestoneMapper, BuildMapperImpl.class);
-        injectMethod("sCMRepositoryMapper", buildMapper, sCMRepositoryMapper, BuildMapperImpl.class);
-        injectMethod("userMapper", buildMapper, userMapper, BuildMapperImpl.class);
-        injectMethod("buildBCRevisionFetcher", buildMapper, buildBCRevisionFetcher, BuildMapperImpl.class);
-
-        injectMethod(
-                "environmentMapper",
-                buildConfigurationMapper,
-                environmentMapper,
-                BuildConfigurationMapperImpl.class);
-        injectMethod("mapSetMapper", buildConfigurationMapper, mapSetMapper, BuildConfigurationMapperImpl.class);
-        injectMethod(
-                "productVersionMapper",
-                buildConfigurationMapper,
-                productVersionMapper,
-                BuildConfigurationMapperImpl.class);
-        injectMethod("projectMapper", buildConfigurationMapper, projectMapper, BuildConfigurationMapperImpl.class);
-        injectMethod(
-                "sCMRepositoryMapper",
-                buildConfigurationMapper,
-                sCMRepositoryMapper,
-                BuildConfigurationMapperImpl.class);
-        injectMethod("userMapper", buildConfigurationMapper, userMapper, BuildConfigurationMapperImpl.class);
-        injectMethod("refToReferenceMapper", buildConfigurationMapper, refMapper, BuildConfigurationMapperImpl.class);
-        injectMethod("buildConfigurationMapper", refMapper, buildConfigurationMapper, RefToReferenceMapper.class);
-
-        injectMethod(
-                "environmentMapper",
-                buildConfigurationRevisionMapper,
-                environmentMapper,
-                BuildConfigurationRevisionMapperImpl.class);
-        injectMethod(
-                "projectMapper",
-                buildConfigurationRevisionMapper,
-                projectMapper,
-                BuildConfigurationRevisionMapperImpl.class);
-        injectMethod(
-                "sCMRepositoryMapper",
-                buildConfigurationRevisionMapper,
-                sCMRepositoryMapper,
-                BuildConfigurationRevisionMapperImpl.class);
-        injectMethod(
-                "userMapper",
-                buildConfigurationRevisionMapper,
-                userMapper,
-                BuildConfigurationRevisionMapperImpl.class);
-        injectMethod("userMapper", artifactRevisionMapper, userMapper, ArtifactRevisionMapperImpl.class);
-
-        injectMethod(
-                "productMilestoneMapper",
-                productVersionMapper,
-                productMilestoneMapper,
-                ProductVersionMapperImpl.class);
-        injectMethod("mapSetMapper", productVersionMapper, mapSetMapper, ProductVersionMapperImpl.class);
-        injectMethod("productMapper", productVersionMapper, productMapper, ProductVersionMapperImpl.class);
-        injectMethod("refToReferenceMapper", productVersionMapper, refMapper, ProductVersionMapperImpl.class);
-        injectMethod("productVersionMapper", refMapper, productVersionMapper, RefToReferenceMapper.class);
-        injectMethod("cm", productVersionMapper, collectionMerger, AbstractProductVersionMapper.class);
-
-        injectMethod(
-                "productMilestoneMapper",
-                productReleaseMapper,
-                productMilestoneMapper,
-                ProductReleaseMapperImpl.class);
-        injectMethod(
-                "productVersionMapper",
-                productReleaseMapper,
-                productVersionMapper,
-                ProductReleaseMapperImpl.class);
-        injectMethod("refToReferenceMapper", productReleaseMapper, refMapper, ProductReleaseMapperImpl.class);
-        injectMethod("productReleaseMapper", refMapper, productReleaseMapper, RefToReferenceMapper.class);
-
-        injectMethod("mapSetMapper", productMapper, mapSetMapper, ProductMapperImpl.class);
-
-        injectMethod("mapSetMapper", projectMapper, mapSetMapper, ProjectMapperImpl.class);
-
-        injectMethod(
-                "productVersionMapper",
-                productMilestoneMapper,
-                productVersionMapper,
-                ProductMilestoneMapperImpl.class);
-        injectMethod(
-                "productReleaseMapper",
-                productMilestoneMapper,
-                productReleaseMapper,
-                ProductMilestoneMapperImpl.class);
-        injectMethod("refToReferenceMapper", productMilestoneMapper, refMapper, ProductMilestoneMapperImpl.class);
-        injectMethod("userMapper", productMilestoneMapper, userMapper, ProductMilestoneMapperImpl.class);
-        injectMethod("productMilestoneMapper", refMapper, productMilestoneMapper, RefToReferenceMapper.class);
-
-        injectMethod("mapSetMapper", groupConfigurationMapper, mapSetMapper, GroupConfigurationMapperImpl.class);
-        injectMethod("refToReferenceMapper", groupConfigurationMapper, refMapper, GroupConfigurationMapperImpl.class);
-        injectMethod("groupConfigurationMapper", refMapper, groupConfigurationMapper, RefToReferenceMapper.class);
-
-        injectMethod(
-                "productVersionMapper",
-                groupConfigurationMapper,
-                productVersionMapper,
-                GroupConfigurationMapperImpl.class);
-
-        injectMethod("userMapper", groupBuildMapper, userMapper, GroupBuildMapperImpl.class);
-        injectMethod(
-                "groupConfigurationMapper",
-                groupBuildMapper,
-                groupConfigurationMapper,
-                GroupBuildMapperImpl.class);
-        injectMethod("productVersionMapper", groupBuildMapper, productVersionMapper, GroupBuildMapperImpl.class);
-
-        injectMethod("groupConfigurationMapper", mapSetMapper, groupConfigurationMapper, MapSetMapper.class);
-        injectMethod("buildConfigurationMapper", mapSetMapper, buildConfigurationMapper, MapSetMapper.class);
-        injectMethod("productVersionMapper", mapSetMapper, productVersionMapper, MapSetMapper.class);
-        injectMethod("productMilestoneMapper", mapSetMapper, productMilestoneMapper, MapSetMapper.class);
-        injectMethod("productReleaseMapper", mapSetMapper, productReleaseMapper, MapSetMapper.class);
-
-        injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
-        injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
-
-        injectMethod(
-                "productMilestoneMapper",
-                delAnalyzerOperationMapper,
-                productMilestoneMapper,
-                DeliverableAnalyzerOperationMapperImpl.class);
-        injectMethod(
-                "userMapper",
-                delAnalyzerOperationMapper,
-                userMapper,
-                DeliverableAnalyzerOperationMapperImpl.class);
-        injectMethod(
-                "refToReferenceMapper",
-                delAnalyzerOperationMapper,
-                refMapper,
-                DeliverableAnalyzerOperationMapperImpl.class);
     }
 
     protected abstract AbstractProvider provider();
@@ -411,13 +255,6 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 return offset;
             }
         };
-    }
-
-    private void injectMethod(String fieldName, Object to, Object what, Class clazz)
-            throws NoSuchFieldException, IllegalAccessException {
-        Field f = clazz.getDeclaredField(fieldName);
-        f.setAccessible(true);
-        f.set(to, what);
     }
 
     protected static class ListAnswer<T> implements Answer<List<T>> {
