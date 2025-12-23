@@ -97,6 +97,32 @@ public class Configuration {
         }
     }
 
+    /**
+     * Reads configuration for module
+     *
+     * @param provider configuration provider of given module config type
+     * @param <T> module config
+     * @return Loaded configuration
+     * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractModuleConfig> T getSlsaModuleConfig(ConfigProvider<T> provider)
+            throws ConfigurationParseException {
+        Class<T> moduleClass = provider.getType();
+        if (configCache.containsKey(moduleClass))
+            return (T) configCache.get(moduleClass);
+
+        synchronized (this) {
+            if (configCache.containsKey(moduleClass)) {
+                return (T) configCache.get(moduleClass);
+            }
+
+            T config = configurationJsonParser.parseJSONSlsaConfig(CONFIG_STRING, provider);
+            configCache.put(moduleClass, config);
+            return config;
+        }
+    }
+
     public GlobalModuleGroup getGlobalConfig() throws ConfigurationParseException {
         if (globalConfig != null)
             return globalConfig;
