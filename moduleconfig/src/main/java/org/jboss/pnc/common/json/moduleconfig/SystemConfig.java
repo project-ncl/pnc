@@ -51,6 +51,8 @@ public class SystemConfig extends AbstractModuleConfig {
     private final int coordinatorMaxConcurrentBuilds;
 
     private final KeycloakClientConfig keycloakServiceAccountConfig;
+    private final LDAPClientConfig ldapClientConfig;
+    private final ServiceAccountClientConfig serviceAccountClientConfig;
 
     private final long serviceTokenRefreshIfExpiresInSeconds;
 
@@ -115,6 +117,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("brewTagPattern") String brewTagPattern,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
             @JsonProperty("keycloakServiceAccountConfig") KeycloakClientConfig keycloakServiceAccountConfig,
+            @JsonProperty("ldapClientConfig") LDAPClientConfig ldapClientConfig,
+            @JsonProperty("serviceAccountClientConfig") ServiceAccountClientConfig serviceAccountClientConfig,
             @JsonProperty("serviceTokenRefreshIfExpiresInSeconds") String serviceTokenRefreshIfExpiresInSeconds,
             @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan,
             @JsonProperty("messageSenderId") String messageSenderId,
@@ -147,6 +151,9 @@ public class SystemConfig extends AbstractModuleConfig {
                 10);
         this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
+        this.ldapClientConfig = ldapClientConfig;
+        this.serviceAccountClientConfig = serviceAccountClientConfig;
+
         // 24 hours
         this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault(
                 "serviceTokenRefreshIfExpiresInSeconds",
@@ -213,6 +220,14 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public KeycloakClientConfig getKeycloakServiceAccountConfig() {
         return keycloakServiceAccountConfig;
+    }
+
+    public LDAPClientConfig getLdapClientConfig() {
+        return ldapClientConfig;
+    }
+
+    public ServiceAccountClientConfig getServiceAccountClientConfig() {
+        return serviceAccountClientConfig;
     }
 
     public long getServiceTokenRefreshIfExpiresInSeconds() {

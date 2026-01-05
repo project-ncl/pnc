@@ -19,6 +19,8 @@ package org.jboss.pnc.mock.common;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.LDAPClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.ServiceAccountClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.util.IoUtils;
 
@@ -31,15 +33,20 @@ public class SystemConfigMock {
 
     public static SystemConfig withKeycloakServiceAccount() throws IOException {
         String configJson = IoUtils.readResource("keycloakClientConfig.json", SystemConfigMock.class.getClassLoader());
-        KeycloakClientConfig serviceAccountConfig = JsonOutputConverterMapper
+        KeycloakClientConfig keycloakClientConfig = JsonOutputConverterMapper
                 .readValue(configJson, KeycloakClientConfig.class);
+
+        ServiceAccountClientConfig serviceAccountClientConfig = new ServiceAccountClientConfig(
+                ServiceAccountClientConfig.Mode.KEYCLOAK);
 
         return new SystemConfig(
                 null,
                 null,
                 null,
                 "10",
-                serviceAccountConfig,
+                keycloakClientConfig,
+                null,
+                serviceAccountClientConfig,
                 null,
                 null,
                 "",

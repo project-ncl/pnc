@@ -18,8 +18,10 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.auth.DefaultServiceAccountClient;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
+import org.jboss.pnc.integration.mock.client.ServiceAccountClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -167,7 +169,9 @@ public class Deployments {
         JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, AUTH_JAR);
 
         jar.deleteClass(DefaultKeycloakServiceClient.class);
+        jar.deleteClass(DefaultServiceAccountClient.class);
         jar.addClass(KeycloakServiceClientMock.class);
+        jar.addClass(ServiceAccountClientMock.class);
 
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
