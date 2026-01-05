@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.util;
+package org.jboss.pnc.mapper;
 
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ResultStatus;
@@ -25,7 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ResultStatusMapper {
 
-    public OperationResult mapResultStatusToOperationResult(ResultStatus resultStatus) {
+    public OperationResult toOperationResult(ResultStatus resultStatus) {
         final OperationResult operationResult;
         switch (resultStatus) {
             case SUCCESS:
