@@ -52,7 +52,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
-import org.jboss.pnc.facade.util.ResultStatusMapper;
+import org.jboss.pnc.mapper.ResultStatusMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -190,9 +190,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         } catch (ReasonedException e) {
             operationsManager.setResult(
                     operationId,
-                    OperationOutcome.process(
-                            resultStatusMapper.mapResultStatusToOperationResult(e.getResult()),
-                            e.getExceptionResolution()));
+                    OperationOutcome
+                            .process(resultStatusMapper.toOperationResult(e.getResult()), e.getExceptionResolution()));
             log.error(
                     "ErrorId={} Analysis of deliverables with ID {} failed: {}",
                     e.getErrorId(),
