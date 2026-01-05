@@ -33,6 +33,15 @@ public class ConfigurationJSONParser {
 
     public final static Logger log = LoggerFactory.getLogger(ConfigurationJSONParser.class);
 
+    /**
+     * Loads JSON configuration to the module configuration object
+     *
+     * @param <T> module config
+     * @param configContent Configuration in JSON
+     * @param provider configuration provider of given module config type
+     * @return Loaded configuration
+     * @throws ConfigurationParseException Thrown if configuration string is malformed
+     */
     public <T extends AbstractModuleConfig> T parseJSONPNCConfig(String configContent, ConfigProvider<T> provider)
             throws ConfigurationParseException {
         try {
