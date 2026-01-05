@@ -20,8 +20,10 @@ package org.jboss.pnc.causewayclient;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.auth.DefaultLDAPServiceClient;
 import org.jboss.pnc.auth.DefaultServiceAccountClient;
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.LDAPServiceClient;
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -42,14 +44,16 @@ import java.io.IOException;
 public class CausewayClientRemoteTest {
 
     KeycloakServiceClient keycloakServiceClient;
+    LDAPServiceClient ldapServiceClient;
     ServiceAccountClient serviceAccountClient;
 
     private CausewayClient causewayClient;
 
     public CausewayClientRemoteTest() throws IOException, ConfigurationParseException {
         SystemConfig systemConfig = SystemConfigMock.withKeycloakServiceAccount();
+        ldapServiceClient = new DefaultLDAPServiceClient(systemConfig);
         keycloakServiceClient = new DefaultKeycloakServiceClient(systemConfig);
-        serviceAccountClient = new DefaultServiceAccountClient(keycloakServiceClient);
+        serviceAccountClient = new DefaultServiceAccountClient(systemConfig, keycloakServiceClient, ldapServiceClient);
 
         GlobalModuleGroup globalConfig = GlobalModuleGroupMock.get();
         causewayClient = new DefaultCausewayClient(globalConfig);

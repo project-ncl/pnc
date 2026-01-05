@@ -23,6 +23,8 @@ import org.jboss.pnc.common.concurrent.MDCThreadPoolExecutor;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.LDAPClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.ServiceAccountClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -59,6 +61,8 @@ public class UnreliableMessageSenderTest extends BaseMessageSenderTest {
                 .addClass(SystemConfig.class)
                 .addClass(AbstractModuleConfig.class)
                 .addClass(KeycloakClientConfig.class)
+                .addClass(LDAPClientConfig.class)
+                .addClass(ServiceAccountClientConfig.class)
                 .addClass(SysConfigProducer.class)
                 .addPackages(true, Context.class.getPackage())
                 .addClass(MDCThreadPoolExecutor.class)

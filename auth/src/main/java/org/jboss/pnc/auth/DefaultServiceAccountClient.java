@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.auth;
 
+import org.jboss.pnc.common.json.moduleconfig.ServiceAccountClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.ServiceAccountClientConfig.Mode;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -30,22 +34,42 @@ import javax.inject.Inject;
 public class DefaultServiceAccountClient implements ServiceAccountClient {
 
     KeycloakServiceClient keycloakServiceClient;
+    LDAPServiceClient ldapServiceClient;
+
+    SystemConfig systemConfig;
 
     @Deprecated // CDI workaround
     public DefaultServiceAccountClient() {
     }
 
     @Inject
-    public DefaultServiceAccountClient(KeycloakServiceClient keycloakServiceClient) {
+    public DefaultServiceAccountClient(
+            SystemConfig systemConfig,
+            KeycloakServiceClient keycloakServiceClient,
+            LDAPServiceClient ldapServiceClient) {
+        this.systemConfig = systemConfig;
         this.keycloakServiceClient = keycloakServiceClient;
+        this.ldapServiceClient = ldapServiceClient;
     }
 
     @Override
     public String getAuthHeaderValue() {
-        return oidcHeaderValue();
+
+        Mode authMode = systemConfig.getServiceAccountClientConfig().getMode();
+        if (authMode == Mode.KEYCLOAK) {
+            return oidcHeaderValue();
+        } else if (authMode == Mode.LDAP) {
+            return ldapHeaderValue();
+        } else {
+            throw new RuntimeException("serviceAccountClientConfig mode is not supported: " + authMode);
+        }
     }
 
     private String oidcHeaderValue() {
         return "Bearer " + keycloakServiceClient.getAuthToken();
+    }
+
+    public String ldapHeaderValue() {
+        return ldapServiceClient.getHeader();
     }
 }
