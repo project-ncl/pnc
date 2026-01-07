@@ -22,7 +22,6 @@ import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.graph.UndirectedGraphBuilder;
 import org.jboss.pnc.common.graph.VertexNeighbor;
 import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
@@ -123,9 +122,6 @@ public class ProductMilestoneProviderImpl extends
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.milestone");
 
     private final MilestoneInfoRSQLMapper milestoneInfoRSQLMapper;
-
-    @Inject
-    private KeycloakServiceClient keycloakServiceClient;
 
     private final ProductMilestoneRepository milestoneRepository;
 
