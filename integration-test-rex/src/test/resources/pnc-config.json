@@ -34,6 +34,13 @@
             "credentials": {
                 "secretFileLocation": "/tmp/integration-test-rex-sa-secret"
             }
+          },
+          "ldapClientConfig": {
+            "username": "not-setup",
+            "secretFileLocation": "not-setup"
+          },
+          "serviceAccountClientConfig": {
+            "mode": "KEYCLOAK"
           }
         },
         {

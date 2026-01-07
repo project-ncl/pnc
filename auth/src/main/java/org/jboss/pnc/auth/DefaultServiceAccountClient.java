@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.auth;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.common.json.moduleconfig.ServiceAccountClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.ServiceAccountClientConfig.Mode;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -31,6 +32,7 @@ import javax.inject.Inject;
  * via a switch in our configuration
  */
 @ApplicationScoped
+@Slf4j
 public class DefaultServiceAccountClient implements ServiceAccountClient {
 
     KeycloakServiceClient keycloakServiceClient;
@@ -56,6 +58,7 @@ public class DefaultServiceAccountClient implements ServiceAccountClient {
     public String getAuthHeaderValue() {
 
         Mode authMode = systemConfig.getServiceAccountClientConfig().getMode();
+        log.info("Service client mode is: {}", authMode);
         if (authMode == Mode.KEYCLOAK) {
             return oidcHeaderValue();
         } else if (authMode == Mode.LDAP) {
