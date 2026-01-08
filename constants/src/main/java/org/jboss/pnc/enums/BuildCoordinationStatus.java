@@ -133,26 +133,6 @@ public enum BuildCoordinationStatus {
         }
     }
 
-    /**
-     * do not mix statuses
-     */
-    @Deprecated
-    public static BuildCoordinationStatus fromBuildExecutionStatus(BuildExecutionStatus status) { // TODO
-        if (status.equals(BuildExecutionStatus.SYSTEM_ERROR)) {
-            return SYSTEM_ERROR;
-        }
-
-        if (status.isCompleted()) {
-            if (status.hasFailed()) {
-                return DONE_WITH_ERRORS;
-            } else {
-                return DONE;
-            }
-        } else {
-            return BUILDING;
-        }
-    }
-
     public static Set<BuildCoordinationStatus> inProgressStates() {
         EnumSet<BuildCoordinationStatus> result = EnumSet.noneOf(BuildCoordinationStatus.class);
         for (BuildCoordinationStatus value : values()) {

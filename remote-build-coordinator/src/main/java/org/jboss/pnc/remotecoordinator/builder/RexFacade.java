@@ -26,8 +26,6 @@ import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.bpm.model.MDCParameters;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -193,12 +191,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                                                 systemConfig.getTemporaryBuildsLifeSpan(),
                                                 temporaryBuild)
                                         .toString());) {
-                    CreateTaskDTO create;
-                    if (globalConfig.isUseDingroguBuildProcess() && useDingrogu(buildTask)) {
-                        create = getCreateNewTaskDingroguDTO(buildTask);
-                    } else {
-                        create = getCreateNewTaskRHPAMDTO(bpmUrl, buildTask, user);
-                    }
+                    CreateTaskDTO create = getCreateNewTaskDingroguDTO(buildTask);
                     vertices.put(buildTask.getId(), create);
                 }
             }
@@ -371,73 +364,11 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         return taskFilterParameters;
     }
 
-    private CreateTaskDTO getCreateNewTaskRHPAMDTO(
-            BpmEndpointUrlFactory bpmUrlFactory,
-            RemoteBuildTask buildTask,
-            User user) {
-        BpmBuildTask bpmBuildTask = new BpmBuildTask(toBuildTask(buildTask, user, new Date()), globalConfig);
-        Map<String, Serializable> bpmTask = Collections
-                .singletonMap("processParameters", bpmBuildTask.getProcessParameters());
-
-        Map<String, Object> processParameters = new HashMap<>();
-        processParameters.put("mdc", new MDCParameters());
-        processParameters.put("task", bpmTask);
-        processParameters.put("submitTime", buildTask.getSubmitTime());
-
-        Map<String, Map<String, Object>> bpmRequestBody = Collections.singletonMap(INIT_DATA, processParameters);
-
-        List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
-                .entrySet()
-                .stream()
-                .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-
-        headers.addAll(
-                List.of(
-                        new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
-                        new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
-
-        Request remoteStart = bpmUrlFactory.startProcessInstance(
-                bpmConfig.getBpmNewDeploymentId(),
-                bpmConfig.getBpmNewBuildProcessName(),
-                buildTask.getId(),
-                headers,
-                bpmRequestBody);
-
-        Request remoteCancel = bpmUrlFactory.processInstanceSignalByCorrelation(
-                bpmConfig.getBpmNewDeploymentId(),
-                buildTask.getId(),
-                "CancelAll",
-                headers);
-
-        BuildMeta buildMetadata = mappers.toBuildMeta(buildTask);
-        Request callback = Request.builder()
-                .method(Request.Method.POST)
-                .uri(URI.create(format("{0}/build-tasks/{1}/notify", globalConfig.getPncUrl(), buildTask.getId())))
-                .headers(headers)
-                .attachment(buildMetadata)
-                .build();
-
-        CreateTaskDTO createTaskDTO = new CreateTaskDTO(
-                buildTask.getId(),
-                BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
-                schedulerConfig.getQueueNameForBuilds(),
-                null,
-                remoteStart,
-                remoteCancel,
-                null,
-                callback,
-                Mode.ACTIVE,
-                null);
-        return createTaskDTO;
-    }
-
     private CreateTaskDTO getCreateNewTaskDingroguDTO(RemoteBuildTask buildTask) {
 
         log.info("Using dingrogu for build: {}", buildTask.getId());
 
-        List<Request.Header> headers = new ArrayList<>();
-        headers.addAll(
+        List<Request.Header> headers = new ArrayList<>(
                 List.of(
                         new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
                         new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
@@ -499,10 +430,5 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot set build queue size", e);
         }
-    }
-
-    private boolean useDingrogu(RemoteBuildTask buildTask) {
-        Map<String, String> genericParams = buildTask.getBuildConfigurationAudited().getGenericParameters();
-        return !genericParams.containsKey(DINGROGU_PARAMETER_KEY);
     }
 }

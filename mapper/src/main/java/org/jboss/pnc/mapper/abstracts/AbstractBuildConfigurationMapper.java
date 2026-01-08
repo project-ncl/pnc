@@ -42,7 +42,10 @@ import org.mapstruct.Mapper;
                 UserMapper.class })
 public abstract class AbstractBuildConfigurationMapper implements BuildConfigurationMapper {
 
-    @Inject
     protected CollectionMerger cm;
 
+    @Inject
+    public void setCm(CollectionMerger cm) {
+        this.cm = cm;
+    }
 }

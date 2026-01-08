@@ -29,35 +29,4 @@ public interface ArtifactRepository {
 
     Boolean getSnapshots();
 
-    static ArtifactRepository build(String id, String name, String url, Boolean releases, Boolean snapshots) {
-
-        return new ArtifactRepository() {
-
-            @Override
-            public String getId() {
-                return id;
-            }
-
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public String getUrl() {
-                return url;
-            }
-
-            @Override
-            public Boolean getReleases() {
-                return releases;
-            }
-
-            @Override
-            public Boolean getSnapshots() {
-                return snapshots;
-            }
-        };
-    }
-
 }

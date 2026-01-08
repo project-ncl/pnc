@@ -18,10 +18,8 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.Connector;
-import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
-import org.jboss.pnc.bpm.task.RepositoryCreationTask;
+import org.jboss.pnc.api.enums.orch.BpmEventType;
+import org.jboss.pnc.api.orch.dto.RepositoryCreationProcess;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.concurrent.Sequence;
@@ -54,8 +52,6 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,12 +59,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -112,9 +105,6 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
-
-    @Inject
-    Connector connector;
 
     @Inject
     DingroguClient dingroguClient;
@@ -380,53 +370,32 @@ public class SCMRepositoryProviderImpl
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
             Optional<BuildConfiguration> buildConfiguration) {
-        String authToken = keycloakServiceClient.getAuthToken();
-
-        org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.bpm.model.RepositoryConfiguration
+        org.jboss.pnc.api.orch.dto.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.api.orch.dto.RepositoryConfiguration
                 .builder()
                 .externalUrl(externalURL)
                 .preBuildSyncEnabled(preBuildSyncEnabled)
                 .build();
 
-        RepositoryCreationTask task;
         RepositoryCreationProcess.RepositoryCreationProcessBuilder repositoryCreationProcess = RepositoryCreationProcess
                 .builder()
                 .repositoryConfiguration(repositoryConfiguration)
                 .revision(revision);
 
         buildConfiguration.ifPresent(repositoryCreationProcess::buildConfiguration);
-        task = new RepositoryCreationTask(repositoryCreationProcess.build(), jobType, globalConfig);
 
         long id = Sequence.nextId();
-        if (globalConfig.isTempUseDingroguRepositoryCreation()) {
-            log.info("Using new dingrogu repository creation process");
-            DingroguRepositoryCreationDTO dto = DingroguRepositoryCreationDTO.builder()
-                    .reqourUrl(globalConfig.getExternalReqourUrl())
-                    .orchUrl(globalConfig.getPncUrl())
-                    .externalRepoUrl(externalURL)
-                    .preBuildSyncEnabled(preBuildSyncEnabled)
-                    .ref(revision)
-                    .jobNotificationType(org.jboss.pnc.api.enums.JobNotificationType.valueOf(jobType.toString()))
-                    .buildConfiguration(buildConfiguration.orElse(null))
-                    .taskId(Objects.toString(id))
-                    .build();
-            dingroguClient.submitRepositoryCreation(dto);
-        } else {
-            try {
-                Map<String, Serializable> parameters = new HashMap<>();
-                parameters.put("processParameters", task.getProcessParameters());
-                parameters.put("taskId", id);
-                connector.startProcess(
-                        bpmConfig.getNewBcCreationProcessId(),
-                        parameters,
-                        Objects.toString(id),
-                        authToken);
-            } catch (CoreException e) {
-                throw new RuntimeException("Could not get process parameters: " + task, e);
-            } catch (ProcessManagerException e) {
-                throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
-            }
-        }
+        log.info("Using new dingrogu repository creation process");
+        DingroguRepositoryCreationDTO dto = DingroguRepositoryCreationDTO.builder()
+                .reqourUrl(globalConfig.getExternalReqourUrl())
+                .orchUrl(globalConfig.getPncUrl())
+                .externalRepoUrl(externalURL)
+                .preBuildSyncEnabled(preBuildSyncEnabled)
+                .ref(revision)
+                .jobNotificationType(org.jboss.pnc.api.enums.JobNotificationType.valueOf(jobType.toString()))
+                .buildConfiguration(buildConfiguration.orElse(null))
+                .taskId(Objects.toString(id))
+                .build();
+        dingroguClient.submitRepositoryCreation(dto);
 
         return id;
     }
@@ -469,7 +438,7 @@ public class SCMRepositoryProviderImpl
                 eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
             }
 
-            org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.bpm.model.RepositoryConfiguration
+            org.jboss.pnc.api.orch.dto.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.api.orch.dto.RepositoryConfiguration
                     .builder()
                     .externalUrl(result.getExternalUrl())
                     .preBuildSyncEnabled(result.isPreBuildSyncEnabled())

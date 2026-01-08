@@ -52,17 +52,18 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
     </dependency>
-    <dependency> <!-- TODO remove the dependecy when when we fully migrate to Rex -->
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>bpm</artifactId>
-    </dependency>
-    <dependency> <!-- TODO remove the dependecy when when we fully migrate to Rex -->
+    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>dingrogu-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc.rex</groupId>
       <artifactId>rex-api</artifactId>
+      <classifier>javax</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.rex</groupId>
+      <artifactId>rex-dto</artifactId>
       <classifier>javax</classifier>
     </dependency>
     <dependency>

@@ -35,6 +35,12 @@
     <name>PNC :: REST API</name>
     <description>Module with REST API bidings.</description>
 
+    <properties>
+      <!--  Java 8 enforced because users depending on REST-CLIENT with Java 8 -->
+      <!--  Feel free to remove once this is not the case  -->
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
     <dependencies>
         <!-- Project dependencies -->

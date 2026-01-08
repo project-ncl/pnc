@@ -81,11 +81,6 @@ public class BuildPushTest {
         dingroguClientJar.deleteClass(DingroguClientImpl.class);
         dingroguClientJar.addClass(DingroguClientMock.class);
 
-        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, Deployments.BPM_JAR);
-        processManager.addClass(BifrostMock.class);
-
-        processManager.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
-
         return enterpriseArchive;
     }
 

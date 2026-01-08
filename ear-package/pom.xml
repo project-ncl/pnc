@@ -62,10 +62,6 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>bpm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
       <artifactId>datastore</artifactId>
     </dependency>
     <dependency>
@@ -121,6 +117,20 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>rest-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>rest-api-internal</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>rest-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>dto</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -200,12 +210,6 @@
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>bpm</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
               <artifactId>datastore</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
@@ -267,6 +271,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>rest-api</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>rest-api-internal</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
