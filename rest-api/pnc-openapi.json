@@ -9800,47 +9800,6 @@
         }
       }
     },
-    "/slsa/build-provenance/v1/artifacts/purl/{purl}" : {
-      "get" : {
-        "tags" : [ "Slsa Provenance" ],
-        "summary" : "Generate the build provenance for an artifact identified by purl.",
-        "operationId" : "getFromArtifactPurl",
-        "parameters" : [ {
-          "name" : "purl",
-          "in" : "path",
-          "description" : "Purl of the artifact",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Provenance"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/target-repositories" : {
       "get" : {
         "tags" : [ "Target Repositories" ],
