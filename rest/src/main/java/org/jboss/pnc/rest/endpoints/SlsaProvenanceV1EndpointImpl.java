@@ -93,19 +93,6 @@ public class SlsaProvenanceV1EndpointImpl implements SlsaProvenanceV1Endpoint {
         return slsaProvenanceProviderHelper.createBuildProvenance(artifact.getBuild(), globalConfig, builderConfig);
     }
 
-    @Override
-    public Provenance getFromArtifactPurl(String purl) {
-        Artifact artifact = slsaProvenanceProviderHelper.getArtifactByPurl(purl);
-        if (artifact == null) {
-            throw notFound("purl", purl);
-        }
-
-        if (artifact.getBuild() == null) {
-            throw notBuiltInPnc("purl", purl);
-        }
-        return slsaProvenanceProviderHelper.createBuildProvenance(artifact.getBuild(), globalConfig, builderConfig);
-    }
-
     private static RuntimeException notFound(String prop, String value) {
         String reason = String.format("Artifact with %s: %s not found. %s", prop, value, PROVENANCE_UNAVAILABLE);
         logger.debug(reason);

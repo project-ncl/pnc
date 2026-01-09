@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.endpoints;
+package org.jboss.pnc.facade.util;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -54,14 +54,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 
 import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.*;
+import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.INVOKE;
+import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.REPLACE;
 
 @AllArgsConstructor
 public class SlsaProvenanceUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(SlsaProvenanceUtils.class);
+    private static final ObjectMapper objectMapper = Json.newObjectMapper();
 
-    private static final String SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE = "https://in-toto.io/Statement/v1";
-    private static final String SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE = "https://slsa.dev/provenance/v1";
+    public static final String SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE = "https://in-toto.io/Statement/v1";
+    public static final String SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE = "https://slsa.dev/provenance/v1";
 
     private final Build pncBuild;
     private final BuildConfigurationRevision pncBuildConfigRevision;
@@ -271,14 +274,14 @@ public class SlsaProvenanceUtils {
     private Optional<String> resolveComponentUriOrValue(ProvenanceEntry entry, Build pncBuild) {
         String baseUrl = invokeGetterOnGlobalConfig(entry.getGlobalConfigUrlRef());
         String fullUrl = baseUrl + entry.getUrlSuffix();
-        String resolverMethod = entry.getResolverMethod();
+        String resolverMethod = entry.getResolverMethod().toLowerCase();
 
-        if ("invoke".equals(resolverMethod)) {
+        if (INVOKE.toName().equals(resolverMethod)) {
             Optional<String> responseBody = urlInvoker.apply(fullUrl);
             return parseVersionFromHttResponseBody(responseBody);
         }
 
-        if ("replace".equals(resolverMethod)) {
+        if (REPLACE.toName().equals(resolverMethod)) {
             return Optional.of(fullUrl.replace(BuilderConfig.REPLACE_TOKEN, pncBuild.getId()));
         }
 
@@ -289,9 +292,8 @@ public class SlsaProvenanceUtils {
         if (responseBody.isEmpty()) {
             return Optional.empty();
         }
-        ObjectMapper objectMapper = Json.newObjectMapper();
         try {
-            Optional.of(objectMapper.readValue(responseBody.get(), ComponentVersion.class));
+            return Optional.of(objectMapper.readValue(responseBody.get(), ComponentVersion.class).getVersion());
         } catch (IOException e) {
             logger.error("Error while casting the response body to ComponentVersion, will attempt a different cast", e);
             try {
@@ -304,5 +306,4 @@ public class SlsaProvenanceUtils {
 
         return Optional.empty();
     }
-
 }

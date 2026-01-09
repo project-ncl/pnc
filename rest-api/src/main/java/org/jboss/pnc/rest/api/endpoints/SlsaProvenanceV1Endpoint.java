@@ -52,12 +52,10 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface SlsaProvenanceV1Endpoint {
 
     static final String A_ID = "ID of the artifact";
-    static final String A_PURL = "Purl of the artifact";
     static final String A_DIGEST = "Digest of the artifact";
 
     static final String GET_BY_ARTIFACT_ID_DESCR = "Generate the build provenance for an artifact identified by id.";
     static final String GET_BY_ARTIFACT_DIGEST_DESCR = "Generate build provenance for an artifact identified by an algorithm-qualified digest (for example: ?sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef).";
-    static final String GET_BY_ARTIFACT_PURL_DESCR = "Generate the build provenance for an artifact identified by purl.";
     static final String FILTER_SHA256_DESC = "Generate build provenance for an artifact identified by sha256, for example: ?sha256=xxx ";
     static final String FILTER_SHA1_DESC = "Generate build provenance for an artifact identified by sha1, for example: ?sha1=xxx ";
     static final String FILTER_MD5_DESC = "Generate build provenance for an artifact identified by md5, for example: ?md5=xxx ";
@@ -108,27 +106,5 @@ public interface SlsaProvenanceV1Endpoint {
             @Parameter(description = FILTER_SHA256_DESC) @QueryParam("sha256") String sha256,
             @Parameter(description = FILTER_MD5_DESC) @QueryParam("md5") String md5,
             @Parameter(description = FILTER_SHA1_DESC) @QueryParam("sha1") String sha1);
-
-    /**
-     * {@value GET_BY_ARTIFACT_PURL_DESCR}
-     *
-     * @param purl {@value A_PURL}
-     * @return
-     */
-    @Operation(
-            summary = GET_BY_ARTIFACT_PURL_DESCR,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Provenance.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("/artifacts/purl/{purl}")
-    Provenance getFromArtifactPurl(@Parameter(description = A_PURL) @PathParam("purl") @NotBlank String purl);
 
 }
