@@ -6764,18 +6764,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /slsa/build-provenance/v1/artifact/digest/{digest}:
+  /slsa/build-provenance/v1/artifacts:
     get:
       tags:
       - Slsa Provenance
       summary: "Generate build provenance for an artifact identified by an algorithm-qualified\
-        \ digest (for example: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef)."
+        \ digest (for example: ?sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef)."
       operationId: getFromArtifactDigest
       parameters:
-      - name: digest
-        in: path
-        description: Digest of the artifact
-        required: true
+      - name: sha256
+        in: query
+        description: "Generate build provenance for an artifact identified by sha256,\
+          \ for example: ?sha256=xxx "
+        schema:
+          type: string
+      - name: md5
+        in: query
+        description: "Generate build provenance for an artifact identified by md5,\
+          \ for example: ?md5=xxx "
+        schema:
+          type: string
+      - name: sha1
+        in: query
+        description: "Generate build provenance for an artifact identified by sha1,\
+          \ for example: ?sha1=xxx "
         schema:
           type: string
       responses:
@@ -6793,7 +6805,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /slsa/build-provenance/v1/artifact/id/{id}:
+  /slsa/build-provenance/v1/artifacts/id/{id}:
     get:
       tags:
       - Slsa Provenance
@@ -6821,7 +6833,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /slsa/build-provenance/v1/artifact/purl/{purl}:
+  /slsa/build-provenance/v1/artifacts/purl/{purl}:
     get:
       tags:
       - Slsa Provenance
@@ -6831,34 +6843,6 @@ paths:
       - name: purl
         in: path
         description: Purl of the artifact
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Success with results
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Provenance'
-        "404":
-          description: Can not find specified result
-        "500":
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /slsa/build-provenance/v1/build/id/{id}:
-    get:
-      tags:
-      - Slsa Provenance
-      summary: Generate the build provenance for a build identified by id.
-      operationId: getFromBuildId
-      parameters:
-      - name: id
-        in: path
-        description: ID of the build
         required: true
         schema:
           type: string
