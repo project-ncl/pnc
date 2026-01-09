@@ -20,79 +20,135 @@ package org.jboss.pnc.facade.providers;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
 import org.jboss.pnc.common.http.PNCHttpClient;
 import org.jboss.pnc.common.http.PNCHttpClientConfig;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.api.ArtifactProvider;
-import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
-import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.util.SlsaProvenanceUtils;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 
 import lombok.NoArgsConstructor;
 
-import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @PermitAll
 @Stateless
 public class SlsaProvenanceProviderHelper {
 
-    @Inject
-    private ArtifactProvider artifactProvider;
+    private ArtifactRepository artifactRepository;
+
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    private BuildMapper buildMapper;
+
+    private ArtifactMapper artifactMapper;
+
+    private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
+
+    public SlsaProvenanceProviderHelper() {
+    }
 
     @Inject
-    private BuildProvider buildProvider;
-
-    @Inject
-    private BuildConfigurationProvider buildConfigurationProvider;
-
-    public Build getBuildById(String id) {
-        return buildProvider.getSpecific(id);
+    public SlsaProvenanceProviderHelper(
+            ArtifactRepository artifactRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            BuildMapper buildMapper,
+            ArtifactMapper artifactMapper,
+            BuildConfigurationRevisionMapper buildConfigurationRevisionMapper) {
+        this.artifactRepository = artifactRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildMapper = buildMapper;
+        this.artifactMapper = artifactMapper;
+        this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
     }
 
     public Artifact getArtifactById(String id) {
-        return artifactProvider.getSpecific(id);
+        org.jboss.pnc.model.Artifact artifact = artifactRepository.queryById(artifactMapper.getIdMapper().toEntity(id));
+        if (artifact == null) {
+            throw new NotFoundException();
+        }
+        return artifactMapper.toDTO(artifact);
     }
 
     public Artifact getArtifactByPurl(String purl) {
-        return artifactProvider.getSpecificFromPurl(purl);
+        org.jboss.pnc.model.Artifact artifact = artifactRepository.withPurl(purl);
+        if (artifact == null) {
+            throw new NotFoundException();
+        }
+        return artifactMapper.toDTO(artifact);
     }
 
-    public Page<Artifact> getAllArtifactsByDigest(DigestParts digests) {
-        return artifactProvider
-                .getAll(0, MAX_PAGE_SIZE, null, null, digests.getSha256(), digests.getMd5(), digests.getSha1());
+    public List<Artifact> getAllArtifactsByDigest(String sha256, String md5, String sha1) {
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository.queryWithPredicates(
+                withSha256(Optional.ofNullable(sha256)),
+                withMd5(Optional.ofNullable(md5)),
+                withSha1(Optional.ofNullable(sha1)));
+        return nullableStreamOf(artifacts).map(artifactMapper::toDTO).collect(Collectors.toList());
     }
 
     public BuildConfigurationRevision getBuildConfigRevisionByIdRev(String id, Integer rev) {
-        return buildConfigurationProvider.getRevision(id, rev);
+        BuildConfigurationAudited auditedBuildConfig = buildConfigurationAuditedRepository
+                .queryById(new IdRev(Integer.valueOf(id), rev));
+        return buildConfigurationRevisionMapper.toDTO(auditedBuildConfig);
     }
 
-    public Collection<Artifact> fetchAllBuiltArtifacts(Build build) {
-        return fetchAllPages(
-                page -> artifactProvider.getBuiltArtifactsForBuild(page, MAX_PAGE_SIZE, null, null, build.getId()));
+    public Collection<Artifact> getAllBuiltArtifacts(Build build) {
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                .queryWithPredicates(withBuildRecordId(buildMapper.getIdMapper().toEntity(build.getId())));
+        return nullableStreamOf(artifacts).map(artifactMapper::toDTO).collect(Collectors.toList());
     }
 
-    public Collection<Artifact> fetchAllDependencies(Build build) {
-        return fetchAllPages(
-                page -> artifactProvider.getDependantArtifactsForBuild(page, MAX_PAGE_SIZE, null, null, build.getId()));
+    public Collection<Artifact> getAllDependencies(Build build) {
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                .queryWithPredicates(withDependantBuildRecordId(buildMapper.getIdMapper().toEntity(build.getId())));
+        return nullableStreamOf(artifacts).map(artifactMapper::toDTO).collect(Collectors.toList());
     }
 
-    @lombok.Value
-    public static class DigestParts {
-        Optional<String> sha256;
-        Optional<String> sha1;
-        Optional<String> md5;
+    public Provenance createBuildProvenance(Build build, GlobalModuleGroup globalConfig, BuilderConfig builderConfig) {
+
+        BuildConfigurationRevision pncBuildConfigRevision = getBuildConfigRevisionByIdRev(
+                build.getBuildConfigRevision().getId(),
+                build.getBuildConfigRevision().getRev());
+        Collection<Artifact> builtArtifacts = getAllBuiltArtifacts(build);
+        Collection<Artifact> resolvedArtifacts = getAllDependencies(build);
+
+        SlsaProvenanceUtils slsaProvenanceUtils = new SlsaProvenanceUtils(
+                build,
+                pncBuildConfigRevision,
+                builtArtifacts,
+                resolvedArtifacts,
+                builderConfig,
+                globalConfig,
+                this::getBodyFromHttpRequest);
+
+        return slsaProvenanceUtils.createBuildProvenance();
     }
 
     public Optional<String> getBodyFromHttpRequest(String url) {
@@ -152,24 +208,6 @@ public class SlsaProvenanceProviderHelper {
         public Duration maxDuration() {
             return Duration.ofMinutes(20);
         }
-    }
-
-    private Collection<Artifact> fetchAllPages(java.util.function.IntFunction<Page<Artifact>> pageFetcher) {
-        List<Artifact> artifacts = new ArrayList<Artifact>();
-
-        int pageIndex = 0;
-        while (true) {
-            Page<Artifact> page = pageFetcher.apply(pageIndex);
-            if (page == null || page.getContent() == null || page.getContent().isEmpty()) {
-                break;
-            }
-            artifacts.addAll(page.getContent());
-            if (page.getPageIndex() >= page.getTotalPages() - 1) {
-                break;
-            }
-            pageIndex++;
-        }
-        return artifacts;
     }
 
 }

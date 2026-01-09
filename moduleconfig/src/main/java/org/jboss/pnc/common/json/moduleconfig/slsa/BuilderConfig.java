@@ -30,6 +30,32 @@ public class BuilderConfig extends AbstractModuleConfig {
     public static final String REPLACE_TOKEN = "${buildId}";
 
     /**
+     * Defines the strategy used to resolve a provenance entry value.
+     *
+     * <p>
+     * A {@code ResolverMethod} determines how a value should be produced:
+     * </p>
+     * <ul>
+     * <li>{@link #INVOKE} – The value is obtained by invoking an external endpoint (for example, performing an HTTP
+     * request).</li>
+     * <li>{@link #REPLACE} – The value is produced by performing a string replacement (for example, substituting
+     * placeholders with build-specific values).</li>
+     * </ul>
+     *
+     */
+    public enum ResolverMethod {
+        INVOKE, REPLACE;
+
+        public static ResolverMethod fromName(String origin) {
+            return ResolverMethod.valueOf(origin.toUpperCase());
+        }
+
+        public String toName() {
+            return this.name().toLowerCase();
+        }
+    }
+
+    /**
      * Builder component id
      */
     private ProvenanceEntry id;
