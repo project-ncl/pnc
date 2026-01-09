@@ -17,8 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -33,11 +32,7 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 import org.jboss.pnc.common.json.moduleprovider.SlsaConfigProvider;
 import org.jboss.pnc.dto.Artifact;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.SlsaProvenanceProviderHelper;
-import org.jboss.pnc.facade.providers.SlsaProvenanceProviderHelper.DigestParts;
 import org.jboss.pnc.rest.api.endpoints.SlsaProvenanceV1Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,167 +64,59 @@ public class SlsaProvenanceV1EndpointImpl implements SlsaProvenanceV1Endpoint {
     }
 
     @Override
-    public Provenance getFromBuildId(String id) {
-        Build build = slsaProvenanceProviderHelper.getBuildById(id);
-        if (build == null) {
-            throw notFound(Build.class.getSimpleName(), "id", id);
-        }
-        if (Boolean.TRUE.equals(build.getTemporaryBuild())) {
-            throw builtInTemporaryMode(Build.class.getSimpleName(), "id", id);
-        }
-        // If the build was not required, get the original build instead
-        if (org.jboss.pnc.enums.BuildProgress.FINISHED.equals(build.getProgress())
-                && org.jboss.pnc.enums.BuildStatus.NO_REBUILD_REQUIRED.equals(build.getStatus())) {
-
-            build = slsaProvenanceProviderHelper.getBuildById(build.getNoRebuildCause().getId());
-        }
-
-        return createBuildProvenance(build);
-    }
-
-    @Override
     public Provenance getFromArtifactId(String id) {
         Artifact artifact = slsaProvenanceProviderHelper.getArtifactById(id);
         if (artifact == null) {
-            throw notFound(Artifact.class.getSimpleName(), "id", id);
+            throw notFound("id", id);
         }
-        requireSuccessfulPersistentBuild(artifact.getBuild(), Artifact.class.getSimpleName(), "id", id);
 
-        return createBuildProvenance(artifact.getBuild());
+        if (artifact.getBuild() == null) {
+            throw notBuiltInPnc("id", id);
+        }
+
+        return slsaProvenanceProviderHelper.createBuildProvenance(artifact.getBuild(), globalConfig, builderConfig);
     }
 
     @Override
-    public Provenance getFromArtifactDigest(String digest) {
-        DigestParts digests = parseDigest(digest);
-        Page<Artifact> artifacts = slsaProvenanceProviderHelper.getAllArtifactsByDigest(digests);
-        if (artifacts.getTotalHits() == 0) {
-            throw notFound(Artifact.class.getSimpleName(), "digest", digest);
+    public Provenance getFromArtifactDigest(String sha256, String md5, String sha1) {
+
+        List<Artifact> artifacts = slsaProvenanceProviderHelper.getAllArtifactsByDigest(sha256, md5, sha1);
+        if (artifacts.size() == 0) {
+            throw notFound("sha256|sha1|md5", sha256 + "|" + md5 + "|" + sha1);
         }
 
-        Artifact artifact = artifacts.getContent()
-                .stream()
-                .filter(a -> a.getBuild() != null && !Boolean.TRUE.equals(a.getBuild().getTemporaryBuild()))
+        Artifact artifact = artifacts.stream()
+                .filter(a -> a.getBuild() != null)
                 .findFirst()
-                .orElseThrow(
-                        () -> badRequest(
-                                String.format(
-                                        "%s with digest: %s does not have an associated persistent build. %s",
-                                        Artifact.class.getSimpleName(),
-                                        digest,
-                                        PROVENANCE_UNAVAILABLE)));
+                .orElseThrow(() -> notBuiltInPnc("sha256|sha1|md5", sha256 + "|" + md5 + "|" + sha1));
 
-        return createBuildProvenance(artifact.getBuild());
+        return slsaProvenanceProviderHelper.createBuildProvenance(artifact.getBuild(), globalConfig, builderConfig);
     }
 
     @Override
     public Provenance getFromArtifactPurl(String purl) {
         Artifact artifact = slsaProvenanceProviderHelper.getArtifactByPurl(purl);
         if (artifact == null) {
-            throw notFound(Artifact.class.getSimpleName(), "purl", purl);
+            throw notFound("purl", purl);
         }
-        requireSuccessfulPersistentBuild(artifact.getBuild(), Artifact.class.getSimpleName(), "purl", purl);
 
-        return createBuildProvenance(artifact.getBuild());
+        if (artifact.getBuild() == null) {
+            throw notBuiltInPnc("purl", purl);
+        }
+        return slsaProvenanceProviderHelper.createBuildProvenance(artifact.getBuild(), globalConfig, builderConfig);
     }
 
-    public Provenance createBuildProvenance(Build build) {
-
-        BuildConfigurationRevision pncBuildConfigRevision = slsaProvenanceProviderHelper.getBuildConfigRevisionByIdRev(
-                build.getBuildConfigRevision().getId(),
-                build.getBuildConfigRevision().getRev());
-        Collection<Artifact> builtArtifacts = slsaProvenanceProviderHelper.fetchAllBuiltArtifacts(build);
-        Collection<Artifact> resolvedArtifacts = slsaProvenanceProviderHelper.fetchAllDependencies(build);
-
-        SlsaProvenanceUtils slsaProvenanceUtils = new SlsaProvenanceUtils(
-                build,
-                pncBuildConfigRevision,
-                builtArtifacts,
-                resolvedArtifacts,
-                builderConfig,
-                globalConfig,
-                slsaProvenanceProviderHelper::getBodyFromHttpRequest);
-
-        return slsaProvenanceUtils.createBuildProvenance();
-    }
-
-    private static RuntimeException notFound(String type, String prop, String value) {
-        String reason = String.format("%s with %s: %s not found. %s", type, prop, value, PROVENANCE_UNAVAILABLE);
+    private static RuntimeException notFound(String prop, String value) {
+        String reason = String.format("Artifact with %s: %s not found. %s", prop, value, PROVENANCE_UNAVAILABLE);
         logger.debug(reason);
         return new NotFoundException(reason);
     }
 
-    private static RuntimeException badRequest(String reason) {
+    private static RuntimeException notBuiltInPnc(String prop, String value) {
+        String reason = String
+                .format("Artifact with %s: %s is not built in PNC. %s", prop, value, PROVENANCE_UNAVAILABLE);
         logger.debug(reason);
         return new BadRequestException(reason);
-    }
-
-    private static RuntimeException notSuccessfulBuild(String type, String prop, String value) {
-        return badRequest(
-                String.format(
-                        "%s with %s: %s is not successfully built in PNC. %s",
-                        type,
-                        prop,
-                        value,
-                        PROVENANCE_UNAVAILABLE));
-    }
-
-    private static RuntimeException notBuiltInPnc(String type, String prop, String value) {
-        return badRequest(
-                String.format("%s with %s: %s is not built in PNC. %s", type, prop, value, PROVENANCE_UNAVAILABLE));
-    }
-
-    private static RuntimeException builtInTemporaryMode(String type, String prop, String value) {
-        return badRequest(
-                String.format(
-                        "%s with %s: %s is built in temporary mode. %s",
-                        type,
-                        prop,
-                        value,
-                        PROVENANCE_UNAVAILABLE));
-    }
-
-    private static void requireSuccessfulPersistentBuild(Build build, String type, String prop, String value) {
-        if (build == null) {
-            throw notBuiltInPnc(type, prop, value);
-        }
-        if (Boolean.TRUE.equals(build.getTemporaryBuild())) {
-            throw builtInTemporaryMode(type, prop, value);
-        }
-        if (!(org.jboss.pnc.enums.BuildProgress.FINISHED.equals(build.getProgress())
-                && (org.jboss.pnc.enums.BuildStatus.SUCCESS.equals(build.getStatus())
-                        || org.jboss.pnc.enums.BuildStatus.NO_REBUILD_REQUIRED.equals(build.getStatus())))) {
-            throw notSuccessfulBuild(type, prop, value);
-        }
-    }
-
-    private static DigestParts parseDigest(String digest) {
-        if (digest == null || digest.isBlank()) {
-            throw badRequest("The digest provided is not valid.");
-        }
-
-        Optional<String> md5 = Optional.empty();
-        Optional<String> sha1 = Optional.empty();
-        Optional<String> sha256 = Optional.empty();
-
-        if (digest.startsWith("md5:")) {
-            md5 = Optional.of(digest.substring(4));
-        } else if (digest.startsWith("sha1:")) {
-            sha1 = Optional.of(digest.substring(5));
-        } else if (digest.startsWith("sha256:")) {
-            sha256 = Optional.of(digest.substring(7));
-        } else {
-            throw badRequest("The digest provided is not valid.");
-        }
-
-        if (!md5.isPresent() && !sha1.isPresent() && !sha256.isPresent()) {
-            throw badRequest("The digest provided is not valid.");
-        }
-
-        if (md5.orElse(sha1.orElse(sha256.orElse(""))).isBlank()) {
-            throw badRequest("The digest provided is not valid.");
-        }
-
-        return new DigestParts(sha256, sha1, md5);
     }
 
 }

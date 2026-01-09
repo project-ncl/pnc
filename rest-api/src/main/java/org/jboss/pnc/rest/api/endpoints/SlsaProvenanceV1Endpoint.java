@@ -23,6 +23,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
@@ -50,37 +51,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface SlsaProvenanceV1Endpoint {
 
-    static final String B_ID = "ID of the build";
     static final String A_ID = "ID of the artifact";
     static final String A_PURL = "Purl of the artifact";
     static final String A_DIGEST = "Digest of the artifact";
 
-    static final String GET_BY_BUILD_ID_DESCR = "Generate the build provenance for a build identified by id.";
     static final String GET_BY_ARTIFACT_ID_DESCR = "Generate the build provenance for an artifact identified by id.";
-    static final String GET_BY_ARTIFACT_DIGEST_DESCR = "Generate build provenance for an artifact identified by an algorithm-qualified digest (for example: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef).";
+    static final String GET_BY_ARTIFACT_DIGEST_DESCR = "Generate build provenance for an artifact identified by an algorithm-qualified digest (for example: ?sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef).";
     static final String GET_BY_ARTIFACT_PURL_DESCR = "Generate the build provenance for an artifact identified by purl.";
-
-    /**
-     * {@value GET_BY_BUILD_ID_DESCR}
-     *
-     * @param id {@value B_ID}
-     * @return
-     */
-    @Operation(
-            summary = GET_BY_BUILD_ID_DESCR,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Provenance.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("/build/id/{id}")
-    Provenance getFromBuildId(@Parameter(description = B_ID) @PathParam("id") @NotBlank String id);
+    static final String FILTER_SHA256_DESC = "Generate build provenance for an artifact identified by sha256, for example: ?sha256=xxx ";
+    static final String FILTER_SHA1_DESC = "Generate build provenance for an artifact identified by sha1, for example: ?sha1=xxx ";
+    static final String FILTER_MD5_DESC = "Generate build provenance for an artifact identified by md5, for example: ?md5=xxx ";
 
     /**
      * {@value GET_BY_ARTIFACT_ID_DESCR}
@@ -101,7 +81,7 @@ public interface SlsaProvenanceV1Endpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/artifact/id/{id}")
+    @Path("/artifacts/id/{id}")
     Provenance getFromArtifactId(@Parameter(description = A_ID) @PathParam("id") @NotBlank String id);
 
     /**
@@ -123,8 +103,11 @@ public interface SlsaProvenanceV1Endpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/artifact/digest/{digest}")
-    Provenance getFromArtifactDigest(@Parameter(description = A_DIGEST) @PathParam("digest") @NotBlank String digest);
+    @Path("/artifacts")
+    Provenance getFromArtifactDigest(
+            @Parameter(description = FILTER_SHA256_DESC) @QueryParam("sha256") String sha256,
+            @Parameter(description = FILTER_MD5_DESC) @QueryParam("md5") String md5,
+            @Parameter(description = FILTER_SHA1_DESC) @QueryParam("sha1") String sha1);
 
     /**
      * {@value GET_BY_ARTIFACT_PURL_DESCR}
@@ -145,7 +128,7 @@ public interface SlsaProvenanceV1Endpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/artifact/purl/{purl}")
+    @Path("/artifacts/purl/{purl}")
     Provenance getFromArtifactPurl(@Parameter(description = A_PURL) @PathParam("purl") @NotBlank String purl);
 
 }
