@@ -21,7 +21,7 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 
 /**
- * @author <a href="mailto:pslegr@redhat.com">pslegr</a> on Aug 21, 2015
+ * @author <a href="mailto:andrea.vibelli@gmail.com">Andrea Vibelli</a>
  *
  * @param <T> module config
  */
