@@ -18,6 +18,7 @@
 package org.jboss.pnc.remotecoordinator.builder.datastore;
 
 import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -36,12 +37,12 @@ public class BifrostLogUploaderProducer {
     public BifrostLogUploaderProducer(
             GlobalModuleGroup globalConfig,
             SystemConfig systemConfig,
-            KeycloakServiceClient keycloakServiceClient) {
+            ServiceAccountClient serviceAccountClient) {
         logUploader = new BifrostLogUploader(
                 URI.create(globalConfig.getExternalBifrostUrl()),
+                serviceAccountClient::getAuthHeaderValue,
                 systemConfig.getBifrostLogUploadMaxRetries(),
-                systemConfig.getBifrostLogUploadRetryDelay(),
-                keycloakServiceClient::getAuthToken);
+                systemConfig.getBifrostLogUploadRetryDelay());
     }
 
     @Produces
