@@ -39,7 +39,7 @@ public class BifrostLogUploaderProducer {
             KeycloakServiceClient serviceAccountClient) {
         logUploader = new BifrostLogUploader(
                 URI.create(globalConfig.getExternalBifrostUrl()),
-                serviceAccountClient::getAuthToken,
+                () -> "Bearer " + serviceAccountClient.getAuthToken(),
                 systemConfig.getBifrostLogUploadMaxRetries(),
                 systemConfig.getBifrostLogUploadRetryDelay());
     }
