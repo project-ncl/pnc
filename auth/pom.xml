@@ -83,6 +83,7 @@
     <dependency>
       <groupId>org.wildfly.security</groupId>
       <artifactId>wildfly-elytron-http-oidc</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -107,4 +108,27 @@
     </dependency>
 
   </dependencies>
+  <profiles>
+    <profile>
+      <id>auth</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <archive>
+                <manifestEntries>
+                  <Dependencies>org.wildfly.security.elytron-http-oidc</Dependencies>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+
+
 </project>

@@ -350,6 +350,7 @@
         <groupId>org.wildfly.security</groupId>
         <artifactId>wildfly-elytron-http-oidc</artifactId>
         <version>1.15.9.Final</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- OTEL Dependencies for Instrumentation -->

@@ -72,6 +72,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.wildfly.security</groupId>
+            <artifactId>wildfly-elytron-http-oidc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.spec.javax.websocket</groupId>
             <artifactId>jboss-websocket-api_1.1_spec</artifactId>
             <scope>provided</scope>
@@ -205,6 +210,17 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <attachClasses>true</attachClasses>
+                            <archive>
+                                <manifestEntries>
+                                    <Dependencies>org.wildfly.security.elytron-http-oidc</Dependencies>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

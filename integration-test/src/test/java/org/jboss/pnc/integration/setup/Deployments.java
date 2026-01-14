@@ -28,6 +28,7 @@ import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
