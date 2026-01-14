@@ -26,8 +26,13 @@
     <module-name>rest</module-name>
 
     <login-config>
-        <auth-method>OIDC</auth-method>
+        <!-- EAPSUP-2073: setup to support both LDAP and OIDC -->
+        <auth-method>BASIC?silent=true,OIDC</auth-method>
     </login-config>
+    <listener>
+        <!-- EAPSUP-2073: setup to support both LDAP and OIDC -->
+        <listener-class>org.wildfly.security.http.oidc.OidcConfigurationServletListener</listener-class>
+    </listener>
     <security-role>
         <role-name>pnc-app-build-delete</role-name>
     </security-role>

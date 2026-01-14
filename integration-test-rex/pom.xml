@@ -344,6 +344,7 @@
             <configuration>
               <layers combine.children="append">
                 <layer>h2-driver</layer>
+                <layer>elytron-oidc-client</layer>
                 <layer>keycloak-client-oidc</layer>
               </layers>
               <packaging-scripts>

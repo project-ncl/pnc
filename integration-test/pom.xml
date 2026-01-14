@@ -285,6 +285,7 @@
             <configuration>
               <layers combine.children="append">
                 <layer>h2-driver</layer>
+                <layer>elytron-oidc-client</layer>
               </layers>
               <packaging-scripts>
                 <packaging-script>
