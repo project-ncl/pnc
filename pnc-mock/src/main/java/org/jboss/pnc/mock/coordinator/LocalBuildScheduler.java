@@ -31,7 +31,7 @@ import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutor;
-import org.jboss.pnc.spi.executor.GeneralBuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +83,7 @@ public class LocalBuildScheduler implements BuildScheduler {
 
         String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
         BuildConfigurationAudited configuration = buildTask.getBuildConfigurationAudited();
-        BuildExecutionConfiguration buildExecutionConfiguration = new GeneralBuildExecutionConfiguration(
+        BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 buildTask.getId(),
                 contentId,
                 buildTask.getUser().getId().toString(),

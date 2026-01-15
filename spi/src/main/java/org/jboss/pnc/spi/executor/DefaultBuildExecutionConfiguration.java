@@ -29,7 +29,7 @@ import java.util.Map;
 
 @Getter
 @AllArgsConstructor
-public class GeneralBuildExecutionConfiguration implements BuildExecutionConfiguration {
+public class DefaultBuildExecutionConfiguration implements BuildExecutionConfiguration {
 
     private final String id;
 

@@ -28,7 +28,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @Builder(builderClassName = "Builder")
-public class GeneralRepositoryManagerResult implements RepositoryManagerResult {
+public class DefaultRepositoryManagerResult implements RepositoryManagerResult {
     private final List<Artifact> builtArtifacts;
 
     private final List<Artifact> dependencies;

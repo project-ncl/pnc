@@ -20,7 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.api.orch.dto.BuildExecutionConfigurationRest;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.GeneralBuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.DefaultBuildExecutionConfiguration;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -35,7 +35,7 @@ public interface BuildExecutionConfigurationMapper
 
     @Override
     @Mapping(target = "userId", source = "user")
-    @BeanMapping(resultType = GeneralBuildExecutionConfiguration.class)
+    @BeanMapping(resultType = DefaultBuildExecutionConfiguration.class)
     BuildExecutionConfiguration toEntity(BuildExecutionConfigurationRest buildExecutionConfigurationRest);
 
     @Override
