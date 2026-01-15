@@ -28,8 +28,8 @@ import java.util.Optional;
 @Getter
 @AllArgsConstructor
 @Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = GeneralBuildDriverResult.Builder.class)
-public class GeneralBuildDriverResult implements BuildDriverResult {
+@JsonDeserialize(builder = DefaultBuildDriverResult.Builder.class)
+public class DefaultBuildDriverResult implements BuildDriverResult {
     private final BuildStatus buildStatus;
 
     private final Optional<String> outputChecksum;

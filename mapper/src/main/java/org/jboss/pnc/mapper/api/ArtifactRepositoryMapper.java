@@ -19,7 +19,7 @@ package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.api.orch.dto.ArtifactRepositoryRest;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
-import org.jboss.pnc.spi.repositorymanager.GeneralArtifactRepository;
+import org.jboss.pnc.spi.repositorymanager.DefaultArtifactRepository;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 
@@ -32,7 +32,7 @@ import org.mapstruct.Mapper;
 public interface ArtifactRepositoryMapper extends SimpleMapper<ArtifactRepositoryRest, ArtifactRepository> {
 
     @Override
-    @BeanMapping(resultType = GeneralArtifactRepository.class)
+    @BeanMapping(resultType = DefaultArtifactRepository.class)
     ArtifactRepository toEntity(ArtifactRepositoryRest artifactRepositoryRest);
 
     @Override

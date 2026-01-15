@@ -31,7 +31,7 @@ import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.GeneralBuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.DefaultBuildExecutionConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,7 +79,7 @@ public class BuildExecutionConfigurationTest {
     @Test
     public void serializeAndDeserializeBuildResult() throws IOException, BuildDriverException {
 
-        BuildExecutionConfiguration buildExecutionConfiguration = new GeneralBuildExecutionConfiguration(
+        BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 "1",
                 "condent-id",
                 "1",

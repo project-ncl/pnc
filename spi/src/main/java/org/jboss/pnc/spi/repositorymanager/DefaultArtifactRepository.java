@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-public class GeneralArtifactRepository implements ArtifactRepository {
+public class DefaultArtifactRepository implements ArtifactRepository {
     private final String id;
 
     private final String name;
@@ -28,7 +28,7 @@ public class GeneralArtifactRepository implements ArtifactRepository {
 
     private final Boolean snapshots;
 
-    public GeneralArtifactRepository(String id, String name, String url, Boolean releases, Boolean snapshots) {
+    public DefaultArtifactRepository(String id, String name, String url, Boolean releases, Boolean snapshots) {
         this.id = id;
         this.name = name;
         this.url = url;

@@ -20,7 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.api.orch.dto.BuildDriverResultRest;
 import org.jboss.pnc.mapper.OptionalMapper;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.GeneralBuildDriverResult;
+import org.jboss.pnc.spi.builddriver.DefaultBuildDriverResult;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 
@@ -32,7 +32,7 @@ import org.mapstruct.Mapper;
 public interface BuildDriverResultMapper extends SimpleMapper<BuildDriverResultRest, BuildDriverResult> {
 
     @Override
-    @BeanMapping(resultType = GeneralBuildDriverResult.class)
+    @BeanMapping(resultType = DefaultBuildDriverResult.class)
     BuildDriverResult toEntity(BuildDriverResultRest buildDriverResultRest);
 
     @Override
