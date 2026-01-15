@@ -89,8 +89,9 @@ public class BPMResultsMock {
                 Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
                 Optional.empty(),
                 Optional.of(EnvironmentDriverResultMock.mock()),
-                Optional.of(RepourResultMock.mock()));
-
+                Optional.of(RepourResultMock.mock()),
+                List.of(),
+                Map.of());
         BuildResultRest dto = mapper.toDTO(result);
 
         // the long jsonPath results in build-id, this ensures Artifacts are unique
@@ -114,7 +115,9 @@ public class BPMResultsMock {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.of(RepourResultMock.mockFailed()));
+                Optional.of(RepourResultMock.mockFailed()),
+                List.of(),
+                Map.of());
 
         BuildResultRest dto = mapper.toDTO(result);
 
@@ -134,9 +137,17 @@ public class BPMResultsMock {
         var envMapper = new EnvironmentDriverResultMapperImpl(new SshCredentialsMapperImpl());
         var bdrMapper = new BuildDriverResultMapperImpl();
         var rrMapper = new RepourResultMapperImpl();
-        var rmrMapper = new RepositoryManagerResultMapperImpl(new ArtifactMapperMock());
+        var artMapper = new ArtifactMapperMock();
+        var rmrMapper = new RepositoryManagerResultMapperImpl(artMapper);
         var peMapper = new ProcessExceptionMapper();
-        var resultMapper = new BuildResultMapperImpl(becMapper, envMapper, bdrMapper, rrMapper, rmrMapper, peMapper);
+        var resultMapper = new BuildResultMapperImpl(
+                becMapper,
+                envMapper,
+                bdrMapper,
+                rrMapper,
+                rmrMapper,
+                peMapper,
+                artMapper);
         return resultMapper;
     }
 

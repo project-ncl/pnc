@@ -40,7 +40,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.PersistenceException;
+import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -77,7 +79,8 @@ import java.util.Set;
                 @Index(name = "idx_artifact_sha256", columnList = "sha256"),
                 @Index(name = "idx_artifact_creation_user", columnList = "creationuser_id"),
                 @Index(name = "idx_artifact_modification_user", columnList = "modificationUser_id"),
-                @Index(name = "idx_artifact_buildrecord", columnList = "buildrecord_id") })
+                @Index(name = "idx_artifact_buildrecord", columnList = "buildrecord_id"),
+                @Index(name = "idx_artifact_attached_build", columnList = "attachedbuild_id") })
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -159,6 +162,14 @@ public class Artifact implements GenericEntity<Integer> {
     private BuildRecord buildRecord;
 
     /**
+     * The record that this artifact is supplement to. It can be a log, a result of a post-build analysis or some other
+     * file that gives additional information about the build, but it is not a direct output of the build.
+     */
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifacts_attachedbuild"))
+    private BuildRecord attachedBuild;
+
+    /**
      * The list of builds which depend on this artifact. For example, if the build downloaded this artifact as a Maven
      * dependency.
      */
@@ -237,6 +248,14 @@ public class Artifact implements GenericEntity<Integer> {
         if (artifactQuality != ArtifactQuality.TEMPORARY && artifactQuality != ArtifactQuality.DELETED) {
             throw new PersistenceException(
                     "The non-temporary artifacts cannot be deleted! Only deletion of temporary artifacts is supported ");
+        }
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void prePersist() {
+        if (buildRecord != null && attachedBuild != null) {
+            throw new PersistenceException("Artifact can't be a built artifact and an attachment at the same time");
         }
     }
 
@@ -345,6 +364,10 @@ public class Artifact implements GenericEntity<Integer> {
      */
     public boolean isImported() {
         return (originUrl != null && !originUrl.isEmpty());
+    }
+
+    public boolean isAttachment() {
+        return artifactQuality != null;
     }
 
     public boolean isTrusted() {
@@ -552,6 +575,14 @@ public class Artifact implements GenericEntity<Integer> {
      */
     public void setQualityLevelReason(String qualityLevelReason) {
         this.qualityLevelReason = Strings.nullIfBlank(qualityLevelReason);
+    }
+
+    public BuildRecord getAttachedBuild() {
+        return attachedBuild;
+    }
+
+    public void setAttachedBuild(BuildRecord attachedBuild) {
+        this.attachedBuild = attachedBuild;
     }
 
     @Override

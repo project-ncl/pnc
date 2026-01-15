@@ -67,6 +67,8 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.Integer.parseInt;
@@ -402,20 +404,23 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     }
 
     private Optional<BuildResult> parseBPMResult(MinimizedTask rexTask, Optional<Object> bpmResponse) {
-        Optional<BuildResult> buildResultRest;
+        Optional<BuildResult> buildResult;
         try {
             // valid response from BPM
-            buildResultRest = Optional
-                    .ofNullable(mapper.toEntity(jsonMapper.convertValue(bpmResponse, BuildResultRest.class)));
-            ValidationBuilder.validateObject(buildResultRest, WhenCreatingNew.class).validateAnnotations();
+            var buildResultRest = jsonMapper.convertValue(bpmResponse, BuildResultRest.class);
+            if (buildResultRest != null) {
+                ValidationBuilder.validateObject(buildResultRest, WhenCreatingNew.class).validateAnnotations();
+            }
+
+            buildResult = Optional.ofNullable(mapper.toEntity(buildResultRest));
         } catch (IllegalArgumentException e) {
             // Can't parse BPM message or Rex finished Task with Server error
-            buildResultRest = Optional.of(
+            buildResult = Optional.of(
                     createEmptyExceptionalResult(
                             new ProcessException(
                                     "Can't parse result for build " + rexTask.getName() + ". " + e.getMessage())));
         }
-        return buildResultRest;
+        return buildResult;
     }
 
     private BuildResult createEmptyExceptionalResult(ProcessException exception) {
@@ -426,6 +431,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
     }
 }

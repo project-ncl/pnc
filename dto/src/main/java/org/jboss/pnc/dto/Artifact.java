@@ -55,6 +55,11 @@ public class Artifact extends ArtifactRef {
     private final Build build;
 
     /**
+     * Build that this artifact is attached to.
+     */
+    private final Build attachedBuild;
+
+    /**
      * The user who created this artifact.
      */
     private final User creationUser;
@@ -87,7 +92,8 @@ public class Artifact extends ArtifactRef {
             User modificationUser,
             Instant creationTime,
             Instant modificationTime,
-            String qualityLevelReason) {
+            String qualityLevelReason,
+            Build attachedBuild) {
         super(
                 id,
                 identifier,
@@ -111,6 +117,7 @@ public class Artifact extends ArtifactRef {
         this.build = build;
         this.creationUser = creationUser;
         this.modificationUser = modificationUser;
+        this.attachedBuild = attachedBuild;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -131,6 +131,7 @@ public class TemporaryBuildsCleaner {
         }
 
         removeBuiltArtifacts(buildRecord);
+        removeAttachedArtifacts(buildRecord);
         removeBuildPushOperations(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
@@ -196,6 +197,27 @@ public class TemporaryBuildsCleaner {
             }
 
             artifact.setBuildRecord(null);
+            deleteArtifact(artifact);
+        }
+    }
+
+    private void removeAttachedArtifacts(BuildRecord buildRecord) {
+        Set<Artifact> toDelete = new HashSet<>(buildRecord.getAttachedArtifacts());
+        for (Artifact artifact : toDelete) {
+            log.debug(
+                    String.format(
+                            "Deleting relation BR-Artifact. BR=%s, artifact=%s",
+                            buildRecord,
+                            artifact.getDescriptiveString()));
+
+            if (!artifact.getDeliveredInProductMilestones().isEmpty()) {
+                log.error(
+                        "Temporary artifact was delivered in milestone! Artifact: " + artifact + "\n Milestones: "
+                                + artifact.getDeliveredInProductMilestones());
+                continue;
+            }
+
+            artifact.setAttachedBuild(null);
             deleteArtifact(artifact);
         }
     }

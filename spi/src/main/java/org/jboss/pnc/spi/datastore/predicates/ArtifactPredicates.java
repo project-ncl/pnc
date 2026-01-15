@@ -210,6 +210,10 @@ public class ArtifactPredicates {
         return artifacts.get(Artifact_.artifactQuality).in(ArtifactQuality.IMPORTED, ArtifactQuality.DELETED);
     }
 
+    public static Predicate<Artifact> isAttachmentTo(Base32LongID buildRecordId) {
+        return (root, query, cb) -> cb.equal(root.get(Artifact_.attachedBuild).get(BuildRecord_.id), buildRecordId);
+    }
+
     public static Predicate<Artifact> deliveredInMilestones(Integer milestone1Id, Integer milestone2Id) {
         return (root, query, cb) -> {
             Subquery<Artifact> subquery = query.subquery(Artifact.class);

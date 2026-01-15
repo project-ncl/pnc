@@ -336,7 +336,8 @@ public class DatastoreAdapter {
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTask.getId());
             userLog.info("Successfully completed.");
-            BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
+            BuildRecord buildRecord = datastore
+                    .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, List.of());
             uploadLogs(errorLog.toString());
             return buildRecord;
         } catch (Exception e) {
@@ -464,7 +465,7 @@ public class DatastoreAdapter {
                 "Storing ERROR result of " + buildTask.getBuildConfigurationAudited().getName() + " to datastore.",
                 e);
         BuildRecord buildRecord = datastore
-                .storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+                .storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList(), List.of());
         uploadLogs(errorLog.toString());
         return buildRecord;
     }
@@ -502,7 +503,7 @@ public class DatastoreAdapter {
                 "Storing REJECTED build of {} to datastore. Reason: {}",
                 buildTask.getBuildConfigurationAudited().getName(),
                 buildTask.getStatusDescription());
-        datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList(), List.of());
         uploadLogs(buildTask.getStatusDescription());
     }
 

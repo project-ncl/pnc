@@ -912,11 +912,11 @@ paths:
         description: What should varant rebuild?
         schema:
           type: string
+          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
-          default: IMPLICIT_DEPENDENCY_CHECK
       - name: buildDependencies
         in: query
         description: Should we build also dependencies of this Build Config?
@@ -1476,11 +1476,11 @@ paths:
         description: What should varant rebuild?
         schema:
           type: string
+          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
-          default: IMPLICIT_DEPENDENCY_CHECK
       - name: buildDependencies
         in: query
         description: Should we build also dependencies of this Build Config?
@@ -1940,6 +1940,63 @@ paths:
           description: Request was accepted for processing
         "404":
           description: Can not find specified result
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /builds/{id}/artifacts/attachments:
+    get:
+      tags:
+      - Builds
+      summary: Gets attached artifacts for specific build.
+      operationId: getAttachedArtifacts
+      parameters:
+      - name: id
+        in: path
+        description: ID of the build
+        required: true
+        schema:
+          type: string
+      - name: pageIndex
+        in: query
+        description: Index of the page to return. Index starts with 0.
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: pageSize
+        in: query
+        description: Number of entries that should be included in a page. Maximum
+          page size is 200.
+        schema:
+          type: integer
+          format: int32
+          default: 50
+      - name: sort
+        in: query
+        description: "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=)."
+        schema:
+          type: string
+      - name: q
+        in: query
+        description: RSQL Query.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactPage'
+        "400":
+          description: Invalid input parameters or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         "500":
           description: Server error
           content:
@@ -3892,11 +3949,11 @@ paths:
         description: IMPLICIT_DEPENDENCY_CHECK
         schema:
           type: string
+          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
-          default: IMPLICIT_DEPENDENCY_CHECK
       - name: timestampAlignment
         in: query
         description: This feature was disabled. Setting this value has no effect on
@@ -7144,6 +7201,8 @@ components:
           - DELETED
           - TEMPORARY
           - IMPORTED
+        attachedBuild:
+          $ref: '#/components/schemas/Build'
         build:
           $ref: '#/components/schemas/Build'
         buildCategory:

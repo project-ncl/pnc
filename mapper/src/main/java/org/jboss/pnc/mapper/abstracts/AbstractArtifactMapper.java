@@ -93,35 +93,51 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
             return;
         }
         RepositoryType repositoryType = targetRepository.getRepositoryType();
-        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)
-                || repositoryType.equals(RepositoryType.GENERIC_PROXY)) {
-            if (StringUtils.isEmpty(artifactDB.getDeployPath())
-                    && !repositoryType.equals(RepositoryType.GENERIC_PROXY)) {
-                // it is acceptable for generic.http downloads to have empty deploypath
-                deployUrlSetter.accept("");
-                publicUrlSetter.accept("");
-            } else {
-                try {
-                    deployUrlSetter.accept(
-                            Urls.buildUrl(
-                                    globalConfig.getIndyUrl(),
-                                    targetRepository.getRepositoryPath(),
-                                    artifactDB.getDeployPath()));
-                    publicUrlSetter.accept(
-                            Urls.buildUrl(
-                                    globalConfig.getExternalIndyUrl(),
-                                    targetRepository.getRepositoryPath(),
-                                    artifactDB.getDeployPath()));
-                } catch (MalformedURLException e) {
-                    logger.error("Cannot construct internal artifactDB URL.", e);
-                    deployUrlSetter.accept(null);
-                    publicUrlSetter.accept(null);
+        switch (repositoryType) {
+            case NPM:
+            case MAVEN:
+            case GENERIC_PROXY: {
+                if (StringUtils.isEmpty(artifactDB.getDeployPath())
+                        && !repositoryType.equals(RepositoryType.GENERIC_PROXY)) {
+                    // it is acceptable for generic.http downloads to have empty deploypath
+                    deployUrlSetter.accept("");
+                    publicUrlSetter.accept("");
+                } else if (artifactDB.isAttachment()) {
+                    // for attachments (like external logs) let's currently not treat it as our own artifacts and
+                    // do not require it to be deployed in our repository
+                    deployUrlSetter.accept(artifactDB.getOriginUrl());
+                    publicUrlSetter.accept(artifactDB.getOriginUrl());
+                } else {
+                    try {
+                        deployUrlSetter.accept(
+                                Urls.buildUrl(
+                                        globalConfig.getIndyUrl(),
+                                        targetRepository.getRepositoryPath(),
+                                        artifactDB.getDeployPath()));
+                        publicUrlSetter.accept(
+                                Urls.buildUrl(
+                                        globalConfig.getExternalIndyUrl(),
+                                        targetRepository.getRepositoryPath(),
+                                        artifactDB.getDeployPath()));
+                    } catch (MalformedURLException e) {
+                        logger.error("Cannot construct internal artifactDB URL.", e);
+                        deployUrlSetter.accept(null);
+                        publicUrlSetter.accept(null);
+                    }
                 }
+                break;
             }
-        } else {
-            deployUrlSetter.accept(artifactDB.getOriginUrl());
-            publicUrlSetter.accept(artifactDB.getOriginUrl());
+
+            case COCOA_POD:
+            case DISTRIBUTION_ARCHIVE: {
+                deployUrlSetter.accept(artifactDB.getOriginUrl());
+                publicUrlSetter.accept(artifactDB.getOriginUrl());
+                break;
+            }
+            default:
+                throw new IllegalStateException("Unknown repository type: " + repositoryType);
         }
+
     }
 
     public void setConfig(Configuration config) {

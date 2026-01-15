@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.jboss.pnc.api.enums.orch.CompletionStatus.CANCELLED;
@@ -76,7 +77,9 @@ public class MockBuildScheduler implements RexBuildScheduler {
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
     }
 
     private static BuildDriverResult buildDriverResult() {

@@ -348,6 +348,37 @@ public interface BuildEndpoint {
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
+    static final String GET_ATTACHED_ARTIFACTS_DESC = "Gets attached artifacts for specific build.";
+
+    /**
+     * {@value GET_ATTACHED_ARTIFACTS_DESC}
+     *
+     * @param id {@value B_ID}
+     * @param pageParameters
+     * @return
+     */
+    @Operation(
+            summary = GET_ATTACHED_ARTIFACTS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/artifacts/attachments")
+    @TimedMetric
+    Page<Artifact> getAttachedArtifacts(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
+
     static final String SET_DEPENDANT_ARTIFACTS_DESC = "Set dependent artifacts on the Build. Note that operation replaces existing collection!";
 
     /**

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.datastore;
 
-import com.google.common.collect.Lists;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -32,7 +31,6 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -137,7 +135,8 @@ public class DefaultDatastore implements Datastore {
     public BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
-            List<Artifact> dependencies) {
+            List<Artifact> dependencies,
+            List<Artifact> attachedArtifacts) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
         BuildRecord previouslySavedBuild = buildRecordRepository.queryById(buildRecord.getId());
@@ -157,6 +156,9 @@ public class DefaultDatastore implements Datastore {
         logger.debug("Saving built artifacts ...");
         final Set<Artifact> savedBuiltArtifacts = saveArtifacts(builtArtifacts, repositoriesCache, artifactCache);
 
+        logger.debug("Saving attachments ...");
+        final Set<Artifact> savedAttachments = saveArtifacts(attachedArtifacts, repositoriesCache, artifactCache);
+
         logger.debug("Saving dependencies ...");
         buildRecord.setDependencies(saveArtifacts(dependencies, repositoriesCache, artifactCache));
 
@@ -168,6 +170,11 @@ public class DefaultDatastore implements Datastore {
         logger.trace("Setting artifacts as built.");
         for (Artifact builtArtifact : savedBuiltArtifacts) {
             builtArtifact.setBuildRecord(buildRecord);
+        }
+
+        logger.trace("Setting artifacts as attachments.");
+        for (Artifact attachment : savedAttachments) {
+            attachment.setAttachedBuild(buildRecord);
         }
 
         return buildRecord;

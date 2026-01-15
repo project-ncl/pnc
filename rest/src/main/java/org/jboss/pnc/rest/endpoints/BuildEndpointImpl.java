@@ -221,6 +221,15 @@ public class BuildEndpointImpl implements BuildEndpoint {
                 id);
     }
 
+    public Page<Artifact> getAttachedArtifacts(String id, PageParameters pageParameters) {
+        return artifactProvider.getAttachedArtifactsForBuild(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
+    }
+
     @Override
     public void setDependentArtifacts(String id, List<String> artifactIds) {
         provider.setDependentArtifacts(id, artifactIds);
