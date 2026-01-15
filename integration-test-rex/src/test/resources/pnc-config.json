@@ -12,7 +12,8 @@
       "externalDaUrl": "",
       "externalIndyUrl": "http://localhost/indy-external/",
       "externalPncUrl": "",
-      "externalBifrostUrl": "http://localhost:8081/"
+      "externalBifrostUrl": "http://localhost:8081/",
+      "externalDingroguUrl": "http://host.testcontainers.internal:8088/"
     },
     {
       "@module-group":"pnc",

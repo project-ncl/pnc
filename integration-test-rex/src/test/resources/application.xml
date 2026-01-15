@@ -40,6 +40,9 @@
     <java>rest-api.jar</java>
   </module>
   <module>
+    <java>rest-api-internal.jar</java>
+  </module>
+  <module>
     <java>common.jar</java>
   </module>
   <module>
