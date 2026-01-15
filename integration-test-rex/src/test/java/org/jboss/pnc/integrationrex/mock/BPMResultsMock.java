@@ -25,6 +25,8 @@ import org.jboss.pnc.api.orch.dto.RepositoryManagerResultRest;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.mapper.ArtifactRepositoryMapperImpl;
@@ -77,7 +79,7 @@ public class BPMResultsMock {
     }
 
     @SneakyThrows
-    public static String mockBuildResult() {
+    public static BuildResultRest mockBuildResult() {
         var mapper = getBuildResultMapper();
 
         BuildResult result = new BuildResult(
@@ -92,17 +94,17 @@ public class BPMResultsMock {
         BuildResultRest dto = mapper.toDTO(result);
 
         // the long jsonPath results in build-id, this ensures Artifacts are unique
-        String buildID = "{{jsonPath originalRequest.body '$.payload.initData.task.processParameters.buildExecutionConfiguration.id'}}";
+        String buildID = "{{jsonPath originalRequest.body '$.payload.buildContentId'}}";
 
         dto.setRepositoryManagerResult(mockRepositoryManagerResultRest(buildID));
 
         String s = objectMapper.writeValueAsString(dto);
         logger.trace("MOCK-BPM JSON reply: " + s);
-        return s;
+        return dto;
     }
 
     @SneakyThrows
-    public static String mockFailedBuildResult() {
+    public static BuildResultRest mockFailedBuildResult() {
         var mapper = getBuildResultMapper();
 
         BuildResult result = new BuildResult(
@@ -117,13 +119,13 @@ public class BPMResultsMock {
         BuildResultRest dto = mapper.toDTO(result);
 
         // the long jsonPath results in build-id, this ensures Artifacts are unique
-        String buildID = "{{jsonPath originalRequest.body '$.payload.initData.task.processParameters.buildExecutionConfiguration.id'}}";
+        String buildID = "{{jsonPath originalRequest.body '$.payload.buildContentId'}}";
 
         dto.setRepositoryManagerResult(mockRepositoryManagerResultRest(buildID));
 
         String s = objectMapper.writeValueAsString(dto);
         logger.trace("MOCK-BPM JSON reply: " + s);
-        return s;
+        return dto;
     }
 
     private static BuildResultMapperImpl getBuildResultMapper() {
@@ -155,10 +157,12 @@ public class BPMResultsMock {
     private static Artifact.Builder getArtifactBuilder(String id) {
         return Artifact.builder()
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
-                .md5("md-fake-ABCDABCD" + id)
-                .sha1("sha1-fake-ABCDABCD" + id)
-                .sha256("sha256-fake-ABCDABCD" + id)
+                .md5("md-fake-AB" + id)
+                .sha1("sha1-fake-AB" + id)
+                .sha256("sha256-fake-AB" + id)
                 .size(12342L)
+                .buildCategory(BuildCategory.STANDARD)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
                 .targetRepository(mockTargetRepository("builds-untested-" + id))
                 .filename("artifactFile" + id + ".jar");
@@ -177,6 +181,7 @@ public class BPMResultsMock {
     public static Artifact mockImportedArtifact(String id) {
         return getArtifactBuilder(id).importDate(Date.from(Instant.now()).toInstant())
                 .originUrl("http://central.maven.org/org/jboss/mock/artifactFile" + id + ".jar")
+                .artifactQuality(ArtifactQuality.IMPORTED)
                 .build();
     }
 

@@ -231,10 +231,7 @@ public class DependentBuildsTest extends RemoteServices {
 
             wireMockServer.stubFor(
                     any(urlMatching(".*")).atPriority(1)
-                            .withRequestBody(
-                                    matchingJsonPath(
-                                            "$.payload.initData.task.processParameters.buildExecutionConfiguration.name",
-                                            containing("fail")))
+                            .withRequestBody(matchingJsonPath("$.payload.buildConfigName", containing("fail")))
                             .willReturn(response200())
                             .withPostServeAction(
                                     "webhook",
