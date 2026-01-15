@@ -71,6 +71,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -731,7 +732,8 @@ public class BuildEndpointTest {
     public void shouldReportLeafTempBuildThatDependsOnItself() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
-        Collection<Build> leafTempBuilds = client.getAllIndependentTempBuildsOlderThanTimestamp(Long.MAX_VALUE)
+        Collection<Build> leafTempBuilds = client
+                .getAllIndependentTempBuildsOlderThanTimestamp(Instant.now().plus(10, ChronoUnit.DAYS).toEpochMilli())
                 .getAll();
 
         assertThat(leafTempBuilds).hasSize(1);

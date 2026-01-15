@@ -117,10 +117,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
-      <classifier>debug</classifier>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -137,7 +136,7 @@
       <artifactId>infinispan-hibernate-cache-v53</artifactId>
       <scope>test</scope>  
     </dependency>
-    <dependency> <!-- reqired by hibernate cache -->
+    <dependency> <!-- required by hibernate cache -->
       <groupId>org.wildfly.arquillian</groupId>
       <artifactId>wildfly-arquillian-container-managed</artifactId>
       <scope>test</scope>

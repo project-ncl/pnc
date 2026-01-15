@@ -269,7 +269,11 @@ public class DatabaseDataInitializer {
                 .checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
         Preconditions.checkState(artifactRepository.count() > 0, "Expecting number of Artifacts > 0");
 
-        BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll().get(0);
+        BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll()
+                .stream()
+                .filter(bc -> PNC_PROJECT_BUILD_CFG_ID.equals(bc.getName()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Build configuration with id 100 not found in DB"));
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
         BuildConfigurationSet buildConfigurationSet = buildConfigurationDB.getBuildConfigurationSets()
@@ -279,7 +283,12 @@ public class DatabaseDataInitializer {
                 buildConfigurationSet.getProductVersion() != null,
                 "Product version of buildConfiguration must be not null");
 
-        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll().get(0);
+        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll()
+                .stream()
+                .filter(bcs -> bcs.getId().equals(100))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Build configuration set with id 100 not found in DB"));
+        ;
 
         Preconditions.checkState(
                 buildConfigurationSetDB.getProductVersion() != null,
