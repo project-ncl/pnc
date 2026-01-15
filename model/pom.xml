@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-api</artifactId>
+      <artifactId>pnc-api-constants</artifactId>
     </dependency>
     <dependency>
       <groupId>jakarta.validation</groupId>
@@ -64,6 +64,7 @@
     <dependency>
       <groupId>org.jboss.spec.javax.el</groupId>
       <artifactId>jboss-el-api_3.0_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
