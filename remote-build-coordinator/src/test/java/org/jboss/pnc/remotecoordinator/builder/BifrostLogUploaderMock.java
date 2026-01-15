@@ -28,7 +28,7 @@ import java.net.URI;
 @Alternative
 public class BifrostLogUploaderMock extends BifrostLogUploader {
     public BifrostLogUploaderMock() {
-        super(URI.create("http://example.com"), () -> "", 1, 1);
+        super(URI.create("http://example.com"), 1, 1, () -> "");
     }
 
     @Override
