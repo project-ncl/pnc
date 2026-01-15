@@ -81,6 +81,7 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.isAttachmentTo;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.deliveredInMilestones;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
@@ -335,6 +336,21 @@ public class ArtifactProviderImpl
                 sortingRsql,
                 query,
                 withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getAttachedArtifactsForBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String buildId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                isAttachmentTo(BuildMapper.idMapper.toEntity(buildId)));
     }
 
     @Override

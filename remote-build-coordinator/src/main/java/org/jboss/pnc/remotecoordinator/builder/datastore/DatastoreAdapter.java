@@ -333,9 +333,22 @@ public class DatastoreAdapter {
                                 "Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
             }
 
+            List<Artifact> attachedArtifacts = Collections.emptyList();
+            if (buildResult.getAttachments() != null && !buildResult.getAttachments().isEmpty()) {
+                attachedArtifacts = buildResult.getAttachments();
+                if (buildTaskRef.isTemporaryBuild()) {
+                    checkTemporaryArtifacts(attachedArtifacts);
+                }
+            }
+
+            if (buildResult.getExtraAttributes() != null && !buildResult.getExtraAttributes().isEmpty()) {
+                buildResult.getExtraAttributes().forEach(buildRecordBuilder::attribute);
+            }
+
             log.debug("Storing results of buildTask [{}] to datastore.", buildTaskRef.getId());
             userLog.info("Successfully completed.");
-            BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
+            BuildRecord buildRecord = datastore
+                    .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, attachedArtifacts);
             uploadLogs(errorLog.toString());
             return buildRecord;
         } catch (Exception e) {
@@ -370,6 +383,10 @@ public class DatastoreAdapter {
                 buildRecordBuilder.scmBuildConfigRevision(r.getScmBuildConfigRevision());
                 buildRecordBuilder.scmBuildConfigRevisionInternal(r.isScmBuildConfigRevisionInternal());
             });
+
+            if (result.getExtraAttributes() != null && !result.getExtraAttributes().isEmpty()) {
+                result.getExtraAttributes().forEach(buildRecordBuilder::attribute);
+            }
         });
 
         errorLog.append("Build status: ").append(getBuildStatus(buildResult)).append("\n");
@@ -419,8 +436,11 @@ public class DatastoreAdapter {
             userLog.error(message);
         }
         log.debug("Storing ERROR result of BCA: " + buildTask.getIdRev().toString() + " to datastore.", e);
-        BuildRecord buildRecord = datastore
-                .storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        BuildRecord buildRecord = datastore.storeCompletedBuild(
+                buildRecordBuilder,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         uploadLogs(errorLog.toString());
         return buildRecord;
     }
@@ -489,7 +509,11 @@ public class DatastoreAdapter {
                 datastore.getBuildConfigurationAudited(buildTask.getIdRev()).getName(), // TODO Print just IdRev or
                                                                                         // keep?
                 statusDescription);
-        datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        datastore.storeCompletedBuild(
+                buildRecordBuilder,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         uploadLogs(statusDescription);
     }
 

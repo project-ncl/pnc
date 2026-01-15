@@ -204,7 +204,7 @@ public class DefaultBuildCoordinatorTest {
         when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
 
         ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
-        when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class), any(), any())).thenAnswer(answer);
+        when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class), any(), any(), any())).thenAnswer(answer);
 
         coordinator.completeBuild(buildTask, buildResult);
 

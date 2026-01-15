@@ -544,7 +544,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
         completeBuild(buildTask, result);
         // TODO 2.0 completeNoBuild(buildTask, CompletionStatus.CANCELLED); NCL-4242
 

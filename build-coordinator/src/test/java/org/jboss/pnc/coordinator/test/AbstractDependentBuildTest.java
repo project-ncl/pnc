@@ -78,6 +78,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -343,7 +344,9 @@ public abstract class AbstractDependentBuildTest {
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
     }
 
     private static BuildDriverResult buildDriverResult() {

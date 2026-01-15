@@ -222,6 +222,14 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     private Set<Artifact> builtArtifacts;
 
     /**
+     * Set of Artifacts which are not direct output of the build, but add additional information, context or report of
+     * the Build. For example, it can be an extra log file, additional metadata, a manifest, a result of outside
+     * analysis or a report.
+     */
+    @OneToMany(mappedBy = "attachedBuild")
+    private Set<Artifact> attachedArtifacts;
+
+    /**
      * Artifacts which are required external dependencies of this build
      */
     // TODO: re-enable cache once NCLSUP-444 is resolved
@@ -316,6 +324,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     public BuildRecord() {
         dependencies = new HashSet<>();
         builtArtifacts = new HashSet<>();
+        attachedArtifacts = new HashSet<>();
     }
 
     @PreRemove
@@ -773,6 +782,24 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
     public void setLastUpdateTime(Date lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public Set<Artifact> getAttachedArtifacts() {
+        return attachedArtifacts;
+    }
+
+    public void setAttachedArtifacts(Set<Artifact> attachedArtifacts) {
+        this.attachedArtifacts = attachedArtifacts;
+    }
+
+    public void addAttachedArtifact(Artifact artifact) {
+        attachedArtifacts.add(artifact);
+        artifact.setAttachedBuild(this);
+    }
+
+    public void removeAttachedArtifact(Artifact artifact) {
+        attachedArtifacts.remove(artifact);
+        artifact.setAttachedBuild(null);
     }
 
     @Override

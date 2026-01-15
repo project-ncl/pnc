@@ -22,6 +22,7 @@ import org.jboss.pnc.mapper.OptionalMapper;
 import org.jboss.pnc.mapper.ProcessExceptionMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  *
@@ -32,9 +33,10 @@ import org.mapstruct.Mapper;
         config = MapperCentralConfig.class,
         uses = { BuildExecutionConfigurationMapper.class, EnvironmentDriverResultMapper.class,
                 BuildDriverResultMapper.class, RepourResultMapper.class, RepositoryManagerResultMapper.class,
-                OptionalMapper.class, ProcessExceptionMapper.class })
+                OptionalMapper.class, ProcessExceptionMapper.class, ArtifactMapper.class })
 public interface BuildResultMapper extends SimpleMapper<BuildResultRest, BuildResult> {
     @Override
+    @Mapping(target = "attachments", source = "attachments", qualifiedBy = TransientTargetRepo.class)
     BuildResult toEntity(BuildResultRest buildResultRest);
 
     @Override
