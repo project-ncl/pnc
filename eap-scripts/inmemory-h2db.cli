@@ -1,0 +1,1 @@
+xa-data-source add --name=java:jboss/datasources/NewcastleTestDS --jndi-name=java:jboss/datasources/NewcastleTestDS --enabled=true --driver-name=h2 --xa-datasource-properties={ "URL" => "jdbc:h2:mem:newcastletestmemdb;DB_CLOSE_DELAY=-1"  } --user-name=sa --password=sa

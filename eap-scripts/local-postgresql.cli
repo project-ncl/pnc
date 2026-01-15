@@ -1,0 +1,7 @@
+/system-property=org.jboss.eap.datasources.postgresql.user-name:add(value=${env.POSTGRESQL_USER:orch-tests})
+/system-property=org.jboss.eap.datasources.postgresql.password:add(value=${env.POSTGRESQL_PASSWORD:orch-tests})
+/system-property=org.jboss.eap.datasources.postgresql.database:add(value=${env.POSTGRESQL_DATABASE:orch_random})
+/system-property=org.jboss.eap.datasources.postgresql.connection-url:add(value=${env.POSTGRESQL_URL:jdbc:postgresql://localhost:5432/orch_random})
+/system-property=org.jboss.eap.datasources.postgresql.datasource:add(value=${env.POSTGRES_DATASOURCE:NewcastleDS})
+
+echo ${org.jboss.eap.datasources.postgresql.user-name}

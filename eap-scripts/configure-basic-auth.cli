@@ -1,0 +1,41 @@
+# Setup Filesystem credentials (you can find the actual credentials in 'server/standalone/configuration/fs-realm-users/*')
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add(path=fs-realm-users,relative-to=jboss.server.config.dir)
+
+
+# These users are referenced in org.jboss.pnc.integration.setup.Credentials
+# add a user -> BASIC admin:user.1234
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity(identity=admin)
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:set-password(identity=admin, clear={password="user.1234"})
+
+# add a user -> BASIC user:pass.1234
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity(identity=user)
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:set-password(identity=user, clear={password="pass.1234"})
+
+# add a user -> BASIC system:system.1234
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity(identity=system)
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:set-password(identity=system, clear={password="system.1234"})
+
+# add a user -> BASIC demo-user:pass.1234
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity(identity=demo-user)
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:set-password(identity=demo-user, clear={password="pass.1234"})
+
+
+# Give out roles
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=admin, name=Roles, value=["user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=user, name=Roles, value=["user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=system, name=Roles, value=["pnc-users-admin", "user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=demo-user, name=Roles, value=["user"])
+
+# Configure role mapping from 'Roles' identity attribute
+/subsystem=elytron/simple-role-decoder=from-roles-attribute:add(attribute=Roles)
+
+# Create a SecurityDomain out of this setup
+/subsystem=elytron/security-domain=FilesystemCredentialDomain:add(realms=[{realm=FilesystemCredentialsRealm,role-decoder=from-roles-attribute}],default-realm=FilesystemCredentialsRealm,permission-mapper=default-permission-mapper)
+
+# Configure undertow and EJB3 to use it (instead of properties-file based ApplicationRealm)
+# ejb3 configuration is mandatory
+/subsystem=undertow/application-security-domain=other:write-attribute(name=security-domain, value=FilesystemCredentialDomain)
+/subsystem=ejb3/application-security-domain=other:write-attribute(name=security-domain, value=FilesystemCredentialDomain)
+
+/subsystem=elytron/http-authentication-factory=http-invoker-http-authentication:write-attribute(name=mechanism-configurations, value=[{ "mechanism-name" => "BASIC", "mechanism-realm-configurations" => [{"realm-name" => "FilesystemCredentialsRealm"}] }])
+/subsystem=elytron/http-authentication-factory=http-invoker-http-authentication:write-attribute(name=security-domain, value=FilesystemCredentialDomain)

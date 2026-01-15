@@ -26,7 +26,7 @@
 
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>ApplicationRealm</realm-name>
+        <realm-name>FilesystemCredentialsRealm</realm-name>
     </login-config>
 
     <security-role>
