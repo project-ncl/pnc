@@ -157,6 +157,7 @@
                   org.apache.commons.lang,
                   org.apache.commons.lang3,
                   org.apache.httpcomponents.core,
+                  jdk.net,
                 </Dependencies>
               </manifestEntries>
             </archive>
