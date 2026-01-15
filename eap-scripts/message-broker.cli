@@ -1,0 +1,11 @@
+/subsystem=messaging-activemq/server=default:add(elytron-domain=ApplicationDomain)
+
+/subsystem=messaging-activemq/server=default/in-vm-connector=in-vm:add(server-id="0")
+/subsystem=messaging-activemq/server=default/in-vm-acceptor=in-vm:add(server-id="0")
+/subsystem=messaging-activemq/server=default/connection-factory=InVmConnectionFactory:add(entries=[java:/ConnectionFactory],connectors=["in-vm"])
+
+/subsystem=messaging-activemq/server=default/pooled-connection-factory=activemq-ra:add(transaction="xa", connectors=["in-vm"], entries=["java:/JmsXA", "java:jboss/DefaultJMSConnectionFactory"])
+
+/subsystem=ee/service=default-bindings:write-attribute(name="jms-connection-factory", value="java:jboss/DefaultJMSConnectionFactory")
+/subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="${ejb.resource-adapter-name:activemq-ra.rar}")
+jms-topic add --topic-address=pncTopic --entries=[queue/pncTopic jms/queue/pncTopic java:jboss/exported/jms/queue/pncTopic]

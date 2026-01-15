@@ -1,0 +1,5 @@
+echo "Keycloak port is resolved to ${keycloakPort}"
+/subsystem=keycloak/realm=newcastle-testcontainer:add(auth-server-url="http://localhost:${keycloakPort}", ssl-required="none", disable-trust-manager="true")
+/subsystem=keycloak/secure-deployment=rest.war:add(realm="newcastle-testcontainer", resource="pnc", public-client="true", bearer-only="true")
+/subsystem=ee:write-attribute(name="global-modules",value=[{"name" => "org.keycloak.keycloak-core", "slot" => "main"}])
+# [{ "mechanism-name" => "BASIC", "mechanism-realm-configurations" => [{"realm-name" => "ApplicationRealm"}] }]
