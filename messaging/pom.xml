@@ -109,39 +109,35 @@
 
   <profiles>
     <profile>
-      <id>download-server</id>
+      <id>provision-test-eap</id>
       <activation>
-        <property>
-          <name>eap.zip.url</name>
-        </property>
+        <property><name>!skipTests</name></property>
       </activation>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
+            <groupId>org.jboss.eap.plugins</groupId>
+            <artifactId>eap-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>download-and-extract-eap-server</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
                 <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>package</goal>
+                </goals>
+                <!-- Layers, excluded layers and scripts are inherited from parent plugin config -->
                 <configuration>
-                  <target>
-                    <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
-                    <!-- jboss-as-maven-plugin. -->
-                    <property environment="env" />
-                    <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME" />
-
-                    <echo>Preparing EAP application server</echo>
-                    <echo>EAP URL ${eap.zip.url}</echo>
-                    <fail message="Please specify EAP zip file URL via: -Deap.zip.url=" unless="eap.zip.url" />
-                    <mkdir dir="${test.server.unpack.dir}" />
-                    <get usetimestamp="true" src="${eap.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
-                    <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
-
-                  </target>
+                  <layers combine.children="append">
+                    <layer>h2-driver</layer>
+                  </layers>
+                  <packaging-scripts>
+                    <packaging-script>
+                      <scripts combine.children="append">
+                        <script>../eap-scripts/inmemory-h2db.cli</script>
+                        <script>../eap-scripts/message-broker.cli</script>
+                      </scripts>
+                    </packaging-script>
+                  </packaging-scripts>
+                  <skipDeployment>true</skipDeployment>
                 </configuration>
               </execution>
             </executions>
@@ -149,170 +145,6 @@
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <id>configure-test-container</id>
-      <activation>
-        <property>
-          <name>eap.zip.url</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.wildfly.plugins</groupId>
-            <artifactId>wildfly-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>start-server</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <configuration>
-                  <jbossHome>${test.server.build.dir}</jbossHome>
-                  <java-opts>
-                    <java-opt>--add-modules=java.se</java-opt>
-                  </java-opts>
-                </configuration>
-              </execution>
-                <execution>
-                <id>configure-logging</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>execute-commands</goal>
-                </goals>
-                <configuration>
-                  <execute-commands>
-                    <batch>true</batch>
-                    <commands>
-                      <command>
-                        /subsystem=logging/logger=org.jboss.pnc:add
-                      </command>
-                      <command>
-                        /subsystem=logging/logger=org.jboss.pnc:change-log-level(level=DEBUG)
-                      </command>
-                      <command>
-                        /subsystem=logging/logger=org:add(level=INFO)
-                      </command>
-                      <command>
-                        /subsystem=logging/console-handler=CONSOLE:change-log-level(level=DEBUG)
-                      </command>
-                      <command>
-                        /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
-                      </command>
-                    </commands>
-                  </execute-commands>
-                </configuration>
-              </execution>
-              <execution>
-                <id>configure-amq</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>execute-commands</goal>
-                </goals>
-                <configuration>
-                  <execute-commands>
-                    <batch>false</batch>
-                    <commands>
-                      <command>
-                        /extension=org.wildfly.extension.messaging-activemq:add
-                      </command>
-                      <command>
-                        /subsystem=messaging-activemq:add
-                      </command>
-                    </commands>
-                  </execute-commands>
-                </configuration>
-              </execution>
-              <execution>
-                <id>restart-shutdown</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>shutdown</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>restart-start</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <configuration>
-                  <jbossHome>${test.server.build.dir}</jbossHome>
-                  <java-opts>
-                    <java-opt>--add-modules=java.se</java-opt>
-                    <java-opt>--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</java-opt>
-                    <java-opt>-Dio.netty.tryReflectionSetAccessible=true</java-opt>
-                  </java-opts>
-                </configuration>
-              </execution>
-              <execution>
-                <id>configure-amq-step02</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>execute-commands</goal>
-                </goals>
-                <configuration>
-                  <execute-commands>
-                    <batch>true</batch>
-                    <commands>
-                      <command>
-                        /subsystem=messaging-activemq/server=default:add
-                      </command>
-                      <command>
-                        /subsystem=messaging-activemq/server=default/in-vm-connector=in-vm:add(server-id="0")
-                      </command>
-                      <command>
-                        /subsystem=messaging-activemq/server=default/in-vm-acceptor=in-vm:add(server-id="0")
-                      </command>
-                      <command>
-                        /subsystem=messaging-activemq/server=default/connection-factory=InVmConnectionFactory:add(entries=[java:/ConnectionFactory],connectors=["in-vm"])
-                      </command>
-                      <command>
-                        /subsystem=messaging-activemq/server=default/pooled-connection-factory=activemq-ra:add(transaction="xa", connectors=["in-vm"], entries=["java:/JmsXA", "java:jboss/DefaultJMSConnectionFactory"])
-                      </command>
-                      <command>
-                        /subsystem=ee/service=default-bindings:write-attribute(name="jms-connection-factory", value="java:jboss/DefaultJMSConnectionFactory")
-                      </command>
-                      <command>
-                        /subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="${ejb.resource-adapter-name:activemq-ra.rar}")
-                      </command>
-                    </commands>
-                  </execute-commands>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-jms-topic</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>add-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <address>subsystem=messaging-activemq,server=default,jms-topic=pncTopic</address>
-                      <properties>
-                        <durable>true</durable>
-                        <entries>!!["java:/jms/queue/pncTopic"]</entries>
-                      </properties>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-              <execution>
-                <id>shutdown-server</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>shutdown</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
   </profiles>
 
 

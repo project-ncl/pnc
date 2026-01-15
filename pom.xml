@@ -168,15 +168,21 @@
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     <itCoverageAgent />
 
+    <!-- EAP Maven Plugin and Galleon provision vars -->
+    <version.eap-maven-plugin>2.0.0.Final-redhat-00012</version.eap-maven-plugin>
+    <!-- Versions: https://maven.repository.redhat.com/ga/org/jboss/eap/eap-datasources-galleon-pack -->
+    <version.datasources.pack>7.4.1.GA-redhat-00001</version.datasources.pack>
+    <!-- Versions: https://maven.repository.redhat.com/ga/org/jboss/eap/wildfly-ee-galleon-pack/ -->
+    <version.jboss-base-ee.pack>7.4.21.GA-redhat-00001</version.jboss-base-ee.pack>
+    <!-- Versions: https://maven.repository.redhat.com/ga/org/jboss/eap/wildfly-galleon-pack/ -->
+    <!-- Keep up to date with the XP pack version -->
+    <version.jboss.xp.galleon.pack>4.0.2.GA-redhat-00010</version.jboss.xp.galleon.pack>
+    <version.keycloak-adapter.pack>18.0.19.redhat-00002</version.keycloak-adapter.pack>
+
     <!-- Integration tests -->
-    <app.server>jboss-eap</app.server>
-    <jboss.version>7.4</jboss.version>
-    <default.management.port>9999</default.management.port>
     <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
-    <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
+    <test.server.build.dir>${test.server.unpack.dir}/server</test.server.build.dir>
     <arquillian.container.type>managed</arquillian.container.type>
-    <jboss.port.offset>0</jboss.port.offset>
-    <jboss.management.port>${default.management.port}</jboss.management.port>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
     <tagSuffix />
@@ -1152,6 +1158,65 @@
     </testResources>
     <pluginManagement>
       <plugins>
+        <!-- PROVISIONS EAP IN TESTS AND FOR LOCAL DEVELOPMENT -->
+        <plugin>
+          <groupId>org.jboss.eap.plugins</groupId>
+          <artifactId>eap-maven-plugin</artifactId>
+          <version>${version.eap-maven-plugin}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>package</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <feature-packs>
+              <!-- BASE LAYER -->
+              <feature-pack>
+                <location>org.jboss.eap:wildfly-galleon-pack:${version.jboss.xp.galleon.pack}</location>
+              </feature-pack>
+
+              <!-- UNCOMMEMNT IF NEEDED FOR SOME NICHE LAYERS -->
+              <!--<feature-pack>-->
+              <!--  <location>org.jboss.eap:wildfly-ee-galleon-pack:${version.jboss-base-ee.pack}</location>-->
+              <!--</feature-pack>-->
+
+              <!-- ADDS H2/POSTGRES DRIVERS -->
+              <feature-pack>
+                <location>org.jboss.eap:eap-datasources-galleon-pack:${version.datasources.pack}</location>
+              </feature-pack>
+
+              <!-- ADDS KEYCLOAK ADAPTER FOR REX TESTS -->
+              <feature-pack>
+                <location>org.keycloak:keycloak-adapter-galleon-pack:${version.keycloak-adapter.pack}</location>
+              </feature-pack>
+            </feature-packs>
+            <!-- Layer documentation and information -->
+            <!-- DOCS (7.4 4.0 XP): https://docs.redhat.com/en/documentation/red_hat_jboss_enterprise_application_platform/7.4/html-single/using_jboss_eap_xp_4.0.0/index#available-jboss-eap-layers_default  -->
+            <layers>
+              <layer>cloud-server</layer>
+              <layer>microprofile-platform</layer>
+              <layer>ejb-lite</layer>
+            </layers>
+            <excluded-layers>
+              <layer>observability</layer>
+              <layer>microprofile-health</layer>
+              <layer>microprofile-openapi</layer>
+              <layer>microprofile-jwt</layer>
+              <layer>microprofile-opentracing</layer>
+            </excluded-layers>
+
+            <packaging-scripts>
+              <packaging-script>
+                <scripts>
+                  <script>../eap-scripts/logging.cli</script>
+                </scripts>
+              </packaging-script>
+            </packaging-scripts>
+          </configuration>
+        </plugin>
+
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
@@ -1264,47 +1329,6 @@
         </plugin>
 
         <plugin>
-          <groupId>org.codehaus.gmavenplus</groupId>
-          <artifactId>gmavenplus-plugin</artifactId>
-          <version>4.2.0</version>
-          <executions>
-            <execution>
-              <id>calculate-jboss-port-offset</id>
-              <goals>
-                <goal>execute</goal>
-              </goals>
-              <phase>validate</phase>
-              <configuration>
-                <scripts>
-                  <script>
-                    offset = Integer.valueOf(System.getProperty("jboss.port.offset",
-                    "0"))
-                    manPort =
-                    Integer.valueOf(project.properties["default.management.port"])
-                    project.properties['jboss.management.port'] =
-                    "${manPort + offset}".trim()
-                  </script>
-                </scripts>
-              </configuration>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.codehaus.groovy</groupId>
-              <artifactId>groovy-all</artifactId>
-              <version>2.4.21</version>
-              <scope>runtime</scope>
-            </dependency>
-          </dependencies>
-        </plugin>
-
-        <plugin>
-          <groupId>org.wildfly.plugins</groupId>
-          <artifactId>wildfly-maven-plugin</artifactId>
-          <version>1.2.0.Final</version>
-        </plugin>
-
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>3.21.0</version>
@@ -1314,18 +1338,6 @@
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>0.8.12</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.jolokia</groupId>
-          <artifactId>docker-maven-plugin</artifactId>
-          <version>0.13.9</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.commonjava.maven.plugins</groupId>
-          <artifactId>directory-maven-plugin</artifactId>
-          <version>0.3.1</version>
         </plugin>
 
         <plugin>
@@ -1494,40 +1506,6 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
-      <plugin>
-          <groupId>org.commonjava.maven.plugins</groupId>
-          <artifactId>directory-maven-plugin</artifactId>
-          <executions>
-              <execution>
-                  <id>directories</id>
-                  <goals>
-                      <goal>highest-basedir</goal>
-                  </goals>
-                  <phase>validate</phase>
-                  <configuration>
-                      <property>executionRoot</property>
-                  </configuration>
-              </execution>
-          </executions>
-      </plugin>
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>properties-maven-plugin</artifactId>
-          <executions>
-              <execution>
-                  <phase>validate</phase>
-                  <goals>
-                      <goal>read-project-properties</goal>
-                  </goals>
-            <configuration>
-              <files>
-                <file>${executionRoot}/pnc.cfg</file>
-              </files>
-              <quiet>true</quiet>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <!-- Check for the minimum version of Java and Maven.  Runs during the validate phase. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1614,33 +1592,6 @@
               <!--<perCoreThreadCount>true</perCoreThreadCount>-->
               <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.DebugTest</excludedGroups>
               <redirectTestOutputToFile>true</redirectTestOutputToFile>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>IT-required-parameters</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>pre-integration-test</phase>
-            <configuration>
-              <target>
-                <condition property="eapZipUrlSatisfied" value="true">
-                  <or>
-                    <isset property="eap.zip.url" />
-                    <!-- are tests disabled ? -->
-                    <isset property="skipITs" />
-                    <isset property="skipTests" />
-                    <equals arg1="${maven.test.skip}" arg2="true" />
-                  </or>
-                </condition>
-                <fail message="You must set the location of the eap zip file 'eap.zip.url'." unless="eapZipUrlSatisfied" />
-              </target>
             </configuration>
           </execution>
         </executions>
