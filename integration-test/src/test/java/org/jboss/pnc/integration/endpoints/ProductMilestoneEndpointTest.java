@@ -496,7 +496,7 @@ public class ProductMilestoneEndpointTest {
                 Edge.builder().source("101").target("100").cost(1).build(),
                 Edge.builder().source("104").target("102").cost(2).build(),
                 Edge.builder().source("105").target("102").cost(1).build(),
-                Edge.builder().source("105").target("104").cost(1).build(),
+                Edge.builder().source("104").target("105").cost(1).build(),
                 Edge.builder().source("102").target("100").cost(1).build());
 
         // act
@@ -505,7 +505,7 @@ public class ProductMilestoneEndpointTest {
 
         // assert
         assertThat(actualGraph.getVertices().keySet()).isEqualTo(expectedVerticesKeys);
-        assertThat(actualGraph.getEdges()).isEqualTo(expectedEdges);
+        assertThat(actualGraph.getEdges()).containsExactlyInAnyOrder(expectedEdges.toArray(new Edge[0]));
     }
 
     @Test

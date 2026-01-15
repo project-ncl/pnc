@@ -22,7 +22,7 @@ import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
+import org.dbunit.ext.h2.H2DataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.internal.SessionImpl;
 import org.junit.AfterClass;
@@ -103,7 +103,7 @@ public abstract class AbstractModelTest {
      */
     protected void initDatabaseUsingDataset(EntityManager em, String datasetPath) throws Exception {
         IDatabaseConnection connection = new DatabaseConnection(em.unwrap(SessionImpl.class).connection());
-        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new H2DataTypeFactory());
         FlatXmlDataSetBuilder flatXmlDataSetBuilder = new FlatXmlDataSetBuilder();
         flatXmlDataSetBuilder.setColumnSensing(true);
         InputStream dataSetStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(datasetPath);

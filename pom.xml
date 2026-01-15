@@ -136,7 +136,7 @@
     <version.mockito>5.1.1</version.mockito>
     <version.wiremock>2.35.0</version.wiremock>
     <version.dbunit>3.0.0</version.dbunit>
-    <version.hsqldb>2.7.1</version.hsqldb>
+    <version.h2db>2.4.240</version.h2db>
     <version.rest-assured>5.5.5</version.rest-assured>
     <version.weld-in-tests>3.1.4.Final</version.weld-in-tests>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
@@ -158,9 +158,9 @@
 
     <illegaltransitivereportonly>false</illegaltransitivereportonly>
 
-    <!-- Default DB for NCL is HSQLDB -->
+    <!-- Default DB for NCL is H2 -->
     <persistence.jta-data-source>java:jboss/datasources/NewcastleTestDS</persistence.jta-data-source>
-    <!--<persistence.hibernate.dialect>org.hibernate.dialect.HSQLDialect</persistence.hibernate.dialect>-->
+    <persistence.hibernate.dialect>org.hibernate.dialect.H2Dialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
 
     <!-- Jacoco & Sonar -->
@@ -924,6 +924,10 @@
         <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
           </exclusion>
         </exclusions>
@@ -932,6 +936,12 @@
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-folo-client-java</artifactId>
         <version>${indyVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -1066,10 +1076,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hsqldb</groupId>
-        <artifactId>hsqldb</artifactId>
-        <version>${version.hsqldb}</version>
-        <classifier>debug</classifier>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${version.h2db}</version>
         <scope>test</scope>
       </dependency>
 
