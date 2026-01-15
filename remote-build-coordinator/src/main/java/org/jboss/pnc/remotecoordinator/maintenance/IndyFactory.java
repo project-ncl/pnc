@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.remotecoordinator.maintenance;
 
-import org.apache.commons.lang3.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.IndyClientHttp;
@@ -29,6 +28,7 @@ import org.commonjava.indy.promote.client.IndyPromoteAdminClientModule;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
+import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.log.MDCUtils;
@@ -63,7 +63,7 @@ public class IndyFactory {
     public IndyFactory(GlobalModuleGroup globalConfig, IndyRepoDriverModuleConfig config) {
         this.defaultRequestTimeout = config.getDefaultRequestTimeout();
 
-        String baseUrl = StringUtils.stripEnd(globalConfig.getIndyUrl(), "/");
+        String baseUrl = Strings.stripEndingSlash(globalConfig.getIndyUrl());
         if (!baseUrl.endsWith("/api")) {
             baseUrl += "/api";
         }
