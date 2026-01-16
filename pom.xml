@@ -168,15 +168,22 @@
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     <itCoverageAgent />
 
+    <!-- KEEP IN SYNC WITH RUNTIME -->
+    <!-- JBOSS EAP + XP pack -->
+    <version.jboss-eap>7.4.21.GA</version.jboss-eap>
+    <version.jboss-eap-xp>4.0.2.GA</version.jboss-eap-xp>
+
+    <version.jboss-eap-xp.bom>${version.jboss-eap-xp}-${version.jboss-eap}</version.jboss-eap-xp.bom>
+
     <!-- EAP Maven Plugin and Galleon provision vars -->
     <version.eap-maven-plugin>2.0.0.Final-redhat-00012</version.eap-maven-plugin>
     <!-- Versions: https://maven.repository.redhat.com/ga/org/jboss/eap/eap-datasources-galleon-pack -->
     <version.datasources.pack>7.4.1.GA-redhat-00001</version.datasources.pack>
     <!-- Versions: https://maven.repository.redhat.com/ga/org/jboss/eap/wildfly-ee-galleon-pack/ -->
-    <version.jboss-base-ee.pack>7.4.21.GA-redhat-00001</version.jboss-base-ee.pack>
+    <version.jboss-base-ee.pack>${version.jboss-eap}-redhat-00001</version.jboss-base-ee.pack>
     <!-- Versions: https://maven.repository.redhat.com/ga/org/jboss/eap/wildfly-galleon-pack/ -->
     <!-- Keep up to date with the XP pack version -->
-    <version.jboss.xp.galleon.pack>4.0.2.GA-redhat-00010</version.jboss.xp.galleon.pack>
+    <version.jboss.xp.galleon.pack>${version.jboss-eap-xp}-redhat-00010</version.jboss.xp.galleon.pack>
     <version.keycloak-adapter.pack>18.0.19.redhat-00002</version.keycloak-adapter.pack>
 
     <!-- Integration tests -->
@@ -1334,12 +1341,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>properties-maven-plugin</artifactId>
           <version>1.2.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.21.0</version>
         </plugin>
 
         <plugin>
