@@ -15,6 +15,48 @@
       "externalBifrostUrl": "http://localhost:8081/"
     },
     {
+      "@module-group": "slsa",
+      "configs": [
+        {
+          "@module-config": "builder-config",
+          "id": {
+                 "provenanceEntryName": "id",
+                 "globalConfigUrlRef": "externalPncUrl",
+                 "urlSuffix": "/builds/${buildId}",
+                 "resolverMethod": "replace"
+          },
+          "componentVersions": [
+            {
+              "provenanceEntryName": "https://github.com/project-ncl/bifrost",
+              "globalConfigUrlRef": "externalBifrostUrl",
+              "urlSuffix": "/version",
+              "resolverMethod": "replace"
+            },
+            {
+              "provenanceEntryName": "https://github.com/project-ncl/pnc",
+              "globalConfigUrlRef": "pncUrl",
+              "urlSuffix": "/version",
+              "resolverMethod": "replace"
+            }
+          ],
+          "byProducts": [
+            {
+              "provenanceEntryName": "buildLog",
+              "globalConfigUrlRef": "externalPncUrl",
+              "urlSuffix": "/builds/${buildId}/logs/build",
+              "resolverMethod": "replace"
+            },
+            {
+              "provenanceEntryName": "alignmentLog",
+              "globalConfigUrlRef": "externalPncUrl",
+              "urlSuffix": "/builds/${buildId}/logs/align",
+              "resolverMethod": "replace"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "@module-group":"pnc",
       "configs": [
         {

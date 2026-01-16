@@ -6821,6 +6821,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /slsa/build-provenance/v1/artifacts:
+    get:
+      tags:
+      - Slsa Provenance
+      summary: "Generate build provenance for an artifact identified by an algorithm-qualified\
+        \ digest (for example: ?sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef)."
+      operationId: getFromArtifactDigest
+      parameters:
+      - name: sha256
+        in: query
+        description: "Generate build provenance for an artifact identified by sha256,\
+          \ for example: ?sha256=xxx "
+        schema:
+          type: string
+      - name: md5
+        in: query
+        description: "Generate build provenance for an artifact identified by md5,\
+          \ for example: ?md5=xxx "
+        schema:
+          type: string
+      - name: sha1
+        in: query
+        description: "Generate build provenance for an artifact identified by sha1,\
+          \ for example: ?sha1=xxx "
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provenance'
+        "404":
+          description: Can not find specified result
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /slsa/build-provenance/v1/artifacts/id/{id}:
+    get:
+      tags:
+      - Slsa Provenance
+      summary: Generate the build provenance for an artifact identified by id.
+      operationId: getFromArtifactId
+      parameters:
+      - name: id
+        in: path
+        description: ID of the artifact
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provenance'
+        "404":
+          description: Can not find specified result
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /target-repositories:
     get:
       tags:
@@ -7778,6 +7847,23 @@ components:
           $ref: '#/components/schemas/SCMRepository'
         scmRevision:
           type: string
+    BuildDefinition:
+      type: object
+      properties:
+        buildType:
+          type: string
+        externalParameters:
+          type: object
+          additionalProperties:
+            type: object
+        internalParameters:
+          type: object
+          additionalProperties:
+            type: object
+        resolvedDependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceDescriptor'
     BuildEnvironmentPage:
       type: object
       properties:
@@ -8097,6 +8183,19 @@ components:
           format: date-time
         temporaryBuild:
           type: boolean
+    Builder:
+      type: object
+      properties:
+        builderDependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceDescriptor'
+        id:
+          type: string
+        version:
+          type: object
+          additionalProperties:
+            type: string
     BuildsGraph:
       type: object
       properties:
@@ -8594,6 +8693,17 @@ components:
       properties:
         empty:
           type: boolean
+    Metadata:
+      type: object
+      properties:
+        finishedOn:
+          type: string
+          format: date-time
+        invocationId:
+          type: string
+        startedOn:
+          type: string
+          format: date-time
     MilestoneCloseRequest:
       type: object
       properties:
@@ -9187,6 +9297,13 @@ components:
           format: date-time
         isMaintenanceMode:
           type: boolean
+    Predicate:
+      type: object
+      properties:
+        buildDefinition:
+          $ref: '#/components/schemas/BuildDefinition'
+        runDetails:
+          $ref: '#/components/schemas/RunDetails'
     Product:
       required:
       - abbreviation
@@ -9649,6 +9766,19 @@ components:
           type: string
         technicalLeader:
           type: string
+    Provenance:
+      type: object
+      properties:
+        _type:
+          type: string
+        predicate:
+          $ref: '#/components/schemas/Predicate'
+        predicateType:
+          type: string
+        subject:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceDescriptor'
     RepositoryCreationResponse:
       type: object
       properties:
@@ -9681,6 +9811,38 @@ components:
         uri:
           type: string
           format: uri
+    ResourceDescriptor:
+      type: object
+      properties:
+        annotations:
+          type: object
+          additionalProperties:
+            type: object
+        content:
+          type: string
+        digest:
+          type: object
+          additionalProperties:
+            type: string
+        downloadLocation:
+          type: string
+        mediaType:
+          type: string
+        name:
+          type: string
+        uri:
+          type: string
+    RunDetails:
+      type: object
+      properties:
+        builder:
+          $ref: '#/components/schemas/Builder'
+        byproducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceDescriptor'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
     RunningBuildCount:
       type: object
       properties:
