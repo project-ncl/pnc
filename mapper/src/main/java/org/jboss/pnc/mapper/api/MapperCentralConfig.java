@@ -21,6 +21,8 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
 
+import static org.mapstruct.MappingConstants.ComponentModel.CDI;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -29,7 +31,7 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         implementationPackage = "org.jboss.pnc.mapper",
-        componentModel = "cdi",
+        componentModel = CDI,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface MapperCentralConfig {
 }

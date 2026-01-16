@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+@Builder(builderClassName = "Builder")
 public class DefaultArtifactRepository implements ArtifactRepository {
     private final String id;
 
@@ -27,37 +34,4 @@ public class DefaultArtifactRepository implements ArtifactRepository {
     private final Boolean releases;
 
     private final Boolean snapshots;
-
-    public DefaultArtifactRepository(String id, String name, String url, Boolean releases, Boolean snapshots) {
-        this.id = id;
-        this.name = name;
-        this.url = url;
-        this.releases = releases;
-        this.snapshots = snapshots;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getUrl() {
-        return url;
-    }
-
-    @Override
-    public Boolean getReleases() {
-        return releases;
-    }
-
-    @Override
-    public Boolean getSnapshots() {
-        return snapshots;
-    }
 }
