@@ -26,8 +26,11 @@
     <module-name>rest</module-name>
 
     <login-config>
-        <auth-method>OIDC</auth-method>
+        <auth-method>BASIC?silent=true,OIDC</auth-method>
     </login-config>
+    <listener>
+        <listener-class>org.wildfly.security.http.oidc.OidcConfigurationServletListener</listener-class>
+    </listener>
     <security-role>
         <role-name>pnc-app-build-delete</role-name>
     </security-role>
