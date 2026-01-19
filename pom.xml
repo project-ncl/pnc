@@ -101,7 +101,7 @@
     <maven.min.version>3.2</maven.min.version>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
-    <atlasVersion>1.1.8</atlasVersion>
+    <atlasVersion>1.1.9</atlasVersion>
     <indyVersion>3.4.5</indyVersion>
     <version.keycloak>18.0.11.redhat-00001</version.keycloak>
     <version.swagger2>2.2.42</version.swagger2>
