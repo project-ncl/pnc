@@ -343,21 +343,21 @@ public class ClientGenerator extends AbstractProcessor {
     private MethodSpec completeMethod(
             MethodSpec.Builder methodBuilder,
             Consumer<MethodSpec.Builder> coreStatementConsumer) {
-        methodBuilder = methodBuilder.nextControlFlow("catch ($T e)", NotAuthorizedException.class)
-                .beginControlFlow("if (configuration.getBearerTokenSupplier() != null)")
+        // Generate retry logic for 401 responses
+        methodBuilder = methodBuilder.nextControlFlow("catch ($T e)", Exception.class)
+                .beginControlFlow("if (shouldRetryOn401(e))")
                 .beginControlFlow("try")
-                .addStatement("bearerAuthentication.setTokenSupplier(configuration.getBearerTokenSupplier())");
+                .addComment("Retry after refreshing token");
 
+        // Execute the core statement again (retry)
         coreStatementConsumer.accept(methodBuilder);
 
-        return methodBuilder.nextControlFlow("catch ($T wae)", WebApplicationException.class)
-                .addStatement("throw new RemoteResourceException(readErrorResponse(wae), wae)")
+        return methodBuilder.nextControlFlow("catch ($T retryException)", Exception.class)
+                .addStatement("throw handleException(retryException)")
                 .endControlFlow()
                 .nextControlFlow("else")
-                .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
+                .addStatement("throw handleException(e)")
                 .endControlFlow()
-                .nextControlFlow("catch ($T e)", WebApplicationException.class)
-                .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
                 .endControlFlow()
                 .build();
     }

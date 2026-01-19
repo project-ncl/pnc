@@ -24,10 +24,8 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.client.ApacheHttpClient43EngineWithRetry;
 import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.BuildClient;
-import org.jboss.pnc.client.ClientBase;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteCollection;
@@ -52,7 +50,6 @@ import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -67,7 +64,6 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -530,7 +526,7 @@ public class BuildEndpointTest {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
         // Disable redirects so we can test the actual response
-        disableRedirects(client);
+        client.setFollowRedirects(false);
 
         Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId, null);
         assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
@@ -550,14 +546,6 @@ public class BuildEndpointTest {
         assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
         assertThat(internalScmArchiveLink.getHeaderString("Location")).isNotEmpty();
         assertThat(internalScmArchiveLink.getHeaderString("Authorization")).isEqualTo("Bearer token");
-    }
-
-    private static void disableRedirects(BuildClient client) throws NoSuchFieldException, IllegalAccessException {
-        Field f = ClientBase.class.getDeclaredField("client");
-        f.setAccessible(true);
-        ResteasyClient reClient = (ResteasyClient) f.get(client);
-        ApacheHttpClient43EngineWithRetry engine = (ApacheHttpClient43EngineWithRetry) reClient.httpEngine();
-        engine.setFollowRedirects(false);
     }
 
     @Test

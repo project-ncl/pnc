@@ -76,14 +76,14 @@
     <!-- java client dependencies -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
+      <artifactId>resteasy-client-microprofile</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jackson2-provider</artifactId>
-      <optional>true</optional>
-    </dependency>
+        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+        <artifactId>jackson-jaxrs-json-provider</artifactId>
+        <optional>true</optional>
+    </dependency>    
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
