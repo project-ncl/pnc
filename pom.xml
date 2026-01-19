@@ -104,7 +104,7 @@
     <atlasVersion>1.1.8</atlasVersion>
     <indyVersion>3.4.5</indyVersion>
     <version.keycloak>18.0.11.redhat-00001</version.keycloak>
-    <version.swagger2>2.2.41</version.swagger2>
+    <version.swagger2>2.2.42</version.swagger2>
     <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.42</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
