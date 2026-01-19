@@ -147,7 +147,7 @@
     <version.arquillian-jacoco>1.1.0</version.arquillian-jacoco>
     <version.arquillian-transactions>1.0.5</version.arquillian-transactions>
     <version.arquillian-wildfly>3.0.1.Final</version.arquillian-wildfly>
-    <version.logback>1.5.20</version.logback>
+    <version.logback>1.5.25</version.logback>
     <version.git-commit-id-plugin>9.0.2</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.21.2</version.org.jsoup.jsoup>
