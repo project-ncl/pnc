@@ -20,21 +20,28 @@ package org.jboss.pnc.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
 
-public class ResteasyJackson2ProviderWithDateISO8601 extends ResteasyJackson2Provider {
+/**
+ * Standard JAX-RS Jackson provider configured with ISO8601 date format. Replaces RestEasy-specific
+ * ResteasyJackson2Provider.
+ */
+@Provider
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public class JacksonProviderWithDateISO8601 extends JacksonJsonProvider {
 
-    @Override
-    public ObjectMapper locateMapper(Class<?> type, MediaType mediaType) {
-        ObjectMapper mapper = super.locateMapper(type, mediaType);
-
+    public JacksonProviderWithDateISO8601() {
+        super();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-
         // write dates in ISO8601 format
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-        return mapper;
+        setMapper(mapper);
     }
 }

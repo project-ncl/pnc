@@ -46,10 +46,6 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>common</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
-    </dependency>
     <!-- Unmanaged depencency (to avoid having a dependency on vertx in parent)-->
     <dependency>
       <groupId>io.vertx</groupId>
@@ -64,11 +60,6 @@
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jackson2-provider</artifactId>
-        <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>

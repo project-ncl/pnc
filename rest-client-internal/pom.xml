@@ -55,9 +55,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jackson2-provider</artifactId>
-        <scope>compile</scope>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
