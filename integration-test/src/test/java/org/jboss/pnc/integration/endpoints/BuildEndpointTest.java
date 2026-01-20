@@ -540,7 +540,7 @@ public class BuildEndpointTest {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
         // Disable redirects so we can test the actual response
-        disableRedirects(client);
+        client.setFollowRedirects(false);
 
         Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId, "token");
         assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);

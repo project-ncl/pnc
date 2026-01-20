@@ -773,7 +773,7 @@
       <dependency>
           <groupId>org.jboss.resteasy</groupId>
           <artifactId>resteasy-client-microprofile</artifactId>
-          <version>3.15.6.Final</version>
+          <version>${version.org.jboss.resteasy}</version>
           <scope>test</scope>
       </dependency>
 
