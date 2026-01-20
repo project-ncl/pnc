@@ -703,7 +703,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.STANDARD)
                 .purl("pkg:maven/demo/built-artifact1@1.0?type=jar")
-                .originUrl("http://indy/built-artifact1.jar")
                 .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact2:jar:1.0")
@@ -717,7 +716,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.VERIFIED)
                 .buildCategory(BuildCategory.STANDARD)
                 .purl("pkg:maven/demo/built-artifact2@1.0?type=jar")
-                .originUrl("http://indy/built-artifact2.jar")
                 .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact11:pom:1.0")
@@ -731,7 +729,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.DELETED)
                 .buildCategory(BuildCategory.SERVICE)
                 .purl("pkg:maven/demo/built-artifact11@1.0?type=pom")
-                .originUrl("http://indy/built-artifact11.pom")
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact22:jar:1.0")
@@ -745,7 +742,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.SERVICE)
                 .purl("pkg:maven/demo/built-artifact22@1.0?type=jar")
-                .originUrl("http://indy/built-artifact22.jar")
                 .build();
         // builtArtifact9 defined in this place in order to be part of savedBuildRecord1
         Artifact builtArtifact9 = Artifact.Builder.newBuilder()
@@ -759,7 +755,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built7")
                 .purl("pkg:maven/demo/built-artifact7@1.0?type=jar")
-                .originUrl("http://indy/built-artifact7.jar")
                 .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
