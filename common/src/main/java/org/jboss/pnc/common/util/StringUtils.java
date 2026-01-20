@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -292,6 +294,19 @@ public class StringUtils {
 
         String[] elements = myString.split(DELIMITER);
         return new ArrayList<String>(Arrays.asList(elements));
+    }
+
+    public static URI stripToken(URI uri) {
+        if (uri.toString().contains("token=")) {
+            if (uri.toString().matches(".*builds\\/[^\\/]+\\/scm-archive\\?token=[^&\\/]+")) {
+                try {
+                    return new URI(uri.toString().split("\\?token")[0]);
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return uri;
     }
 
 }

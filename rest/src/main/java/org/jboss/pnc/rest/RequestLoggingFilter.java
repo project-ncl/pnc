@@ -49,6 +49,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
 
+import static org.jboss.pnc.common.util.StringUtils.stripToken;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -98,7 +100,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             MDC.put(MDCKeys.SRC_IP_KEY, httpServletRequest.getRemoteAddr());
         }
 
-        logger.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());
+        logger.info("Requested {} {}.", request.getMethod(), stripToken(uriInfo.getRequestUri()));
 
         if (logger.isTraceEnabled()) {
             MultivaluedMap<String, String> headers = requestContext.getHeaders();
