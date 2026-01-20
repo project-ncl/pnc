@@ -42,7 +42,6 @@ import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
@@ -424,7 +423,9 @@ public interface BuildEndpoint {
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION) })
     @GET
     @Path("/{id}/scm-archive")
-    Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") String id);
+    Response getInternalScmArchiveLink(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @QueryParam("token") String token);
 
     static final String ADD_ATTRIBUTE_DESC = "Add attribute to a specific build.";
 
