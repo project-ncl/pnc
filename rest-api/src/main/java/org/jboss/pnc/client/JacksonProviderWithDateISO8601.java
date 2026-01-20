@@ -28,8 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Standard JAX-RS Jackson provider configured with ISO8601 date format. Replaces RestEasy-specific
- * ResteasyJackson2Provider.
+ * Standard JAX-RS Jackson provider configured with ISO8601 date format.
  */
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)
