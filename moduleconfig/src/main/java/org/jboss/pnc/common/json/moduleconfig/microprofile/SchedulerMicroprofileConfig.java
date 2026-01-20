@@ -64,11 +64,10 @@ public class SchedulerMicroprofileConfig implements ConfigSource {
 
     @Override
     public String getValue(String key) {
-        if (System.getProperty(SCHEDULER_URL_KEY) != null) {
-            return System.getProperty(SCHEDULER_URL_KEY);
-        } else {
-            return properties.get(key);
+        if (SCHEDULER_URL_KEY.equals(key) && System.getProperty(key) != null) {
+            return System.getProperty(key);
         }
+        return properties.get(key);
     }
 
     @Override
