@@ -409,10 +409,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             // valid response from BPM
             var buildResultRest = jsonMapper.convertValue(bpmResponse, BuildResultRest.class);
             if (buildResultRest != null) {
-                // DEBUG lines, remove afterwards
-                logger.info("BuildResultRest: {}", buildResultRest);
-                logger.info("RepositoryManagerResult: {}", buildResultRest.getRepositoryManagerResult());
-                // END of DEBUG lines
                 ValidationBuilder.validateObject(buildResultRest, WhenCreatingNew.class).validateAnnotations();
             }
 
