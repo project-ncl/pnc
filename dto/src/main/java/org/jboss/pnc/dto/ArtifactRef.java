@@ -19,6 +19,7 @@ package org.jboss.pnc.dto;
 
 import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenImporting;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
@@ -52,8 +53,8 @@ public class ArtifactRef implements DTOEntity {
      * ID of the artifact.
      */
     @NotNull(groups = WhenUpdating.class)
-    @Null(groups = WhenCreatingNew.class)
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Null(groups = { WhenCreatingNew.class, WhenImporting.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String id;
 
     /**
@@ -61,59 +62,63 @@ public class ArtifactRef implements DTOEntity {
      * (groupId:artifactId:type:version[:classifier] The format of the identifier string is determined by the repository
      * type.
      */
-    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String identifier;
 
     /**
      * A purl is a URL string with format scheme:type/namespace/name@version?qualifiers#subpath useful to reliably
      * reference the same software package using a simple and expressive syntax and conventions based on familiar URLs
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String purl;
 
     /**
      * Quality level of the artifact.
      */
     @PatchSupport({ REPLACE })
-    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final ArtifactQuality artifactQuality;
 
     /**
      * Category of the build denoting its support and usage
      */
     @PatchSupport({ REPLACE })
-    @NotNull(groups = { WhenUpdating.class })
+    @NotNull(groups = { WhenUpdating.class, WhenImporting.class })
     protected final BuildCategory buildCategory;
 
     /**
      * MD5 checksum of the artifact.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String md5;
 
     /**
      * SHA-1 checksum of the artifact.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String sha1;
 
     /**
      * SHA-256 checksum of the artifact.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String sha256;
 
     /**
      * Filename of the artifact.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String filename;
 
     /**
      * Path in the repository where the artifact file is available.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String deployPath;
 
     /**
@@ -125,7 +130,7 @@ public class ArtifactRef implements DTOEntity {
      * The location from which this artifact was originally downloaded for import. When this artifact was built by PNC
      * the value is null.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String originUrl;
 
     /**
@@ -136,22 +141,24 @@ public class ArtifactRef implements DTOEntity {
     /**
      * Internal url to the artifact using internal (cloud) network domain.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String deployUrl;
 
     /**
      * Public url to the artifact using public network domain.
      */
-    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String publicUrl;
     /**
      * The time when the artifact was created.
      */
+    @Null(groups = { WhenImporting.class })
     protected final Instant creationTime;
 
     /**
      * The time when the quality level of this artifact was last modified.
      */
+    @Null(groups = { WhenImporting.class })
     protected final Instant modificationTime;
 
     /**

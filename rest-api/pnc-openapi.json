@@ -10403,7 +10403,7 @@
         }
       },
       "Artifact" : {
-        "required" : [ "artifactQuality", "buildCategory", "id", "identifier" ],
+        "required" : [ "artifactQuality", "buildCategory", "filename", "id", "identifier", "md5", "sha1", "sha256", "targetRepository" ],
         "type" : "object",
         "properties" : {
           "artifactQuality" : {
