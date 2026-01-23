@@ -38,7 +38,6 @@ import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.BeforeMapping;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -46,6 +45,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -80,6 +80,20 @@ public interface BuildTaskMappers {
                     "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
                     "remoteRollback", "stoppedCause", "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(TaskDTO task, BuildMeta meta);
+
+    @Mapping(target = "buildConfigSetRecordId", ignore = true)
+    @Mapping(target = "productMilestone", source = "meta.productMilestoneId")
+    @Mapping(target = "submitTime", source = "meta.submitTime")
+    @Mapping(target = "startTime", source = "startTime") // generated in fillStartAndEndTime
+    @Mapping(target = "endTime", source = "endTime") // generated in fillStartAndEndTime
+    @Mapping(target = "user", source = "meta.username", qualifiedBy = ByUsername.class)
+    @Mapping(target = "noRebuildCause", source = "meta.noRebuildCauseId")
+    @Mapping(target = "dependants", source = "meta.dependants")
+    @Mapping(target = "dependencies", source = "meta.dependencies")
+    @Mapping(target = "taskDependants", source = "meta.dependants")
+    @Mapping(target = "taskDependencies", source = "meta.dependencies")
+    @BeanMapping(ignoreUnmappedSourceProperties = { "declaringClass", "completed" })
+    DefaultBuildTaskRef toBuildTaskRef(BuildMeta meta, Date startTime, Date endTime, BuildCoordinationStatus status);
 
     @Mapping(target = "id", source = "task.name")
     @Mapping(target = "idRev", source = "task.constraint")

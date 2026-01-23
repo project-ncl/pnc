@@ -24,6 +24,7 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 /**
  *
@@ -78,6 +79,19 @@ public interface ArtifactMapper
     @Mapping(target = "targetRepository")
     @TransientTargetRepo
     Artifact toEntityWithTransientTargetRepository(org.jboss.pnc.dto.Artifact dtoEntity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deployUrl", expression = "java(null)")
+    @Mapping(target = "publicUrl", expression = "java(null)")
+    @Mapping(target = "buildCategory", expression = "java(null)")
+    @Mapping(target = "targetRepository.id", expression = "java(null)")
+    @Mapping(target = "modificationTime", ignore = true)
+    @Mapping(target = "qualityLevelReason", ignore = true)
+    @Mapping(target = "build", ignore = true)
+    @Mapping(target = "modificationUser", ignore = true)
+    @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
+    @Named("avoid-ambiguous-mapping")
+    org.jboss.pnc.dto.Artifact asImportedDTO(Artifact dbEntity);
 
     @Override
     @InheritConfiguration(name = "toEntity")

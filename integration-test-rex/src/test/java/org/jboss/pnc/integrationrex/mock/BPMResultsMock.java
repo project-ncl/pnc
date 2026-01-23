@@ -271,6 +271,11 @@ public class BPMResultsMock {
         }
 
         @Override
+        public Artifact asImportedDTO(org.jboss.pnc.model.Artifact dbEntity) {
+            throw new UnsupportedOperationException("NOT IMPLEMENTED");
+        }
+
+        @Override
         public void updateEntity(Artifact dtoEntity, org.jboss.pnc.model.Artifact target) {
             throw new UnsupportedOperationException("NOT IMPLEMENTED");
         }
