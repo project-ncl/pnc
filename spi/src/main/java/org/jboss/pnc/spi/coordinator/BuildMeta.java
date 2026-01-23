@@ -27,7 +27,7 @@ import org.jboss.pnc.model.IdRev;
 import java.util.Date;
 import java.util.List;
 
-@Builder
+@Builder(toBuilder = true)
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildMeta {

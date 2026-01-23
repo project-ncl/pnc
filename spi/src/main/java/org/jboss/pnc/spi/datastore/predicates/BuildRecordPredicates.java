@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
@@ -80,6 +82,18 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> cb.and(
                 cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
                 cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev()));
+    }
+
+    public static Predicate<BuildRecord> withSubmitTime(Date submitTime) {
+        return (root, query, cb) -> cb.equal(root.get(BuildRecord_.submitTime), submitTime);
+    }
+
+    public static Predicate<BuildRecord> withStartTime(Date startTime) {
+        return (root, query, cb) -> cb.equal(root.get(BuildRecord_.startTime), startTime);
+    }
+
+    public static Predicate<BuildRecord> withEndTime(Date endTime) {
+        return (root, query, cb) -> cb.equal(root.get(BuildRecord_.endTime), endTime);
     }
 
     public static Predicate<BuildRecord> withSuccess() {
@@ -352,6 +366,34 @@ public class BuildRecordPredicates {
                             cb.equal(joinAttributer.get(BuildRecordAttribute_.value), value))
                     .getRestriction();
         };
+    }
+
+    public static Predicate<BuildRecord> withOneOfCombinationOfAttributes(Set<Set<KV<String, String>>> attributes) {
+        return (root, query, cb) -> {
+            SetJoin<BuildRecord, BuildRecordAttribute> attributeSet = root.join(BuildRecord_.attributes);
+
+            return attributes.stream()
+                    .map(
+                            combination -> combination.stream()
+                                    .map(
+                                            attribute -> cb.and(
+                                                    cb.equal(
+                                                            attributeSet.get(BuildRecordAttribute_.key),
+                                                            attribute.getKey()),
+                                                    cb.equal(
+                                                            attributeSet.get(BuildRecordAttribute_.value),
+                                                            attribute.getValue())))
+                                    .reduce(cb::and)
+                                    .orElseThrow(() -> new RuntimeException("Attributes are empty or incorrect.")))
+                    .reduce(cb::or)
+                    .orElseThrow(() -> new RuntimeException("Attributes are empty or incorrect."));
+        };
+    }
+
+    @AllArgsConstructor
+    public static class KV<K, V> {
+        private final @Getter K key;
+        private final @Getter V value;
     }
 
     public static Predicate<BuildRecord> withoutAttribute(String key) {
