@@ -60,7 +60,7 @@ public class InvalidEntityException extends DTOValidationException {
     }
 
     private static String getFieldName(ConstraintViolation<?> validationProblem) {
-        return validationProblem.getPropertyPath().iterator().next().getName();
+        return validationProblem.getPropertyPath().toString();
     }
 
     public String getField() {
