@@ -22,10 +22,7 @@ import org.jboss.pnc.api.bifrost.dto.MetaData;
 import org.jboss.pnc.api.bifrost.enums.Direction;
 import org.jboss.pnc.api.bifrost.enums.Format;
 import org.jboss.pnc.api.bifrost.rest.Bifrost;
-import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
-import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.api.dto.ComponentVersion;
-import org.jboss.pnc.causewayclient.CausewayClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
