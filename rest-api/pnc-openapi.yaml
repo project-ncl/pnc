@@ -2708,10 +2708,6 @@ paths:
         required: true
         schema:
           type: string
-      - name: token
-        in: query
-        schema:
-          type: string
       responses:
         "302":
           description: Redirected to resource

@@ -423,9 +423,7 @@ public interface BuildEndpoint {
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION) })
     @GET
     @Path("/{id}/scm-archive")
-    Response getInternalScmArchiveLink(
-            @Parameter(description = B_ID) @PathParam("id") String id,
-            @QueryParam("token") String token);
+    Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String ADD_ATTRIBUTE_DESC = "Add attribute to a specific build.";
 

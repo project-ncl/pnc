@@ -26,8 +26,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.common.util.StringUtils.stripToken;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -41,7 +39,7 @@ public class RequestLoggingFilter implements ClientRequestFilter {
         logger.debug(
                 "Requesting: {} {} Headers: {}.",
                 requestContext.getMethod(),
-                stripToken(requestContext.getUri()),
+                requestContext.getUri(),
                 toString(headers));
     }
 

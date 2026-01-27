@@ -21,7 +21,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.bifrost.enums.Format;
-import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.Result;
@@ -237,16 +236,13 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Response getInternalScmArchiveLink(String id, String token) {
+    public Response getInternalScmArchiveLink(String id) {
         URI toRedirect = provider.getInternalScmArchiveLink(id);
 
         if (toRedirect == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else {
-            var response = Response.temporaryRedirect(toRedirect);
-            if (token != null)
-                response.header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + token);
-            return response.build();
+            return Response.temporaryRedirect(toRedirect).build();
         }
     }
 
