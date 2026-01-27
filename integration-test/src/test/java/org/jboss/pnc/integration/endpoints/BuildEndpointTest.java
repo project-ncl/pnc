@@ -528,24 +528,9 @@ public class BuildEndpointTest {
         // Disable redirects so we can test the actual response
         client.setFollowRedirects(false);
 
-        Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId, null);
+        Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId);
         assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
         assertThat(internalScmArchiveLink.getHeaderString("Location")).isNotEmpty();
-        assertThat(internalScmArchiveLink.getHeaderString("Authorization")).isNull();
-
-    }
-
-    @Test
-    public void shouldHaveAuthHeaderInSCMArchiveLink() throws ClientException, ReflectiveOperationException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-
-        // Disable redirects so we can test the actual response
-        client.setFollowRedirects(false);
-
-        Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId, "token");
-        assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
-        assertThat(internalScmArchiveLink.getHeaderString("Location")).isNotEmpty();
-        assertThat(internalScmArchiveLink.getHeaderString("Authorization")).isEqualTo("Bearer token");
     }
 
     @Test

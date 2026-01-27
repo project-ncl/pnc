@@ -3800,12 +3800,6 @@
           "schema" : {
             "type" : "string"
           }
-        }, {
-          "name" : "token",
-          "in" : "query",
-          "schema" : {
-            "type" : "string"
-          }
         } ],
         "responses" : {
           "302" : {
