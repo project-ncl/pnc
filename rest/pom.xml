@@ -257,41 +257,5 @@
                 </plugins>
             </build>
         </profile>
-
-        <profile>
-            <id>auth-container-eap</id>
-            <activation>
-                <property>
-                    <name>auth.eap.home</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jboss.as.plugins</groupId>
-                        <artifactId>jboss-as-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>start-server</id>
-                                <phase>generate-test-resources</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                                <configuration>
-                                    <jbossHome>${auth.eap.home}</jbossHome>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>shutdown-server</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>shutdown</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles> 
 </project>

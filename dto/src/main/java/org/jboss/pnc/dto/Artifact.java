@@ -18,6 +18,7 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jboss.pnc.dto.validation.groups.WhenImporting;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.processor.annotation.PatchSupport;
@@ -30,6 +31,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * An artifact created or used by build.
@@ -47,6 +50,7 @@ public class Artifact extends ArtifactRef {
     /**
      * Repository that stores this artifact.
      */
+    @NotNull(groups = WhenImporting.class)
     private final TargetRepository targetRepository;
 
     /**
