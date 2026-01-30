@@ -26,12 +26,17 @@ import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.orch.dto.BuildImport;
+import org.jboss.pnc.api.orch.dto.IdRev;
+import org.jboss.pnc.api.orch.dto.ImportBuildsRequest;
 import org.jboss.pnc.auth.KeycloakClient;
+import org.jboss.pnc.client.BuildTaskClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
@@ -39,6 +44,7 @@ import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.integrationrex.BuildTest;
 import org.jboss.pnc.integrationrex.RemoteServices;
+import org.jboss.pnc.integrationrex.mock.ImportResultsMock;
 import org.jboss.pnc.integrationrex.setup.RestClientConfiguration;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -61,12 +67,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.SUCCESS;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.NOTIFICATION_PATH;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildCompleted;
@@ -85,6 +93,7 @@ public class WebSocketClientTest extends RemoteServices {
 
     private AdvancedBuildConfigurationClient buildConfigurationClient;
     private AdvancedGroupConfigurationClient groupConfigurationClient;
+    private BuildTaskClient taskClient;
 
     private static BuildTest.BPMWireMock bpm;
 
@@ -108,6 +117,7 @@ public class WebSocketClientTest extends RemoteServices {
 
         buildConfigurationClient = new AdvancedBuildConfigurationClient(withBearerToken(token));
         groupConfigurationClient = new AdvancedGroupConfigurationClient(withBearerToken(token));
+        taskClient = new BuildTaskClient(withBearerToken(token));
     }
 
     @After
@@ -328,6 +338,29 @@ public class WebSocketClientTest extends RemoteServices {
         assertThat(future).succeedsWithin(500, TimeUnit.MILLISECONDS);
         wsClient.close();
         wsServer.stop();
+    }
+
+    @Test
+    public void testImportSendsAMessage() throws Exception {
+        // with
+        WebSocketClient wsClient = new VertxWebSocketClient();
+        wsClient.connect(PNC_SOCKET_URL).get();
+
+        BuildConfiguration bc = buildConfigurationClient.getAll().iterator().next();
+        BuildConfigurationRevision bcr = buildConfigurationClient.getRevisions(bc.getId()).iterator().next();
+
+        // when
+        CompletableFuture<BuildChangedNotification> future = wsClient
+                .catchBuildChangedNotification(withBuildConfiguration(bc.getId()), withBuildCompleted());
+        BuildImport importDto = ImportResultsMock.generateBuildImport(
+                IdRev.builder().id(Integer.valueOf(bcr.getId())).rev(bcr.getRev()).build(),
+                SUCCESS,
+                null);
+
+        taskClient.importBuilds(ImportBuildsRequest.builder().imports(List.of(importDto)).build(), null);
+
+        assertThat(future).succeedsWithin(500, TimeUnit.MILLISECONDS);
+        wsClient.disconnect();
     }
 
     private Boolean groupBuildToFinish(String groupBuildId) {

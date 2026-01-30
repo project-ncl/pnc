@@ -23,6 +23,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.api.orch.dto.ImportBuildsRequest;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
@@ -34,8 +36,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.List;
+import java.util.Set;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
@@ -57,6 +63,13 @@ public interface BuildTaskEndpoint {
     Response buildTaskCompleted(
             @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(description = "Build result", required = true) BuildResultRest buildResult);
+
+    @POST
+    @Path("/import")
+    @Consumes(MediaType.APPLICATION_JSON)
+    List<Build> importBuilds(
+            @NotNull ImportBuildsRequest request,
+            @QueryParam("uniqueAttribute") Set<@NotBlank String> uniqueAttributes);
 
     @Operation(
             summary = "Persists build or notifies client about a status transition in a active build process.",
