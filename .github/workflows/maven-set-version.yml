@@ -1,0 +1,25 @@
+name: "0 Maven Set Version Job" # Adding the 0 so that it's on top of the list of github actions
+on:
+  workflow_dispatch: # Manual trigger
+    inputs:
+      new_version:
+        description: '[Required] Version to set'
+        required: true
+        type: string
+
+      ref_for_version:
+        description: '[Optional] Branch or commit to change version. Default: Github default branch'
+        required: false
+        type: string
+        # default has to be a static string, no variables allowed
+        default: ''
+
+jobs:
+    call-maven-set-version-job:
+      permissions:
+        contents: write # needed to push commit and tag back to the repository
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-set-version.yml@v0.0.12
+      with:
+        new_version: ${{ inputs.new_version }}
+        ref_for_version: ${{ inputs.ref_for_version }}
+      secrets: inherit
