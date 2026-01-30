@@ -67,7 +67,7 @@ public interface BuildTaskEndpoint {
     @POST
     @Path("/import")
     @Consumes(MediaType.APPLICATION_JSON)
-    List<Build> buildImportEndpoint(
+    List<Build> importBuilds(
             @NotNull ImportBuildsRequest request,
             @QueryParam("uniqueAttribute") Set<@NotBlank String> uniqueAttributes);
 
