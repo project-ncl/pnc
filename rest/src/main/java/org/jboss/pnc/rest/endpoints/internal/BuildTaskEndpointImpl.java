@@ -225,7 +225,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     @Transactional
     // TODO create a role for importer
     // @RolesAllowed({ USERS_ADMIN })
-    public List<Build> buildImportEndpoint(ImportBuildsRequest request, Set<String> uniqueAttributes) {
+    public List<Build> importBuilds(ImportBuildsRequest request, Set<String> uniqueAttributes) {
         logger.debug("Received request to import multiple builds. This is a import by an external build system.");
         ValidationBuilder.validateObject(request, WhenImporting.class).validateAnnotations();
         validateTargetRepositories(request);
