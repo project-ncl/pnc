@@ -19,10 +19,13 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.api.dto.ErrorResponse;
+import org.jboss.pnc.api.orch.dto.BuildDriverResultRest;
 import org.jboss.pnc.api.orch.dto.BuildImport;
 import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.api.orch.dto.EnvironmentDriverResultRest;
 import org.jboss.pnc.api.orch.dto.ImportBuildsRequest;
 import org.jboss.pnc.api.orch.dto.RepositoryManagerResultRest;
+import org.jboss.pnc.api.orch.dto.RepourResultRest;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -232,7 +235,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
         validateAttributesArePresent(request, uniqueAttributes);
 
-        var matchedRecords = handleIdempotency(request, uniqueAttributes);
+        Map<BuildImport, BuildRecord> matchedRecords = handleIdempotency(request, uniqueAttributes);
 
         List<BuildRecord> oldImportedRecords = new ArrayList<>();
         List<BuildImport> newImports = new ArrayList<>();
@@ -272,7 +275,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     anImport.getStartTime(),
                     anImport.getEndTime(),
                     fromCompletionStatus(result.getCompletionStatus()));
-
+            logger.info("Saving BR: {} into database.", taskRef);
             buildCoordinator.completeBuild(taskRef, Optional.of(result), BuildCoordinationStatus.NEW);
         }
 
@@ -429,14 +432,63 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     "Import is marked as FAILED but the matched BuildRecord '{}' is '{}'.",
                     record.getId(),
                     record.getStatus());
-            throw new BadRequestException("Import is marked as FAILED but the matched record '{}' is '{}'.");
+            throw new BadRequestException(
+                    "Import is marked as FAILED but the matched record " + record.getId() + " is " + record.getStatus()
+                            + ".");
         }
+
+        validateBuildDriverResult(brr.getBuildDriverResult(), record);
+
+        validateEnvironmentDriverResult(brr.getEnvironmentDriverResult(), record);
+
+        validateRepourResult(brr.getRepourResult(), record);
 
         validateRepositoryManagerResult(brr.getRepositoryManagerResult(), record);
 
         validateContainsAttachments(brr.getAttachments(), record);
 
         validateContainsAttributes(record.getAttributes(), brr.getExtraAttributes(), "extraAttributes", record);
+    }
+
+    private void validateBuildDriverResult(BuildDriverResultRest buildDriverResult, BuildRecord record) {
+        if (record.getStatus().completedSuccessfully() && buildDriverResult == null) {
+            logAndThrowBadRequest("buildDriverResult", record);
+        }
+
+        if (buildDriverResult != null) {
+            if ((buildDriverResult.getBuildStatus().completedSuccessfully()
+                    && !record.getStatus().completedSuccessfully())
+                    || (!buildDriverResult.getBuildStatus().completedSuccessfully()
+                            && record.getStatus().completedSuccessfully())) {
+                logAndThrowBadRequest("buildDriverResult.buildStatus", record);
+            }
+
+        }
+    }
+
+    private void validateEnvironmentDriverResult(
+            EnvironmentDriverResultRest environmentDriverResult,
+            BuildRecord record) {
+        if (record.getStatus().completedSuccessfully() && environmentDriverResult == null) {
+            logAndThrowBadRequest("environmentDriverResult", record);
+        }
+
+        if (environmentDriverResult != null) {
+            validateConsistentStatus(
+                    "environmentDriverResult.completionStatus",
+                    record,
+                    environmentDriverResult.getCompletionStatus());
+        }
+    }
+
+    private void validateRepourResult(RepourResultRest repourResult, BuildRecord record) {
+        if (record.getStatus().completedSuccessfully() && repourResult == null) {
+            logAndThrowBadRequest("repourResult", record);
+        }
+
+        if (repourResult != null) {
+            validateConsistentStatus("repourResult.completionStatus", record, repourResult.getCompletionStatus());
+        }
     }
 
     private void validateRepositoryManagerResult(
@@ -463,8 +515,20 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             if (!resultBuilt.equals(built)) {
                 logAndThrowBadRequest("builtArtifacts", record);
             }
+
+            validateConsistentStatus(
+                    "repositoryManagerResult.completionStatus",
+                    record,
+                    repositoryManagerResult.getCompletionStatus());
         }
 
+    }
+
+    private void validateConsistentStatus(String fieldName, BuildRecord record, CompletionStatus completionStatus) {
+        if ((record.getStatus().completedSuccessfully() && completionStatus.isFailed())
+                || (!record.getStatus().completedSuccessfully() && !completionStatus.isFailed())) {
+            logAndThrowBadRequest(fieldName, record);
+        }
     }
 
     /**
