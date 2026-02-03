@@ -19,7 +19,6 @@
 package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
@@ -27,9 +26,6 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,8 +37,6 @@ public class BuildResultMock {
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfigurationMock.mockConfig();
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(status);
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
-        List<Artifact> attachments = new ArrayList<>(RepositoryManagerResultMock.mockResult().getDependencies());
-        Map<String, String> attributes = Map.of("EXTERNAL-EXECUTION-ID", "123");
 
         CompletionStatus completionStatus;
         if (status.completedSuccessfully()) {
@@ -54,12 +48,10 @@ public class BuildResultMock {
         return new BuildResult(
                 completionStatus,
                 Optional.of(new ProcessException("Test Exception.")),
-                Optional.of(buildExecutionConfig),
-                Optional.of(buildDriverResult),
-                Optional.of(repositoryManagerResult),
+                Optional.ofNullable(buildExecutionConfig),
+                Optional.ofNullable(buildDriverResult),
+                Optional.ofNullable(repositoryManagerResult),
                 Optional.of(EnvironmentDriverResultMock.mock()),
-                Optional.of(RepourResultMock.mock()),
-                attachments,
-                attributes);
+                Optional.of(RepourResultMock.mock()));
     }
 }

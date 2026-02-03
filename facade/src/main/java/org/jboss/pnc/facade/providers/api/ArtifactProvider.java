@@ -71,13 +71,6 @@ public interface ArtifactProvider
             String query,
             String buildId);
 
-    Page<Artifact> getAttachedArtifactsForBuild(
-            int pageIndex,
-            int pageSize,
-            String sortingRsql,
-            String query,
-            String buildId);
-
     Page<Artifact> getDeliveredArtifactsForMilestone(
             int pageIndex,
             int pageSize,

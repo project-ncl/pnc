@@ -357,9 +357,7 @@ public abstract class AbstractDependentBuildTest {
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty(),
-                List.of(),
-                Map.of());
+                Optional.empty());
     }
 
     private static BuildDriverResult buildDriverResult() {

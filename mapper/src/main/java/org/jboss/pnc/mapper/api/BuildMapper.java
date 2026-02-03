@@ -76,8 +76,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
             ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
                     "builtArtifacts", "dependencies", "buildConfigurationId", "buildConfigurationRev",
                     "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap",
-                    "attachedArtifacts" })
+                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
     Build toDTO(BuildRecord dbEntity);
 
     /**
@@ -128,7 +127,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     @Mapping(target = "builtArtifacts", ignore = true)
     @Mapping(target = "dependencies", ignore = true)
-    @Mapping(target = "attachedArtifacts", ignore = true)
     @Mapping(target = "buildConfigurationId", source = "buildConfigRevision.id")
     @Mapping(target = "buildConfigurationRev", source = "buildConfigRevision.rev")
     @Mapping(target = "productMilestone", ignore = true)
@@ -169,7 +167,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "sshPassword", ignore = true)
     @Mapping(target = "builtArtifacts", ignore = true)
     @Mapping(target = "dependencies", ignore = true)
-    @Mapping(target = "attachedArtifacts", ignore = true)
     @Mapping(target = "buildEnvironment", ignore = true)
     @Mapping(target = "productMilestone", ignore = true)
     @Mapping(target = "buildConfigSetRecord", ignore = true)
