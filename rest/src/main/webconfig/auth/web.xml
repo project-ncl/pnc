@@ -26,7 +26,7 @@
     <module-name>rest</module-name>
 
     <login-config>
-        <auth-method>OIDC</auth-method>
+        <auth-method>KEYCLOAK</auth-method>
     </login-config>
     <security-role>
         <role-name>pnc-app-build-delete</role-name>
