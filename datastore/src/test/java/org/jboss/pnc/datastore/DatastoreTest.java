@@ -366,8 +366,7 @@ public class DatastoreTest {
                 .user(user)
                 .temporaryBuild(false);
 
-        BuildRecord buildRecord = datastore
-                .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, List.of());
+        BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
 
         Assert.assertEquals(3, buildRecord.getBuiltArtifacts().size());
         Assert.assertEquals(2, buildRecord.getDependencies().size());

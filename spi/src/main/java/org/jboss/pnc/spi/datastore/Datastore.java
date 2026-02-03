@@ -55,15 +55,13 @@ public interface Datastore {
      * @param buildRecordBuilder The build record builder which has been intialized with appropriate data.
      * @param builtArtifacts The list of artifacts built by the build.
      * @param dependencies The list of dependencies used by the build.
-     * @param attachedArtifacts The list of attachments added to the build
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
     BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
-            List<Artifact> dependencies,
-            List<Artifact> attachedArtifacts) throws DatastoreException;
+            List<Artifact> dependencies) throws DatastoreException;
 
     BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
 

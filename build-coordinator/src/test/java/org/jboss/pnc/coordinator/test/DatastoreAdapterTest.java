@@ -48,7 +48,6 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
@@ -144,9 +143,7 @@ public class DatastoreAdapterTest {
                 Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
                 Optional.of(RepositoryManagerResultMock.mockResult()),
                 Optional.of(EnvironmentDriverResultMock.mock()),
-                Optional.of(repourResult),
-                List.of(),
-                Map.of());
+                Optional.of(repourResult));
 
         datastoreAdapter.storeResult(buildTask, buildResult);
 
@@ -179,9 +176,7 @@ public class DatastoreAdapterTest {
                 Optional.of(buildDriverResult),
                 Optional.of(repositoryManagerResult),
                 Optional.of(EnvironmentDriverResultMock.mock()),
-                Optional.of(RepourResultMock.mock()),
-                List.of(),
-                Map.of());
+                Optional.of(RepourResultMock.mock()));
 
         BuildTask buildTask = mockBuildTask();
         datastoreAdapter.storeResult(buildTask, buildResult);

@@ -90,8 +90,7 @@ public class DatastoreMock implements Datastore {
     public BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
-            List<Artifact> dependencies,
-            List<Artifact> attachedArtifacts) {
+            List<Artifact> dependencies) {
         buildRecordBuilder.dependencies(dependencies);
         BuildRecord buildRecord = Mockito.spy(buildRecordBuilder.build());
         Mockito.when(buildRecord.getBuiltArtifacts()).thenReturn(new HashSet<>(builtArtifacts));
