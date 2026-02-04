@@ -48,6 +48,9 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalUiLoggerUrl;
     private String externalDingroguUrl;
     private String externalReqourUrl;
+
+    // Used to generate more accurate SLSA provenance
+    private String externalMainIndyUrl;
     /**
      * TODO: remove once we are comfortable with the new process
      */
@@ -167,6 +170,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalIndyUrl(String externalIndyUrl) {
         this.externalIndyUrl = externalIndyUrl;
+    }
+
+    public String getExternalMainIndyUrl() {
+        return externalMainIndyUrl;
+    }
+
+    public void setExternalMainIndyUrl(String externalMainIndyUrl) {
+        this.externalMainIndyUrl = externalMainIndyUrl;
     }
 
     public String getExternalKafkaStoreUrl() {
