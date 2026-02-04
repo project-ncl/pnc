@@ -19,11 +19,13 @@ package org.jboss.pnc.facade.util;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,6 +52,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.SpecificationVersion;
 
 import lombok.AllArgsConstructor;
 
@@ -61,6 +68,8 @@ import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.Resolver
 public class SlsaProvenanceUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(SlsaProvenanceUtils.class);
+
+    private static final String PROVENANCE_V1_SCHEMA = "slsa_provenance_v1.json";
     private static final ObjectMapper objectMapper = Json.newObjectMapper();
 
     public static final String SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE = "https://in-toto.io/Statement/v1";
@@ -73,6 +82,8 @@ public class SlsaProvenanceUtils {
     private final BuilderConfig builderConfig;
     private final GlobalModuleGroup globalConfig;
     private final Function<String, Optional<String>> urlInvoker;
+
+    private static final Schema PROVENANCE_SCHEMA = loadAndCompileSchema();
 
     public Provenance createBuildProvenance() {
 
@@ -108,12 +119,18 @@ public class SlsaProvenanceUtils {
         RunDetails runDetails = RunDetails.builder().builder(builder).metadata(metadata).byproducts(byproducts).build();
         Predicate predicate = Predicate.builder().buildDefinition(buildDefinition).runDetails(runDetails).build();
 
-        return Provenance.builder()
+        Provenance provenance = Provenance.builder()
                 .type(SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE)
                 .subject(subject)
                 .predicateType(SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE)
                 .predicate(predicate)
                 .build();
+
+        List<com.networknt.schema.Error> errors = validateProvenance(provenance);
+        if (!errors.isEmpty()) {
+            logger.warn("Generated SLSA provenance did not validate: {}", errors);
+        }
+        return provenance;
     }
 
     /**
@@ -306,4 +323,63 @@ public class SlsaProvenanceUtils {
 
         return Optional.empty();
     }
+
+    /**
+     * Validate a Provenance object against the SLSA v1 JSON Schema.
+     *
+     * @param provenance the provenance DTO
+     * @return list of validation errors (empty => valid)
+     */
+    public static List<com.networknt.schema.Error> validateProvenance(Provenance provenance) {
+        Objects.requireNonNull(provenance, "provenance must not be null");
+
+        final String instanceJson;
+        try {
+            instanceJson = objectMapper.writeValueAsString(provenance);
+        } catch (IOException e) {
+            // Indicates a broken DTO / Jackson config issue
+            throw new IllegalStateException("Failed to serialize Provenance object to JSON", e);
+        }
+
+        return PROVENANCE_SCHEMA.validate(instanceJson, InputFormat.JSON);
+    }
+
+    /**
+     * Fail-fast validation helper (useful when producing attestations).
+     *
+     * @throws IllegalArgumentException if provenance is invalid
+     */
+    public static void assertValidProvenance(Provenance provenance) {
+        List<com.networknt.schema.Error> errors = validateProvenance(provenance);
+        if (!errors.isEmpty()) {
+            // Keep it readable; you can format further if you like
+            throw new IllegalArgumentException("Generated SLSA provenance is invalid: " + errors);
+        }
+    }
+
+    private static Schema loadAndCompileSchema() {
+        String schemaJson = loadSchemaFromClasspath(PROVENANCE_V1_SCHEMA);
+
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().preloadSchema(false).build();
+
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(
+                SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config));
+
+        return registry.getSchema(schemaJson);
+    }
+
+    private static String loadSchemaFromClasspath(String schemaFile) {
+        String resourcePath = "schemas/" + schemaFile;
+
+        try (var is = SlsaProvenanceUtils.class.getClassLoader().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                throw new IllegalStateException("JSON Schema not found on classpath: " + resourcePath);
+            }
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read JSON Schema from classpath: " + resourcePath, e);
+        }
+    }
+
 }

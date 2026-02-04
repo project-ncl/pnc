@@ -247,6 +247,8 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         // Generate the provenance
         Provenance provenance = slsaProvenanceUtils.createBuildProvenance();
+        List<com.networknt.schema.Error> errors = SlsaProvenanceUtils.validateProvenance(provenance);
+        assertThat(errors).isEmpty();
 
         // Test `predicateType` and `_type`
         assertNotNull(provenance);
@@ -477,7 +479,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .modificationTime(Instant.now())
                 .name("Test project for SLSA Provenance generation")
                 .rev(getNextId())
-                .scmRevision("*/v0.2")
+                .scmRevision("f2273e03474812bd58239c0903ea3e32730b7805")
                 .creationUser(user)
                 .environment(environment)
                 .modificationUser(user)
