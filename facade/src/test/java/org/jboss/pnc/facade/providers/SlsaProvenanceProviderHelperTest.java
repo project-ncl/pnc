@@ -247,6 +247,8 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         // Generate the provenance
         Provenance provenance = slsaProvenanceUtils.createBuildProvenance();
+        List<com.networknt.schema.Error> errors = SlsaProvenanceUtils.validateProvenance(provenance);
+        assertThat(errors).isEmpty();
 
         // Test `predicateType` and `_type`
         assertNotNull(provenance);
