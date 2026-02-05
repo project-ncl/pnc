@@ -92,7 +92,7 @@ public class SlsaProvenanceUtils {
     private static final Schema PROVENANCE_SCHEMA = loadAndCompileSchema();
 
     private static final int URL_INVOKER_THREADS = 6;
-    private static final long URL_INVOKER_TIMEOUT_MS = 21000;  // ~20s maxDuration + small buffer
+    private static final long URL_INVOKER_TIMEOUT_MS = 21000; // ~20s maxDuration + small buffer
     private static final ExecutorService URL_EXECUTOR = Executors
             .newFixedThreadPool(URL_INVOKER_THREADS, new ThreadFactory() {
                 private int i = 0;
@@ -108,7 +108,7 @@ public class SlsaProvenanceUtils {
     public Provenance createBuildProvenance() {
 
         // Prefetch all INVOKE URLs in parallel (deduped, time-bounded)
-        Map<String, Optional<String>> invokedBodies = prefetchInvokedBodies(pncBuild);
+        Map<String, Optional<String>> invokedBodies = prefetchInvokedBodies();
 
         List<ResourceDescriptor> subject = createResourceDescriptors(builtArtifacts);
         List<ResourceDescriptor> resolvedDependencies = createResolvedDependencies(pncBuild, resolvedArtifacts);
@@ -149,11 +149,7 @@ public class SlsaProvenanceUtils {
                 .predicate(predicate)
                 .build();
 
-        List<com.networknt.schema.Error> errors = validateProvenance(provenance);
-        if (!errors.isEmpty()) {
-            logger.warn("Generated SLSA provenance did not validate: {}", errors);
-        }
-
+        assertValidProvenance(provenance);
         return provenance;
     }
 
@@ -344,7 +340,7 @@ public class SlsaProvenanceUtils {
 
         if (INVOKE.toName().equals(resolverMethod)) {
             Optional<String> responseBody = invokedBodies.getOrDefault(fullUrl, Optional.empty());
-            return parseVersionFromHttResponseBody(responseBody);
+            return parseVersionFromHttpResponseBody(responseBody);
         }
 
         if (REPLACE.toName().equals(resolverMethod)) {
@@ -354,7 +350,7 @@ public class SlsaProvenanceUtils {
         return Optional.of(fullUrl);
     }
 
-    private Optional<String> parseVersionFromHttResponseBody(Optional<String> responseBody) {
+    private Optional<String> parseVersionFromHttpResponseBody(Optional<String> responseBody) {
         if (responseBody.isEmpty()) {
             return Optional.empty();
         }
@@ -375,8 +371,8 @@ public class SlsaProvenanceUtils {
 
     // ---------- Parallel prefetch ----------
 
-    private Map<String, Optional<String>> prefetchInvokedBodies(Build pncBuild) {
-        List<String> urlsToInvoke = collectInvokeUrls(pncBuild);
+    private Map<String, Optional<String>> prefetchInvokedBodies() {
+        List<String> urlsToInvoke = collectInvokeUrls();
 
         // Deduplicate
         List<String> unique = urlsToInvoke.stream().distinct().collect(Collectors.toList());
@@ -405,7 +401,7 @@ public class SlsaProvenanceUtils {
         }
     }
 
-    private List<String> collectInvokeUrls(Build pncBuild) {
+    private List<String> collectInvokeUrls() {
         List<String> urls = new ArrayList<>();
 
         // builder id

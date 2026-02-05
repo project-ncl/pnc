@@ -62,6 +62,8 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 @Stateless
 public class SlsaProvenanceProviderHelper {
 
+    private final PNCHttpClient httpClient = new PNCHttpClient(new SlsaConfig());
+
     private ArtifactRepository artifactRepository;
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -150,8 +152,6 @@ public class SlsaProvenanceProviderHelper {
 
         return slsaProvenanceUtils.createBuildProvenance();
     }
-
-    private final PNCHttpClient httpClient = new PNCHttpClient(new SlsaConfig());
 
     public Optional<String> getBodyFromHttpRequest(String url) {
         Request request = Request.builder().uri(URI.create(url)).method(Request.Method.GET).build();
