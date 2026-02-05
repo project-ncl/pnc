@@ -149,7 +149,7 @@ public class SlsaProvenanceUtils {
                 .predicate(predicate)
                 .build();
 
-        assertValidProvenance(provenance);
+        assertValidProvenance(provenance, false);
         return provenance;
     }
 
@@ -447,9 +447,17 @@ public class SlsaProvenanceUtils {
     }
 
     public static void assertValidProvenance(Provenance provenance) {
+        assertValidProvenance(provenance, true);
+    }
+
+    public static void assertValidProvenance(Provenance provenance, boolean strict) {
         List<com.networknt.schema.Error> errors = validateProvenance(provenance);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Generated SLSA provenance is invalid: " + errors);
+            if (strict) {
+                throw new IllegalArgumentException("Generated SLSA provenance is invalid: " + errors);
+            } else {
+                logger.warn("Generated SLSA provenance is invalid: " + errors);
+            }
         }
     }
 
