@@ -40,6 +40,7 @@ public class BifrostMock implements Bifrost {
             Direction direction,
             Format format,
             Integer maxLines,
+            Integer tailLines,
             Integer batchSize,
             Integer batchDelay,
             boolean follow,

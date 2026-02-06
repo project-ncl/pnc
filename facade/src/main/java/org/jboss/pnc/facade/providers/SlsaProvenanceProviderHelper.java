@@ -62,6 +62,8 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 @Stateless
 public class SlsaProvenanceProviderHelper {
 
+    private final PNCHttpClient httpClient = new PNCHttpClient(new SlsaConfig());
+
     private ArtifactRepository artifactRepository;
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -152,14 +154,13 @@ public class SlsaProvenanceProviderHelper {
     }
 
     public Optional<String> getBodyFromHttpRequest(String url) {
-        PNCHttpClient client = new PNCHttpClient(new SlsaConfig());
         Request request = Request.builder().uri(URI.create(url)).method(Request.Method.GET).build();
-
-        HttpResponse<String> response = client.sendRequestForResponse(request);
-        if (response.statusCode() == 200) {
-            return Optional.of(response.body());
+        try {
+            HttpResponse<String> response = httpClient.sendRequestForResponse(request);
+            return Optional.ofNullable(response.body());
+        } catch (RuntimeException ex) {
+            return Optional.empty();
         }
-        return Optional.empty();
     }
 
     @NoArgsConstructor
@@ -173,12 +174,12 @@ public class SlsaProvenanceProviderHelper {
 
         @Override
         public Duration connectTimeout() {
-            return Duration.ofSeconds(30);
+            return Duration.ofSeconds(5);
         }
 
         @Override
         public Duration requestTimeout() {
-            return Duration.ofMinutes(2);
+            return Duration.ofSeconds(4);
         }
 
         @Override
@@ -196,17 +197,17 @@ public class SlsaProvenanceProviderHelper {
 
         @Override
         public Duration backoffMaxDelay() {
-            return Duration.ofMinutes(1);
+            return Duration.ofSeconds(6);
         }
 
         @Override
         public int maxRetries() {
-            return -1;
+            return 3;
         }
 
         @Override
         public Duration maxDuration() {
-            return Duration.ofMinutes(20);
+            return Duration.ofSeconds(20);
         }
     }
 

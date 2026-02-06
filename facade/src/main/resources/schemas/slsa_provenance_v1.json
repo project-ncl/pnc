@@ -1,0 +1,187 @@
+{
+  "$id": "https://slsa.dev/provenance/v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "DigestSet": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "sha256",
+          "sha224",
+          "sha384",
+          "sha512",
+          "sha512_224",
+          "sha512_256",
+          "sha3_224",
+          "sha3_256",
+          "sha3_384",
+          "sha3_512",
+          "shake128",
+          "shake256",
+          "blake2b",
+          "blake2s",
+          "ripemd160",
+          "sm3",
+          "gost",
+          "sha1",
+          "md5",
+          "gitCommit"
+        ]
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]+$"
+      }
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "ResourceDescriptor": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string"
+        },
+        "digest": {
+          "$ref": "#/$defs/DigestSet"
+        },
+        "name": {
+          "type": "string"
+        },
+        "downloadLocation": {
+          "type": "string"
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "annotations": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "_type": {
+      "const": "https://in-toto.io/Statement/v1"
+    },
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "digest": {
+            "$ref": "#/$defs/DigestSet"
+          }
+        },
+        "required": [
+          "name",
+          "digest"
+        ]
+      }
+    },
+    "predicateType": {
+      "const": "https://slsa.dev/provenance/v1"
+    },
+    "predicate": {
+      "type": "object",
+      "properties": {
+        "buildDefinition": {
+          "type": "object",
+          "properties": {
+            "buildType": {
+              "type": "string",
+              "minLength": 1
+            },
+            "externalParameters": {
+              "type": "object"
+            },
+            "internalParameters": {
+              "type": "object"
+            },
+            "resolvedDependencies": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ResourceDescriptor"
+              }
+            }
+          },
+          "required": [
+            "buildType",
+            "externalParameters"
+          ]
+        },
+        "runDetails": {
+          "type": "object",
+          "properties": {
+            "builder": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "builderDependencies": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/ResourceDescriptor"
+                  }
+                },
+                "version": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "invocationId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "startedOn": {
+                  "$ref": "#/$defs/Timestamp"
+                },
+                "finishedOn": {
+                  "$ref": "#/$defs/Timestamp"
+                }
+              }
+            },
+            "byproducts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ResourceDescriptor"
+              }
+            }
+          },
+          "required": [
+            "builder"
+          ]
+        }
+      },
+      "required": [
+        "buildDefinition",
+        "runDetails"
+      ]
+    }
+  },
+  "required": [
+    "_type",
+    "subject",
+    "predicate"
+  ]
+}
