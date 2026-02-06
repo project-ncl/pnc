@@ -18,6 +18,7 @@
 package org.jboss.pnc.remotecoordinator.maintenance;
 
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
@@ -124,10 +125,17 @@ public class TemporaryBuildsCleaner {
                 buildRecord.getDependencies());
 
         String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
-        Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord);
-        if (!result.isSuccess()) {
-            log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
-            return new Result(externalBuildId, ResultStatus.FAILED, "Failed to delete remote temporary builds.");
+
+        BuildStatus buildStatus = buildRecord.getStatus();
+        if (buildStatus.isFinal() && buildStatus != BuildStatus.NO_REBUILD_REQUIRED
+                && !buildStatus.name().startsWith("REJECTED")) {
+            // there's only an indy repository if the build actually tried to run. NO_REBUILD_REQUIRED and REJECTED_*
+            // never ran
+            Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord);
+            if (!result.isSuccess()) {
+                log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
+                return new Result(externalBuildId, ResultStatus.FAILED, "Failed to delete remote temporary builds.");
+            }
         }
 
         removeBuiltArtifacts(buildRecord);
