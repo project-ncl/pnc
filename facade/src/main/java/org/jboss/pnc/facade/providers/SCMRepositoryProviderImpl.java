@@ -228,7 +228,10 @@ public class SCMRepositoryProviderImpl
         if (StringUtils.isEmpty(scmUrl)) {
             throw new InvalidEntityException("You must specify the SCM URL.");
         }
-
+        String bannedSCMUrl = config.getBannedScmAuthority();
+        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl)) {
+            throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
+        }
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
         if (scmUrl.contains(config.getInternalScmAuthority())
                 || (secondaryAuthority != null && scmUrl.contains(secondaryAuthority))) { // is internal repository
@@ -288,17 +291,13 @@ public class SCMRepositoryProviderImpl
         if (!isInternalRepository(internalScmAuthority, secondaryInternalScmAuthority, internalRepoUrl)) {
             log.info("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException(
-                    "Internal repository url has to start with: <protocol>://" + internalScmAuthority
-                            + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
-        } else if (usingGitlabButNotScpFormat(internalRepoUrl)) {
-            log.info("Invalid internal repo url: We only allow internal gitlab repo url in scp format");
+                    "Internal repository url " + internalRepoUrl + " has to start with: <protocol>://"
+                            + internalScmAuthority + " followed by a repository name or match the pattern: "
+                            + REPOSITORY_NAME_PATTERN);
+        } else if (usingGithubButNotScpFormat(internalRepoUrl)) {
+            log.info("Invalid internal repo url: We only allow internal github repo url in scp format");
             throw new InvalidEntityException(
-                    "Internal Gitlab repository url has to follow format: git@<server>:<path to git repo>.git");
-        } else if (internalRepoUrl.contains("/gerrit/")) {
-            log.info("Invalid internal repo url: " + internalRepoUrl);
-            throw new InvalidEntityException(
-                    "Incorrect format of internal repository. Internal repository"
-                            + " url should not contain '/gerrit/' part of the url");
+                    "Internal Github repository url has to follow format: git@<server>:<path to git repo>.git");
         } else if (internalRepoUrl.split("://")[0].contains("http")) {
             log.info("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException(
@@ -487,19 +486,19 @@ public class SCMRepositoryProviderImpl
     }
 
     /**
-     * [NCL-8685] Gitlab internal urls should *only* use the scp format: git@{server}:{path to git repo}.git
+     * [NCL-8685] Github internal urls should *only* use the scp format: git@{server}:{path to git repo}.git
      *
      * @param internalRepoUrl internal url to validate
-     * @return true if using gitlab internal url *and* the internal url is not in scp format
+     * @return true if using github internal url *and* the internal url is not in scp format
      */
-    static boolean usingGitlabButNotScpFormat(String internalRepoUrl) {
+    static boolean usingGithubButNotScpFormat(String internalRepoUrl) {
 
         try {
             ScmUrlGeneratorProvider.SCMProvider provider = ScmUrlGeneratorProvider
                     .determineInternalScmProvider(internalRepoUrl);
 
-            if (ScmUrlGeneratorProvider.SCMProvider.GITLAB != provider) {
-                // not using gitlab
+            if (ScmUrlGeneratorProvider.SCMProvider.GITHUB != provider) {
+                // not using github
                 return false;
             }
         } catch (ScmException e) {
@@ -512,7 +511,7 @@ public class SCMRepositoryProviderImpl
             // parsing done without MalformedUrlException,
             return false;
         } catch (MalformedURLException e) {
-            // we are using gitlab but the internal repo is not in scp format
+            // we are using github but the internal repo is not in scp format
             return true;
         }
     }

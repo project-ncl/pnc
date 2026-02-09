@@ -97,7 +97,7 @@ public class SCMRepositoryEndpointTest {
     public void shouldCreateNewWithInternalUrl() throws ClientException {
         // With
         SCMRepository repository = SCMRepository.builder()
-                .internalUrl("ssh://git@github.com:22/newUser/newRepo.git")
+                .internalUrl("git@github.com:22/newUser/newRepo.git")
                 .preBuildSyncEnabled(false)
                 .build();
 
@@ -119,7 +119,7 @@ public class SCMRepositoryEndpointTest {
     @Test
     public void shouldFailOnCreatingNewWithConflictingInternalUrl() {
         SCMRepository repository = SCMRepository.builder()
-                .internalUrl("ssh://git@github.com:22/project-ncl/pnc.git") // from DatabaseDataInitializer.class
+                .internalUrl("git@github.com:22/project-ncl/pnc.git") // from DatabaseDataInitializer.class
                 .preBuildSyncEnabled(false)
                 .build();
 
