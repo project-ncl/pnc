@@ -32,12 +32,16 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     private String secondaryInternalScmAuthority;
 
+    private String bannedScmAuthority;
+
     public ScmModuleConfig(
             @JsonProperty("internalScmAuthority") String internalScmAuthority,
-            @JsonProperty("secondaryInternalScmAuthority") String secondaryInternalScmAuthority) {
+            @JsonProperty("secondaryInternalScmAuthority") String secondaryInternalScmAuthority,
+            @JsonProperty("bannedScmAuthority") String bannedScmAuthority) {
         super();
         this.internalScmAuthority = StringUtils.stripEndingSlash(internalScmAuthority);
         this.secondaryInternalScmAuthority = StringUtils.stripEndingSlash(secondaryInternalScmAuthority);
+        this.bannedScmAuthority = StringUtils.stripEndingSlash(bannedScmAuthority);
     }
 
     public String getInternalScmAuthority() {
@@ -46,6 +50,10 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     public String getSecondaryInternalScmAuthority() {
         return secondaryInternalScmAuthority;
+    }
+
+    public String getBannedScmAuthority() {
+        return bannedScmAuthority;
     }
 
     @Override

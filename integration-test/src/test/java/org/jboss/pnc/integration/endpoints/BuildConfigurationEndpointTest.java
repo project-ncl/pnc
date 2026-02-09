@@ -877,7 +877,7 @@ public class BuildConfigurationEndpointTest {
 
         BuildConfigWithSCMRequest request = BuildConfigWithSCMRequest.builder()
                 .buildConfig(newBC)
-                .scmUrl("ssh://git@github.com:22/newUser/newRepo.git")
+                .scmUrl("git@github.com:22/newUser/newRepo.git")
                 .build();
 
         BuildConfigCreationResponse received = client.createWithSCM(request);
