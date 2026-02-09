@@ -115,7 +115,7 @@
     <version.rex-api>1.2.3-SNAPSHOT</version.rex-api>
     <bifrost-client.version>3.3.0</bifrost-client.version>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
-    <version.vertx-core>3.9.14</version.vertx-core>
+    <version.vertx-core>5.0.7</version.vertx-core>
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
     <version.org.apache.httpcomponents.fluent-hc>4.5.14</version.org.apache.httpcomponents.fluent-hc>
     <!-- -redhat version is missing some packages -->
