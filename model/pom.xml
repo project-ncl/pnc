@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-api</artifactId>
+      <artifactId>pnc-api-constants</artifactId>
     </dependency>
     <dependency>
       <groupId>jakarta.validation</groupId>
