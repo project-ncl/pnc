@@ -171,23 +171,6 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     }
 
     @Test
-    public void testStoreNewRepositoryWithGitlabInternalUrlInScpFormatShouldSucceed() {
-
-        // when
-        SCMRepository toCreate = createNewSCMRepository(
-                "https://" + UUID.randomUUID().toString() + ".ca",
-                "git@gitlab.com:haha/hoho.git",
-                true,
-                null);
-
-        SCMRepository created = provider.store(toCreate);
-        // then
-        assertThat(created).isNotNull();
-        assertThat(created.getId()).isNotNull().isNotEmpty();
-        assertThat(created.getInternalUrl()).isEqualTo(toCreate.getInternalUrl());
-    }
-
-    @Test
     public void testStoreNewRepositoryWithGithubInternalUrlInScpFormatShouldSucceed() {
 
         // when
@@ -309,24 +292,12 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     }
 
     @Test
-    public void testCreateSCMRepository() throws ConfigurationParseException {
-
-        // when
+    public void testCreateNewRepositoryWithGitlabInternalUrlInScpFormatShouldFail() throws ConfigurationParseException {
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
-        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
+        when(scmModuleConfig.getBannedScmAuthority()).thenReturn("gitlab.company.com");
 
-        RepositoryCreationResponse response = provider
-                .createSCMRepository("git+ssh://github.com/project-ncl/cleaner.git", true);
-
-        // then
-        // NCL-5989 don't send WS message if repository is created immediately (happens with internal url)
-        // verify(notifier, times(1)).sendMessage(any());
-        assertThat(response).isNotNull();
-
-        if (response.getRepository() == null && response.getTaskId() == null) {
-            Assert.fail("Both repository and task id cannot be null!");
-        }
+        assertThatThrownBy(() -> provider.createSCMRepository("git@gitlab.company.com:haha/hoho.git", true))
+                .isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
@@ -363,25 +334,12 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     }
 
     @Test
-    public void testCreateSCMRepositoryWithInvalidInternalRepositoryShouldFail() {
-
-        // when
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("internalrepo.com");
-        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
-        String invalidInternal = scmModuleConfig.getInternalScmAuthority() + "/gerrit/random-project.git";
-
-        // then
-        assertThatThrownBy(() -> provider.createSCMRepository(invalidInternal, false))
-                .isInstanceOf(InvalidEntityException.class);
-    }
-
-    @Test
     public void testCreateSCMRepositoryWithSecondaryInternalRepository() {
 
         // when
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("internalrepo.com");
-        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn("github.com");
-        String internalUrl = "git+ssh://github.com/project-ncl/cleaner.git";
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn("random.com");
+        String internalUrl = "git+ssh://random.com/project-ncl/cleaner.git";
 
         RepositoryCreationResponse response = provider.createSCMRepository(internalUrl, false);
 
