@@ -168,9 +168,13 @@ public class BuildResultSerializationTest {
                 buildResult.getEnvironmentDriverResult().get().getCompletionStatus(),
                 buildResultFromJson.getEnvironmentDriverResult().get().getCompletionStatus());
         Assert.assertEquals(
-                message,
                 buildResult.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand(),
                 buildResultFromJson.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand());
-
+        Assert.assertTrue(message, buildResult.getExtraAttributes().containsKey("EXTERNAL-EXECUTION-ID"));
+        Assert.assertTrue(message, buildResultFromJson.getExtraAttributes().containsKey("EXTERNAL-EXECUTION-ID"));
+        Assert.assertEquals(
+                message,
+                buildResult.getExtraAttributes().get("EXTERNAL-EXECUTION-ID"),
+                buildResultFromJson.getExtraAttributes().get("EXTERNAL-EXECUTION-ID"));
     }
 }

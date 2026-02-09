@@ -161,6 +161,51 @@ public class DatastoreAdapterTest {
     }
 
     @Test
+    public void shouldAddExtraAttributes() throws DatastoreException {
+        // given
+        DatastoreMock datastore = new DatastoreMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
+
+        final String KEY_1 = "key1";
+        final String KEY_2 = "key2";
+        final String VALUE_1 = "value1";
+        final String VALUE_2 = "value2";
+        Map<String, String> extraAttributes = Map.of(KEY_1, VALUE_1, KEY_2, VALUE_2);
+
+        // when
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder().name("Configuration.").build();
+
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfiguration)
+                .build();
+
+        BuildTaskRef buildTask = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
+        BuildResult buildResult = new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                Optional.of(mock(BuildExecutionConfiguration.class)),
+                Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
+                Optional.of(RepositoryManagerResultMock.mockResult()),
+                Optional.of(EnvironmentDriverResultMock.mock()),
+                Optional.of(RepourResultMock.mock()),
+                List.of(),
+                extraAttributes);
+
+        datastoreAdapter.storeResult(buildTask, buildResult);
+
+        // then
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        Assert.assertEquals(1, buildRecords.size());
+        BuildRecord buildRecord = buildRecords.get(0);
+
+        Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
+        Assert.assertTrue(buildRecord.getAttributesMap().containsKey(KEY_1));
+        Assert.assertTrue(buildRecord.getAttributesMap().containsKey(KEY_2));
+        Assert.assertTrue(buildRecord.getAttributesMap().get(KEY_1).equals(VALUE_1));
+        Assert.assertTrue(buildRecord.getAttributesMap().get(KEY_2).equals(VALUE_2));
+    }
+
+    @Test
     public void shouldStoreSshCredentialsOnSshEnabled() throws DatastoreException {
         // given
         DatastoreMock datastore = new DatastoreMock();

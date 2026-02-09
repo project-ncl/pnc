@@ -43,10 +43,16 @@ public interface BuildExecutionConfigurationMapper
     BuildExecutionConfigurationRest toDTO(BuildExecutionConfiguration entity);
 
     static User toUser(String id) {
+        if (id == null) {
+            return null;
+        }
         return User.builder().id(id).build();
     }
 
     static String fromUser(User user) {
+        if (user == null) {
+            return null;
+        }
         return user.getId();
     }
 }

@@ -134,6 +134,10 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
         final String identifier = "foo:bar:0.0.1";
         Artifact artifact = Artifact.builder()
                 .identifier(identifier)
+                .md5("4af310bf0ef67bc7d143f35818ea1ed2")
+                .sha1("3a8ff25c890f2a4a283876a91037ff6c57474a14")
+                .sha256("1660168483cb8a05d1cc2e77c861682a42ed9517ba945159d5538950c5db00fa")
+                .filename("bar-0.0.1.jar")
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.STANDARD)
                 .build();
@@ -150,6 +154,10 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
         final String identifier = "foo:bar:0.0.1";
         Artifact artifact = Artifact.builder()
                 .id("123")
+                .md5("4af310bf0ef67bc7d143f35818ea1ed2")
+                .sha1("3a8ff25c890f2a4a283876a91037ff6c57474a14")
+                .sha256("1660168483cb8a05d1cc2e77c861682a42ed9517ba945159d5538950c5db00fa")
+                .filename("bar-0.0.1.jar")
                 .identifier(identifier)
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.STANDARD)
@@ -195,6 +203,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
                 .artifactQuality(ArtifactQuality.BLACKLISTED) // Modified field
                 .buildCategory(BuildCategory.STANDARD)
                 .identifier(artifact1.getIdentifier())
+                .filename("bar-0.0.1.jar")
                 .md5(artifact1.getMd5())
                 .sha1(artifact1.getSha1())
                 .sha256(artifact1.getSha256())
@@ -271,6 +280,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
         return org.jboss.pnc.model.Artifact.builder()
                 .id(entityId.getAndIncrement())
                 .artifactQuality(ArtifactQuality.NEW)
+                .filename(identifier + ".jar")
                 .identifier(identifier)
                 .md5("md5-" + checksum)
                 .sha1("sha1-" + checksum)

@@ -288,13 +288,18 @@ public class DatastoreAdapter {
                                 "Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
             }
 
+            // this may happen if no subresult is present
             if (NEW.equals(buildRecordStatus)) {
                 String message;
                 switch (buildResult.getCompletionStatus()) {
                     case SUCCESS:
                     case NO_REBUILD_REQUIRED:
+                        break;
                     case FAILED:
+                        buildRecordStatus = FAILED;
+                        break;
                     case SYSTEM_ERROR:
+                        buildRecordStatus = SYSTEM_ERROR;
                         break;
                     case CANCELLED:
                         buildRecordStatus = CANCELLED;
@@ -359,6 +364,7 @@ public class DatastoreAdapter {
     public BuildRecord storeResult(BuildTaskRef buildTask, Optional<BuildResult> buildResult, Throwable e)
             throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+        buildRecordBuilder.status(SYSTEM_ERROR);
 
         StringBuilder errorLog = new StringBuilder();
 
