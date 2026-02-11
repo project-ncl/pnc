@@ -140,14 +140,7 @@ public class BPMResultsMock {
         var artMapper = new ArtifactMapperMock();
         var rmrMapper = new RepositoryManagerResultMapperImpl(artMapper);
         var peMapper = new ProcessExceptionMapper();
-        var resultMapper = new BuildResultMapperImpl(
-                becMapper,
-                envMapper,
-                bdrMapper,
-                rrMapper,
-                rmrMapper,
-                peMapper,
-                artMapper);
+        var resultMapper = new BuildResultMapperImpl(becMapper, envMapper, bdrMapper, rrMapper, rmrMapper, peMapper);
         return resultMapper;
     }
 
