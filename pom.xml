@@ -30,7 +30,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>3.3.2-SNAPSHOT</version>
+  <version>3.4.999-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -683,6 +683,12 @@
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-api</artifactId>
         <version>${version.pnc-api}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>dto</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.jboss.pnc</groupId>

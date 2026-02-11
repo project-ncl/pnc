@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss.pnc</groupId>
     <artifactId>parent</artifactId>
-    <version>3.3.2-SNAPSHOT</version>
+    <version>3.4.999-SNAPSHOT</version>
   </parent>
 
   <artifactId>rest-api-internal</artifactId>
