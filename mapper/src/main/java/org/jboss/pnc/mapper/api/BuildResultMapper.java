@@ -36,7 +36,8 @@ import org.mapstruct.Mapping;
                 OptionalMapper.class, ProcessExceptionMapper.class, ArtifactMapper.class })
 public interface BuildResultMapper extends SimpleMapper<BuildResultRest, BuildResult> {
     @Override
-    @Mapping(target = "attachments", source = "attachments", qualifiedBy = TransientTargetRepo.class)
+    @Mapping(target = "attachments", ignore = true)
+    @Mapping(target = "extraAttributes", ignore = true)
     BuildResult toEntity(BuildResultRest buildResultRest);
 
     @Override
