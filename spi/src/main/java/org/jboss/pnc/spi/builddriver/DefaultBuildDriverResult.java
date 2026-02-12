@@ -28,7 +28,6 @@ import java.util.Optional;
 @Getter
 @AllArgsConstructor
 @Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = DefaultBuildDriverResult.Builder.class)
 public class DefaultBuildDriverResult implements BuildDriverResult {
     private final BuildStatus buildStatus;
 
