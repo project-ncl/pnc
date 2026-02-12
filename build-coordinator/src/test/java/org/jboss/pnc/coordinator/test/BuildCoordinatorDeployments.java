@@ -19,7 +19,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.api.enums.orch.BpmEventType;
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;

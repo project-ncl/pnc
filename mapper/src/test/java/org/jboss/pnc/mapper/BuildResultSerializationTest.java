@@ -23,7 +23,7 @@ import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.mapper.api.EnvironmentDriverResultMapper;
 import org.jboss.pnc.mapper.api.RepositoryManagerResultMapper;
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.mapper.api.RepourResultMapper;
 import org.jboss.pnc.mapper.api.SshCredentialsMapper;
 import org.jboss.pnc.common.Configuration;

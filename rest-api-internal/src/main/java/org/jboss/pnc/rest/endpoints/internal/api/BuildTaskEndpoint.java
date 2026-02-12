@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;

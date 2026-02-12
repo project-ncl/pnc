@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.api.dto.ErrorResponse;
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;

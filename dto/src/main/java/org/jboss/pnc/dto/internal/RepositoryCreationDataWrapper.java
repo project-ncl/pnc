@@ -15,22 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper.api;
+package org.jboss.pnc.dto.internal;
 
-import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.spi.repour.RepourResult;
-import org.mapstruct.Mapper;
+import lombok.Data;
 
-/**
- *
- * @author Jan Michalov &lt;jmichalo@redhat.com&gt;
- */
-@Mapper(config = MapperCentralConfig.class)
-public interface RepourResultMapper extends SimpleMapper<RepourResultRest, RepourResult> {
+import java.io.Serializable;
 
-    @Override
-    RepourResultRest toDTO(RepourResult entity);
+@Data
+public class RepositoryCreationDataWrapper implements Serializable {
 
-    @Override
-    RepourResult toEntity(RepourResultRest repourResultRest);
+    private String message;
+    private String externalUrl;
+    private String internalUrl;
+    private String preBuildSyncEnabled;
+
+    public boolean isPreBuildSyncEnabled() {
+        return Boolean.parseBoolean(preBuildSyncEnabled);
+    }
 }

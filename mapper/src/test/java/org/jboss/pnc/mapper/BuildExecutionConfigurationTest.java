@@ -19,7 +19,7 @@
 package org.jboss.pnc.mapper;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.api.orch.dto.BuildExecutionConfigurationRest;
+import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
 import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;

@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.BuildExecutionConfigurationRest;
+import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.DefaultBuildExecutionConfiguration;

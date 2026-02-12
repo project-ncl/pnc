@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.api.orch.dto.ProcessException;
+import org.jboss.pnc.dto.internal.ProcessException;
 import org.jboss.pnc.mapper.api.SimpleMapper;
 
 import javax.enterprise.context.ApplicationScoped;

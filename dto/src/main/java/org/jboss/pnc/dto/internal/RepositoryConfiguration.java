@@ -15,24 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper.api;
+package org.jboss.pnc.dto.internal;
 
-import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
-import org.jboss.pnc.mapper.OptionalMapper;
-import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-import org.mapstruct.Mapper;
+import lombok.Builder;
+import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  *
- * @author Jan Michalov &lt;jmichalo@redhat.com&gt;
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = { SshCredentialsMapper.class, OptionalMapper.class })
-public interface EnvironmentDriverResultMapper
-        extends SimpleMapper<EnvironmentDriverResultRest, EnvironmentDriverResult> {
+@Builder
+@Data
+public class RepositoryConfiguration implements Serializable {
 
-    @Override
-    EnvironmentDriverResult toEntity(EnvironmentDriverResultRest environmentDriverResultRest);
+    @Deprecated
+    private String internalUrl;
+    private String externalUrl;
+    private Boolean preBuildSyncEnabled;
 
-    @Override
-    EnvironmentDriverResultRest toDTO(EnvironmentDriverResult entity);
 }

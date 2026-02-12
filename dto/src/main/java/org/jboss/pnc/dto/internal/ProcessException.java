@@ -15,22 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper.api;
-
-import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.spi.repour.RepourResult;
-import org.mapstruct.Mapper;
+package org.jboss.pnc.dto.internal;
 
 /**
- *
- * @author Jan Michalov &lt;jmichalo@redhat.com&gt;
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Mapper(config = MapperCentralConfig.class)
-public interface RepourResultMapper extends SimpleMapper<RepourResultRest, RepourResult> {
+public class ProcessException extends Exception {
 
-    @Override
-    RepourResultRest toDTO(RepourResult entity);
+    public ProcessException() {
+    }
 
-    @Override
-    RepourResult toEntity(RepourResultRest repourResultRest);
+    public ProcessException(String message) {
+        super(message);
+    }
+
+    public ProcessException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ProcessException(Throwable cause) {
+        super(cause);
+    }
 }

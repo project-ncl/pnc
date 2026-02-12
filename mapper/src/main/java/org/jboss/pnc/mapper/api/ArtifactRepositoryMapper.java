@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.ArtifactRepositoryRest;
+import org.jboss.pnc.dto.internal.ArtifactRepositoryRest;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.DefaultArtifactRepository;
 import org.mapstruct.BeanMapping;

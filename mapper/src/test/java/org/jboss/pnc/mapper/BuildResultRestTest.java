@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
-import org.jboss.pnc.api.orch.dto.EnvironmentDriverResultRest;
-import org.jboss.pnc.api.orch.dto.RepourResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
+import org.jboss.pnc.dto.internal.RepourResultRest;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.junit.Test;
 

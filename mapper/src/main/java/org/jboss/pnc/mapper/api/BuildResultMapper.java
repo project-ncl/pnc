@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.mapper.OptionalMapper;
 import org.jboss.pnc.mapper.ProcessExceptionMapper;
 import org.jboss.pnc.spi.BuildResult;
