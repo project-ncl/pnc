@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.SshCredentialsRest;
+import org.jboss.pnc.dto.internal.SshCredentialsRest;
 import org.jboss.pnc.spi.SshCredentials;
 import org.mapstruct.Mapper;
 

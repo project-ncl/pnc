@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.api.orch.dto.RepositoryManagerResultRest;
+import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.mapper.api.RepositoryManagerResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.GlobalModuleGroup;

@@ -15,24 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper.api;
+package org.jboss.pnc.dto.internal;
 
-import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
-import org.jboss.pnc.mapper.OptionalMapper;
-import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-import org.mapstruct.Mapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
+
+import java.io.Serializable;
 
 /**
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/11/16 Time: 1:06 PM
  *
- * @author Jan Michalov &lt;jmichalo@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = { SshCredentialsMapper.class, OptionalMapper.class })
-public interface EnvironmentDriverResultMapper
-        extends SimpleMapper<EnvironmentDriverResultRest, EnvironmentDriverResult> {
+@Getter
+@Builder(builderClassName = "Builder")
+@ToString
+@Jacksonized
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class SshCredentialsRest implements Serializable {
 
-    @Override
-    EnvironmentDriverResult toEntity(EnvironmentDriverResultRest environmentDriverResultRest);
+    private final String command;
+    private final String password;
 
-    @Override
-    EnvironmentDriverResultRest toDTO(EnvironmentDriverResult entity);
 }

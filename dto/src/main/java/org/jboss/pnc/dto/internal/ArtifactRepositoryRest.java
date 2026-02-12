@@ -15,22 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.spi.repour.RepourResult;
-import org.mapstruct.Mapper;
+package org.jboss.pnc.dto.internal;
 
-/**
- *
- * @author Jan Michalov &lt;jmichalo@redhat.com&gt;
- */
-@Mapper(config = MapperCentralConfig.class)
-public interface RepourResultMapper extends SimpleMapper<RepourResultRest, RepourResult> {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
-    @Override
-    RepourResultRest toDTO(RepourResult entity);
+import java.io.Serializable;
 
-    @Override
-    RepourResult toEntity(RepourResultRest repourResultRest);
+@Getter
+@ToString
+@Builder(builderClassName = "Builder")
+@Jacksonized
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ArtifactRepositoryRest implements Serializable {
+
+    private String id;
+    private String name;
+    private String url;
+    private Boolean releases;
+    private Boolean snapshots;
+
 }

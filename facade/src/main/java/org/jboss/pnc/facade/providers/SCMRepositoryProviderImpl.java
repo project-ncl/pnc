@@ -19,7 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.api.enums.orch.BpmEventType;
-import org.jboss.pnc.api.orch.dto.RepositoryCreationProcess;
+import org.jboss.pnc.dto.internal.RepositoryCreationProcess;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.concurrent.Sequence;
@@ -370,7 +370,7 @@ public class SCMRepositoryProviderImpl
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
             Optional<BuildConfiguration> buildConfiguration) {
-        org.jboss.pnc.api.orch.dto.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.api.orch.dto.RepositoryConfiguration
+        org.jboss.pnc.dto.internal.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.dto.internal.RepositoryConfiguration
                 .builder()
                 .externalUrl(externalURL)
                 .preBuildSyncEnabled(preBuildSyncEnabled)
@@ -438,7 +438,7 @@ public class SCMRepositoryProviderImpl
                 eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
             }
 
-            org.jboss.pnc.api.orch.dto.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.api.orch.dto.RepositoryConfiguration
+            org.jboss.pnc.dto.internal.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.dto.internal.RepositoryConfiguration
                     .builder()
                     .externalUrl(result.getExternalUrl())
                     .preBuildSyncEnabled(result.isPreBuildSyncEnabled())

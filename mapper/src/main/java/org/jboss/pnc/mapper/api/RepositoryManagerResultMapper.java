@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.RepositoryManagerResultRest;
+import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.spi.repositorymanager.DefaultRepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.mapstruct.BeanMapping;

@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.BuildDriverResultRest;
+import org.jboss.pnc.dto.internal.BuildDriverResultRest;
 import org.jboss.pnc.mapper.OptionalMapper;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.DefaultBuildDriverResult;
