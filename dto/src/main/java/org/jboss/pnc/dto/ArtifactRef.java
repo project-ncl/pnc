@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
-import org.jboss.pnc.common.validator.NoHtml;
+import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
