@@ -48,11 +48,15 @@ public class AttachmentProviderImpl
         extends AbstractUpdatableProvider<Integer, org.jboss.pnc.model.Attachment, Attachment, AttachmentRef>
         implements AttachmentProvider {
 
+    private final Event<BuildAttachmentAddedEvent> event;
+
     @Inject
     public AttachmentProviderImpl(
             AttachmentRepository repository,
-            AttachmentMapper mapper) {
+            AttachmentMapper mapper,
+            Event<BuildAttachmentAddedEvent> event) {
         super(repository, mapper, org.jboss.pnc.model.Attachment.class);
+        this.event = event;
     }
 
     @Override
@@ -84,6 +88,9 @@ public class AttachmentProviderImpl
     @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_ADMIN })
     public Attachment store(Attachment restEntity) throws DTOValidationException {
         Attachment saved = super.store(restEntity);
+
+        // notify listeners that new attachment appeared (could be a result of analysis)
+        event.fireAsync(new DefaultBuildAttachmentAddedEvent(saved));
 
         return saved;
     }
