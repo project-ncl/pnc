@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.dto.Build;
@@ -30,6 +31,7 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -39,6 +41,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.AttachmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -97,6 +100,9 @@ public class TemporaryBuildsCleanerTest {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private AttachmentRepository attachmentRepository;
 
     @Inject
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
@@ -218,6 +224,8 @@ public class TemporaryBuildsCleanerTest {
         Artifact artifact2 = storeAndGetArtifact();
         Artifact artifact3 = storeAndGetArtifact();
         Artifact artifact4 = storeAndGetArtifact();
+        Attachment attachment1 = storeAndGetAttachment("Build Log");
+        Attachment attachment2 = storeAndGetAttachment("Alignment Log");
 
         Set<Artifact> dependencies = new HashSet<>();
         dependencies.add(artifact3);
@@ -231,6 +239,10 @@ public class TemporaryBuildsCleanerTest {
         artifactRepository.save(artifact1);
         artifact2.setBuildRecord(savedTempBr);
         artifactRepository.save(artifact2);
+        attachment1.setBuildRecord(tempBr);
+        attachmentRepository.save(attachment1);
+        attachment2.setBuildRecord(tempBr);
+        attachmentRepository.save(attachment2);
 
         List<BuildRecord> givenBuilds = buildRecordRepository.queryAll();
         int numberOfBuilds = givenBuilds.size();
@@ -243,6 +255,8 @@ public class TemporaryBuildsCleanerTest {
         assertNull(buildRecordRepository.queryById(tempBr.getId()));
         assertNull(artifactRepository.queryById(artifact1.getId()));
         assertNull(artifactRepository.queryById(artifact2.getId()));
+        assertNull(attachmentRepository.queryById(attachment1.getId()));
+        assertNull(attachmentRepository.queryById(attachment2.getId()));
         assertNotNull(artifactRepository.queryById(artifact3.getId()));
         assertNotNull(artifactRepository.queryById(artifact4.getId()));
     }
@@ -441,6 +455,20 @@ public class TemporaryBuildsCleanerTest {
         Artifact artifact = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).build();
         return artifactRepository.save(artifact);
 
+    }
+
+    private Attachment storeAndGetAttachment(String name) {
+        return attachmentRepository.save(mockAttachment(name));
+    }
+
+    private static Attachment mockAttachment(String name) {
+        UUID uuid = UUID.randomUUID();
+        return Attachment.builder()
+                .name(name)
+                .md5("md5-213")
+                .type(AttachmentType.LOG)
+                .url("http://filestore.com/file-" + uuid + "-" + ".txt")
+                .build();
     }
 
     private Artifact.Builder initArtifactBuilder() {
