@@ -25,6 +25,7 @@ import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -47,6 +48,7 @@ import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.facade.providers.api.AttachmentProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
@@ -114,6 +116,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private ArtifactProvider artifactProvider;
+
+    @Inject
+    private AttachmentProvider attachmentProvider;
 
     @Inject
     private BuildTriggerer buildTriggerer;
@@ -214,6 +219,16 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public Page<Artifact> getDependencyArtifacts(String id, PageParameters pageParameters) {
         return artifactProvider.getDependantArtifactsForBuild(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
+    }
+
+    @Override
+    public Page<Attachment> getAttachments(String id, PageParameters pageParameters) {
+        return attachmentProvider.getAttachmentsForBuild(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
                 pageParameters.getSort(),

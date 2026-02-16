@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushOperation;
@@ -43,6 +44,7 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.AttachmentPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
@@ -344,6 +346,37 @@ public interface BuildEndpoint {
     @Path("/{id}/artifacts/dependencies")
     @TimedMetric
     Page<Artifact> getDependencyArtifacts(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
+
+    static final String GET_ATTACHED_ARTIFACTS_DESC = "Gets attachments for a specific build.";
+
+    /**
+     * {@value GET_ATTACHED_ARTIFACTS_DESC}
+     *
+     * @param id {@value B_ID}
+     * @param pageParameters
+     * @return
+     */
+    @Operation(
+            summary = GET_ATTACHED_ARTIFACTS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = AttachmentPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/attachments")
+    @TimedMetric
+    Page<Attachment> getAttachments(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
