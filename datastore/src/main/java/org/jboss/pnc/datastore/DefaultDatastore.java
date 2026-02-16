@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -32,8 +33,8 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.AttachmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -81,6 +82,8 @@ public class DefaultDatastore implements Datastore {
 
     private TargetRepositoryRepository targetRepositoryRepository;
 
+    private AttachmentRepository attachmentRepository;
+
     public DefaultDatastore() {
     }
 
@@ -92,7 +95,8 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             UserRepository userRepository,
-            TargetRepositoryRepository targetRepositoryRepository) {
+            TargetRepositoryRepository targetRepositoryRepository,
+            AttachmentRepository attachmentRepository) {
         this.artifactRepository = artifactRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigurationRepository = buildConfigurationRepository;
@@ -100,6 +104,7 @@ public class DefaultDatastore implements Datastore {
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.userRepository = userRepository;
         this.targetRepositoryRepository = targetRepositoryRepository;
+        this.attachmentRepository = attachmentRepository;
     }
 
     private static final String ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE = "This artifact was already built in build #";
@@ -137,7 +142,8 @@ public class DefaultDatastore implements Datastore {
     public BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
-            List<Artifact> dependencies) {
+            List<Artifact> dependencies,
+            List<Attachment> attachments) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
         BuildRecord previouslySavedBuild = buildRecordRepository.queryById(buildRecord.getId());
@@ -160,7 +166,10 @@ public class DefaultDatastore implements Datastore {
         logger.debug("Saving dependencies ...");
         buildRecord.setDependencies(saveArtifacts(dependencies, repositoriesCache, artifactCache));
 
-        logger.debug("Done saving artifacts.");
+        logger.debug("Saving attachments ...");
+        final Set<Attachment> savedAttachments = saveAttachments(attachments);
+
+        logger.debug("Done saving artifacts and attachments.");
         logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
         logger.debug("Build record {} saved.", buildRecord.getId());
@@ -168,6 +177,11 @@ public class DefaultDatastore implements Datastore {
         logger.trace("Setting artifacts as built.");
         for (Artifact builtArtifact : savedBuiltArtifacts) {
             builtArtifact.setBuildRecord(buildRecord);
+        }
+
+        logger.trace("Adding attachments to a build.");
+        for (Attachment attachment : savedAttachments) {
+            attachment.setBuildRecord(buildRecord);
         }
 
         return buildRecord;
@@ -236,6 +250,19 @@ public class DefaultDatastore implements Datastore {
 
         logger.debug("Artifacts saved: {}.", artifacts);
         return savedArtifacts;
+    }
+
+    private Set<Attachment> saveAttachments(List<Attachment> attachments) {
+        logger.debug("Saving {} attachments.", attachments.size());
+
+        Set<Attachment> savedAttachments = new HashSet<>();
+
+        for (Attachment attachment : attachments) {
+            savedAttachments.add(attachmentRepository.save(attachment));
+        }
+
+        logger.debug("Attachments saved: {}.", savedAttachments);
+        return savedAttachments;
     }
 
     private boolean isGenericProxy(Artifact artifact) {

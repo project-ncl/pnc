@@ -21,6 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
@@ -121,6 +122,9 @@ public class DatastoreTest {
 
     @Inject
     Datastore datastore;
+
+    @Inject
+    AttachmentRepository attachmentRepository;
 
     SequenceHandlerRepository sequenceHandlerRepository = new SequenceHandlerRepositoryMock();
 
@@ -345,6 +349,13 @@ public class DatastoreTest {
                 .sha256("sha256-fake-" + checksum)
                 .targetRepository(targetRepositorySharedImports)
                 .build();
+        Attachment logAttachment = Attachment.builder()
+                .url("https://fileserver.com/file.txt")
+                .md5("md-fake-" + checksum)
+                .type(AttachmentType.LOG)
+                .name("LOG File")
+                .description("descriptions")
+                .build();
 
         User user = User.Builder.newBuilder().username("pnc2").email("pnc2@redhat.com").build();
         user = userRepository.save(user);
@@ -365,12 +376,17 @@ public class DatastoreTest {
                 .endTime(Date.from(Instant.now()))
                 .user(user)
                 .temporaryBuild(false);
+        List<Attachment> attachments = new ArrayList<>();
+        attachments.add(logAttachment);
 
-        BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
+        BuildRecord buildRecord = datastore
+                .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, attachments);
 
         Assert.assertEquals(3, buildRecord.getBuiltArtifacts().size());
         Assert.assertEquals(2, buildRecord.getDependencies().size());
+        Assert.assertEquals(1, buildRecord.getAttachments().size());
         Assert.assertEquals(5, artifactRepository.queryAll().size());
+        Assert.assertEquals(1, attachmentRepository.queryAll().size());
 
         Set<Artifact.IdentifierSha256> identifiersAndSha = new HashSet<>();
         identifiersAndSha.add(

@@ -40,31 +40,29 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildMeta {
 
-    @NotNull(groups = WhenCreatingNew.class)
-    @Null(groups = WhenImporting.class)
-    String id;
+    private String id;
 
     @NotNull(groups = { WhenCreatingNew.class, WhenImporting.class })
-    IdRev idRev;
+    private IdRev idRev;
 
-    String contentId;
+    private String contentId;
 
-    boolean temporaryBuild;
+    private boolean temporaryBuild;
 
-    AlignmentPreference alignmentPreference;
+    private AlignmentPreference alignmentPreference;
 
     @NotNull(groups = { WhenCreatingNew.class, WhenImporting.class })
     @Past(groups = { WhenCreatingNew.class, WhenImporting.class })
-    Date submitTime;
+    private Date submitTime;
 
     @NotBlank(groups = { WhenCreatingNew.class, WhenImporting.class })
-    String username;
+    private String username;
 
-    Integer productMilestoneId;
+    private Integer productMilestoneId;
 
-    String noRebuildCauseId;
+    private String noRebuildCauseId;
 
-    List<@NotNull(groups = { WhenCreatingNew.class, WhenImporting.class }) String> dependants;
+    private List<@NotNull(groups = { WhenCreatingNew.class, WhenImporting.class }) String> dependants;
 
-    List<@NotNull(groups = { WhenCreatingNew.class, WhenImporting.class }) String> dependencies;
+    private List<@NotNull(groups = { WhenCreatingNew.class, WhenImporting.class }) String> dependencies;
 }

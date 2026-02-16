@@ -20,6 +20,7 @@ package org.jboss.pnc.mock.datastore;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -90,7 +91,8 @@ public class DatastoreMock implements Datastore {
     public BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
-            List<Artifact> dependencies) {
+            List<Artifact> dependencies,
+            List<Attachment> attachments) {
         buildRecordBuilder.dependencies(dependencies);
         BuildRecord buildRecord = Mockito.spy(buildRecordBuilder.build());
         Mockito.when(buildRecord.getBuiltArtifacts()).thenReturn(new HashSet<>(builtArtifacts));

@@ -37,6 +37,7 @@ import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
+import org.jboss.pnc.mock.repository.AttachmentRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
@@ -78,6 +79,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -152,7 +154,8 @@ public abstract class AbstractDependentBuildTest {
                 buildConfigurationAuditedRepository,
                 new BuildConfigSetRecordRepositoryMock(),
                 new UserRepositoryMock(),
-                targetRepositoryRepository);
+                targetRepositoryRepository,
+                new AttachmentRepositoryMock());
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, mock(BifrostLogUploader.class));
 
         if (buildSchedulerFactory == null) {
@@ -343,7 +346,9 @@ public abstract class AbstractDependentBuildTest {
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
     }
 
     private static BuildDriverResult buildDriverResult() {

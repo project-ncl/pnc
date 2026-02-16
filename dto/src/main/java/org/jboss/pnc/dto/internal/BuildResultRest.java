@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenImporting;
 
@@ -62,9 +62,9 @@ public class BuildResultRest implements Serializable {
 
     private @Valid RepositoryManagerResultRest repositoryManagerResult;
 
-    private @Valid List<Artifact> attachments;
+    private @Valid List<@NotNull(groups = WhenImporting.class) Attachment> attachments;
 
-    private Map<String, String> extraAttributes;
+    private Map<@NotNull String, @NotNull String> extraAttributes;
 
     @Override
     public String toString() {

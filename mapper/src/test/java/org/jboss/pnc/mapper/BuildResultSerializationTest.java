@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.mapper;
 
+import org.jboss.pnc.mapper.api.AttachmentMapper;
 import org.jboss.pnc.mapper.api.BuildDriverResultMapper;
 import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildResultMapper;
@@ -70,6 +71,9 @@ public class BuildResultSerializationTest {
 
     @InjectMocks
     protected BuildMapper buildMapper = Mockito.spy(new BuildMapperImpl());
+
+    @InjectMocks
+    protected AttachmentMapper attachmentMapper = Mockito.spy(new AttachmentMapperImpl());
 
     @InjectMocks
     protected UserMapper userMapper = Mockito.spy(new UserMapperImpl());
