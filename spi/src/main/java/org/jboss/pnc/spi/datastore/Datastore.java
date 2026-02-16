@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.datastore;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -55,13 +56,15 @@ public interface Datastore {
      * @param buildRecordBuilder The build record builder which has been intialized with appropriate data.
      * @param builtArtifacts The list of artifacts built by the build.
      * @param dependencies The list of dependencies used by the build.
+     * @param attachments The list of attachments added to the build
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
     BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
-            List<Artifact> dependencies) throws DatastoreException;
+            List<Artifact> dependencies,
+            List<Attachment> attachments) throws DatastoreException;
 
     BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
 

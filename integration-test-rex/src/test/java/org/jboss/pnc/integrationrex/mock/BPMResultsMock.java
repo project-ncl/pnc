@@ -19,17 +19,20 @@ package org.jboss.pnc.integrationrex.mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.mapper.ArtifactRepositoryMapperImpl;
+import org.jboss.pnc.mapper.AttachmentMapperImpl;
 import org.jboss.pnc.mapper.BuildDriverResultMapperImpl;
 import org.jboss.pnc.mapper.BuildExecutionConfigurationMapperImpl;
 import org.jboss.pnc.mapper.BuildResultMapperImpl;
@@ -89,14 +92,16 @@ public class BPMResultsMock {
                 Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
                 Optional.empty(),
                 Optional.of(EnvironmentDriverResultMock.mock()),
-                Optional.of(RepourResultMock.mock()));
-
+                Optional.of(RepourResultMock.mock()),
+                List.of(),
+                Map.of());
         BuildResultRest dto = mapper.toDTO(result);
 
         // the long jsonPath results in build-id, this ensures Artifacts are unique
         String buildID = "{{jsonPath originalRequest.body '$.payload.buildContentId'}}";
 
         dto.setRepositoryManagerResult(mockRepositoryManagerResultRest(buildID));
+        dto.setAttachments(mockAttachments(buildID));
 
         String s = objectMapper.writeValueAsString(dto);
         logger.trace("MOCK-BPM JSON reply: " + s);
@@ -114,7 +119,9 @@ public class BPMResultsMock {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.of(RepourResultMock.mockFailed()));
+                Optional.of(RepourResultMock.mockFailed()),
+                List.of(),
+                Map.of());
 
         BuildResultRest dto = mapper.toDTO(result);
 
@@ -122,6 +129,7 @@ public class BPMResultsMock {
         String buildID = "{{jsonPath originalRequest.body '$.payload.buildContentId'}}";
 
         dto.setRepositoryManagerResult(mockRepositoryManagerResultRest(buildID));
+        dto.setAttachments(mockAttachments(buildID));
 
         String s = objectMapper.writeValueAsString(dto);
         logger.trace("MOCK-BPM JSON reply: " + s);
@@ -136,7 +144,15 @@ public class BPMResultsMock {
         var rrMapper = new RepourResultMapperImpl();
         var rmrMapper = new RepositoryManagerResultMapperImpl(new ArtifactMapperMock());
         var peMapper = new ProcessExceptionMapper();
-        var resultMapper = new BuildResultMapperImpl(becMapper, envMapper, bdrMapper, rrMapper, rmrMapper, peMapper);
+        var atMapper = new AttachmentMapperImpl();
+        var resultMapper = new BuildResultMapperImpl(
+                becMapper,
+                envMapper,
+                bdrMapper,
+                rrMapper,
+                rmrMapper,
+                peMapper,
+                atMapper);
         return resultMapper;
     }
 
@@ -153,6 +169,19 @@ public class BPMResultsMock {
     }
 
     public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";
+
+    private static List<Attachment> mockAttachments(String id) {
+        return List.of(mockAttachment(id, "Error Log"), mockAttachment(id, "Access Log"));
+    }
+
+    private static Attachment mockAttachment(String id, String name) {
+        return Attachment.builder()
+                .name(name)
+                .md5("md-fake-AB" + id)
+                .url("https://place.com/" + name + "-" + id + ".txt")
+                .type(AttachmentType.LOG)
+                .build();
+    }
 
     private static Artifact.Builder getArtifactBuilder(String id) {
         return Artifact.builder()

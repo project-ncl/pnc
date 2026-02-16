@@ -25,6 +25,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.dto.AttachmentRef;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.DTOEntity;
@@ -38,6 +39,7 @@ import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.AttachmentMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
@@ -56,6 +58,7 @@ import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -115,6 +118,8 @@ public class RefToReferenceMapper {
 
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
 
+    private AttachmentMapper attachmentMapper;
+
     // CDI
     public RefToReferenceMapper() {
     }
@@ -137,7 +142,8 @@ public class RefToReferenceMapper {
             ProductMilestoneMapper productMilestoneMapper,
             TargetRepositoryMapper targetRepositoryMapper,
             OperationMapper operationMapper,
-            DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper) {
+            DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper,
+            AttachmentMapper attachmentMapper) {
         this.em = em;
         this.artifactMapper = artifactMapper;
         this.buildConfigurationMapper = buildConfigurationMapper;
@@ -155,6 +161,7 @@ public class RefToReferenceMapper {
         this.targetRepositoryMapper = targetRepositoryMapper;
         this.operationMapper = operationMapper;
         this.deliverableAnalyzerOperationMapper = deliverableAnalyzerOperationMapper;
+        this.attachmentMapper = attachmentMapper;
     }
 
     public <ID extends Serializable, DB extends GenericEntity<ID>, REF extends DTOEntity> DB map(
@@ -169,6 +176,10 @@ public class RefToReferenceMapper {
 
     public Artifact toEntityReference(ArtifactRef dtoEntity) {
         return map(dtoEntity, artifactMapper.getIdMapper(), Artifact.class);
+    }
+
+    public Attachment toEntityReference(AttachmentRef dtoEntity) {
+        return map(dtoEntity, attachmentMapper.getIdMapper(), Attachment.class);
     }
 
     public BuildConfiguration toEntityReference(BuildConfigurationRef dtoEntity) {

@@ -35,6 +35,7 @@ import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
+import org.jboss.pnc.mock.repository.AttachmentRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
@@ -166,7 +167,8 @@ public abstract class AbstractDependentBuildTest {
                 buildConfigurationAuditedRepository,
                 buildConfigSetRecordRepository,
                 new UserRepositoryMock(),
-                targetRepositoryRepository);
+                targetRepositoryRepository,
+                new AttachmentRepositoryMock());
         datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
 
         if (buildScheduler == null) {
@@ -357,7 +359,9 @@ public abstract class AbstractDependentBuildTest {
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
     }
 
     private static BuildDriverResult buildDriverResult() {

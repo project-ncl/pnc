@@ -27,6 +27,7 @@ import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -338,9 +339,17 @@ public class DatastoreAdapter {
                                 "Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
             }
 
+            List<Attachment> attachments = buildResult.getAttachments() == null ? Collections.emptyList()
+                    : buildResult.getAttachments();
+
+            if (buildResult.getExtraAttributes() != null && !buildResult.getExtraAttributes().isEmpty()) {
+                buildResult.getExtraAttributes().forEach(buildRecordBuilder::attribute);
+            }
+
             log.debug("Storing results of buildTask [{}] to datastore.", buildTaskRef.getId());
             userLog.info("Successfully completed.");
-            BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
+            BuildRecord buildRecord = datastore
+                    .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, attachments);
             uploadLogs(errorLog.toString());
             return buildRecord;
         } catch (Exception e) {
@@ -425,8 +434,11 @@ public class DatastoreAdapter {
             userLog.error(message);
         }
         log.debug("Storing ERROR result of BCA: " + buildTask.getIdRev().toString() + " to datastore.", e);
-        BuildRecord buildRecord = datastore
-                .storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        BuildRecord buildRecord = datastore.storeCompletedBuild(
+                buildRecordBuilder,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         uploadLogs(errorLog.toString());
         return buildRecord;
     }
@@ -495,7 +507,11 @@ public class DatastoreAdapter {
                 datastore.getBuildConfigurationAudited(buildTask.getIdRev()).getName(), // TODO Print just IdRev or
                                                                                         // keep?
                 statusDescription);
-        datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
+        datastore.storeCompletedBuild(
+                buildRecordBuilder,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         uploadLogs(statusDescription);
     }
 

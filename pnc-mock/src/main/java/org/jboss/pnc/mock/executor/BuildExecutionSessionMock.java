@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -182,7 +184,9 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),
                 Optional.ofNullable(environmentDriverResult),
-                Optional.empty());
+                Optional.empty(),
+                List.of(),
+                Map.of());
     }
 
     @Override
