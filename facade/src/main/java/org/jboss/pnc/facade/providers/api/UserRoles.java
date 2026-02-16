@@ -37,6 +37,9 @@ public class UserRoles {
     /** Role used by humans / service accounts to create / change environment */
     public static final String USERS_ENVIRONMENT_ADMIN = "pnc-app-environment-user";
 
+    /** Role used by humans / service accounts to create / change attachment */
+    public static final String USERS_ATTACHMENT_ADMIN = "pnc-app-attachment-user";
+
     /**
      * User's with this role are routed to new implementations that usually run in parallel to the old one (blue/green
      * testing).

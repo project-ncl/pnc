@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.ArtifactRevisionMapperImpl;
+import org.jboss.pnc.mapper.AttachmentMapperImpl;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
 import org.jboss.pnc.mapper.BuildConfigurationMapperImpl;
 import org.jboss.pnc.mapper.BuildConfigurationRevisionMapperImpl;
@@ -46,6 +47,7 @@ import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
+import org.jboss.pnc.mapper.api.AttachmentMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -67,6 +69,7 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.junit.After;
 import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -123,6 +126,9 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @InjectMocks
     protected GroupBuildMapper groupBuildMapper = spy(new GroupBuildMapperImpl());
+
+    @InjectMocks
+    protected AttachmentMapper attachmentMapper = spy(new AttachmentMapperImpl());
 
     @InjectMocks
     protected ProjectMapper projectMapper = spy(new ProjectMapperImpl());
@@ -233,6 +239,11 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
             repositoryList.remove(object);
             return null;
         }).when(repository()).delete(any(idType));
+    }
+
+    @After
+    public void cleanup() {
+        repositoryList.clear();
     }
 
     protected abstract ID getNextId();

@@ -46,6 +46,9 @@
         <role-name>pnc-app-environment-user</role-name>
     </security-role>
     <security-role>
+        <role-name>pnc-app-attachment-user</role-name>
+    </security-role>
+    <security-role>
         <role-name>pnc-users-admin</role-name>
     </security-role>
 </web-app>

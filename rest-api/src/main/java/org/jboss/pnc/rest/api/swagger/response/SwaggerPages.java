@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.api.swagger.response;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -136,5 +137,8 @@ public class SwaggerPages {
     }
 
     public static class DeliverableAnalyzerReportPage extends Page<DeliverableAnalyzerReport> {
+    }
+
+    public static class AttachmentPage extends Page<Attachment> {
     }
 }

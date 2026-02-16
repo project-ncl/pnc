@@ -52,7 +52,7 @@ import java.util.Optional;
         uses = { RefToReferenceMapper.class, UserMapper.class, StatusMapper.class, SCMRepositoryMapper.class,
                 ProjectMapper.class, BuildConfigurationRevisionMapper.class, EnvironmentMapper.class,
                 BrewNameWorkaround.class, GroupBuildMapper.class, BuildBCRevisionFetcher.class,
-                ProductMilestoneMapper.class })
+                ProductMilestoneMapper.class, AttachmentMapper.class })
 
 public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRecord, Build, BuildRef> {
 
@@ -76,7 +76,8 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
             ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
                     "builtArtifacts", "dependencies", "buildConfigurationId", "buildConfigurationRev",
                     "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
+                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap",
+                    "attachments" })
     Build toDTO(BuildRecord dbEntity);
 
     /**
@@ -127,6 +128,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     @Mapping(target = "builtArtifacts", ignore = true)
     @Mapping(target = "dependencies", ignore = true)
+    @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "buildConfigurationId", source = "buildConfigRevision.id")
     @Mapping(target = "buildConfigurationRev", source = "buildConfigRevision.rev")
     @Mapping(target = "productMilestone", ignore = true)
@@ -167,6 +169,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "sshPassword", ignore = true)
     @Mapping(target = "builtArtifacts", ignore = true)
     @Mapping(target = "dependencies", ignore = true)
+    @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "buildEnvironment", ignore = true)
     @Mapping(target = "productMilestone", ignore = true)
     @Mapping(target = "buildConfigSetRecord", ignore = true)
