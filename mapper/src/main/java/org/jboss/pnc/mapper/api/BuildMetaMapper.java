@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.orch.dto.BuildMeta;
+import org.jboss.pnc.dto.internal.BuildMeta;
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapperCentralConfig.class)

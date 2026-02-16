@@ -18,14 +18,14 @@
 package org.jboss.pnc.integrationrex.mock;
 
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.api.orch.dto.BuildDriverResultRest;
-import org.jboss.pnc.api.orch.dto.BuildExecutionConfigurationRest;
-import org.jboss.pnc.api.orch.dto.BuildImport;
-import org.jboss.pnc.api.orch.dto.BuildMeta;
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
-import org.jboss.pnc.api.orch.dto.EnvironmentDriverResultRest;
-import org.jboss.pnc.api.orch.dto.IdRev;
-import org.jboss.pnc.api.orch.dto.RepourResultRest;
+import org.jboss.pnc.dto.internal.BuildDriverResultRest;
+import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
+import org.jboss.pnc.dto.internal.BuildImport;
+import org.jboss.pnc.dto.internal.BuildMeta;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
+import org.jboss.pnc.dto.internal.IdRev;
+import org.jboss.pnc.dto.internal.RepourResultRest;
 import org.jboss.pnc.common.Random;
 import org.jboss.pnc.enums.BuildStatus;
 
