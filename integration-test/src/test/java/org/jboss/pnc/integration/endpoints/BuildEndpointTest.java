@@ -629,6 +629,18 @@ public class BuildEndpointTest {
     }
 
     @Test
+    public void shouldReturnAttachments() throws ClientException {
+        // given
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        // when
+        var attachments = client.getAttachments(buildId).getAll();
+
+        // then
+        assertThat(attachments).hasSize(2);
+    }
+
+    @Test
     public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() {
         BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(Credentials.USER2));
 
