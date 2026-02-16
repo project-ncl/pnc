@@ -19,6 +19,7 @@ package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.api.constants.OperationParameters;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.OperationResult;
@@ -35,6 +36,7 @@ import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -59,6 +61,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.AttachmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -216,6 +219,9 @@ public class DatabaseDataInitializer {
     private BuildPushOperationRepository buildPushOperationRepository;
 
     @Inject
+    private AttachmentRepository attachmentRepository;
+
+    @Inject
     private Datastore datastore;
 
     @Inject
@@ -268,6 +274,7 @@ public class DatabaseDataInitializer {
         Preconditions
                 .checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
         Preconditions.checkState(artifactRepository.count() > 0, "Expecting number of Artifacts > 0");
+        Preconditions.checkState(attachmentRepository.count() > 0, "Expecting number of Attachments > 0");
 
         BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll()
                 .stream()
@@ -796,6 +803,43 @@ public class DatabaseDataInitializer {
         importedArtifact1 = artifactRepository.save(importedArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
 
+        Attachment attachment1 = Attachment.builder()
+                .name("Build Log")
+                .description("Contains build logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-xxxx/build-log.log")
+                .md5("md5-fake-abcdefhijklmno")
+                .build();
+
+        Attachment attachment2 = Attachment.builder()
+                .name("Alignment Log")
+                .description("Contains alignment logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-xxxx/alignment-log.log")
+                .md5("md5-fake-abcdefhijklmnopq")
+                .build();
+
+        Attachment attachment3 = Attachment.builder()
+                .name("Build Log")
+                .description("Contains build logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-yyyy/build-log.log")
+                .md5("md5-fake-abcdefhijklm123")
+                .build();
+
+        Attachment attachment4 = Attachment.builder()
+                .name("Alignment Log")
+                .description("Contains alignment logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-yyyy/alignment-log.log")
+                .md5("md5-fake-abcdefhijklma123")
+                .build();
+
+        attachment1 = attachmentRepository.save(attachment1);
+        attachment2 = attachmentRepository.save(attachment2);
+        attachment3 = attachmentRepository.save(attachment3);
+        attachment4 = attachmentRepository.save(attachment4);
+
         Set<BuildRecord> buildRecords = new HashSet<>();
 
         List<BuildConfigurationAudited> buildConfig1Revisions = buildConfigurationAuditedRepository
@@ -837,6 +881,8 @@ public class DatabaseDataInitializer {
         builtArtifact1.setBuildRecord(savedBuildRecord1);
         builtArtifact2.setBuildRecord(savedBuildRecord1);
         builtArtifact9.setBuildRecord(savedBuildRecord1);
+        attachment1.setBuildRecord(savedBuildRecord1);
+        attachment2.setBuildRecord(savedBuildRecord1);
 
         log.info(
                 "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
@@ -893,6 +939,8 @@ public class DatabaseDataInitializer {
         BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
         builtArtifact3.setBuildRecord(savedTempRecord1);
         builtArtifact4.setBuildRecord(savedTempRecord1);
+        attachment3.setBuildRecord(savedTempRecord1);
+        attachment4.setBuildRecord(savedTempRecord1);
         log.info(
                 "Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: "
                         + savedTempRecord1.getBuildConfigurationAuditedIdRev());
@@ -961,6 +1009,64 @@ public class DatabaseDataInitializer {
         builtArtifact9 = artifactRepository.save(builtArtifact9);
         builtArtifact10 = artifactRepository.save(builtArtifact10);
 
+        Attachment attachment5 = Attachment.builder()
+                .name("Build Log")
+                .description("Contains build logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-aaaa/build-log.log")
+                .md5("md5-fake-abcdefhijklm1234")
+                .build();
+        Attachment attachment6 = Attachment.builder()
+                .name("Alignment Log")
+                .description("Contains alignment logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-aaaa/alignment-log.log")
+                .md5("md5-fake-abcdefhijklmij1234")
+                .build();
+        Attachment attachment7 = Attachment.builder()
+                .name("SBOM")
+                .description("SBOM generated for a build.")
+                .type(AttachmentType.SBOM)
+                .url("http://url.com/attachments/build-aaaa/spdx.json")
+                .md5("md5-fake-abcdefhijklxcs144")
+                .build();
+        Attachment attachment8 = Attachment.builder()
+                .name("Build Log")
+                .description("Contains build logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-bbbb/build-log.log")
+                .md5("md5-fake-abcdefhaijklm12344")
+                .build();
+        Attachment attachment9 = Attachment.builder()
+                .name("Alignment Log")
+                .description("Contains alignment logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-bbbb/alignment-log.log")
+                .md5("md5-fake-abcdefhijkalmij12345")
+                .build();
+        Attachment attachment10 = Attachment.builder()
+                .name("Build Log")
+                .description("Contains build logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-cccc/build-log.log")
+                .md5("md5-fake-abcdefhdijklm12344")
+                .build();
+        Attachment attachment11 = Attachment.builder()
+                .name("Alignment Log")
+                .description("Contains alignment logs for a build")
+                .type(AttachmentType.LOG)
+                .url("http://url.com/attachments/build-cccc/alignment-log.log")
+                .md5("md5-fake-abcdefhijkglmij12345")
+                .build();
+
+        attachment5 = attachmentRepository.save(attachment5);
+        attachment6 = attachmentRepository.save(attachment6);
+        attachment7 = attachmentRepository.save(attachment7);
+        attachment8 = attachmentRepository.save(attachment8);
+        attachment9 = attachmentRepository.save(attachment9);
+        attachment10 = attachmentRepository.save(attachment10);
+        attachment11 = attachmentRepository.save(attachment11);
+
         Artifact dependencyBuiltArtifact1 = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
 
@@ -1004,6 +1110,9 @@ public class DatabaseDataInitializer {
             BuildRecord savedBuildRecord2 = buildRecordRepository.save(buildRecord2);
             builtArtifact5.setBuildRecord(savedBuildRecord2);
             builtArtifact6.setBuildRecord(savedBuildRecord2);
+            attachment5.setBuildRecord(savedBuildRecord2);
+            attachment6.setBuildRecord(savedBuildRecord2);
+            attachment7.setBuildRecord(savedBuildRecord2);
             buildRecords.add(buildRecord2);
 
             BuildRecord tempRecord2 = BuildRecord.Builder.newBuilder()
@@ -1025,6 +1134,8 @@ public class DatabaseDataInitializer {
             BuildRecord savedTempRecord2 = buildRecordRepository.save(tempRecord2);
             builtArtifact7.setBuildRecord(savedTempRecord2);
             builtArtifact8.setBuildRecord(savedTempRecord2);
+            attachment8.setBuildRecord(savedTempRecord2);
+            attachment9.setBuildRecord(savedTempRecord2);
             buildRecords.add(tempRecord2);
 
             nextId = Sequence.nextBase32Id();
@@ -1047,6 +1158,8 @@ public class DatabaseDataInitializer {
 
             BuildRecord savedBuildRecord3 = buildRecordRepository.save(buildRecord3);
             builtArtifact10.setBuildRecord(savedBuildRecord3);
+            attachment10.setBuildRecord(savedBuildRecord3);
+            attachment11.setBuildRecord(savedBuildRecord3);
         }
 
         List<BuildConfigurationAudited> buildConfig6Revisions = buildConfigurationAuditedRepository

@@ -7,7 +7,7 @@
       "name" : "Apache 2.0",
       "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "3.3.2-SNAPSHOT"
+    "version" : "3.5.0-SNAPSHOT"
   },
   "servers" : [ {
     "url" : "/pnc-rest",
@@ -768,11 +768,246 @@
         }
       }
     },
+    "/attachments" : {
+      "get" : {
+        "tags" : [ "Attachments" ],
+        "summary" : "Gets all attachments.",
+        "operationId" : "getAll_1",
+        "parameters" : [ {
+          "name" : "pageIndex",
+          "in" : "query",
+          "description" : "Index of the page to return. Index starts with 0.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "RSQL Query.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "md5",
+          "in" : "query",
+          "description" : "Filter by md5 of the attachment.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttachmentPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Internal", "Attachments" ],
+        "summary" : "[role:pnc-app-attachment-user, pnc-users-admin] Creates a new Attachment.",
+        "operationId" : "create_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Attachment"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Entity successfully created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Attachment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict while saving an entity",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attachments/{id}" : {
+      "get" : {
+        "tags" : [ "Attachments" ],
+        "summary" : "Gets a specific attachment.",
+        "operationId" : "getSpecific_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the attachment",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Attachment"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Internal", "Attachments" ],
+        "summary" : "[role:pnc-app-attachment-user, pnc-users-admin] Updates an existing Attachment",
+        "operationId" : "update_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Attachment"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "Entity successfully updated"
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict while saving an entity",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/build-configs" : {
       "get" : {
         "tags" : [ "Build Configs" ],
         "summary" : "Gets all build configs.",
-        "operationId" : "getAll_1",
+        "operationId" : "getAll_2",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -1094,7 +1329,7 @@
       "get" : {
         "tags" : [ "Build Configs" ],
         "summary" : "Gets a specific build config.",
-        "operationId" : "getSpecific_1",
+        "operationId" : "getSpecific_2",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1133,7 +1368,7 @@
       "put" : {
         "tags" : [ "Build Configs" ],
         "summary" : "Updates an existing build config.",
-        "operationId" : "update_1",
+        "operationId" : "update_2",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1275,8 +1510,8 @@
           "description" : "What should varant rebuild?",
           "schema" : {
             "type" : "string",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
-            "default" : "IMPLICIT_DEPENDENCY_CHECK"
+            "default" : "IMPLICIT_DEPENDENCY_CHECK",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
           }
         }, {
           "name" : "buildDependencies",
@@ -2063,8 +2298,8 @@
           "description" : "What should varant rebuild?",
           "schema" : {
             "type" : "string",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
-            "default" : "IMPLICIT_DEPENDENCY_CHECK"
+            "default" : "IMPLICIT_DEPENDENCY_CHECK",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
           }
         }, {
           "name" : "buildDependencies",
@@ -2239,7 +2474,7 @@
         "tags" : [ "Builds" ],
         "summary" : "Gets all builds.",
         "description" : "Query by attribute: when the attributes are specified only the completed builds are searched. The query format is: attribute=KEY:VALUE&attribute=KEY2:VALUE2 which translates to 'where KEY=VALUE AND KEY2=VALUE2' To search for the records without certain key the key must be prefixed with '!': attribute=!KEY",
-        "operationId" : "getAll_2",
+        "operationId" : "getAll_3",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -2580,7 +2815,7 @@
       "get" : {
         "tags" : [ "Builds" ],
         "summary" : "Gets specific build.",
-        "operationId" : "getSpecific_2",
+        "operationId" : "getSpecific_3",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2619,7 +2854,7 @@
       "put" : {
         "tags" : [ "Internal", "Builds" ],
         "summary" : "[role:pnc-app-build-user, pnc-users-admin] Updates an existing build.",
-        "operationId" : "update_2",
+        "operationId" : "update_3",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -3031,6 +3266,86 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ArtifactPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/builds/{id}/attachments" : {
+      "get" : {
+        "tags" : [ "Builds" ],
+        "summary" : "Gets attachments for a specific build.",
+        "operationId" : "getAttachments",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageIndex",
+          "in" : "query",
+          "description" : "Index of the page to return. Index starts with 0.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "RSQL Query.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttachmentPage"
                 }
               }
             }
@@ -3913,7 +4228,7 @@
       "get" : {
         "tags" : [ "Deliverable Analysis" ],
         "summary" : "Gets all deliverable analyzer reports.",
-        "operationId" : "getAll_3",
+        "operationId" : "getAll_4",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -3985,7 +4300,7 @@
       "get" : {
         "tags" : [ "Deliverable Analysis" ],
         "summary" : "Gets specific deliverable analyzer report.",
-        "operationId" : "getSpecific_3",
+        "operationId" : "getSpecific_4",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4286,7 +4601,7 @@
       "get" : {
         "tags" : [ "Environments" ],
         "summary" : "Gets all environments.",
-        "operationId" : "getAll_4",
+        "operationId" : "getAll_5",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -4415,7 +4730,7 @@
       "get" : {
         "tags" : [ "Environments" ],
         "summary" : "Gets a specific environment.",
-        "operationId" : "getSpecific_4",
+        "operationId" : "getSpecific_5",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4836,7 +5151,7 @@
       "get" : {
         "tags" : [ "Group Builds" ],
         "summary" : "Gets all group builds.",
-        "operationId" : "getAll_5",
+        "operationId" : "getAll_6",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -4908,7 +5223,7 @@
       "get" : {
         "tags" : [ "Group Builds" ],
         "summary" : "Gets specific group build.",
-        "operationId" : "getSpecific_5",
+        "operationId" : "getSpecific_6",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -5228,7 +5543,7 @@
       "get" : {
         "tags" : [ "Group Configs" ],
         "summary" : "Gets all group configs.",
-        "operationId" : "getAll_6",
+        "operationId" : "getAll_7",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -5357,7 +5672,7 @@
       "get" : {
         "tags" : [ "Group Configs" ],
         "summary" : "Gets a specific group config.",
-        "operationId" : "getSpecific_6",
+        "operationId" : "getSpecific_7",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -5396,7 +5711,7 @@
       "put" : {
         "tags" : [ "Group Configs" ],
         "summary" : "Updates an existing group config.",
-        "operationId" : "update_3",
+        "operationId" : "update_4",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -5539,8 +5854,8 @@
           "description" : "IMPLICIT_DEPENDENCY_CHECK",
           "schema" : {
             "type" : "string",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
-            "default" : "IMPLICIT_DEPENDENCY_CHECK"
+            "default" : "IMPLICIT_DEPENDENCY_CHECK",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
           }
         }, {
           "name" : "timestampAlignment",
@@ -6697,7 +7012,7 @@
       "get" : {
         "tags" : [ "Product Milestones" ],
         "summary" : "Gets a specific product milestone.",
-        "operationId" : "getSpecific_8",
+        "operationId" : "getSpecific_9",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -6736,7 +7051,7 @@
       "put" : {
         "tags" : [ "Product Milestones" ],
         "summary" : "Updates an existing product milestone.",
-        "operationId" : "update_5",
+        "operationId" : "update_6",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -7559,7 +7874,7 @@
       "get" : {
         "tags" : [ "Product Releases" ],
         "summary" : "Gets a specific product release.",
-        "operationId" : "getSpecific_9",
+        "operationId" : "getSpecific_10",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -7598,7 +7913,7 @@
       "put" : {
         "tags" : [ "Product Releases" ],
         "summary" : "Updates an existing product release.",
-        "operationId" : "update_6",
+        "operationId" : "update_7",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -7777,7 +8092,7 @@
       "get" : {
         "tags" : [ "Product Versions" ],
         "summary" : "Gets a specific product version.",
-        "operationId" : "getSpecific_10",
+        "operationId" : "getSpecific_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -7816,7 +8131,7 @@
       "put" : {
         "tags" : [ "Product Versions" ],
         "summary" : "Updates an existing product version.",
-        "operationId" : "update_7",
+        "operationId" : "update_8",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -8464,7 +8779,7 @@
       "get" : {
         "tags" : [ "Products" ],
         "summary" : "Gets all products.",
-        "operationId" : "getAll_7",
+        "operationId" : "getAll_8",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -8593,7 +8908,7 @@
       "get" : {
         "tags" : [ "Products" ],
         "summary" : "Gets a specific product.",
-        "operationId" : "getSpecific_7",
+        "operationId" : "getSpecific_8",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -8632,7 +8947,7 @@
       "put" : {
         "tags" : [ "Products" ],
         "summary" : "Updates an existing product.",
-        "operationId" : "update_4",
+        "operationId" : "update_5",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -8832,7 +9147,7 @@
       "get" : {
         "tags" : [ "Projects" ],
         "summary" : "Gets all projects.",
-        "operationId" : "getAll_8",
+        "operationId" : "getAll_9",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -8961,7 +9276,7 @@
       "get" : {
         "tags" : [ "Projects" ],
         "summary" : "Gets a specific project.",
-        "operationId" : "getSpecific_11",
+        "operationId" : "getSpecific_12",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -9000,7 +9315,7 @@
       "put" : {
         "tags" : [ "Projects" ],
         "summary" : "Updates an existing project.",
-        "operationId" : "update_8",
+        "operationId" : "update_9",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -9304,7 +9619,7 @@
       "get" : {
         "tags" : [ "SCM Repositories" ],
         "summary" : "Gets all SCM repositories.",
-        "operationId" : "getAll_9",
+        "operationId" : "getAll_10",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -9460,7 +9775,7 @@
       "get" : {
         "tags" : [ "SCM Repositories" ],
         "summary" : "Gets a specific SCM repository.",
-        "operationId" : "getSpecific_12",
+        "operationId" : "getSpecific_13",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -9509,7 +9824,7 @@
       "put" : {
         "tags" : [ "SCM Repositories" ],
         "summary" : "Updates an existing SCM repository.",
-        "operationId" : "update_9",
+        "operationId" : "update_10",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -9804,7 +10119,7 @@
       "get" : {
         "tags" : [ "Target Repositories" ],
         "summary" : "Gets all target repositories.",
-        "operationId" : "getAll_10",
+        "operationId" : "getAll_11",
         "parameters" : [ {
           "name" : "pageIndex",
           "in" : "query",
@@ -9933,7 +10248,7 @@
       "get" : {
         "tags" : [ "Target Repositories" ],
         "summary" : "Gets a specific target repository.",
-        "operationId" : "getSpecific_13",
+        "operationId" : "getSpecific_14",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -10515,6 +10830,67 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/ArtifactRevision"
+            }
+          },
+          "pageIndex" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalHits" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "Attachment" : {
+        "required" : [ "id", "md5", "name", "type", "url" ],
+        "type" : "object",
+        "properties" : {
+          "build" : {
+            "$ref" : "#/components/schemas/BuildRef"
+          },
+          "creationTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "md5" : {
+            "maxLength" : 32,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "LOG", "SBOM", "PROVENANCE", "VULNERABILITY_SCAN", "OTHER" ]
+          },
+          "url" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AttachmentPage" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Attachment"
             }
           },
           "pageIndex" : {
@@ -12305,6 +12681,33 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/ArtifactRevision"
+            }
+          },
+          "pageIndex" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalHits" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "PageAttachment" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Attachment"
             }
           },
           "pageIndex" : {
