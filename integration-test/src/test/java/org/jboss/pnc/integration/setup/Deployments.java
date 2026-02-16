@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.setup;
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.auth.DefaultServiceAccountClient;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
+import org.jboss.pnc.integration.mock.RemoteBuildsCleanerRemoteMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.integration.mock.client.ServiceAccountClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
@@ -55,6 +56,7 @@ public class Deployments {
 
     public static final String AUTH_JAR = "/auth.jar";
     public static final String COORDINATOR_JAR = "/build-coordinator.jar";
+    public static final String REMOTE_COORDINATOR_JAR = "/remote-build-coordinator.jar";
     public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
     public static final String DINGROGU_CLIENT_JAR = "/lib/dingrogu-client.jar";
 
@@ -217,5 +219,9 @@ public class Deployments {
     public static void addRemoteBuildCleanerMock(EnterpriseArchive ear) {
         JavaArchive coordinator = ear.getAsType(JavaArchive.class, COORDINATOR_JAR);
         coordinator.addClass(RemoteBuildsCleanerMock.class);
+
+        JavaArchive remoteCoordinator = ear.getAsType(JavaArchive.class, REMOTE_COORDINATOR_JAR);
+        remoteCoordinator.addClass(RemoteBuildsCleanerRemoteMock.class);
+        remoteCoordinator.addAsManifestResource("beans-use-mock-remote-clients-2.xml", "beans.xml");
     }
 }

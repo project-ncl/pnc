@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.http.HttpUtils;
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
