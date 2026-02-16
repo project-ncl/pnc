@@ -125,7 +125,7 @@
     <version.commons-collections>3.2.2</version.commons-collections>
     <version.commons-validator>1.10.1</version.commons-validator>
     <version.commons-beanutils>1.11.0</version.commons-beanutils>
-    <version.json-schema-validator>2.0.1</version.json-schema-validator>
+    <version.json-schema-validator>3.0.0</version.json-schema-validator>
 
     <!-- OTEL Dependencies for Instrumentation -->
     <version.io.opentelemetry.instrumentation>2.23.0</version.io.opentelemetry.instrumentation>
