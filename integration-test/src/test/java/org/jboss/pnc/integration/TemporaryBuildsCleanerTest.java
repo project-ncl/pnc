@@ -21,7 +21,7 @@ import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -143,8 +143,8 @@ public class TemporaryBuildsCleanerTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.testEarForInContainerTest(TemporaryBuildsCleanerTest.class);
 
-        JavaArchive coordinator = enterpriseArchive.getAsType(JavaArchive.class, Deployments.COORDINATOR_JAR);
-        coordinator.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+        JavaArchive coordinator = enterpriseArchive.getAsType(JavaArchive.class, Deployments.REMOTE_COORDINATOR_JAR);
+        coordinator.addAsManifestResource("beans-use-mock-remote-clients-2.xml", "beans.xml");
 
         logger.info("Deployment:" + enterpriseArchive.toString(true));
         return enterpriseArchive;

@@ -19,9 +19,9 @@
 package org.jboss.pnc.facade.deliverables;
 
 import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.messaging.spi.AnalysisStatusMessage;
 import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.remotecoordinator.notifications.buildTask.MessageSenderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
