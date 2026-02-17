@@ -50,7 +50,8 @@ import java.util.Objects;
                 @Index(name = "idx_attachment_type", columnList = "type"),
                 @Index(name = "idx_attachment_buildrecord", columnList = "buildrecord_id") },
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_attachment_recordid_name", columnNames = { "buildrecord_id", "name" }) })
+                @UniqueConstraint(name = "uk_attachment_recordid_name", columnNames = { "buildrecord_id", "name" }),
+                @UniqueConstraint(name = "uk_attachment_url", columnNames = { "url" }) })
 @ToString
 public class Attachment implements GenericEntity<Integer> {
 
