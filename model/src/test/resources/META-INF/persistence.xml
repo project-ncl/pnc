@@ -29,6 +29,7 @@
 
     <!-- Load the model entities -->
     <class>org.jboss.pnc.model.Artifact</class>
+    <class>org.jboss.pnc.model.Attachment</class>
     <class>org.jboss.pnc.model.BuildConfigSetRecord</class>
     <class>org.jboss.pnc.model.BuildConfiguration</class>
     <class>org.jboss.pnc.model.RepositoryConfiguration</class>
