@@ -2,6 +2,7 @@
 /subsystem=logging/logger=io:add(level=INFO)
 /subsystem=logging/logger=javax:add(level=INFO)
 /subsystem=logging/logger=org.jboss.pnc:add(level=DEBUG)
+/subsystem=logging/logger=org.jboss.as.dependency.private:add(level=ERROR)
 /subsystem=logging/console-handler=CONSOLE:change-log-level(level=TRACE)
 /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
 
