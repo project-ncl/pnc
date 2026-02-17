@@ -36,11 +36,15 @@ import java.util.List;
 @Slf4j
 public class MicroprofileConfigRegistrar implements ConfigSourceProvider {
 
-    private final Configuration configuration;
+    private static Configuration configuration;
 
     public MicroprofileConfigRegistrar() {
         try {
-            this.configuration = new Configuration();
+            synchronized (Object.class) {
+                if (configuration == null) {
+                    configuration = new Configuration();
+                }
+            }
         } catch (ConfigurationParseException e) {
             throw new RuntimeException(e);
         }
