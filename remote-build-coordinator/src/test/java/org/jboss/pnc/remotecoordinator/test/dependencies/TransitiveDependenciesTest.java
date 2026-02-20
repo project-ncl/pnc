@@ -26,6 +26,7 @@ import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Graph;
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,7 +78,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAOnModifiedA() throws GraphStructureException {
+    public void shouldBuildAOnModifiedA() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(a);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
@@ -87,7 +88,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildABCDOnModifiedD() throws GraphStructureException {
+    public void shouldBuildABCDOnModifiedD() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(d);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
@@ -97,7 +98,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildABEOnModifiedE() throws GraphStructureException {
+    public void shouldBuildABEOnModifiedE() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(e);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
@@ -106,7 +107,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildACGHOnModifiedH() throws GraphStructureException {
+    public void shouldBuildACGHOnModifiedH() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(h);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
@@ -115,7 +116,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldNotBuildWithoutModifications() throws GraphStructureException {
+    public void shouldNotBuildWithoutModifications() throws GraphStructureException, BuildRequestException {
         // when
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
         // then
@@ -123,7 +124,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAllOnAllModified() throws GraphStructureException {
+    public void shouldBuildAllOnAllModified() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(all);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
@@ -132,7 +133,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAllOnModifiedDEFH() throws GraphStructureException {
+    public void shouldBuildAllOnModifiedDEFH() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(d, e, f, h);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
@@ -141,7 +142,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldLinkToRunningTask() throws GraphStructureException {
+    public void shouldLinkToRunningTask() throws GraphStructureException, BuildRequestException {
         // when
         modifyConfigurations(b);
         BuildConfigurationAudited auditedA = datastoreAdapter

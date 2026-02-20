@@ -212,7 +212,7 @@
           "description" : "Type of target repository.",
           "schema" : {
             "type" : "string",
-            "enum" : [ "MAVEN", "NPM", "COCOA_POD", "GENERIC_PROXY", "DISTRIBUTION_ARCHIVE" ]
+            "enum" : [ "MAVEN", "NPM", "COCOA_POD", "GENERIC_PROXY", "DISTRIBUTION_ARCHIVE", "RPM" ]
           }
         }, {
           "name" : "buildCategories",
@@ -10734,7 +10734,7 @@
           },
           "repositoryType" : {
             "type" : "string",
-            "enum" : [ "MAVEN", "NPM", "COCOA_POD", "GENERIC_PROXY", "DISTRIBUTION_ARCHIVE" ]
+            "enum" : [ "MAVEN", "NPM", "COCOA_POD", "GENERIC_PROXY", "DISTRIBUTION_ARCHIVE", "RPM" ]
           }
         }
       },
@@ -11129,7 +11129,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11205,7 +11205,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11245,7 +11245,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11306,7 +11306,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11346,7 +11346,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -14204,7 +14204,7 @@
           },
           "repositoryType" : {
             "type" : "string",
-            "enum" : [ "MAVEN", "NPM", "COCOA_POD", "GENERIC_PROXY", "DISTRIBUTION_ARCHIVE" ]
+            "enum" : [ "MAVEN", "NPM", "COCOA_POD", "GENERIC_PROXY", "DISTRIBUTION_ARCHIVE", "RPM" ]
           },
           "temporaryRepo" : {
             "type" : "boolean"

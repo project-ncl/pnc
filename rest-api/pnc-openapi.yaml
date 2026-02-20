@@ -168,6 +168,7 @@ paths:
           - COCOA_POD
           - GENERIC_PROXY
           - DISTRIBUTION_ARCHIVE
+          - RPM
       - name: buildCategories
         in: query
         description: List of artifact build categories to include in result.
@@ -7518,6 +7519,7 @@ components:
           - COCOA_POD
           - GENERIC_PROXY
           - DISTRIBUTION_ARCHIVE
+          - RPM
     ArtifactInfoPage:
       type: object
       properties:
@@ -7841,6 +7843,7 @@ components:
           - GRADLE
           - SBT
           - MVN_RPM
+          - RPM
         creationTime:
           type: string
           format: date-time
@@ -7901,6 +7904,7 @@ components:
           - GRADLE
           - SBT
           - MVN_RPM
+          - RPM
         creationTime:
           type: string
           format: date-time
@@ -7935,6 +7939,7 @@ components:
           - GRADLE
           - SBT
           - MVN_RPM
+          - RPM
         creationTime:
           type: string
           format: date-time
@@ -7983,6 +7988,7 @@ components:
           - GRADLE
           - SBT
           - MVN_RPM
+          - RPM
         creationTime:
           type: string
           format: date-time
@@ -8019,6 +8025,7 @@ components:
           - GRADLE
           - SBT
           - MVN_RPM
+          - RPM
         creationTime:
           type: string
           format: date-time
@@ -10163,6 +10170,7 @@ components:
           - COCOA_POD
           - GENERIC_PROXY
           - DISTRIBUTION_ARCHIVE
+          - RPM
         temporaryRepo:
           type: boolean
     TargetRepositoryPage:

@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,7 +82,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     }
 
     @Test
-    public void shouldNotRebuildIfDependencyIsNotRebuilt() throws GraphStructureException {
+    public void shouldNotRebuildIfDependencyIsNotRebuilt() throws GraphStructureException, BuildRequestException {
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
@@ -90,7 +91,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     }
 
     @Test
-    public void shouldRebuildOnlyDependent() throws GraphStructureException {
+    public void shouldRebuildOnlyDependent() throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(config1);
 
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);

@@ -56,6 +56,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
@@ -266,19 +267,20 @@ public abstract class AbstractDependentBuildTest {
         assertThat(buildConfigurations).hasSameElementsAs(Arrays.asList(configurations));
     }
 
-    protected Graph<RemoteBuildTask> createGraph(BuildConfiguration configuration) throws GraphStructureException {
+    protected Graph<RemoteBuildTask> createGraph(BuildConfiguration configuration)
+            throws GraphStructureException, BuildRequestException {
         return createGraph(configuration, new BuildOptions());
     }
 
     protected Graph<RemoteBuildTask> createGraph(BuildConfiguration configuration, BuildOptions buildOptions)
-            throws GraphStructureException {
+            throws GraphStructureException, BuildRequestException {
         BuildConfigurationAudited audited = datastoreAdapter
                 .getLatestBuildConfigurationAuditedInitializeBCDependencies(configuration.getId());
         return buildTasksInitializer.createBuildGraph(audited, user, buildOptions, Collections.emptySet());
     }
 
     protected Graph<RemoteBuildTask> createGraph(BuildConfigurationSet buildConfigurationSet, RebuildMode rebuildMode)
-            throws GraphStructureException {
+            throws GraphStructureException, BuildRequestException {
 
         Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
         buildConfigurationSet.getBuildConfigurations().stream().map(BuildConfiguration::getId).forEach(id -> {
