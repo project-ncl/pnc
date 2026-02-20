@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,13 +76,13 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAllIfNotSuccessfullyBuilt() throws GraphStructureException {
+    public void shouldBuildAllIfNotSuccessfullyBuilt() throws GraphStructureException, BuildRequestException {
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         expectToBuildBuiltTask(buildGraph, configA, configB, configC, configD, configE);
     }
 
     @Test
-    public void shouldNotCreateTaskForNonDependentBuilt() throws GraphStructureException {
+    public void shouldNotCreateTaskForNonDependentBuilt() throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(configE);
 
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
@@ -92,7 +93,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldCreateTaskForNonDependentBuiltWithRebuildAll() throws GraphStructureException {
+    public void shouldCreateTaskForNonDependentBuiltWithRebuildAll()
+            throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(configE);
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.FORCE);
 
@@ -100,7 +102,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldCreateTaskForDependentBuilt() throws GraphStructureException {
+    public void shouldCreateTaskForDependentBuilt() throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(configA, configC, configD, configE);
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
@@ -110,7 +112,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildOnlyCWhenOnlyCIsUpdated() throws GraphStructureException {
+    public void shouldBuildOnlyCWhenOnlyCIsUpdated() throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(configA, configB, configC, configD, configE);
 
         updateConfiguration(configC);
@@ -123,7 +125,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildBCDWhenBIsUpdated() throws GraphStructureException {
+    public void shouldBuildBCDWhenBIsUpdated() throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(configA, configB, configC, configD, configE);
 
         updateConfiguration(configB);

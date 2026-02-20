@@ -33,6 +33,7 @@ import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
@@ -51,6 +52,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.enums.BuildType.RPM;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -71,7 +74,7 @@ public class BuildTasksInitializer {
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> unfinishedTasks) {
+            Collection<BuildTaskRef> unfinishedTasks) throws BuildRequestException {
 
         log.debug(
                 "will create build tasks for scope: {} and configuration: {}",
@@ -103,13 +106,40 @@ public class BuildTasksInitializer {
                         .map(BuildConfigurationAudited::toString)
                         .collect(Collectors.joining(", ")));
 
-        return doCreateBuildGraph(
+        Graph<RemoteBuildTask> buildTaskGraph = doCreateBuildGraph(
                 user,
                 buildOptions,
                 unfinishedTasks,
                 collectedConfigurations,
                 noRebuildRequiredCauses,
                 buildConfigurationAudited.getBuildConfiguration().getCurrentProductMilestone());
+
+        // [NCL-9532] PNC doesn't support native triggering of RPM builds at the moment, only imports from external
+        // system
+        // are allowed.
+        banRPMTriggers(buildTaskGraph);
+
+        return buildTaskGraph;
+    }
+
+    /**
+     * NCL-9532 PNC doesn't support native triggering of RPM builds at the moment, only imports from external system is
+     * allowed.
+     *
+     * This ban should be removed once PNC is able to create a fully functional pipeline for native builds.
+     */
+    private void banRPMTriggers(Graph<RemoteBuildTask> buildTaskGraph) throws BuildRequestException {
+
+        for (var vertex : buildTaskGraph.getVerticies()) {
+            RemoteBuildTask task = vertex.getData();
+            var bca = task.getBuildConfigurationAudited();
+            if (bca.getBuildType() == RPM) {
+                log.warn("User attempted to trigger an RPM build. Problematic BCA in task graph is: {}", bca);
+                throw new BuildRequestException(
+                        "Triggering build with Build Type RPM not supported at the moment. Only Imports are allowed. BC (id:'"
+                                + bca.getId() + "' rev:'" + bca.getRev() + "')");
+            }
+        }
     }
 
     /**
@@ -203,7 +233,7 @@ public class BuildTasksInitializer {
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks,
-            ProductMilestone currentProductMilestone) {
+            ProductMilestone currentProductMilestone) throws BuildRequestException {
 
         Map<IdRev, BuildRecord> noRebuildRequiredCauses = new HashMap<>();
         Set<Integer> processedDependenciesCache = new HashSet<>();
@@ -249,13 +279,20 @@ public class BuildTasksInitializer {
                         .map(BuildConfigurationAudited::toString)
                         .collect(Collectors.joining("; ")));
 
-        return doCreateBuildGraph(
+        Graph<RemoteBuildTask> buildTaskGraph = doCreateBuildGraph(
                 user,
                 buildOptions,
                 submittedBuildTasks,
                 buildConfigurationAuditeds,
                 noRebuildRequiredCauses,
                 currentProductMilestone);
+
+        // [NCL-9532] PNC doesn't support native triggering of RPM builds at the moment, only imports from external
+        // system
+        // are allowed.
+        banRPMTriggers(buildTaskGraph);
+
+        return buildTaskGraph;
     }
 
     private int dependenciesFirst(BuildConfiguration configuration1, BuildConfiguration configuration2) {

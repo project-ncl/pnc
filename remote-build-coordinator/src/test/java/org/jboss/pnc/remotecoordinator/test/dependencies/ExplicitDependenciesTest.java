@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAOnModifiedB() throws GraphStructureException {
+    public void shouldBuildAOnModifiedB() throws GraphStructureException, BuildRequestException {
         // when
         insertNewBuildRecords(b);
 
@@ -63,7 +64,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAWhenNoDependencyOption() throws GraphStructureException {
+    public void shouldBuildAWhenNoDependencyOption() throws GraphStructureException, BuildRequestException {
         insertNewBuildRecords(b);
 
         // when
@@ -77,7 +78,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildABOnModifiedD() throws GraphStructureException {
+    public void shouldBuildABOnModifiedD() throws GraphStructureException, BuildRequestException {
         // when
         insertNewBuildRecords(d);
 
@@ -90,7 +91,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldNotBuildAOnModifiedC() throws GraphStructureException {
+    public void shouldNotBuildAOnModifiedC() throws GraphStructureException, BuildRequestException {
         // when
         insertNewBuildRecords(c);
 
@@ -103,7 +104,8 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAOnModifiedCWhenImplicitDependencyCheck() throws GraphStructureException {
+    public void shouldBuildAOnModifiedCWhenImplicitDependencyCheck()
+            throws GraphStructureException, BuildRequestException {
         // when
         insertNewBuildRecords(c);
 
@@ -117,7 +119,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildABCOnForceAWithDependencies() throws GraphStructureException {
+    public void shouldBuildABCOnForceAWithDependencies() throws GraphStructureException, BuildRequestException {
         // when
         insertNewBuildRecords(d, b, a);
 

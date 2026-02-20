@@ -87,7 +87,8 @@
             "NPM" : "-Dnpm=setup",
             "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true",
             "SBT" : "-Dsbt=setup",
-            "MVN_RPM" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true"
+            "MVN_RPM" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+            "RPM": ""
           }
         },
         {
