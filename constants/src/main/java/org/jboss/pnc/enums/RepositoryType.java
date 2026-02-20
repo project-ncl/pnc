@@ -43,6 +43,9 @@ public enum RepositoryType {
     /**
      * Artifacts which are not found in other repositories but are present in a distribution archive.
      */
-    DISTRIBUTION_ARCHIVE
-
+    DISTRIBUTION_ARCHIVE,
+    /**
+     * RPM artifacts repository.
+     */
+    RPM
 }

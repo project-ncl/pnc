@@ -51,7 +51,13 @@ public enum BuildType {
      * Build wrapperRpms using modified pom file, rpm maven plugin and PME for alignment. The artifacts are published as
      * maven artifacts to {@link RepositoryType#MAVEN} repository.
      */
-    MVN_RPM(RepositoryType.MAVEN);
+    MVN_RPM(RepositoryType.MAVEN),
+
+    /**
+     * Build RPMs using Mock tool and spec file. The artifacts are published into an {@link RepositoryType#RPM}
+     * repository. There's no alignment process present currently.
+     */
+    RPM(RepositoryType.RPM);
 
     private final RepositoryType repoType;
 
