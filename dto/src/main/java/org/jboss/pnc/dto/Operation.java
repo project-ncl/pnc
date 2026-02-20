@@ -21,12 +21,9 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
-import java.time.Instant;
 import java.util.Map;
 
 import lombok.experimental.SuperBuilder;
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
