@@ -22,13 +22,11 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.notifications.Notifier;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -306,7 +304,6 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         // when
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
-        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 
         // then
         assertThatThrownBy(() -> provider.createSCMRepository("git+ssh://github.com/notvalid", true))
@@ -319,7 +316,6 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         // when
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
-        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 
         // then
         assertThatThrownBy(() -> provider.createSCMRepository("https://github.com/project-ncl/cleaner.git", true))
@@ -331,27 +327,6 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
 
         // when, then
         assertThatThrownBy(() -> provider.createSCMRepository("", true)).isInstanceOf(InvalidEntityException.class);
-    }
-
-    @Test
-    public void testCreateSCMRepositoryWithSecondaryInternalRepository() {
-
-        // when
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("internalrepo.com");
-        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn("random.com");
-        String internalUrl = "git+ssh://random.com/project-ncl/cleaner.git";
-
-        RepositoryCreationResponse response = provider.createSCMRepository(internalUrl, false);
-
-        // then
-        assertThat(response).isNotNull();
-
-        if (response.getRepository() == null) {
-            Assert.fail("repository must not be null when creating SCM repository from internal SCM URL!");
-        }
-        if (response.getTaskId() != null) {
-            Assert.fail("taskId must be null when creating SCM repository from internal SCM URL!");
-        }
     }
 
     @Test
@@ -409,39 +384,45 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     public void testIsInternalRepository() {
         assertTrue(
                 SCMRepositoryProviderImpl
-                        .isInternalRepository("git.example.com", null, "git+ssh://git.example.com/group/repo.git"));
+                        .isInternalRepository("git.example.com", "git+ssh://git.example.com/group/repo.git"));
         assertTrue(
                 SCMRepositoryProviderImpl
-                        .isInternalRepository("git.example.com", null, "git@git.example.com:group/repo.git"));
+                        .isInternalRepository("git.example.com", "git@git.example.com:group/repo.git"));
 
         assertTrue(
-                SCMRepositoryProviderImpl.isInternalRepository(
-                        "git.primary.com",
-                        "git.secondary.com",
-                        "git+ssh://git.primary.com/group/repo.git"));
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("git.primary.com", "git+ssh://git.primary.com/group/repo.git"));
         assertTrue(
-                SCMRepositoryProviderImpl.isInternalRepository(
-                        "git.primary.com",
-                        "git.secondary.com",
-                        "git@git.primary.com:group/repo.git"));
-
-        assertTrue(
-                SCMRepositoryProviderImpl.isInternalRepository(
-                        "git.primary.com",
-                        "git.secondary.com",
-                        "git+ssh://git.secondary.com/group/repo.git"));
-        assertTrue(
-                SCMRepositoryProviderImpl.isInternalRepository(
-                        "git.primary.com",
-                        "git.secondary.com",
-                        "git@git.secondary.com:group/repo.git"));
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("git.primary.com", "git@git.primary.com:group/repo.git"));
 
         assertFalse(
                 SCMRepositoryProviderImpl
-                        .isInternalRepository("git.example.com", null, "git+ssh://git.another.com/group.repo.git"));
+                        .isInternalRepository("git.example.com", "git+ssh://git.another.com/group.repo.git"));
         assertFalse(
                 SCMRepositoryProviderImpl
-                        .isInternalRepository("git.example.com", null, "git@git.another.com:group/repo.git"));
+                        .isInternalRepository("git.example.com", "git@git.another.com:group/repo.git"));
     }
 
+    @Test
+    public void testInternalOrganization() {
+
+        assertTrue(SCMRepositoryProviderImpl.isInternalOrg("pnc-org", "github.com", "git@github.com:pnc-org/repo.git"));
+
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalOrg("pnc-org", "github.com", "https://github.com/pnc-org/repo.git"));
+
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalOrg("pnc-org", "github.com", "https://github.com/different-org/repo.git"));
+
+        assertFalse(SCMRepositoryProviderImpl.isInternalOrg("pnc-org", "github.com", "git@github.com:pnc/repo.git"));
+
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalOrg("pnc-org", "github.com", "https://different-github.com/pnc-org/repo.git"));
+
+        assertTrue(SCMRepositoryProviderImpl.isInternalOrg(null, "github.com", "whatever"));
+    }
 }
