@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -219,7 +220,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
     public void testProvenanceCreation() {
 
         // Initialize all the required data to create a provenance
-        BuildConfigurationRevision buildConfigRevision = initBuildConfigurationRevision();
+        BuildConfigurationRevision buildConfigRevision = initBuildConfigurationRevision(false);
         Build build = initBuild(buildConfigRevision);
         TargetRepository targetRepository = iniTargetRepository();
         Collection<Artifact> builtArtifacts = initBuiltArtifacts(build, targetRepository);
@@ -250,6 +251,85 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         List<com.networknt.schema.Error> errors = SlsaProvenanceUtils.validateProvenance(provenance);
         assertThat(errors).isEmpty();
 
+        // Run all the verifications
+        runAllAssertionsOnProvenance(provenance, build, builtArtifacts, dependencyArtifacts, buildConfigRevision);
+
+        // Run assertion specific to this test
+        BuildDefinition buildDefinition = provenance.getPredicate().getBuildDefinition();
+
+        Map<String, Object> externalParams = buildDefinition.getExternalParameters();
+        Map<String, Object> scmParams = (Map<String, Object>) externalParams.get(PROVENANCE_V1_SCM_REPOSITORY);
+        assertThat(scmParams.get(PROVENANCE_V1_URI)).isEqualTo(build.getScmRepository().getExternalUrl());
+        List<ResourceDescriptor> resolvedDependencies = buildDefinition.getResolvedDependencies();
+
+        // Test `repository`
+        ResourceDescriptor repository = resolvedDependencies.stream()
+                .filter(descriptor -> descriptor.getName().equals(PROVENANCE_V1_SCM_REPOSITORY))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(repository);
+        assertThat(repository.getDigest().containsKey(PROVENANCE_V1_SCM_COMMIT)).isTrue();
+        assertThat(repository.getDigest().get(PROVENANCE_V1_SCM_COMMIT)).isEqualTo(build.getScmBuildConfigRevision());
+        assertThat(repository.getUri()).isEqualTo(build.getScmRepository().getExternalUrl());
+    }
+
+    @Test
+    public void testProvenanceCreationEmptyExternalUrl() {
+
+        // Initialize all the required data to create a provenance
+        BuildConfigurationRevision buildConfigRevision = initBuildConfigurationRevision(true);
+        Build build = initBuild(buildConfigRevision);
+        TargetRepository targetRepository = iniTargetRepository();
+        Collection<Artifact> builtArtifacts = initBuiltArtifacts(build, targetRepository);
+        Collection<Artifact> dependencyArtifacts = initDependenciesArtifacts(targetRepository);
+
+        ProvenanceEntry builder = createProvenanceEntry("id", "externalPncUrl", "/builds/${buildId}");
+        List<ProvenanceEntry> componentVersions = createComponentVersions();
+        List<ProvenanceEntry> byProducts = createByProducts();
+
+        BuilderConfig builderConfig = new BuilderConfig(builder, componentVersions, byProducts);
+
+        GlobalModuleGroup globalConfig = new GlobalModuleGroup();
+        globalConfig.setExternalPncUrl("https://orch-stage.redhat.com/pnc-rest/v2");
+        globalConfig.setExternalEnvironmentDriverUrl("https://environment-stage.redhat.com");
+        globalConfig.setExternalKafkaStoreUrl("https://kafka-store-stage.redhat.com");
+
+        SlsaProvenanceUtils slsaProvenanceUtils = new SlsaProvenanceUtils(
+                build,
+                buildConfigRevision,
+                builtArtifacts,
+                dependencyArtifacts,
+                builderConfig,
+                globalConfig,
+                providerHelper::getBodyFromHttpRequest);
+
+        // Generate the provenance
+        Provenance provenance = slsaProvenanceUtils.createBuildProvenance();
+        List<com.networknt.schema.Error> errors = SlsaProvenanceUtils.validateProvenance(provenance);
+        assertThat(errors).isEmpty();
+
+        // Run all the verifications
+        runAllAssertionsOnProvenance(provenance, build, builtArtifacts, dependencyArtifacts, buildConfigRevision);
+
+        // Run assertion specific to this test
+        BuildDefinition buildDefinition = provenance.getPredicate().getBuildDefinition();
+        Map<String, Object> externalParams = buildDefinition.getExternalParameters();
+        Map<String, Object> scmParams = (Map<String, Object>) externalParams.get(PROVENANCE_V1_SCM_REPOSITORY);
+        assertThat(scmParams.get(PROVENANCE_V1_URI)).isEqualTo(build.getScmRepository().getInternalUrl());
+        List<ResourceDescriptor> resolvedDependencies = buildDefinition.getResolvedDependencies();
+        ResourceDescriptor repository = resolvedDependencies.stream()
+                .filter(descriptor -> descriptor.getName().equals(PROVENANCE_V1_SCM_REPOSITORY))
+                .findFirst()
+                .orElse(null);
+        assertNull(repository);
+    }
+
+    private void runAllAssertionsOnProvenance(
+            Provenance provenance,
+            Build build,
+            Collection<Artifact> builtArtifacts,
+            Collection<Artifact> dependencyArtifacts,
+            BuildConfigurationRevision buildConfigRevision) {
         // Test `predicateType` and `_type`
         assertNotNull(provenance);
         assertThat(provenance.getPredicateType()).isEqualTo(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE);
@@ -353,7 +433,6 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         // Test `predicate`.`buildDefinition`.`externalParameters`.`repository`
         assertThat(externalParams.containsKey(PROVENANCE_V1_SCM_REPOSITORY)).isTrue();
         Map<String, Object> scmParams = (Map<String, Object>) externalParams.get(PROVENANCE_V1_SCM_REPOSITORY);
-        assertThat(scmParams.get(PROVENANCE_V1_URI)).isEqualTo(build.getScmRepository().getExternalUrl());
         assertThat(scmParams.get(PROVENANCE_V1_REVISION)).isEqualTo(buildConfigRevision.getScmRevision());
         assertThat(scmParams.get(PROVENANCE_V1_PRE_BUILD_SYNC))
                 .isEqualTo(String.valueOf(buildConfigRevision.getScmRepository().getPreBuildSyncEnabled()));
@@ -366,16 +445,6 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         // Test `predicate`.`buildDefinition`.`resolvedDependencies`
         List<ResourceDescriptor> resolvedDependencies = buildDefinition.getResolvedDependencies();
-
-        // Test `repository`
-        ResourceDescriptor repository = resolvedDependencies.stream()
-                .filter(descriptor -> descriptor.getName().equals(PROVENANCE_V1_SCM_REPOSITORY))
-                .findFirst()
-                .orElse(null);
-        assertNotNull(repository);
-        assertThat(repository.getDigest().containsKey(PROVENANCE_V1_SCM_COMMIT)).isTrue();
-        assertThat(repository.getDigest().get(PROVENANCE_V1_SCM_COMMIT)).isEqualTo(build.getScmBuildConfigRevision());
-        assertThat(repository.getUri()).isEqualTo(build.getScmRepository().getExternalUrl());
 
         // Test `repository.downstream`
         ResourceDescriptor downstreamRepository = resolvedDependencies.stream()
@@ -438,13 +507,8 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         return artifactBuilder.build();
     }
 
-    private BuildConfigurationRevision initBuildConfigurationRevision() {
-        SCMRepository scmRepository = SCMRepository.builder()
-                .id(String.valueOf(getNextId()))
-                .internalUrl("git+ssh://code.stage.engineering.redhat.com/vibe13/sentinel.git")
-                .externalUrl("https://github.com/vibe13/sentinel.git")
-                .preBuildSyncEnabled(true)
-                .build();
+    private BuildConfigurationRevision initBuildConfigurationRevision(boolean internalOnly) {
+        SCMRepository scmRepository = initSCMRepository(internalOnly);
 
         Project project = Project.builder()
                 .description("Generation of SLSA Provenance for Project Newcastle built artfacts")
@@ -494,6 +558,15 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         return buildConfigRevision;
     }
 
+    private SCMRepository initSCMRepository(boolean internalOnly) {
+        return SCMRepository.builder()
+                .id(String.valueOf(getNextId()))
+                .internalUrl("git+ssh://code.stage.engineering.redhat.com/vibe13/sentinel.git")
+                .preBuildSyncEnabled(true)
+                .externalUrl(internalOnly ? null : "https://github.com/vibe13/sentinel.git")
+                .build();
+    }
+
     private Build initBuild(BuildConfigurationRevision buildConfigRevision) {
         Integer id = getNextId();
 
@@ -512,8 +585,11 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .scmBuildConfigRevisionInternal(false)
                 .scmRepository(buildConfigRevision.getScmRepository())
                 .scmRevision(buildConfigRevision.getScmRevision())
-                .scmTag(buildConfigRevision.getScmRepository().getInternalUrl() + ".pnc-tag-" + id)
-                .scmUrl(buildConfigRevision.getScmRepository().getExternalUrl())
+                .scmTag("pnc-tag-" + id)
+                .scmUrl(
+                        buildConfigRevision.getScmRepository().getExternalUrl() != null
+                                ? buildConfigRevision.getScmRepository().getExternalUrl()
+                                : buildConfigRevision.getScmRepository().getInternalUrl())
                 .startTime(Instant.now().minus(5, ChronoUnit.MINUTES))
                 .status(BuildStatus.SUCCESS)
                 .submitTime(Instant.now().minus(8, ChronoUnit.MINUTES))
