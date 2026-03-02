@@ -184,7 +184,6 @@ public class SlsaProvenanceUtils {
             Collection<Artifact> resolvedArtifacts) {
 
         List<ResourceDescriptor> deps = new ArrayList<ResourceDescriptor>();
-
         if (!Strings.isEmpty(pncBuild.getScmBuildConfigRevision()) && pncBuild.getScmRepository() != null
                 && !Strings.isEmpty(pncBuild.getScmRepository().getExternalUrl())) {
             deps.add(
@@ -226,7 +225,12 @@ public class SlsaProvenanceUtils {
             BuildConfigurationRevision rev) {
 
         // Merge build parameters and include extra flags
-        Map<String, Object> mergedParameters = new HashMap<>(rev.getParameters());
+        Map<String, Object> mergedParameters = rev.getParameters() == null ? new HashMap<>()
+                : rev.getParameters()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getKey() != null && e.getValue() != null)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, HashMap::new));
         mergedParameters.put(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE, String.valueOf(rev.isBrewPullActive()));
 
         // Build details map with all relevant metadata
@@ -248,7 +252,9 @@ public class SlsaProvenanceUtils {
                 PROVENANCE_V1_SCM_REPOSITORY,
                 Map.of(
                         PROVENANCE_V1_URI,
-                        pncBuild.getScmRepository().getExternalUrl(),
+                        pncBuild.getScmRepository().getExternalUrl() != null
+                                ? pncBuild.getScmRepository().getExternalUrl()
+                                : pncBuild.getScmRepository().getInternalUrl(),
                         PROVENANCE_V1_REVISION,
                         rev.getScmRevision(),
                         PROVENANCE_V1_PRE_BUILD_SYNC,
