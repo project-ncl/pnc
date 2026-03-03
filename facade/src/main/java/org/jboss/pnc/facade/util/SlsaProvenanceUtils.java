@@ -230,7 +230,7 @@ public class SlsaProvenanceUtils {
                         .entrySet()
                         .stream()
                         .filter(e -> e.getKey() != null && e.getValue() != null)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, HashMap::new));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         mergedParameters.put(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE, String.valueOf(rev.isBrewPullActive()));
 
         // Build details map with all relevant metadata
