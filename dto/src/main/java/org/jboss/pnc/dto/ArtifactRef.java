@@ -84,7 +84,7 @@ public class ArtifactRef implements DTOEntity {
      * Category of the build denoting its support and usage
      */
     @PatchSupport({ REPLACE })
-    @NotNull(groups = { WhenUpdating.class, WhenImporting.class })
+    @NotNull(groups = { WhenUpdating.class })
     protected final BuildCategory buildCategory;
 
     /**
