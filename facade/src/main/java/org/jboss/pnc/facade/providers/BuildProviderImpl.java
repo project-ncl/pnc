@@ -395,7 +395,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public Page<Build> getDependantBuildsForArtifact(BuildPageInfo pageInfo, String artifactId) {
         try {
-            return getBuildList(pageInfo, _t -> true, withArtifactDependency(Integer.valueOf(artifactId)));
+            return getBuildList(pageInfo, _t -> false, withArtifactDependency(Integer.valueOf(artifactId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
