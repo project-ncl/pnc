@@ -23,6 +23,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import javax.persistence.LockModeType;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,7 +98,7 @@ public abstract class RepositoryMock<ID extends Serializable, EntityType extends
     }
 
     @Override
-    public EntityType queryById(ID id) {
+    public EntityType queryById(ID id, LockModeType lockMode) {
         return getOptionalById(id).orElse(null);
     }
 

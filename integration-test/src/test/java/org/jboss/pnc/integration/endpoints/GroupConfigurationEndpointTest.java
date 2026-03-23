@@ -61,6 +61,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -278,6 +279,45 @@ public class GroupConfigurationEndpointTest {
         }
 
         assertThat(responseMap).containsKeys(1, 2).doesNotContainValue(null);
+    }
+
+    @Test
+    public void testConcurrentAddBuildConfig() throws RemoteResourceException {
+        GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
+        BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        String gcId = "102";
+        BuildConfiguration buildConfiguration = bcClient.getAll().iterator().next();
+
+        assertThat(client.getSpecific(gcId).getBuildConfigs()).doesNotContainKey(buildConfiguration.getId());
+
+        Map<Integer, Exception> errorMap = new ConcurrentHashMap<>();
+
+        ExecutorService executorService = MDCExecutors.newFixedThreadPool(2);
+
+        Function<Integer, Runnable> addConfig = (requestNum) -> () -> {
+            logger.info("Making request {} ...", requestNum);
+            try {
+                client.addBuildConfig(gcId, buildConfiguration);
+            } catch (Exception e) {
+                errorMap.put(requestNum, e);
+            }
+            logger.info("Request {} done.", requestNum);
+        };
+
+        executorService.submit(addConfig.apply(1));
+        executorService.submit(addConfig.apply(2));
+
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            throw new AssertionError("Requests were not completed in given timeout.", e);
+        }
+
+        assertThat(errorMap).isEmpty();
+        assertThat(client.getSpecific(gcId).getBuildConfigs()).containsKey(buildConfiguration.getId());
     }
 
     @Test

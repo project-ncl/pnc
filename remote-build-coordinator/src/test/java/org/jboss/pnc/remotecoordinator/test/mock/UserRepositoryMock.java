@@ -26,6 +26,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import javax.persistence.LockModeType;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -45,7 +46,7 @@ public class UserRepositoryMock implements UserRepository {
     }
 
     @Override
-    public User queryById(Integer id) {
+    public User queryById(Integer id, LockModeType lockMode) {
         return null;
     }
 

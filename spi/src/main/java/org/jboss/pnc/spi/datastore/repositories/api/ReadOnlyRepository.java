@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.datastore.repositories.api;
 
 import org.jboss.pnc.model.GenericEntity;
 
+import javax.persistence.LockModeType;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +29,11 @@ public interface ReadOnlyRepository<T extends GenericEntity<ID>, ID extends Seri
 
     List<T> queryAll(PageInfo pageInfo, SortInfo<T> sortInfo);
 
-    T queryById(ID id);
+    default T queryById(ID id) {
+        return queryById(id, LockModeType.NONE);
+    }
+
+    T queryById(ID id, LockModeType lockMode);
 
     T queryByPredicates(Predicate<T>... predicates);
 
