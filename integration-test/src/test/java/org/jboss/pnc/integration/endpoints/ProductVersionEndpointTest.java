@@ -166,7 +166,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<GroupConfiguration> all = client.getGroupConfigs(productVersionsId);
 
-        assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(3).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test

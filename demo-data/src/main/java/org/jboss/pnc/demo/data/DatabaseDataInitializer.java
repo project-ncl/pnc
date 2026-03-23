@@ -635,6 +635,11 @@ public class DatabaseDataInitializer {
                 .productVersion(productVersion1)
                 .build();
 
+        BuildConfigurationSet buildConfigurationSet3 = BuildConfigurationSet.Builder.newBuilder()
+                .name("Example-Build-Group-3")
+                .productVersion(productVersion1)
+                .build();
+
         demoUser = User.Builder.newBuilder()
                 .username("demo-user")
                 .firstName("Demo First Name")
@@ -651,6 +656,7 @@ public class DatabaseDataInitializer {
 
         buildConfigurationSetRepository.save(buildConfigurationSet1);
         buildConfigurationSetRepository.save(buildConfigurationSet2);
+        buildConfigurationSetRepository.save(buildConfigurationSet3);
         demoUser = userRepository.save(demoUser);
         pncAdminUser = userRepository.save(pncAdminUser);
 

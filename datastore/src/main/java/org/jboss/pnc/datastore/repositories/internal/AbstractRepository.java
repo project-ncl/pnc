@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -123,9 +124,9 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
     }
 
     @Override
-    public T queryById(ID id) {
+    public T queryById(ID id, LockModeType lockMode) {
         Objects.requireNonNull(id, "The given id must not be null!");
-        return this.entityManager.find(entityClass, id);
+        return this.entityManager.find(entityClass, id, lockMode);
     }
 
     @Override

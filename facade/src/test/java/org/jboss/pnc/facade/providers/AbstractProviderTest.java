@@ -229,10 +229,14 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
             }
             throw new IllegalArgumentException("Provided entity has ID but is not in the repository.");
         });
-        when(repository().queryById(any(idType))).thenAnswer(inv -> {
+
+        Answer findById = inv -> {
             ID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
-        });
+        };
+        when(repository().queryById(any(idType))).thenAnswer(findById);
+        when(repository().queryById(any(idType), any())).thenAnswer(findById);
+
         doAnswer(inv -> {
             ID id = inv.getArgument(0);
             T object = repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);

@@ -31,13 +31,13 @@ import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.LockModeType;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,9 +52,6 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 public class GroupConfigurationProviderImpl
         extends AbstractUpdatableProvider<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef>
         implements GroupConfigurationProvider {
-
-    @Inject
-    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
@@ -187,11 +184,13 @@ public class GroupConfigurationProviderImpl
 
     @Override
     public void addConfiguration(String id, String configId) throws DTOValidationException {
-        BuildConfigurationSet buildConfigSet = repository.queryById(Integer.valueOf(id));
+        BuildConfigurationSet buildConfigSet = repository
+                .queryById(Integer.valueOf(id), LockModeType.PESSIMISTIC_WRITE);
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(Integer.valueOf(configId));
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
                 .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
                 .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
+
         if (!buildConfigSet.getBuildConfigurations().contains(buildConfig)) {
             buildConfigSet.addBuildConfiguration(buildConfig);
             repository.save(buildConfigSet);

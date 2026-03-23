@@ -54,9 +54,6 @@ public class GroupConfigurationProviderTest extends AbstractIntIdProviderTest<Bu
     protected BuildConfigurationSetRepository repository;
 
     @Mock
-    private BuildConfigurationSetRepository buildConfigurationSetRepository;
-
-    @Mock
     private BuildConfigurationRepository buildConfigurationRepository;
 
     @Spy
