@@ -409,7 +409,8 @@ public class SCMRepositoryProviderImpl
                         result.getJobType(),
                         RC_REPO_CREATION_CONFLICT,
                         existing,
-                        result.getTaskId().toString());
+                        result.getTaskId().toString(),
+                        "Repository with the specified internal URL already exists");
                 notifier.sendMessage(error);
             } else {
                 SCMRepository scmRepo = createSCMRepositoryFromValues(
@@ -445,12 +446,18 @@ public class SCMRepositoryProviderImpl
             RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
                     .repositoryConfiguration(repositoryConfiguration)
                     .build();
+
+            final String errorMessage = String.format(
+                    "%s. $s",
+                    result.getExceptionResolution().getReason(),
+                    result.getExceptionResolution().getProposal());
             notifier.sendMessage(
                     new RepositoryCreationFailure(
                             result.getJobType(),
                             eventType,
                             repositoryCreationProcess,
-                            result.getTaskId().toString()));
+                            result.getTaskId().toString(),
+                            errorMessage));
         }
     }
 
