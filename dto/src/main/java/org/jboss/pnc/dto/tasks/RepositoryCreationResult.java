@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.ResultStatus;
@@ -33,6 +34,7 @@ import org.jboss.pnc.enums.ResultStatus;
 public class RepositoryCreationResult {
 
     protected final ResultStatus status;
+    protected final ExceptionResolution exceptionResolution;
     protected final boolean repoCreatedSuccessfully; // did first step completed successfully;
     protected final String internalScmUrl;
     protected final String externalUrl;
