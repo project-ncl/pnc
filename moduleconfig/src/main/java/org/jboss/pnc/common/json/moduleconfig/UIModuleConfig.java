@@ -17,12 +17,16 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 
 import javax.ws.rs.DefaultValue;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,6 +35,7 @@ import java.util.Map;
  * @author Alex Creasy
  */
 @JsonIgnoreProperties({ "@module-config" })
+@JsonAutoDetect(setterVisibility = JsonAutoDetect.Visibility.ANY)
 public class UIModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "ui";
@@ -42,6 +47,9 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
     private final Map<String, String> grafana;
+
+    // all toplevel key/values which are not specified in constructor
+    private final Map<String, Object> unspecifiedFields;
 
     public UIModuleConfig(
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
@@ -58,6 +66,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); // default to 24h
         this.keycloak = keycloak;
         this.grafana = grafana;
+        this.unspecifiedFields = new HashMap<>();
     }
 
     /**
@@ -108,6 +117,19 @@ public class UIModuleConfig extends AbstractModuleConfig {
     @JsonProperty("grafana")
     public Map<String, String> getGrafana() {
         return grafana;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getUnspecifiedFields() {
+        return unspecifiedFields;
+    }
+
+    /**
+     * All keys that are not explicitly mentioned in the constructor will end up in this method. Look up @JsonAnySetter.
+     */
+    @JsonAnySetter
+    private void putUnspecified(String key, Object value) {
+        this.unspecifiedFields.put(key, value);
     }
 
     @Override
