@@ -752,7 +752,7 @@
       <dependency>
         <groupId>io.smallrye</groupId>
         <artifactId>smallrye-fault-tolerance</artifactId>
-        <version>5.5.0</version>
+        <version>6.11.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
