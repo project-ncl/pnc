@@ -448,7 +448,7 @@ public class SCMRepositoryProviderImpl
                     .build();
 
             final String errorMessage = String.format(
-                    "%s. $s",
+                    "%s. %s",
                     result.getExceptionResolution().getReason(),
                     result.getExceptionResolution().getProposal());
             notifier.sendMessage(
