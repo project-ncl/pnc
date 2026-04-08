@@ -373,7 +373,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                         new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
                         new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
 
-        String correlationId = UUID.randomUUID().toString();
+        String correlationId = buildTask.getId();
         Request remoteStart = dingroguClient.startBuildProcessInstance(buildTask, headers, correlationId);
         Request remoteCancel = dingroguClient.cancelProcessInstance(headers, correlationId);
 
