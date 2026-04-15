@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.util;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jboss.pnc.api.dto.ComponentVersion;
@@ -52,6 +55,7 @@ import org.jboss.pnc.common.json.moduleconfig.slsa.ProvenanceEntry;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +70,7 @@ import com.networknt.schema.SpecificationVersion;
 import lombok.AllArgsConstructor;
 
 import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.*;
+import static org.jboss.pnc.api.constants.Attributes.IMAGE_DIGEST_REF;
 import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.INVOKE;
 import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.REPLACE;
 
@@ -79,6 +84,8 @@ public class SlsaProvenanceUtils {
 
     public static final String SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE = "https://in-toto.io/Statement/v1";
     public static final String SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE = "https://slsa.dev/provenance/v1";
+
+    private static final Pattern DIGEST_PATTERN = Pattern.compile("@sha256:([a-fA-F0-9]{64})$");
 
     private final Build pncBuild;
     private final BuildConfigurationRevision pncBuildConfigRevision;
@@ -169,10 +176,21 @@ public class SlsaProvenanceUtils {
             if (artifact.getPublicUrl() != null) {
                 annotations.put(PROVENANCE_V1_ARTIFACT_URI, artifact.getPublicUrl());
             }
+            annotations.put(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID, artifact.getId());
+            if (artifact.getBuild() != null) {
+                annotations.put(PROVENANCE_V1_ARTIFACT_BUILD_ID, artifact.getBuild().getId());
+            }
 
             return ResourceDescriptor.builder()
                     .name(artifact.getFilename())
-                    .digest(Map.of(PROVENANCE_V1_ARTIFACT_SHA256, artifact.getSha256()))
+                    .digest(
+                            Map.of(
+                                    PROVENANCE_V1_ARTIFACT_SHA256,
+                                    artifact.getSha256(),
+                                    PROVENANCE_V1_ARTIFACT_SHA1,
+                                    artifact.getSha1(),
+                                    PROVENANCE_V1_ARTIFACT_MD5,
+                                    artifact.getMd5()))
                     .annotations(annotations)
                     .build();
         }).collect(Collectors.toList());
@@ -207,17 +225,39 @@ public class SlsaProvenanceUtils {
 
         if (!Strings.isEmpty(pncBuild.getEnvironment().getSystemImageRepositoryUrl())
                 && !Strings.isEmpty(pncBuild.getEnvironment().getSystemImageId())) {
-            deps.add(
-                    ResourceDescriptor.builder()
-                            .name(PROVENANCE_V1_ENVIRONMENT)
-                            .uri(
-                                    pncBuild.getEnvironment().getSystemImageRepositoryUrl() + "/"
-                                            + pncBuild.getEnvironment().getSystemImageId())
-                            .build());
+            deps.add(createBuildEnvironmentDescriptor(pncBuild.getEnvironment()));
         }
 
         deps.addAll(createResourceDescriptors(resolvedArtifacts));
         return deps;
+    }
+
+    private ResourceDescriptor createBuildEnvironmentDescriptor(Environment environment) {
+        if (environment.getAttributes().containsKey(IMAGE_DIGEST_REF)) {
+            String imageDigestRef = environment.getAttributes().get(IMAGE_DIGEST_REF);
+            String imageDigest = extractDigest(imageDigestRef);
+            String imageTag = extractTag(environment.getSystemImageId());
+
+            Map<String, Object> annotations = new HashMap<>();
+            if (imageTag != null) {
+                annotations.put(PROVENANCE_V1_ENVIRONMENT_TAG, imageTag);
+            }
+
+            return ResourceDescriptor.builder()
+                    .name(PROVENANCE_V1_ENVIRONMENT)
+                    .uri(environment.getSystemImageRepositoryUrl() + "/" + imageDigestRef)
+                    .digest(Map.of(PROVENANCE_V1_ENVIRONMENT_SHA256, imageDigest))
+                    .annotations(annotations)
+                    .build();
+
+        }
+        return ResourceDescriptor.builder()
+                .name(PROVENANCE_V1_ENVIRONMENT)
+                .uri(
+                        pncBuild.getEnvironment().getSystemImageRepositoryUrl() + "/"
+                                + pncBuild.getEnvironment().getSystemImageId())
+                .build();
+
     }
 
     private Map<String, Object> createExternalParameters(
@@ -267,6 +307,7 @@ public class SlsaProvenanceUtils {
             Build pncBuild,
             BuilderConfig builderConfig,
             Map<String, Optional<String>> invokedBodies) {
+
         ProvenanceEntry componentEntry = builderConfig.getId();
         if (componentEntry != null) {
             Optional<String> componentEntryResolvedValue = resolveComponentUriOrValue(
@@ -274,9 +315,12 @@ public class SlsaProvenanceUtils {
                     pncBuild,
                     invokedBodies);
             if (componentEntryResolvedValue.isPresent()) {
-                return componentEntryResolvedValue.get();
+                String resolvedBuilderId = componentEntryResolvedValue.get();
+                String resolvedBuilderIdUrl = extractBaseUrl(resolvedBuilderId);
+                return resolvedBuilderIdUrl != null ? resolvedBuilderIdUrl : resolvedBuilderId;
             }
         }
+
         return pncBuild.getId();
     }
 
@@ -489,6 +533,36 @@ public class SlsaProvenanceUtils {
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read JSON Schema from classpath: " + resourcePath, e);
+        }
+    }
+
+    public static String extractDigest(String image) {
+        return Optional.ofNullable(image)
+                .map(DIGEST_PATTERN::matcher)
+                .filter(Matcher::find)
+                .map(m -> m.group(1))
+                .orElse(null);
+    }
+
+    public static String extractTag(String image) {
+        return Optional.ofNullable(image)
+                .filter(s -> !s.contains("@")) // ignore digest refs
+                .flatMap(s -> {
+                    int lastColon = s.lastIndexOf(':');
+                    int lastSlash = s.lastIndexOf('/');
+
+                    return (lastColon > lastSlash) ? Optional.of(s.substring(lastColon + 1)) : Optional.empty();
+                })
+                .orElse(null);
+    }
+
+    // We will rely on fixed builderIds, we need to extract the main url from the REST API
+    public static String extractBaseUrl(String url) {
+        try {
+            URI uri = URI.create(url);
+            return uri.getScheme() + "://" + uri.getHost();
+        } catch (Exception e) {
+            return null;
         }
     }
 }
