@@ -132,6 +132,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .repositoryDriverUrl(global.getExternalRepositoryDriverUrl())
                 .buildDriverUrl(global.getExternalBuildDriverUrl())
                 .environmentDriverUrl(global.getExternalEnvironmentDriverUrl())
+                .bifrostUrl(global.getExternalBifrostUrl())
                 .scmRepoURL(buildTask.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildTask.getBuildConfigurationAudited().getScmRevision())
                 .preBuildSyncEnabled(

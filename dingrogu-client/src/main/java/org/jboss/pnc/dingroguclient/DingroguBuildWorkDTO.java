@@ -38,6 +38,7 @@ public class DingroguBuildWorkDTO {
     String repositoryDriverUrl;
     String buildDriverUrl;
     String environmentDriverUrl;
+    String bifrostUrl;
 
     String scmRepoURL;
     String scmRevision;
