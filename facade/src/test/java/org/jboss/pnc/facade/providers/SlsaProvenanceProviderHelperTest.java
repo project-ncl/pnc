@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.slsa.BuildSystem;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.BuildDefinition;
@@ -344,11 +345,16 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         assertThat(subject1.getAnnotations().containsKey(PROVENANCE_V1_ARTIFACT_PURL)).isTrue();
         assertThat(subject1.getAnnotations().containsKey(PROVENANCE_V1_ARTIFACT_URI)).isTrue();
         assertThat(subject1.getDigest().containsKey(PROVENANCE_V1_ARTIFACT_SHA256)).isTrue();
+        assertThat(subject1.getDigest().containsKey(PROVENANCE_V1_ARTIFACT_SHA1)).isTrue();
+        assertThat(subject1.getDigest().containsKey(PROVENANCE_V1_ARTIFACT_MD5)).isTrue();
+
         assertThat(subject1.getAnnotations().get(PROVENANCE_V1_ARTIFACT_IDENTIFIER))
                 .isEqualTo(builtArtifact1.getIdentifier());
         assertThat(subject1.getAnnotations().get(PROVENANCE_V1_ARTIFACT_PURL)).isEqualTo(builtArtifact1.getPurl());
         assertThat(subject1.getAnnotations().get(PROVENANCE_V1_ARTIFACT_URI)).isEqualTo(builtArtifact1.getPublicUrl());
         assertThat(subject1.getDigest().get(PROVENANCE_V1_ARTIFACT_SHA256)).isEqualTo(builtArtifact1.getSha256());
+        assertThat(subject1.getDigest().get(PROVENANCE_V1_ARTIFACT_SHA1)).isEqualTo(builtArtifact1.getSha1());
+        assertThat(subject1.getDigest().get(PROVENANCE_V1_ARTIFACT_MD5)).isEqualTo(builtArtifact1.getMd5());
         assertThat(subject1.getName()).isEqualTo(builtArtifact1.getFilename());
 
         // Test `predicate`.`runDetails`
@@ -383,8 +389,10 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         // Test `predicate`.`runDetails`.`builder`
         Builder slsaBuilder = runDetails.getBuilder();
-        assertThat(slsaBuilder.getId())
-                .isEqualTo("https://orch-stage.redhat.com/pnc-rest/v2/builds/" + builtArtifact1.getBuild().getId());
+        String fixedBuilderId = SlsaProvenanceUtils.extractBaseUrl(slsaBuilder.getId());
+        assertThat(slsaBuilder.getId()).isEqualTo("https://orch-stage.redhat.com");
+        assertThat(slsaBuilder.getId()).isEqualTo(fixedBuilderId);
+
         assertThat(slsaBuilder.getVersion().size()).isEqualTo(3);
         assertThat(slsaBuilder.getVersion().containsKey("https://github.com/project-ncl/environment-driver")).isTrue();
         assertThat(slsaBuilder.getVersion().containsKey("https://github.com/project-ncl/kafka-store")).isTrue();
@@ -464,8 +472,16 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .findFirst()
                 .orElse(null);
         assertNotNull(env);
-        assertThat(env.getUri()).isEqualTo(
-                build.getEnvironment().getSystemImageRepositoryUrl() + "/" + build.getEnvironment().getSystemImageId());
+        assertThat(env.getAnnotations().containsKey(PROVENANCE_V1_ENVIRONMENT_TAG)).isTrue();
+        assertThat(env.getDigest().containsKey(PROVENANCE_V1_ENVIRONMENT_SHA256)).isTrue();
+
+        String imageDigestRef = build.getEnvironment().getAttributes().get(Attributes.IMAGE_DIGEST_REF);
+        String imageDigest = SlsaProvenanceUtils.extractDigest(imageDigestRef);
+        String imageTag = SlsaProvenanceUtils.extractTag(build.getEnvironment().getSystemImageId());
+
+        assertThat(env.getAnnotations().get(PROVENANCE_V1_ENVIRONMENT_TAG)).isEqualTo(imageTag);
+        assertThat(env.getDigest().get(PROVENANCE_V1_ENVIRONMENT_SHA256)).isEqualTo(imageDigest);
+        assertThat(env.getUri()).isEqualTo(build.getEnvironment().getSystemImageRepositoryUrl() + "/" + imageDigestRef);
 
         // Test the dependencies
         for (Artifact artifact : dependencyArtifacts) {
@@ -478,11 +494,23 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
             assertThat(annotations.containsKey(PROVENANCE_V1_ARTIFACT_IDENTIFIER)).isTrue();
             assertThat(annotations.containsKey(PROVENANCE_V1_ARTIFACT_PURL)).isTrue();
             assertThat(annotations.containsKey(PROVENANCE_V1_ARTIFACT_URI)).isTrue();
+            assertThat(annotations.containsKey(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID)).isTrue();
+            if (artifact.getBuild() != null) {
+                assertThat(annotations.containsKey(PROVENANCE_V1_ARTIFACT_BUILD_ID)).isTrue();
+                assertThat(annotations.get(PROVENANCE_V1_ARTIFACT_BUILD_ID)).isEqualTo(artifact.getBuild().getId());
+            }
+
             assertThat(annotations.get(PROVENANCE_V1_ARTIFACT_IDENTIFIER)).isEqualTo(artifact.getIdentifier());
             assertThat(annotations.get(PROVENANCE_V1_ARTIFACT_PURL)).isEqualTo(artifact.getPurl());
             assertThat(annotations.get(PROVENANCE_V1_ARTIFACT_URI)).isEqualTo(artifact.getPublicUrl());
+            assertThat(annotations.get(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID)).isEqualTo(artifact.getId());
+
             assertThat(dependency.getDigest().containsKey(PROVENANCE_V1_ARTIFACT_SHA256)).isTrue();
+            assertThat(dependency.getDigest().containsKey(PROVENANCE_V1_ARTIFACT_SHA1)).isTrue();
+            assertThat(dependency.getDigest().containsKey(PROVENANCE_V1_ARTIFACT_MD5)).isTrue();
             assertThat(dependency.getDigest().get(PROVENANCE_V1_ARTIFACT_SHA256)).isEqualTo(artifact.getSha256());
+            assertThat(dependency.getDigest().get(PROVENANCE_V1_ARTIFACT_SHA1)).isEqualTo(artifact.getSha1());
+            assertThat(dependency.getDigest().get(PROVENANCE_V1_ARTIFACT_MD5)).isEqualTo(artifact.getMd5());
         }
     }
 
@@ -519,7 +547,14 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .build();
 
         Environment environment = Environment.builder()
-                .attributes(Map.of("JDK", "1.7.0", "OS", "Linux"))
+                .attributes(
+                        Map.of(
+                                "JDK",
+                                "1.7.0",
+                                "OS",
+                                "Linux",
+                                Attributes.IMAGE_DIGEST_REF,
+                                "builder-rhel-8-j17-mvn3.9.6-rpmbuild@sha256:88984fbd18338815d0337e9dc313f2a137d7a570261cbf5db58c2998f46b789d"))
                 .deprecated(false)
                 .description("Basic Java and Maven Environment")
                 .hidden(false)
