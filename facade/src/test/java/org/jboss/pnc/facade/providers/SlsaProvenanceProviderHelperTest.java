@@ -560,7 +560,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .hidden(false)
                 .id(String.valueOf(getNextId()))
                 .name("Environment 1")
-                .systemImageId("12345678")
+                .systemImageId("builder-rhel-9-j25-mvn3.9.9-gradle9.4.0-gettext-jss:1.0.0")
                 .systemImageRepositoryUrl("my.registry/newcastle")
                 .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .build();
