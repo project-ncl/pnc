@@ -340,7 +340,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         assertThat(provenance.getSubject().size()).isEqualTo(3);
         ResourceDescriptor subject1 = provenance.getSubject().get(0);
         Artifact builtArtifact1 = builtArtifacts.iterator().next();
-        assertThat(subject1.getAnnotations().size()).isEqualTo(3);
+        assertThat(subject1.getAnnotations().size()).isEqualTo(5);
         assertThat(subject1.getAnnotations().containsKey(PROVENANCE_V1_ARTIFACT_IDENTIFIER)).isTrue();
         assertThat(subject1.getAnnotations().containsKey(PROVENANCE_V1_ARTIFACT_PURL)).isTrue();
         assertThat(subject1.getAnnotations().containsKey(PROVENANCE_V1_ARTIFACT_URI)).isTrue();
