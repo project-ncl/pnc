@@ -70,13 +70,13 @@ public interface AttachmentEndpoint {
     static final String A_ID = "ID of the attachment";
 
     static final String GET_ALL_DESC = "Gets all attachments.";
-    static final String FILTER_MD5_DESC = "Filter by md5 of the attachment.";
+    static final String FILTER_SHA_DESC = "Filter by sha256 of the attachment.";
 
     /**
      * {@value GET_ALL_DESC}
      *
      * @param pageParams
-     * @param md5 {@value FILTER_MD5_DESC}
+     * @param sha256 {@value FILTER_SHA_DESC}
      * @return
      */
     @Operation(
@@ -97,7 +97,7 @@ public interface AttachmentEndpoint {
     @GET
     Page<Attachment> getAll(
             @Valid @BeanParam PageParameters pageParams,
-            @Parameter(description = FILTER_MD5_DESC) @QueryParam("md5") String md5);
+            @Parameter(description = FILTER_SHA_DESC) @QueryParam("sha256") String sha256);
 
     static final String GET_SPECIFIC_DESC = "Gets a specific attachment.";
 

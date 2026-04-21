@@ -41,7 +41,7 @@ public class BuildAttachmentAddedTest {
                         .type(AttachmentType.LOG)
                         .description("description")
                         .creationTime(LocalDateTime.of(2000, 10, 10, 10, 10).toInstant(ZoneOffset.UTC))
-                        .md5("160da473687d08ba021dd48e60786baf")
+                        .sha256("d3d2ca70485f79525be2eff36aada6a397a0ac4072a7e84cb156090bb51c0dc6")
                         .build(getBuild())
                         .build());
 

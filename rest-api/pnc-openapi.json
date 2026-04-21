@@ -806,9 +806,9 @@
             "type" : "string"
           }
         }, {
-          "name" : "md5",
+          "name" : "sha256",
           "in" : "query",
-          "description" : "Filter by md5 of the attachment.",
+          "description" : "Filter by sha256 of the attachment.",
           "schema" : {
             "type" : "string"
           }
@@ -10851,7 +10851,7 @@
         }
       },
       "Attachment" : {
-        "required" : [ "id", "md5", "name", "type", "url" ],
+        "required" : [ "id", "name", "sha256", "type", "url" ],
         "type" : "object",
         "properties" : {
           "build" : {
@@ -10867,12 +10867,12 @@
           "id" : {
             "type" : "string"
           },
-          "md5" : {
-            "maxLength" : 32,
-            "minLength" : 0,
+          "name" : {
             "type" : "string"
           },
-          "name" : {
+          "sha256" : {
+            "maxLength" : 64,
+            "minLength" : 0,
             "type" : "string"
           },
           "type" : {

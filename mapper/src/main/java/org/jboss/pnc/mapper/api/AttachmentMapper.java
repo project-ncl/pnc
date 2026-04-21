@@ -62,10 +62,10 @@ public interface AttachmentMapper
     @Override
     @InheritConfiguration(name = "toEntity")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "md5", ignore = true)
+    @Mapping(target = "sha256", ignore = true)
     @Mapping(target = "creationTime", ignore = true)
     @Mapping(target = "url", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "id", "md5", "creationTime", "url" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "id", "sha256", "creationTime", "url" })
     void updateEntity(org.jboss.pnc.dto.Attachment dtoEntity, @MappingTarget org.jboss.pnc.model.Attachment target);
 
     @Override

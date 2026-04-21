@@ -25,7 +25,7 @@ import java.util.Optional;
 
 public interface AttachmentProvider
         extends Provider<Integer, org.jboss.pnc.model.Attachment, Attachment, AttachmentRef> {
-    Page<Attachment> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Optional<String> md5);
+    Page<Attachment> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Optional<String> sha256);
 
     Page<Attachment> getAttachmentsForBuild(
             int pageIndex,

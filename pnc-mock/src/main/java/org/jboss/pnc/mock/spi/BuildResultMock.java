@@ -70,7 +70,7 @@ public class BuildResultMock {
         return Attachment.builder()
                 .id(id)
                 .name(name)
-                .md5("md5-" + id)
+                .sha256("sha256-" + id)
                 .description(String.valueOf(id))
                 .type(AttachmentType.LOG)
                 .url("http://filestore.com/file-" + name + "-" + id + ".txt")

@@ -592,9 +592,9 @@ paths:
         description: RSQL Query.
         schema:
           type: string
-      - name: md5
+      - name: sha256
         in: query
-        description: Filter by md5 of the attachment.
+        description: Filter by sha256 of the attachment.
         schema:
           type: string
       responses:
@@ -7614,8 +7614,8 @@ components:
     Attachment:
       required:
       - id
-      - md5
       - name
+      - sha256
       - type
       - url
       type: object
@@ -7629,11 +7629,11 @@ components:
           type: string
         id:
           type: string
-        md5:
-          maxLength: 32
-          minLength: 0
-          type: string
         name:
+          type: string
+        sha256:
+          maxLength: 64
+          minLength: 0
           type: string
         type:
           type: string

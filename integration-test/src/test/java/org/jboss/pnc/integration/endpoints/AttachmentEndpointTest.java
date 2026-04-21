@@ -89,9 +89,9 @@ public class AttachmentEndpointTest {
     }
 
     @Test
-    public void testGetByMd5() throws RemoteResourceException {
+    public void testGetBySha() throws RemoteResourceException {
         // given
-        String searchedChecksum = "md5-fake-abcdefhijklmno"; // from DemoDataInitializer
+        String searchedChecksum = "sha256-fake-abcdefhijklmno"; // from DemoDataInitializer
         AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
 
         // when
@@ -103,7 +103,7 @@ public class AttachmentEndpointTest {
         Attachment att = all.iterator().next();
         assertThat(att.getId()).isNotNull().isNotBlank();
         assertThat(att.getName()).isEqualTo("Build Log");
-        assertThat(att.getMd5()).isEqualTo(searchedChecksum);
+        assertThat(att.getSha256()).isEqualTo(searchedChecksum);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class AttachmentEndpointTest {
         Attachment att = all.iterator().next();
         assertThat(att.getId()).isNotNull().isNotBlank();
         assertThat(att.getName()).isEqualTo("SBOM");
-        assertThat(att.getMd5()).isEqualTo("md5-fake-abcdefhijklxcs144");
+        assertThat(att.getSha256()).isEqualTo("sha256-fake-abcdefhijklxcs144");
     }
 
     @Test
@@ -167,12 +167,12 @@ public class AttachmentEndpointTest {
         BuildRef build = BuildRef.refBuilder().id(build1.getId()).build();
         String name = "Provenance Attestation"; // from DemoDataInitializer
         String description = "This is a provenance attestation"; // from DemoDataInitializer
-        String md5 = "md5-asdfghjkl-000111"; // from DemoDataInitializer
+        String sha256 = "sha256-asdfghjkl-000111"; // from DemoDataInitializer
         String url = "https://secure.com/attestations/xxxxx"; // from DemoDataInitializer
         Attachment attachment = Attachment.builder()
                 .name(name)
                 .description(description)
-                .md5(md5)
+                .sha256(sha256)
                 .url(url)
                 .type(AttachmentType.PROVENANCE)
                 .build(build)
@@ -187,7 +187,7 @@ public class AttachmentEndpointTest {
         assertThat(saved.getId()).isNotNull().isNotBlank();
         assertThat(saved.getName()).isEqualTo(name);
         assertThat(saved.getDescription()).isEqualTo(description);
-        assertThat(saved.getMd5()).isEqualTo(md5);
+        assertThat(saved.getSha256()).isEqualTo(sha256);
         assertThat(saved.getUrl()).isEqualTo(url);
         assertThat(saved.getType()).isEqualTo(AttachmentType.PROVENANCE);
 

@@ -814,7 +814,7 @@ public class DatabaseDataInitializer {
                 .description("Contains build logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-xxxx/build-log.log")
-                .md5("md5-fake-abcdefhijklmno")
+                .sha256("sha256-fake-abcdefhijklmno")
                 .build();
 
         Attachment attachment2 = Attachment.builder()
@@ -822,7 +822,7 @@ public class DatabaseDataInitializer {
                 .description("Contains alignment logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-xxxx/alignment-log.log")
-                .md5("md5-fake-abcdefhijklmnopq")
+                .sha256("sha256-fake-abcdefhijklmnopq")
                 .build();
 
         Attachment attachment3 = Attachment.builder()
@@ -830,7 +830,7 @@ public class DatabaseDataInitializer {
                 .description("Contains build logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-yyyy/build-log.log")
-                .md5("md5-fake-abcdefhijklm123")
+                .sha256("sha256-fake-abcdefhijklm123")
                 .build();
 
         Attachment attachment4 = Attachment.builder()
@@ -838,7 +838,7 @@ public class DatabaseDataInitializer {
                 .description("Contains alignment logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-yyyy/alignment-log.log")
-                .md5("md5-fake-abcdefhijklma123")
+                .sha256("sha256-fake-abcdefhijklma123")
                 .build();
 
         attachment1 = attachmentRepository.save(attachment1);
@@ -1020,49 +1020,49 @@ public class DatabaseDataInitializer {
                 .description("Contains build logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-aaaa/build-log.log")
-                .md5("md5-fake-abcdefhijklm1234")
+                .sha256("sha256-fake-abcdefhijklm1234")
                 .build();
         Attachment attachment6 = Attachment.builder()
                 .name("Alignment Log")
                 .description("Contains alignment logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-aaaa/alignment-log.log")
-                .md5("md5-fake-abcdefhijklmij1234")
+                .sha256("sha256-fake-abcdefhijklmij1234")
                 .build();
         Attachment attachment7 = Attachment.builder()
                 .name("SBOM")
                 .description("SBOM generated for a build.")
                 .type(AttachmentType.SBOM)
                 .url("http://url.com/attachments/build-aaaa/spdx.json")
-                .md5("md5-fake-abcdefhijklxcs144")
+                .sha256("sha256-fake-abcdefhijklxcs144")
                 .build();
         Attachment attachment8 = Attachment.builder()
                 .name("Build Log")
                 .description("Contains build logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-bbbb/build-log.log")
-                .md5("md5-fake-abcdefhaijklm12344")
+                .sha256("sha256-fake-abcdefhaijklm12344")
                 .build();
         Attachment attachment9 = Attachment.builder()
                 .name("Alignment Log")
                 .description("Contains alignment logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-bbbb/alignment-log.log")
-                .md5("md5-fake-abcdefhijkalmij12345")
+                .sha256("sha256-fake-abcdefhijkalmij12345")
                 .build();
         Attachment attachment10 = Attachment.builder()
                 .name("Build Log")
                 .description("Contains build logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-cccc/build-log.log")
-                .md5("md5-fake-abcdefhdijklm12344")
+                .sha256("sha256-fake-abcdefhdijklm12344")
                 .build();
         Attachment attachment11 = Attachment.builder()
                 .name("Alignment Log")
                 .description("Contains alignment logs for a build")
                 .type(AttachmentType.LOG)
                 .url("http://url.com/attachments/build-cccc/alignment-log.log")
-                .md5("md5-fake-abcdefhijkglmij12345")
+                .sha256("sha256-fake-abcdefhijkglmij12345")
                 .build();
 
         attachment5 = attachmentRepository.save(attachment5);

@@ -79,8 +79,8 @@ public class Attachment implements GenericEntity<Integer> {
     private Date creationTime;
 
     @NotNull
-    @Size(max = 32)
-    private String md5;
+    @Size(max = 64)
+    private String sha256;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -156,12 +156,12 @@ public class Attachment implements GenericEntity<Integer> {
         this.buildRecord = buildRecord;
     }
 
-    public String getMd5() {
-        return md5;
+    public String getSha256() {
+        return sha256;
     }
 
-    public void setMd5(String md5) {
-        this.md5 = md5;
+    public void setSha256(String sha256) {
+        this.sha256 = sha256;
     }
 
     public AttachmentType getType() {
@@ -197,7 +197,7 @@ public class Attachment implements GenericEntity<Integer> {
         private String description;
         private String url;
         private Date creationTime;
-        private String md5;
+        private String sha256;
         private AttachmentType type;
         private BuildRecord buildRecord;
 
@@ -224,8 +224,8 @@ public class Attachment implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder md5(String md5) {
-            this.md5 = md5;
+        public Builder sha256(String sha256) {
+            this.sha256 = sha256;
             return this;
         }
 
@@ -245,7 +245,7 @@ public class Attachment implements GenericEntity<Integer> {
             attachment.setName(name);
             attachment.setDescription(description);
             attachment.setUrl(url);
-            attachment.setMd5(md5);
+            attachment.setSha256(sha256);
             attachment.setType(type);
             attachment.setBuildRecord(buildRecord);
 

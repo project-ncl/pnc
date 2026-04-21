@@ -39,7 +39,7 @@ import java.util.Optional;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ATTACHMENT_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withSha256;
 
 @PermitAll
 @Stateless
@@ -65,8 +65,8 @@ public class AttachmentProviderImpl
             int pageSize,
             String sortingRsql,
             String query,
-            Optional<String> md5) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withMd5(md5));
+            Optional<String> sha256) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withSha256(sha256));
     }
 
     @Override

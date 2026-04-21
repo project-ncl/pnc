@@ -92,7 +92,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
         Attachment att = Attachment.builder()
                 .name(name)
                 .url(url)
-                .md5(checksum)
+                .sha256(checksum)
                 .build(BuildRef.refBuilder().id(buildId).build())
                 .type(AttachmentType.LOG)
                 .description(description)
@@ -103,7 +103,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
         assertThat(stored.getId()).isNotNull();
         assertThat(stored.getName()).isEqualTo(name);
         assertThat(stored.getUrl()).isEqualTo(url);
-        assertThat(stored.getMd5()).isEqualTo(checksum);
+        assertThat(stored.getSha256()).isEqualTo(checksum);
         assertThat(stored.getDescription()).isEqualTo(description);
         assertThat(stored.getType()).isEqualTo(AttachmentType.LOG);
         assertThat(stored.getBuild()).isNotNull();
@@ -115,7 +115,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
         Page<Attachment> all = provider.getAll(0, 10, null, null);
 
         assertThat(all.getContent()).hasSize(3)
-                .haveExactly(1, new Condition<>(a -> a.getMd5().equals("sdkjfha"), "Attachment present"));
+                .haveExactly(1, new Condition<>(a -> a.getSha256().equals("sdkjfha"), "Attachment present"));
 
     }
 
@@ -125,7 +125,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
                 .id(attachment1.getId().toString())
                 .name(attachment1.getName())
                 .url(attachment1.getUrl())
-                .md5(attachment1.getMd5())
+                .sha256(attachment1.getSha256())
                 .type(attachment1.getType())
                 .creationTime(attachment1.getCreationTime().toInstant())
                 .description("Changed description")
@@ -139,7 +139,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
         assertThat(updated.getId()).isEqualTo(attachment1.getId().toString());
         assertThat(updated.getName()).isEqualTo(attachment1.getName());
         assertThat(updated.getUrl()).isEqualTo(attachment1.getUrl());
-        assertThat(updated.getMd5()).isEqualTo(attachment1.getMd5());
+        assertThat(updated.getSha256()).isEqualTo(attachment1.getSha256());
         assertThat(updated.getDescription()).isEqualTo("Changed description");
         assertThat(updated.getType()).isEqualTo(attachment1.getType());
         assertThat(updated.getCreationTime()).isEqualTo(attachment1.getCreationTime().toInstant());
@@ -153,7 +153,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
         assertThat(attachment.getId()).isEqualTo(attachment1.getId().toString());
         assertThat(attachment.getName()).isEqualTo(attachment1.getName());
         assertThat(attachment.getUrl()).isEqualTo(attachment1.getUrl());
-        assertThat(attachment.getMd5()).isEqualTo(attachment1.getMd5());
+        assertThat(attachment.getSha256()).isEqualTo(attachment1.getSha256());
         assertThat(attachment.getType()).isEqualTo(attachment1.getType());
         assertThat(attachment.getCreationTime()).isEqualTo(attachment1.getCreationTime().toInstant());
     }
@@ -162,7 +162,7 @@ public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.
         return org.jboss.pnc.model.Attachment.builder()
                 .id(entityId.getAndIncrement())
                 .url("http://url.com/" + name + ".txt")
-                .md5(checksum)
+                .sha256(checksum)
                 .name(name)
                 .type(AttachmentType.LOG)
                 .buildRecord(BuildRecord.Builder.newBuilder().id(buildId).build())

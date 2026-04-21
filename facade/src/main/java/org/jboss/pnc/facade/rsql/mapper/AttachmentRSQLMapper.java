@@ -57,8 +57,8 @@ public class AttachmentRSQLMapper extends AbstractRSQLMapper<Integer, Attachment
                 return Attachment_.id;
             case "name":
                 return Attachment_.name;
-            case "md5":
-                return Attachment_.md5;
+            case "sha256":
+                return Attachment_.sha256;
             case "type":
                 return Attachment_.type;
             case "url":

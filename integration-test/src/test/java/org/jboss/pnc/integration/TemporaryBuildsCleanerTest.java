@@ -465,7 +465,7 @@ public class TemporaryBuildsCleanerTest {
         UUID uuid = UUID.randomUUID();
         return Attachment.builder()
                 .name(name)
-                .md5("md5-213")
+                .sha256("sha256-213")
                 .type(AttachmentType.LOG)
                 .url("http://filestore.com/file-" + uuid + "-" + ".txt")
                 .build();
