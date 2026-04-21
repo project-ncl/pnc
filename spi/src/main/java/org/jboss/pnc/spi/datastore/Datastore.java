@@ -69,6 +69,15 @@ public interface Datastore {
     BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
 
     /**
+     * Associates errorLog with build record and stores it.
+     *
+     * @param buildRecord record to associate errorLog with
+     * @param errorLog error log
+     * @return returns persisted errorLog
+     */
+    Attachment storeErrorLog(BuildRecord buildRecord, Attachment errorLog);
+
+    /**
      * Returns User upon its username.
      *
      * @param username Username of the user.

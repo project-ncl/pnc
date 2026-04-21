@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.remotecoordinator.builder.datastore;
 
+import org.jboss.pnc.api.bifrost.dto.Checksums;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.bifrost.upload.BifrostUploadException;
 import org.jboss.pnc.bifrost.upload.LogMetadata;
@@ -49,6 +52,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -350,7 +354,7 @@ public class DatastoreAdapter {
             userLog.info("Successfully completed.");
             BuildRecord buildRecord = datastore
                     .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, attachments);
-            uploadLogs(errorLog.toString());
+            uploadLogs(errorLog.toString(), findOrCreateErrorLog(buildRecord), buildRecord);
             return buildRecord;
         } catch (Exception e) {
             return storeResult(buildTaskRef, Optional.of(buildResult), e);
@@ -433,17 +437,49 @@ public class DatastoreAdapter {
             errorLog.append(message);
             userLog.error(message);
         }
-        log.debug("Storing ERROR result of BCA: " + buildTask.getIdRev().toString() + " to datastore.", e);
+        log.debug("Storing ERROR result of BCA: {} to datastore.", buildTask.getIdRev().toString(), e);
         BuildRecord buildRecord = datastore.storeCompletedBuild(
                 buildRecordBuilder,
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        uploadLogs(errorLog.toString());
+
+        uploadLogs(errorLog.toString(), findOrCreateErrorLog(buildRecord), buildRecord);
         return buildRecord;
     }
 
-    private void uploadLogs(String errorLog) {
+    /**
+     * Find Attachment that corresponds to an Error log (at the moment, we use 'Build Log')
+     *
+     * @param buildRecord saved record
+     * @return Attachment used for error log
+     */
+    private Attachment findOrCreateErrorLog(BuildRecord buildRecord) {
+        // For other processes, it can be a different Attachment name
+        Set<String> searchNames = Set.of("Build Log");
+
+        Optional<Attachment> errorLog = buildRecord.getAttachments()
+                .stream()
+                .filter(att -> searchNames.contains(att.getName()))
+                .findFirst();
+        if (errorLog.isPresent()) {
+            return errorLog.get();
+        }
+
+        String buildId = buildRecord.getId().toString();
+
+        String logsEndpointUri = bifrostLogUploader.getLogEndpoint(buildId, TagOption.BUILD_LOG.getTagName())
+                .toString();
+
+        return Attachment.builder()
+                .name("Build Log")
+                .md5("") // gets filled by uploadLogs() method
+                .url(logsEndpointUri)
+                .type(AttachmentType.LOG)
+                .build();
+    }
+
+    private void uploadLogs(String errorLog, Attachment errorLogAttachment, BuildRecord record) {
         try {
             Map<String, String> headersFromMDC = MDCUtils.getHeadersFromMDC();
 
@@ -454,8 +490,21 @@ public class DatastoreAdapter {
                     .headers(MDCUtils.getHeadersFromMDC())
                     .build();
             bifrostLogUploader.uploadString(errorLog, logMetadata);
+
+            // Update checksum of errorLog after modifying it.
+            if (errorLogAttachment != null) {
+                Checksums checksums = bifrostLogUploader
+                        .getChecksums(MDC.get(MDCHeaderKeys.PROCESS_CONTEXT.getHeaderName()), TagOption.BUILD_LOG);
+                errorLogAttachment.setMd5(checksums.getMd5());
+
+                // persist if not already persisted
+                if (!record.getAttachments().contains(errorLogAttachment)) {
+                    datastore.storeErrorLog(record, errorLogAttachment);
+                }
+            }
+
         } catch (BifrostUploadException ex) {
-            log.error("Unable to upload logs to bifrost. Log was:\n" + errorLog, ex);
+            log.error("Unable to upload logs to bifrost. Log was:\n{}", errorLog, ex);
             // We don't want to fail the build when we couldn't upload to bifrost, because the orch log is not critical.
         }
     }
@@ -512,7 +561,8 @@ public class DatastoreAdapter {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        uploadLogs(statusDescription);
+
+        uploadLogs(statusDescription, null, null);
     }
 
     /**

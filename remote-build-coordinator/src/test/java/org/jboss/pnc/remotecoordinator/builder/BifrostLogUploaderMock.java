@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import org.jboss.pnc.api.bifrost.dto.Checksums;
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.bifrost.upload.BifrostUploadException;
 import org.jboss.pnc.bifrost.upload.LogMetadata;
+import org.jboss.pnc.bifrost.upload.TagOption;
 
 import javax.enterprise.inject.Alternative;
 import java.io.File;
@@ -46,5 +48,13 @@ public class BifrostLogUploaderMock extends BifrostLogUploader {
 
     @Override
     public void uploadString(String log, LogMetadata metadata, String md5sum) throws BifrostUploadException {
+    }
+
+    @Override
+    public Checksums getChecksums(String processContext, TagOption tag) throws BifrostUploadException {
+        return Checksums.builder()
+                .md5("a57ec266854321dd2205727281a8a7d8")
+                .sha256("845acbfedd45309dfd9d11f5900dbf65289cfa37f5f683957c6784d3da46755f")
+                .build();
     }
 }

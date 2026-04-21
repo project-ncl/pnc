@@ -20,6 +20,7 @@ package org.jboss.pnc.remotecoordinator.test;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -28,6 +29,7 @@ import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.spi.EnvironmentDriverResultMock;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.pnc.mock.spi.RepourResultMock;
+import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -246,6 +248,101 @@ public class DatastoreAdapterTest {
         // then
         Assert.assertEquals(record.getSshCommand(), sshCredentials.getCommand());
         Assert.assertEquals(record.getSshPassword(), sshCredentials.getPassword());
+    }
+
+    @Test
+    public void shouldAddErrorLogOnFailedProcessStep() throws DatastoreException {
+        // given
+        DatastoreMock datastore = new DatastoreMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
+
+        BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
+        when(buildDriverResult.getBuildStatus()).thenReturn(BuildStatus.FAILED);
+
+        RepositoryManagerResult repoManagerResult = mock(RepositoryManagerResult.class);
+        when(repoManagerResult.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
+
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+
+        EnvironmentDriverResult environmentDriverResult = new EnvironmentDriverResult(
+                CompletionStatus.FAILED,
+                Optional.empty());
+
+        BuildResult buildResult = new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                Optional.of(buildExecutionConfiguration),
+                Optional.of(buildDriverResult),
+                Optional.of(repoManagerResult),
+                Optional.of(environmentDriverResult),
+                Optional.of(RepourResultMock.mock()),
+                List.of(),
+                Map.of());
+
+        BuildTaskRef buildTask = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
+
+        // when
+        BuildRecord record = datastoreAdapter.storeResult(buildTask, buildResult);
+
+        // then
+        Assert.assertFalse(record.getAttachments().isEmpty());
+        Assert.assertEquals(1, record.getAttachments().size());
+
+        Attachment errLog = record.getAttachments().iterator().next();
+        Assert.assertEquals(AttachmentType.LOG, errLog.getType());
+        Assert.assertEquals("Build Log", errLog.getName());
+        Assert.assertEquals("a57ec266854321dd2205727281a8a7d8", errLog.getMd5()); // from BifrostLogUploaderMock
+        Assert.assertNotEquals(null, errLog.getCreationTime());
+        Assert.assertNotEquals(null, errLog.getUrl());
+        Assert.assertTrue(errLog.getUrl().contains(record.getId().toString()));
+    }
+
+    @Test
+    public void shouldAddErrorLogOnExceptionInProcess() throws DatastoreException {
+        DatastoreMock datastore = new DatastoreMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, new BifrostLogUploaderMock());
+
+        BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
+        when(buildDriverResult.getBuildStatus()).thenReturn(BuildStatus.SUCCESS);
+
+        RepositoryManagerResult repoManagerResult = mock(RepositoryManagerResult.class);
+        when(repoManagerResult.getCompletionStatus()).thenReturn(CompletionStatus.SYSTEM_ERROR);
+
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+
+        EnvironmentDriverResult environmentDriverResult = new EnvironmentDriverResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty());
+
+        BuildResult buildResult = new BuildResult(
+                CompletionStatus.FAILED,
+                Optional.empty(),
+                Optional.of(buildExecutionConfiguration),
+                Optional.of(buildDriverResult),
+                Optional.of(repoManagerResult),
+                Optional.of(environmentDriverResult),
+                Optional.of(RepourResultMock.mock()),
+                List.of(),
+                Map.of());
+
+        BuildTaskRef buildTask = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
+        Exception exception = new RuntimeException("Random exception");
+
+        // when
+        BuildRecord record = datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
+
+        // then
+        Assert.assertFalse(record.getAttachments().isEmpty());
+        Assert.assertEquals(1, record.getAttachments().size());
+
+        Attachment errLog = record.getAttachments().iterator().next();
+        Assert.assertEquals(AttachmentType.LOG, errLog.getType());
+        Assert.assertEquals("Build Log", errLog.getName());
+        Assert.assertEquals("a57ec266854321dd2205727281a8a7d8", errLog.getMd5()); // from BifrostLogUploaderMock
+        Assert.assertNotEquals(null, errLog.getCreationTime());
+        Assert.assertNotEquals(null, errLog.getUrl());
+        Assert.assertTrue(errLog.getUrl().contains(record.getId().toString()));
+
     }
 
     private void storeResult(
