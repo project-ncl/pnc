@@ -198,6 +198,19 @@ public class DefaultDatastore implements Datastore {
         return buildRecord;
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public Attachment storeErrorLog(BuildRecord buildRecord, Attachment errorLog) {
+        logger.debug("Storing error log build {}.", buildRecord);
+        Set<Attachment> attachments = saveAttachments(List.of(errorLog));
+
+        for (Attachment attachment : attachments) {
+            attachment.setBuildRecord(buildRecord);
+        }
+
+        return attachments.stream().findFirst().orElse(null);
+    }
+
     /**
      * Checks the given list against the existing database and creates a new list containing artifacts which have been
      * saved to or loaded from the database.

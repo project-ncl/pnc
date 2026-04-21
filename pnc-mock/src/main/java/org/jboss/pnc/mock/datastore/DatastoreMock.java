@@ -194,6 +194,13 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
+    public Attachment storeErrorLog(BuildRecord buildRecord, Attachment errorLog) {
+        errorLog.setBuildRecord(buildRecord);
+
+        return errorLog;
+    }
+
+    @Override
     public boolean requiresRebuild(
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
