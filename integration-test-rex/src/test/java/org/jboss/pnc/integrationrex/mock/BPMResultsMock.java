@@ -177,7 +177,7 @@ public class BPMResultsMock {
     private static Attachment mockAttachment(String id, String name) {
         return Attachment.builder()
                 .name(name)
-                .md5("md-fake-AB" + id)
+                .sha256("sha-fake-AB" + id)
                 .url("https://place.com/" + name + "-" + id + ".txt")
                 .type(AttachmentType.LOG)
                 .build();

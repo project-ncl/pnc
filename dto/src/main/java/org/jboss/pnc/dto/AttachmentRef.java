@@ -61,9 +61,13 @@ public class AttachmentRef implements DTOEntity {
     @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class, WhenImporting.class })
     protected final String description;
 
-    @Size(max = 32)
+    /**
+     * SHA-256 Digest of the Attachment. Used to verify contents in url.
+     */
+    @Size(max = 64)
     @NotNull(groups = { WhenCreatingNew.class, WhenCreatingNew.class, WhenImporting.class })
-    protected final String md5;
+    protected final String sha256;
+
     /**
      * URL pointing to the place where artifact lives
      */

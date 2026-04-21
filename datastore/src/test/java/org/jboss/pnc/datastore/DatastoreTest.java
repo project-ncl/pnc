@@ -351,7 +351,7 @@ public class DatastoreTest {
                 .build();
         Attachment logAttachment = Attachment.builder()
                 .url("https://fileserver.com/file.txt")
-                .md5("md-fake-" + checksum)
+                .sha256("sha256-fake-" + checksum)
                 .type(AttachmentType.LOG)
                 .name("LOG File")
                 .description("descriptions")

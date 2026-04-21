@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS attachment
     id integer NOT NULL,
     creationtime timestamp without time zone,
     description text,
-    md5 character varying(32) NOT NULL,
+    sha256 character varying(64) NOT NULL,
     name text NOT NULL,
     type character varying(255) NOT NULL,
     url character varying(1024) NOT NULL,

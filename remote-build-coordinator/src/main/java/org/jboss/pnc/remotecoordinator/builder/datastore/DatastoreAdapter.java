@@ -473,7 +473,7 @@ public class DatastoreAdapter {
 
         return Attachment.builder()
                 .name("Build Log")
-                .md5("") // gets filled by uploadLogs() method
+                .sha256("") // gets filled by uploadLogs() method
                 .url(logsEndpointUri)
                 .type(AttachmentType.LOG)
                 .build();
@@ -495,7 +495,7 @@ public class DatastoreAdapter {
             if (errorLogAttachment != null) {
                 Checksums checksums = bifrostLogUploader
                         .getChecksums(MDC.get(MDCHeaderKeys.PROCESS_CONTEXT.getHeaderName()), TagOption.BUILD_LOG);
-                errorLogAttachment.setMd5(checksums.getMd5());
+                errorLogAttachment.setSha256(checksums.getSha256());
 
                 // persist if not already persisted
                 if (!record.getAttachments().contains(errorLogAttachment)) {

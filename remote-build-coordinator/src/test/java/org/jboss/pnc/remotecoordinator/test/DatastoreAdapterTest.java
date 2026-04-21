@@ -291,7 +291,8 @@ public class DatastoreAdapterTest {
         Attachment errLog = record.getAttachments().iterator().next();
         Assert.assertEquals(AttachmentType.LOG, errLog.getType());
         Assert.assertEquals("Build Log", errLog.getName());
-        Assert.assertEquals("a57ec266854321dd2205727281a8a7d8", errLog.getMd5()); // from BifrostLogUploaderMock
+        Assert.assertEquals("845acbfedd45309dfd9d11f5900dbf65289cfa37f5f683957c6784d3da46755f", errLog.getSha256()); // from
+                                                                                                                     // BifrostLogUploaderMock
         Assert.assertNotEquals(null, errLog.getCreationTime());
         Assert.assertNotEquals(null, errLog.getUrl());
         Assert.assertTrue(errLog.getUrl().contains(record.getId().toString()));
@@ -338,7 +339,8 @@ public class DatastoreAdapterTest {
         Attachment errLog = record.getAttachments().iterator().next();
         Assert.assertEquals(AttachmentType.LOG, errLog.getType());
         Assert.assertEquals("Build Log", errLog.getName());
-        Assert.assertEquals("a57ec266854321dd2205727281a8a7d8", errLog.getMd5()); // from BifrostLogUploaderMock
+        Assert.assertEquals("845acbfedd45309dfd9d11f5900dbf65289cfa37f5f683957c6784d3da46755f", errLog.getSha256()); // from
+                                                                                                                     // BifrostLogUploaderMock
         Assert.assertNotEquals(null, errLog.getCreationTime());
         Assert.assertNotEquals(null, errLog.getUrl());
         Assert.assertTrue(errLog.getUrl().contains(record.getId().toString()));

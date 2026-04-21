@@ -51,12 +51,12 @@ public class Attachment extends AttachmentRef {
             String id,
             String name,
             String description,
-            String md5,
+            String sha256,
             String url,
             Instant creationTime,
             AttachmentType type,
             BuildRef build) {
-        super(id, name, description, md5, url, creationTime, type);
+        super(id, name, description, sha256, url, creationTime, type);
         this.build = build;
     }
 

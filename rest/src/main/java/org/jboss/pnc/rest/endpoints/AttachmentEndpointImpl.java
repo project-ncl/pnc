@@ -55,13 +55,13 @@ public class AttachmentEndpointImpl implements AttachmentEndpoint {
     }
 
     @Override
-    public Page<Attachment> getAll(PageParameters pageParams, String md5) {
+    public Page<Attachment> getAll(PageParameters pageParams, String sha256) {
         return attachmentProvider.getAll(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),
                 pageParams.getQ(),
-                Optional.ofNullable(md5));
+                Optional.ofNullable(sha256));
     }
 
     @Override
