@@ -75,7 +75,7 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
                                         response.getOperationId()))
                         .proposal(
                                 String.format(
-                                        "There is an internal system error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
+                                        "There is an internal system error (ID: %s), please contact PNC team at #forum-pnc-users",
                                         errorId))
                         .build();
             } finally {

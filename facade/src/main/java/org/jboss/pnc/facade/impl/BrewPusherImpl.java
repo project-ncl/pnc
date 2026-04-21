@@ -185,8 +185,7 @@ public class BrewPusherImpl implements BrewPusher {
             final String errorReason = String
                     .format("Brew push failed: %s", e.getMessage() == null ? e.toString() : e.getMessage());
             final String errorProposal = String.format(
-                    "There is an internal system error, please contact PNC team "
-                            + "at #forum-pnc-users (with the following ID: %s)",
+                    "There is an internal system error (ID: %s), please contact PNC team at #forum-pnc-users",
                     errorId);
             final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
                     .reason(errorReason)
