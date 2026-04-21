@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.endpoints;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.api.bifrost.enums.Format;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.Result;
@@ -431,17 +430,15 @@ public class BuildEndpointImpl implements BuildEndpoint {
     public StreamingOutput getAlignLogs(String id) {
         throw new RedirectionException(
                 Response.Status.TEMPORARY_REDIRECT,
-                createBifrostRedirectURL(id, "alignment-log", Format.LEVEL));
+                createBifrostRedirectURL(id, "alignment-log"));
     }
 
     @Override
     public StreamingOutput getBuildLogs(String id) {
-        throw new RedirectionException(
-                Response.Status.TEMPORARY_REDIRECT,
-                createBifrostRedirectURL(id, "build-log", Format.PLAIN));
+        throw new RedirectionException(Response.Status.TEMPORARY_REDIRECT, createBifrostRedirectURL(id, "build-log"));
     }
 
-    private URI createBifrostRedirectURL(String buildID, String logType, Format format) {
+    private URI createBifrostRedirectURL(String buildID, String logType) {
         String bifrostURL = stripEndingSlash(globalConfig.getExternalBifrostUrl());
         return URI.create(bifrostURL.concat(format(BIFROST_LOGS_ENDPOINT, buildID, logType)));
     }
