@@ -9,3 +9,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "org.jboss.da:*"
+        - "org.jboss.pnc*:*"        # match org.jboss.pnc:xyz and org.jboss.pnc.group:xyz
