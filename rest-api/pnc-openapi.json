@@ -223,7 +223,7 @@
             "type" : "array",
             "items" : {
               "type" : "string",
-              "enum" : [ "STANDARD", "SERVICE", "AUTO" ]
+              "enum" : [ "STANDARD", "SERVICE" ]
             }
           }
         } ],
@@ -10650,7 +10650,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "AUTO" ]
+            "enum" : [ "STANDARD", "SERVICE" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10724,7 +10724,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "AUTO" ]
+            "enum" : [ "STANDARD", "SERVICE" ]
           },
           "id" : {
             "type" : "string"
@@ -10802,7 +10802,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "AUTO" ]
+            "enum" : [ "STANDARD", "SERVICE" ]
           },
           "id" : {
             "type" : "string"
