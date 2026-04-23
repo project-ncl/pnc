@@ -9513,6 +9513,10 @@ components:
           type: string
         name:
           type: string
+        values:
+          type: array
+          items:
+            type: string
     ParsedArtifact:
       type: object
       properties:

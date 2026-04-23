@@ -13330,6 +13330,12 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "values" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         }
       },
