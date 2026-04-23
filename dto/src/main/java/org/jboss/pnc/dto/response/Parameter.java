@@ -23,6 +23,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * Generic parameter for build configs.
  *
@@ -43,6 +45,11 @@ public class Parameter {
      * Parameter description.
      */
     public final String description;
+
+    /**
+     * List of possible values for a parameter.
+     */
+    public final List<String> values;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

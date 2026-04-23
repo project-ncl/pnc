@@ -23,7 +23,6 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericPara
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,11 +39,11 @@ import java.util.Set;
 public class BuildConfigurationSupportedGenericParametersProviderImpl
         implements BuildConfigurationSupportedGenericParametersProvider {
 
-    private Set<Parameter> supportedGenericParameters = new HashSet<>();
+    private final Set<Parameter> supportedGenericParameters = new HashSet<>();
 
-    public BuildConfigurationSupportedGenericParametersProviderImpl() throws IOException {
+    public BuildConfigurationSupportedGenericParametersProviderImpl() {
         for (BuildConfigurationParameterKeys value : BuildConfigurationParameterKeys.values()) {
-            supportedGenericParameters.add(new Parameter(value.name(), value.getDesc()));
+            supportedGenericParameters.add(new Parameter(value.name(), value.getDesc(), value.getValues()));
         }
     }
 
