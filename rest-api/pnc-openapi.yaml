@@ -180,7 +180,6 @@ paths:
             enum:
             - STANDARD
             - SERVICE
-            - AUTO
       responses:
         "200":
           description: Success with results
@@ -7444,7 +7443,6 @@ components:
           enum:
           - STANDARD
           - SERVICE
-          - AUTO
         creationTime:
           type: string
           format: date-time
@@ -7506,7 +7504,6 @@ components:
           enum:
           - STANDARD
           - SERVICE
-          - AUTO
         id:
           type: string
         identifier:
@@ -7579,7 +7576,6 @@ components:
           enum:
           - STANDARD
           - SERVICE
-          - AUTO
         id:
           type: string
         modificationTime:
