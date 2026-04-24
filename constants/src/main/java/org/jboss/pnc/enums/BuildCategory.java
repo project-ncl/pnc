@@ -26,9 +26,13 @@ package org.jboss.pnc.enums;
 @Deprecated
 public enum BuildCategory {
     /**
-     * The build is built to be used in On-Premise products or Managed services.
+     * The build is built to be used in On-Premise IBM products.
      */
     STANDARD,
+    /**
+     * The build is built to be used in On-Premise Red Hat products.
+     */
+    LEGACY_REDHAT,
     /**
      * The build is built to be used in Managed services only.
      */
