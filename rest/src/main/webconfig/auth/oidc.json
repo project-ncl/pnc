@@ -1,7 +1,8 @@
 {
     "client-id" : "${env.OIDC_CLIENT_ID:myclient}",
     "provider-url" : "${env.OIDC_PROVIDER_URL:http://localhost:8080/realms/myrealm}",
-    "public-client" : "true",
+    "public-client" : "${env.OIDC_PUBLIC_CLIENT:true}",
     "principal-attribute" : "preferred_username",
-    "ssl-required" : "EXTERNAL"
+    "ssl-required" : "EXTERNAL",
+    "autodetect-bearer-only": "${env.OIDC_AUTODETECT_BEARER_ONLY:false}"
 }
