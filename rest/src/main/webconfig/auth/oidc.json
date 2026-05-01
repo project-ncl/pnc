@@ -4,5 +4,5 @@
     "public-client" : "${env.OIDC_PUBLIC_CLIENT:true}",
     "principal-attribute" : "preferred_username",
     "ssl-required" : "EXTERNAL",
-    "autodetect-bearer-only": "${env.OIDC_AUTODETECT_BEARER_ONLY:false}"
+    "autodetect-bearer-only": "${env.OIDC_AUTODETECT_BEARER_ONLY:true}"
 }
