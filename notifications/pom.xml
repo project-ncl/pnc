@@ -129,7 +129,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.redhat.resilience.otel</groupId>
+            <groupId>org.jboss.pnc.otel</groupId>
             <artifactId>opentelemetry-ext-cli-java</artifactId>
         </dependency>
 
