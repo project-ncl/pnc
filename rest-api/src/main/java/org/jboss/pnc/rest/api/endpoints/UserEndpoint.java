@@ -41,6 +41,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -78,6 +79,29 @@ public interface UserEndpoint {
     @GET
     @Path("/current")
     User getCurrentUser();
+
+    static final String LOGIN_REDIRECT_DESC = "Triggers authentication and redirects to the specified path after successful login.";
+
+    /**
+     * {@value LOGIN_REDIRECT_DESC}
+     *
+     * @param redirectPath The path to redirect to after authentication
+     * @return HTTP 302 redirect response
+     */
+    @Operation(
+            summary = LOGIN_REDIRECT_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "302",
+                            description = "Redirect to the specified path after successful authentication"),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/login/{redirectPath:.+}")
+    Response loginAndRedirect(
+            @Parameter(description = "Path to redirect to after login") @PathParam("redirectPath") String redirectPath);
 
     static final String GET_BUILDS = "Gets all builds triggered by specific user.";
 
