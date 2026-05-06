@@ -29,6 +29,10 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.net.URI;
 
 @ApplicationScoped
 public class UserEndpointImpl implements UserEndpoint {
@@ -39,9 +43,36 @@ public class UserEndpointImpl implements UserEndpoint {
     @Inject
     private BuildProvider buildProvider;
 
+    @Context
+    private HttpServletRequest servletRequest;
+
     @Override
     public User getCurrentUser() {
         return userProvider.getCurrentUser();
+    }
+
+    @Override
+    public Response loginAndRedirect(String redirectPath) {
+        // Ensure path starts with / to make it an absolute path
+        if (redirectPath == null || redirectPath.trim().isEmpty()) {
+            redirectPath = "/";
+        } else if (!redirectPath.startsWith("/")) {
+            redirectPath = "/" + redirectPath;
+        }
+
+        // Build an absolute URI to avoid relative path resolution issues
+        String scheme = servletRequest.getScheme();
+        String serverName = servletRequest.getServerName();
+        int serverPort = servletRequest.getServerPort();
+
+        String absoluteUrl;
+        if ((scheme.equals("http") && serverPort == 80) || (scheme.equals("https") && serverPort == 443)) {
+            absoluteUrl = scheme + "://" + serverName + redirectPath;
+        } else {
+            absoluteUrl = scheme + "://" + serverName + ":" + serverPort + redirectPath;
+        }
+
+        return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
     }
 
     @Override

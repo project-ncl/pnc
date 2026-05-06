@@ -51,4 +51,28 @@
     <security-role>
         <role-name>pnc-users-admin</role-name>
     </security-role>
+
+    <!-- make sure interceptor sees this and redirect user to sso server -->
+    <!-- the rest is handled inside the SecurityConstraintFilter -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Access to login</web-resource-name>
+            <url-pattern>/v2/users/current</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Login with redirect</web-resource-name>
+            <url-pattern>/v2/users/login/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+    </security-constraint>
 </web-app>

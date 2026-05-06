@@ -7251,6 +7251,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /users/login/{redirectPath}:
+    get:
+      tags:
+      - Users
+      summary: Triggers authentication and redirects to the specified path after successful
+        login.
+      operationId: loginAndRedirect
+      parameters:
+      - name: redirectPath
+        in: path
+        description: Path to redirect to after login
+        required: true
+        schema:
+          type: string
+      responses:
+        "302":
+          description: Redirect to the specified path after successful authentication
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /users/{id}/builds:
     get:
       tags:
