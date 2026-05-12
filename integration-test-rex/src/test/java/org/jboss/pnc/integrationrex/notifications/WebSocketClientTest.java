@@ -59,6 +59,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -341,6 +342,7 @@ public class WebSocketClientTest extends RemoteServices {
     }
 
     @Test
+    @Ignore // disable import endpoint for PNC 3.5.0 release
     public void testImportSendsAMessage() throws Exception {
         // with
         WebSocketClient wsClient = new VertxWebSocketClient();
