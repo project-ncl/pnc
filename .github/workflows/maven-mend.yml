@@ -1,0 +1,36 @@
+name: Mend CLI scan for Maven
+
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "0 22 * * 0"
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+  security-events: write
+
+jobs:
+  build:
+    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@dc16c38747e72ec04165d5e5e0177e85d21bc5c8 # main
+    with:
+      java_version: 11
+      build_command: "mvn clean install -DskipTests"
+      upload_artifacts: true
+
+  call-mend-ci:
+    needs: build
+    uses: project-ncl/shared-github-actions/.github/workflows/mend-ci.yml@dc16c38747e72ec04165d5e5e0177e85d21bc5c8 # main
+    with:
+      SCA: true
+      SAST: true
+    secrets:
+      MEND_URL: ${{ secrets.MEND_URL }}
+      MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
+      MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
+      MEND_ORGNAME: ${{ secrets.MEND_ORGNAME }}
+      MEND_PRODUCTNAME: ${{ secrets.MEND_PRODUCTNAME }}
