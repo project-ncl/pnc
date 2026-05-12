@@ -84,6 +84,7 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
@@ -237,6 +238,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     // TODO create a role for importer
     // @RolesAllowed({ USERS_ADMIN })
     public List<Build> importBuilds(ImportBuildsRequest request, Set<String> uniqueAttributes) {
+        // FIXME remove after 3.5.0 release
+        if (true) {
+            throw new ForbiddenException("Disabled endpoint.");
+        }
+
         logger.debug("Received request to import multiple builds. This is a import by an external build system.");
         ValidationBuilder.validateObject(request, WhenImporting.class).validateAnnotations();
         validateTargetRepositories(request);
