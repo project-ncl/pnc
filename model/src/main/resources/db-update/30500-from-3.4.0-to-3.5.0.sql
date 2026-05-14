@@ -56,5 +56,9 @@ CREATE INDEX IF NOT EXISTS idx_attachment_type
 CREATE INDEX IF NOT EXISTS idx_attachment_url
     ON attachment USING btree(url);
 
+-- Index: idx_attachment_sha256
+CREATE INDEX IF NOT EXISTS idx_attachment_sha256
+    ON attachment USING btree(sha256);
+
 
 COMMIT;
