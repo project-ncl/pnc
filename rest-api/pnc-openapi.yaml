@@ -179,6 +179,7 @@ paths:
             type: string
             enum:
             - STANDARD
+            - LEGACY_REDHAT
             - SERVICE
       responses:
         "200":
@@ -7465,6 +7466,7 @@ components:
           type: string
           enum:
           - STANDARD
+          - LEGACY_REDHAT
           - SERVICE
         creationTime:
           type: string
@@ -7526,6 +7528,7 @@ components:
           type: string
           enum:
           - STANDARD
+          - LEGACY_REDHAT
           - SERVICE
         id:
           type: string
@@ -7598,6 +7601,7 @@ components:
           type: string
           enum:
           - STANDARD
+          - LEGACY_REDHAT
           - SERVICE
         id:
           type: string
