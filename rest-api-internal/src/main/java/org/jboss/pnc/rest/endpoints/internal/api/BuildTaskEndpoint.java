@@ -64,8 +64,8 @@ public interface BuildTaskEndpoint {
             @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(description = "Build result", required = true) BuildResultRest buildResult);
 
-    @POST
-    @Path("/import")
+    // @POST // disable import endpoint for PNC 3.5.0 release
+    // @Path("/import") // disable import endpoint for PNC 3.5.0 release
     @Consumes(MediaType.APPLICATION_JSON)
     List<Build> importBuilds(
             @NotNull ImportBuildsRequest request,
