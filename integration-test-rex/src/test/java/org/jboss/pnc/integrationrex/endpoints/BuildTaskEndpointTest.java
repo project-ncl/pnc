@@ -43,7 +43,6 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.restclient.AdvancedBuildClient;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -69,7 +68,6 @@ import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBea
 @RunAsClient
 @RunWith(Arquillian.class)
 @Category({ ContainerTest.class })
-@Ignore // disable import endpoint for PNC 3.5.0 release
 public class BuildTaskEndpointTest extends RemoteServices {
     private BuildConfigurationClient buildConfigurationClient;
 

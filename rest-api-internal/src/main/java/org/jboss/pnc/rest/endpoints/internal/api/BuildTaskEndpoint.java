@@ -22,9 +22,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.dto.internal.ImportBuildsRequest;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
@@ -64,8 +64,8 @@ public interface BuildTaskEndpoint {
             @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(description = "Build result", required = true) BuildResultRest buildResult);
 
-    // @POST // disable import endpoint for PNC 3.5.0 release
-    // @Path("/import") // disable import endpoint for PNC 3.5.0 release
+    @POST
+    @Path("/import")
     @Consumes(MediaType.APPLICATION_JSON)
     List<Build> importBuilds(
             @NotNull ImportBuildsRequest request,
