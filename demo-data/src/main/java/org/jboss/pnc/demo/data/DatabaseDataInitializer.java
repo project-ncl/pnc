@@ -753,7 +753,7 @@ public class DatabaseDataInitializer {
                 .deployPath("demo/built-artifact22/1.0/built-artifact22-1.0.jar")
                 .size(11L)
                 .artifactQuality(ArtifactQuality.NEW)
-                .buildCategory(BuildCategory.SERVICE)
+                .buildCategory(BuildCategory.LEGACY_REDHAT)
                 .purl("pkg:maven/demo/built-artifact22@1.0?type=jar")
                 .build();
         // builtArtifact9 defined in this place in order to be part of savedBuildRecord1
