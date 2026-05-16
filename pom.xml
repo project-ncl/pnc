@@ -135,7 +135,7 @@
     <version.junit>4.13.2</version.junit>
     <version.assertj-core>3.27.7</version.assertj-core>
     <version.mockito>5.1.1</version.mockito>
-    <version.wiremock>2.35.0</version.wiremock>
+    <version.wiremock>3.0.1</version.wiremock>
     <version.dbunit>3.0.0</version.dbunit>
     <version.h2db>2.4.240</version.h2db>
     <version.rest-assured>5.5.5</version.rest-assured>
