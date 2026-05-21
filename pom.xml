@@ -1706,6 +1706,14 @@
 
   <pluginRepositories>
     <pluginRepository>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
       <id>mrrc-ga-plugins</id>
       <name>Redhat GA</name>
       <layout>default</layout>
