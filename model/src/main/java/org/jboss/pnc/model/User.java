@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -77,6 +78,9 @@ public class User implements GenericEntity<Integer> {
      */
     @Transient
     private String loginToken;
+
+    @Transient
+    private Set<String> roles = Collections.emptySet();
 
     // [NCLSUP-598] Krb service account usernames are quite long
     @Column(unique = true)
@@ -248,6 +252,14 @@ public class User implements GenericEntity<Integer> {
 
     public void setLoginToken(String loginToken) {
         this.loginToken = loginToken;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
 
     @Override
