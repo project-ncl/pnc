@@ -53,19 +53,40 @@ public class UserEndpointImpl implements UserEndpoint {
 
     @Override
     public Response loginAndRedirect(String redirectPath) {
+
         // Ensure path starts with / to make it an absolute path
         if (redirectPath == null || redirectPath.trim().isEmpty()) {
-            redirectPath = "/";
-        } else if (!redirectPath.startsWith("/")) {
-            redirectPath = "/" + redirectPath;
+            return redirectToHomePage();
+        } else if (redirectPath.startsWith("/")) {
+            // remove the leading '/' if present
+            redirectPath = redirectPath.substring(1);
         }
 
+        String[] urlToRedirect = redirectPath.split("/", 3);
+
+        if (urlToRedirect.length >= 2) {
+            String scheme = urlToRedirect[0];
+            String serverName = urlToRedirect[1];
+            String endPart = urlToRedirect.length == 3 ? urlToRedirect[2] : "/";
+            String absoluteUrl = scheme + "://" + serverName + "/" + endPart;
+            return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
+        } else {
+            // bad url
+            return Response.status(Response.Status.BAD_REQUEST).entity("Redirect path contains an invalid url").build();
+        }
+
+    }
+
+    private Response redirectToHomePage() {
+        String redirectPath;
+        String absoluteUrl;
+
+        redirectPath = "/";
         // Build an absolute URI to avoid relative path resolution issues
         String scheme = servletRequest.getScheme();
         String serverName = servletRequest.getServerName();
         int serverPort = servletRequest.getServerPort();
 
-        String absoluteUrl;
         if ((scheme.equals("http") && serverPort == 80) || (scheme.equals("https") && serverPort == 443)) {
             absoluteUrl = scheme + "://" + serverName + redirectPath;
         } else {
