@@ -79,6 +79,7 @@ public class UserService {
 
         User user = getOrCreate(currentUser, username);
         user.setLoginToken(currentUser.getTokenString());
+        user.setRoles(currentUser.getRole());
         logger.trace("Returning user: {}.", user);
         return user;
     }
