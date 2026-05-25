@@ -14282,6 +14282,13 @@
           "id" : {
             "type" : "string"
           },
+          "roles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "username" : {
             "type" : "string"
           }
