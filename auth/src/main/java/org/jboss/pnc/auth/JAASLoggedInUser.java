@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -65,7 +66,7 @@ public class JAASLoggedInUser implements LoggedInUser {
 
     @Override
     public Set<String> getRole() {
-        throw new UnsupportedOperationException("Role is not available. Use isUserInRole instead.");
+        return Collections.emptySet();
     }
 
     @Override

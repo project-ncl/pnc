@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import java.util.Set;
 
 /**
  * A PNC user.
@@ -53,6 +54,8 @@ public class User implements DTOEntity {
      */
     @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String username;
+
+    protected final Set<String> roles;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
