@@ -202,7 +202,7 @@ public class WebSocketsNotificationTest {
                 + getIso8601FormatFromDate(OPERATION.getSubmitTime())
                 + "\",\"startTime\":null,\"endTime\":null,\"progressStatus\":\"NEW\",\"result\":null,\"outcome\":"
                 + "{\"result\":null,\"reason\":null,\"proposal\":null},\"user\":{\"id\":\"100\",\"username\":"
-                + "\"demo-user\"},\"parameters\":{},\"productMilestone\":{\"id\":\"100\",\"version\":\"1.0.0.Build1\","
+                + "\"demo-user\",\"roles\":[]},\"parameters\":{},\"productMilestone\":{\"id\":\"100\",\"version\":\"1.0.0.Build1\","
                 + "\"endDate\":" + asJsonValue(MILESTONE_END_DATE) + ",\"startingDate\":"
                 + asJsonValue(MILESTONE_START_DATE) + ",\"plannedEndDate\":" + asJsonValue(MILESTONE_PLANNED_END_DATE)
                 + "}},\"job\":\"OPERATION\"}";
