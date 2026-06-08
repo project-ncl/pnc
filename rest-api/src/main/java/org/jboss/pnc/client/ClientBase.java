@@ -78,8 +78,8 @@ public abstract class ClientBase<T> implements Closeable {
 
         // Also create a standard JAX-RS client for backward compatibility with patch/getInputStream methods
         client = ClientBuilder.newBuilder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(configuration.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)
+                .readTimeout(configuration.getReadTimeoutMillis(), TimeUnit.MILLISECONDS)
                 .build();
         client.register(JacksonProviderWithDateISO8601.class);
         client.register(new MdcToHeadersFilter(configuration.getMdcToHeadersMappings()));

@@ -62,6 +62,10 @@ public class Configuration {
      */
     private final int pageSize;
 
+    private final Long connectTimeoutMillis = 30_000L;
+
+    private final Long readTimeoutMillis = 60_000L;
+
     /**
      * Define which values from the logging MDC are added as headers to the request. A key is a MDC key. A value is a
      * header name
