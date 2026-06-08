@@ -103,11 +103,35 @@ public interface UserEndpoint {
     Response loginAndRedirect(
             @Parameter(description = "Path to redirect to after login") @PathParam("redirectPath") String redirectPath);
 
+    static final String LOGOUT_REDIRECT_DESC = "Logs out the user and redirects to the specified path.";
+
+    /**
+     * {@value LOGOUT_REDIRECT_DESC}
+     *
+     * @param redirectPath The path to redirect to after logout
+     * @return HTTP 302 redirect response
+     */
+    @Operation(
+            summary = LOGOUT_REDIRECT_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "302",
+                            description = "Redirect to the specified path after successful logout"),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/logout/{redirectPath:.+}")
+    Response logoutAndRedirect(
+            @Parameter(
+                    description = "Path to redirect to after logout") @PathParam("redirectPath") String redirectPath);
+
     static final String GET_BUILDS = "Gets all builds triggered by specific user.";
 
     /**
      * {@value GET_BUILDS}
-     * 
+     *
      * @param id {@value U_ID}
      * @param pageParameters
      * @param buildsFilter

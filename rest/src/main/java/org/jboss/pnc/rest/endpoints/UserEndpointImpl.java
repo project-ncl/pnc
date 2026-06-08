@@ -53,12 +53,10 @@ public class UserEndpointImpl implements UserEndpoint {
 
     @Override
     public Response loginAndRedirect(String redirectPath) {
-
-        // Ensure path starts with / to make it an absolute path
+        // Validate redirect URL to prevent open redirect attacks
         if (redirectPath == null || redirectPath.trim().isEmpty()) {
             return redirectToHomePage();
         } else if (redirectPath.startsWith("/")) {
-            // remove the leading '/' if present
             redirectPath = redirectPath.substring(1);
         }
 
@@ -67,14 +65,25 @@ public class UserEndpointImpl implements UserEndpoint {
         if (urlToRedirect.length >= 2) {
             String scheme = urlToRedirect[0];
             String serverName = urlToRedirect[1];
+
+            // Validate scheme - only allow http/https
+            if (!scheme.equals("http") && !scheme.equals("https")) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid redirect scheme").build();
+            }
+
+            // Validate that the redirect is to same origin or localhost
+            if (!isAllowedRedirectHost(serverName)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Redirect to external domain not allowed")
+                        .build();
+            }
+
             String endPart = urlToRedirect.length == 3 ? urlToRedirect[2] : "/";
             String absoluteUrl = scheme + "://" + serverName + "/" + endPart;
             return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
         } else {
-            // bad url
             return Response.status(Response.Status.BAD_REQUEST).entity("Redirect path contains an invalid url").build();
         }
-
     }
 
     private Response redirectToHomePage() {
@@ -94,6 +103,65 @@ public class UserEndpointImpl implements UserEndpoint {
         }
 
         return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
+    }
+
+    @Override
+    public Response logoutAndRedirect(String redirectPath) {
+        // Invalidate the session
+        if (servletRequest.getSession(false) != null) {
+            servletRequest.getSession().invalidate();
+        }
+
+        // Validate redirect URL to prevent open redirect attacks
+        if (redirectPath == null || redirectPath.trim().isEmpty()) {
+            return redirectToHomePage();
+        } else if (redirectPath.startsWith("/")) {
+            redirectPath = redirectPath.substring(1);
+        }
+
+        String[] urlToRedirect = redirectPath.split("/", 3);
+
+        if (urlToRedirect.length >= 2) {
+            String scheme = urlToRedirect[0];
+            String serverName = urlToRedirect[1];
+
+            // Validate scheme - only allow http/https
+            if (!scheme.equals("http") && !scheme.equals("https")) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid redirect scheme").build();
+            }
+
+            // Validate that the redirect is to same origin or localhost
+            if (!isAllowedRedirectHost(serverName)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Redirect to external domain not allowed")
+                        .build();
+            }
+
+            String endPart = urlToRedirect.length == 3 ? urlToRedirect[2] : "/";
+            String absoluteUrl = scheme + "://" + serverName + "/" + endPart;
+            return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Redirect path contains an invalid url").build();
+        }
+    }
+
+    private boolean isAllowedRedirectHost(String targetHost) {
+        String requestServerName = servletRequest.getServerName();
+
+        // Remove port from target host if present (e.g., "localhost:3000" -> "localhost")
+        String targetHostWithoutPort = targetHost.split(":")[0];
+
+        // Allow same origin
+        if (targetHostWithoutPort.equals(requestServerName)) {
+            return true;
+        }
+
+        // Allow localhost and 127.0.0.1
+        if (targetHostWithoutPort.equals("localhost") || targetHostWithoutPort.equals("127.0.0.1")) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
