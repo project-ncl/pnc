@@ -7274,6 +7274,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /users/logout/{redirectPath}:
+    get:
+      tags:
+      - Users
+      summary: Logs out the user and redirects to the specified path.
+      operationId: logoutAndRedirect
+      parameters:
+      - name: redirectPath
+        in: path
+        description: Path to redirect to after logout
+        required: true
+        schema:
+          type: string
+      responses:
+        "302":
+          description: Redirect to the specified path after successful logout
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /users/{id}/builds:
     get:
       tags:
