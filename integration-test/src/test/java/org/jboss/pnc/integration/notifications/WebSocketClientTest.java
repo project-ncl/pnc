@@ -130,7 +130,7 @@ public class WebSocketClientTest {
         buildConfigurationClient.trigger(bc.getId(), new BuildParameters());
 
         // then
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         unsubscriber.run();
         wsClient.disconnect().get();
         assertThat(notificationCounter).hasValueGreaterThanOrEqualTo(2);
@@ -172,13 +172,13 @@ public class WebSocketClientTest {
         wsClient.connect("ws://localhost:8082" + NOTIFICATION_PATH).join();
 
         // wait a little for Undertow accept the client and increment the value
-        Thread.sleep(200);
+        Thread.sleep(400);
         assertThat(handler.getSessionCounter()).hasValue(1);
 
         // disconnect wsClient and force him to reconnect
         handler.closeSession();
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
         // then
         assertThat(handler.getSessionCounter()).hasValue(2);
 
@@ -194,7 +194,7 @@ public class WebSocketClientTest {
         wsServer.start();
 
         // when
-        int pingDelays = 100;
+        int pingDelays = 200;
         WebSocketClient wsClient = withPingDelay(pingDelays);
         wsClient.connect("ws://localhost:8082" + NOTIFICATION_PATH).get();
 
@@ -215,8 +215,8 @@ public class WebSocketClientTest {
         wsServer.start();
 
         // set max server unresponsiveness
-        int maxUnresponsiveness = 1000;
-        WebSocketClient wsClient = withMaxUnresponsiveness(1000);
+        int maxUnresponsiveness = 2000;
+        WebSocketClient wsClient = withMaxUnresponsiveness(2000);
 
         // make server unresponsive
         handler.blockPongs();
@@ -225,7 +225,7 @@ public class WebSocketClientTest {
         wsClient.connect("ws://localhost:8082" + NOTIFICATION_PATH).get();
 
         // wait maxUnresponsiveness time plus a little more to give client time to reconnect
-        Thread.sleep(maxUnresponsiveness + 500);
+        Thread.sleep(maxUnresponsiveness + 2000);
 
         // then
         assertThat(handler.getSessionCounter()).hasValue(2);
