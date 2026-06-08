@@ -33,6 +33,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 /**
  * An artifact created or used by build.
@@ -61,11 +62,13 @@ public class Artifact extends ArtifactRef {
     /**
      * The user who created this artifact.
      */
+    @Null(groups = WhenImporting.class)
     private final User creationUser;
 
     /**
      * The user who last modified the quality level of this artifact.
      */
+    @Null(groups = WhenImporting.class)
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
