@@ -172,7 +172,7 @@ public class WebSocketClientTest {
         wsClient.connect("ws://localhost:8082" + NOTIFICATION_PATH).join();
 
         // wait a little for Undertow accept the client and increment the value
-        Thread.sleep(50);
+        Thread.sleep(200);
         assertThat(handler.getSessionCounter()).hasValue(1);
 
         // disconnect wsClient and force him to reconnect
