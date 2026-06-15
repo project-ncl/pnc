@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.auth.OidcDiscoveryService;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.Page;
@@ -26,22 +30,35 @@ import org.jboss.pnc.facade.providers.api.UserProvider;
 import org.jboss.pnc.rest.api.endpoints.UserEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @ApplicationScoped
 public class UserEndpointImpl implements UserEndpoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserEndpointImpl.class);
 
     @Inject
     private UserProvider userProvider;
 
     @Inject
     private BuildProvider buildProvider;
+
+    @Inject
+    private SystemConfig systemConfig;
+
+    @Inject
+    private OidcDiscoveryService oidcDiscoveryService;
 
     @Context
     private HttpServletRequest servletRequest;
@@ -112,10 +129,33 @@ public class UserEndpointImpl implements UserEndpoint {
             servletRequest.getSession().invalidate();
         }
 
+        // Build the post-logout redirect URL
+        String postLogoutRedirectUrl = buildPostLogoutRedirectUrl(redirectPath);
+        if (postLogoutRedirectUrl == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid redirect path").build();
+        }
+
+        // Redirect to SSO logout endpoint (discovered via OIDC)
+        String ssoLogoutUrl = buildSsoLogoutUrl(postLogoutRedirectUrl);
+        if (ssoLogoutUrl == null) {
+            // If SSO config is not available or discovery fails, just do local logout
+            logger.warn("SSO logout endpoint not available, performing local logout only");
+            return Response.status(Response.Status.FOUND).location(URI.create(postLogoutRedirectUrl)).build();
+        }
+
+        return Response.status(Response.Status.FOUND).location(URI.create(ssoLogoutUrl)).build();
+    }
+
+    /**
+     * Builds the URL to redirect to after SSO logout completes
+     */
+    private String buildPostLogoutRedirectUrl(String redirectPath) {
         // Validate redirect URL to prevent open redirect attacks
         if (redirectPath == null || redirectPath.trim().isEmpty()) {
-            return redirectToHomePage();
-        } else if (redirectPath.startsWith("/")) {
+            return buildAbsoluteUrl("/");
+        }
+
+        if (redirectPath.startsWith("/")) {
             redirectPath = redirectPath.substring(1);
         }
 
@@ -127,21 +167,129 @@ public class UserEndpointImpl implements UserEndpoint {
 
             // Validate scheme - only allow http/https
             if (!scheme.equals("http") && !scheme.equals("https")) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid redirect scheme").build();
+                return null;
             }
 
             // Validate that the redirect is to same origin or localhost
             if (!isAllowedRedirectHost(serverName)) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Redirect to external domain not allowed")
-                        .build();
+                return null;
             }
 
             String endPart = urlToRedirect.length == 3 ? urlToRedirect[2] : "/";
-            String absoluteUrl = scheme + "://" + serverName + "/" + endPart;
-            return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
+            return scheme + "://" + serverName + "/" + endPart;
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds the SSO logout URL using OIDC Discovery. This method works with any OIDC-compliant provider (Keycloak, IBM
+     * Verify, Auth0, Okta, etc.) by discovering the end_session_endpoint from the provider's metadata.
+     *
+     * @param postLogoutRedirectUri The URI to redirect to after SSO logout completes
+     * @return The SSO logout URL, or null if discovery fails
+     */
+    private String buildSsoLogoutUrl(String postLogoutRedirectUri) {
+        try {
+            // Get the OIDC issuer URL from configuration
+            String issuerUrl = getOidcIssuerUrl();
+            if (issuerUrl == null) {
+                logger.warn("OIDC issuer URL not configured");
+                return null;
+            }
+
+            // Discover the SSO provider's metadata
+            OidcDiscoveryService.OidcProviderMetadata metadata = oidcDiscoveryService.discover(issuerUrl);
+            if (metadata == null) {
+                logger.warn("Failed to discover OIDC metadata for issuer: {}", issuerUrl);
+                return null;
+            }
+
+            // Get the end_session_endpoint (logout endpoint)
+            String endSessionEndpoint = metadata.getEndSessionEndpoint();
+            if (endSessionEndpoint == null || endSessionEndpoint.trim().isEmpty()) {
+                logger.warn("SSO provider does not advertise an end_session_endpoint");
+                return null;
+            }
+
+            // URL encode the redirect URI
+            String encodedRedirectUri = URLEncoder.encode(postLogoutRedirectUri, StandardCharsets.UTF_8.toString());
+
+            // Build the logout URL with post_logout_redirect_uri parameter
+            // Both redirect_uri and post_logout_redirect_uri are supported by different providers
+            // Most modern OIDC providers support post_logout_redirect_uri as per the spec
+            return endSessionEndpoint + "?post_logout_redirect_uri=" + encodedRedirectUri;
+
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Failed to encode redirect URI", e);
+            return null;
+        } catch (Exception e) {
+            logger.error("Unexpected error building SSO logout URL", e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the OIDC issuer URL from environment variable or configuration. Checks in order: 1. OIDC_PROVIDER_URL
+     * environment variable (recommended) 2. KeycloakClientConfig from system configuration (fallback for backward
+     * compatibility)
+     *
+     * @return The OIDC issuer URL, or null if not configured
+     */
+    private String getOidcIssuerUrl() {
+        // First, check for environment variable
+        String issuerUrl = System.getenv("OIDC_PROVIDER_URL");
+        if (issuerUrl != null && !issuerUrl.trim().isEmpty()) {
+            logger.debug("Using OIDC issuer URL from environment variable: {}", issuerUrl);
+            // Remove trailing slash if present
+            return issuerUrl.endsWith("/") ? issuerUrl.substring(0, issuerUrl.length() - 1) : issuerUrl;
+        }
+
+        // Fallback to configuration file (for backward compatibility with Keycloak setup)
+        KeycloakClientConfig keycloakConfig = systemConfig.getKeycloakServiceAccountConfig();
+        if (keycloakConfig == null) {
+            logger.debug("SSO configuration is null and OIDC_PROVIDER_URL not set");
+            return null;
+        }
+
+        String authServerUrl = keycloakConfig.getAuthServerUrl();
+        String realm = keycloakConfig.getRealm();
+
+        if (authServerUrl == null) {
+            logger.warn("SSO auth server URL is null and OIDC_PROVIDER_URL not set");
+            return null;
+        }
+
+        // Remove trailing slash from auth server URL if present
+        if (authServerUrl.endsWith("/")) {
+            authServerUrl = authServerUrl.substring(0, authServerUrl.length() - 1);
+        }
+
+        // For Keycloak, the issuer is {auth-server-url}/realms/{realm}
+        // For other providers, the auth-server-url might already be the full issuer
+        if (realm != null && !realm.trim().isEmpty()) {
+            issuerUrl = authServerUrl + "/realms/" + realm;
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Redirect path contains an invalid url").build();
+            // If no realm specified, assume auth-server-url is the issuer
+            issuerUrl = authServerUrl;
+        }
+
+        logger.debug("Using OIDC issuer URL from configuration: {}", issuerUrl);
+        return issuerUrl;
+    }
+
+    /**
+     * Builds an absolute URL from a relative path
+     */
+    private String buildAbsoluteUrl(String path) {
+        String scheme = servletRequest.getScheme();
+        String serverName = servletRequest.getServerName();
+        int serverPort = servletRequest.getServerPort();
+
+        if ((scheme.equals("http") && serverPort == 80) || (scheme.equals("https") && serverPort == 443)) {
+            return scheme + "://" + serverName + path;
+        } else {
+            return scheme + "://" + serverName + ":" + serverPort + path;
         }
     }
 
