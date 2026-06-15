@@ -124,6 +124,9 @@ public class UserEndpointImpl implements UserEndpoint {
 
     @Override
     public Response logoutAndRedirect(String redirectPath) {
+        // Get the ID token before invalidating the session
+        String idToken = getIdTokenFromSession();
+
         // Invalidate the session
         if (servletRequest.getSession(false) != null) {
             servletRequest.getSession().invalidate();
@@ -136,7 +139,7 @@ public class UserEndpointImpl implements UserEndpoint {
         }
 
         // Redirect to SSO logout endpoint (discovered via OIDC)
-        String ssoLogoutUrl = buildSsoLogoutUrl(postLogoutRedirectUrl);
+        String ssoLogoutUrl = buildSsoLogoutUrl(postLogoutRedirectUrl, idToken);
         if (ssoLogoutUrl == null) {
             // If SSO config is not available or discovery fails, just do local logout
             logger.warn("SSO logout endpoint not available, performing local logout only");
@@ -144,6 +147,37 @@ public class UserEndpointImpl implements UserEndpoint {
         }
 
         return Response.status(Response.Status.FOUND).location(URI.create(ssoLogoutUrl)).build();
+    }
+
+    /**
+     * Retrieves the ID token from the current session. The ID token is used for SSO logout as id_token_hint.
+     *
+     * @return The ID token string, or null if not available
+     */
+    private String getIdTokenFromSession() {
+        try {
+            // Try Elytron OIDC first (newer approach)
+            org.wildfly.security.http.oidc.OidcSecurityContext oidcSecurityContext = (org.wildfly.security.http.oidc.OidcSecurityContext) servletRequest
+                    .getAttribute(org.wildfly.security.http.oidc.OidcSecurityContext.class.getName());
+
+            if (oidcSecurityContext != null) {
+                return oidcSecurityContext.getIDTokenString();
+            }
+
+            // Fallback to Keycloak (legacy approach)
+            org.keycloak.KeycloakSecurityContext keycloakSecurityContext = (org.keycloak.KeycloakSecurityContext) servletRequest
+                    .getAttribute(org.keycloak.KeycloakSecurityContext.class.getName());
+
+            if (keycloakSecurityContext != null) {
+                return keycloakSecurityContext.getIdTokenString();
+            }
+        } catch (NoClassDefFoundError e) {
+            logger.debug("OIDC/Keycloak libraries not available", e);
+        } catch (Exception e) {
+            logger.warn("Failed to retrieve ID token from session", e);
+        }
+
+        return null;
     }
 
     /**
@@ -187,9 +221,10 @@ public class UserEndpointImpl implements UserEndpoint {
      * Verify, Auth0, Okta, etc.) by discovering the end_session_endpoint from the provider's metadata.
      *
      * @param postLogoutRedirectUri The URI to redirect to after SSO logout completes
+     * @param idToken The ID token from the current session (may be null)
      * @return The SSO logout URL, or null if discovery fails
      */
-    private String buildSsoLogoutUrl(String postLogoutRedirectUri) {
+    private String buildSsoLogoutUrl(String postLogoutRedirectUri, String idToken) {
         try {
             // Get the OIDC issuer URL from configuration
             String issuerUrl = getOidcIssuerUrl();
@@ -212,16 +247,24 @@ public class UserEndpointImpl implements UserEndpoint {
                 return null;
             }
 
-            // URL encode the redirect URI
-            String encodedRedirectUri = URLEncoder.encode(postLogoutRedirectUri, StandardCharsets.UTF_8.toString());
+            // Build the logout URL with required parameters
+            StringBuilder logoutUrl = new StringBuilder(endSessionEndpoint);
+            logoutUrl.append("?");
 
-            // Build the logout URL with post_logout_redirect_uri parameter
-            // Both redirect_uri and post_logout_redirect_uri are supported by different providers
-            // Most modern OIDC providers support post_logout_redirect_uri as per the spec
-            return endSessionEndpoint + "?post_logout_redirect_uri=" + encodedRedirectUri;
+            // Add id_token_hint if available (required by most OIDC providers)
+            if (idToken != null && !idToken.trim().isEmpty()) {
+                String encodedIdToken = URLEncoder.encode(idToken, StandardCharsets.UTF_8.toString());
+                logoutUrl.append("id_token_hint=").append(encodedIdToken).append("&");
+            }
+
+            // Add post_logout_redirect_uri
+            String encodedRedirectUri = URLEncoder.encode(postLogoutRedirectUri, StandardCharsets.UTF_8.toString());
+            logoutUrl.append("post_logout_redirect_uri=").append(encodedRedirectUri);
+
+            return logoutUrl.toString();
 
         } catch (UnsupportedEncodingException e) {
-            logger.error("Failed to encode redirect URI", e);
+            logger.error("Failed to encode logout URL parameters", e);
             return null;
         } catch (Exception e) {
             logger.error("Unexpected error building SSO logout URL", e);
