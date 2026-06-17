@@ -5,7 +5,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 3.5.0-SNAPSHOT
+  version: 3.5.0
 servers:
 - url: /pnc-rest
   variables: {}
@@ -180,6 +180,7 @@ paths:
             enum:
             - STANDARD
             - SERVICE
+            - LIGHTWELL
       responses:
         "200":
           description: Success with results
@@ -7466,6 +7467,7 @@ components:
           enum:
           - STANDARD
           - SERVICE
+          - LIGHTWELL
         creationTime:
           type: string
           format: date-time
@@ -7527,6 +7529,7 @@ components:
           enum:
           - STANDARD
           - SERVICE
+          - LIGHTWELL
         id:
           type: string
         identifier:
@@ -7599,6 +7602,7 @@ components:
           enum:
           - STANDARD
           - SERVICE
+          - LIGHTWELL
         id:
           type: string
         modificationTime:
