@@ -34,7 +34,7 @@ public enum BuildCategory {
      */
     SERVICE,
     /**
-     * Build used by the Autobuilder feature only. No manual builds should be assigned to this category.
+     * The build is built to be used for Project Lightwell only.
      */
-    AUTO
+    LIGHTWELL,
 }
