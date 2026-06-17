@@ -76,6 +76,15 @@
         </auth-constraint>
     </security-constraint>
 
+    <!-- Allow unauthenticated access to /users/current so SecurityConstraintFilter can return 401 -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Current user without redirect</web-resource-name>
+            <url-pattern>/v2/users/current/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
     <session-config>
         <cookie-config>
             <http-only>true</http-only>
