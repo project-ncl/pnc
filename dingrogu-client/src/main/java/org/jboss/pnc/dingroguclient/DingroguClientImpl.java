@@ -183,8 +183,19 @@ public class DingroguClientImpl implements DingroguClient {
         }
 
         String buildCategoryKey = BuildConfigurationParameterKeys.BUILD_CATEGORY.name();
-        return BuildCategory.SERVICE.name().equals(genericParameters.get(buildCategoryKey)) ? BuildCategory.SERVICE
-                : BuildCategory.STANDARD;
+        String buildCategoryValue = genericParameters.get(buildCategoryKey);
+
+        if (buildCategoryValue == null) {
+            return BuildCategory.STANDARD;
+        }
+
+        try {
+            return BuildCategory.valueOf(buildCategoryValue);
+        } catch (IllegalArgumentException e) {
+            log.error("Couldn't parse the build category key: {} to a BuildCategory enum", buildCategoryValue);
+            log.error("Returning STANDARD as fallback");
+            return BuildCategory.STANDARD;
+        }
     }
 
     public static void submitRequestWithRetries(Request request, Object payload, Optional<String> authHttpValue) {
