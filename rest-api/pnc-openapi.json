@@ -223,7 +223,7 @@
             "type" : "array",
             "items" : {
               "type" : "string",
-              "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL" ]
+              "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
             }
           }
         } ],
@@ -10681,7 +10681,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL" ]
+            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10755,7 +10755,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL" ]
+            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
           },
           "id" : {
             "type" : "string"
@@ -10833,7 +10833,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL" ]
+            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
           },
           "id" : {
             "type" : "string"

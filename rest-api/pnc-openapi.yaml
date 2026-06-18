@@ -5,7 +5,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 3.5.0
+  version: 3.6.0-SNAPSHOT
 servers:
 - url: /pnc-rest
   variables: {}
@@ -181,6 +181,7 @@ paths:
             - STANDARD
             - SERVICE
             - LIGHTWELL
+            - LIGHTWELL_UPSTREAM
       responses:
         "200":
           description: Success with results
@@ -7468,6 +7469,7 @@ components:
           - STANDARD
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
         creationTime:
           type: string
           format: date-time
@@ -7530,6 +7532,7 @@ components:
           - STANDARD
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
         id:
           type: string
         identifier:
@@ -7603,6 +7606,7 @@ components:
           - STANDARD
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
         id:
           type: string
         modificationTime:
