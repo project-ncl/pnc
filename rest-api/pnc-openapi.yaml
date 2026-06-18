@@ -182,6 +182,7 @@ paths:
             - LEGACY_REDHAT
             - SERVICE
             - LIGHTWELL
+            - LIGHTWELL_UPSTREAM
       responses:
         "200":
           description: Success with results
@@ -7622,6 +7623,7 @@ components:
           - LEGACY_REDHAT
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
         creationTime:
           type: string
           format: date-time
@@ -7685,6 +7687,7 @@ components:
           - LEGACY_REDHAT
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
         id:
           type: string
         identifier:
@@ -7759,6 +7762,7 @@ components:
           - LEGACY_REDHAT
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
         id:
           type: string
         modificationTime:
