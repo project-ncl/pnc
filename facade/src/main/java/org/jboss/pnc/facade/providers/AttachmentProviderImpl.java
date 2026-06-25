@@ -38,6 +38,7 @@ import java.util.Optional;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ATTACHMENT_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_REX;
 import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withSha256;
 
@@ -85,7 +86,7 @@ public class AttachmentProviderImpl
     }
 
     @Override
-    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_ADMIN })
+    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_REX, USERS_ADMIN })
     public Attachment store(Attachment restEntity) throws DTOValidationException {
         Attachment saved = super.store(restEntity);
 
@@ -96,7 +97,7 @@ public class AttachmentProviderImpl
     }
 
     @Override
-    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_ADMIN })
+    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_REX, USERS_ADMIN })
     public Attachment update(String stringId, Attachment restEntity) {
         return super.update(stringId, restEntity);
     }
