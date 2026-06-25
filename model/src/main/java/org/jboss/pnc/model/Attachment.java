@@ -73,7 +73,8 @@ public class Attachment implements GenericEntity<Integer> {
 
     @Size(max = 1024)
     @Column(nullable = false, unique = true, length = 1024)
-    @URL(regexp = "^(http|https).*")
+    // @URL(regexp = "^(http|https).*")
+    // TODO: the url validation isn't valid for container images
     private String url;
 
     private Date creationTime;
