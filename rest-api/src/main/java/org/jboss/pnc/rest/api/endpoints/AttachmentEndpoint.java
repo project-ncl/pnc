@@ -132,7 +132,7 @@ public interface AttachmentEndpoint {
      * @return
      */
     @Operation(
-            summary = "[role:pnc-app-attachment-user, pnc-users-admin] " + CREATE_DESC,
+            summary = "[role:pnc-app-attachment-user, pnc-app-rex-user, pnc-users-admin] " + CREATE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
@@ -164,7 +164,7 @@ public interface AttachmentEndpoint {
      * @param attachment
      */
     @Operation(
-            summary = "[role:pnc-app-attachment-user, pnc-users-admin] " + UPDATE_DESC,
+            summary = "[role:pnc-app-attachment-user, pnc-app-rex-user, pnc-users-admin] " + UPDATE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(

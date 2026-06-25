@@ -5,7 +5,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 3.6.0-SNAPSHOT
+  version: 3.5.2-SNAPSHOT
 servers:
 - url: /pnc-rest
   variables: {}
@@ -621,7 +621,8 @@ paths:
       tags:
       - Internal
       - Attachments
-      summary: "[role:pnc-app-attachment-user, pnc-users-admin] Creates a new Attachment."
+      summary: "[role:pnc-app-attachment-user, pnc-app-rex-user, pnc-users-admin]\
+        \ Creates a new Attachment."
       operationId: create_1
       requestBody:
         content:
@@ -686,8 +687,8 @@ paths:
       tags:
       - Internal
       - Attachments
-      summary: "[role:pnc-app-attachment-user, pnc-users-admin] Updates an existing\
-        \ Attachment"
+      summary: "[role:pnc-app-attachment-user, pnc-app-rex-user, pnc-users-admin]\
+        \ Updates an existing Attachment"
       operationId: update_1
       parameters:
       - name: id

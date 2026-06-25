@@ -41,6 +41,11 @@ public class UserRoles {
     public static final String USERS_ATTACHMENT_ADMIN = "pnc-app-attachment-user";
 
     /**
+     * Role used for service accounts. Temporarily using it to create attachment
+     */
+    public static final String USERS_REX = "pnc-app-rex-user";
+
+    /**
      * User's with this role are routed to new implementations that usually run in parallel to the old one (blue/green
      * testing).
      */
