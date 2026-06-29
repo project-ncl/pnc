@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.remotecoordinator.test.dependencies;
 
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.graph.GraphStructureException;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;

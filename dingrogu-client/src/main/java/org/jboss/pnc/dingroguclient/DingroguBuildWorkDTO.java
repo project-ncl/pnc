@@ -28,6 +28,7 @@ import org.jboss.pnc.api.enums.BuildType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.api.enums.RebuildMode;
 
 // TODO: at some point sync this DTO with the one on the dingrogu url
 @Jacksonized
@@ -46,6 +47,7 @@ public class DingroguBuildWorkDTO {
     String originRepoURL;
     boolean tempBuild;
     AlignmentPreference alignmentPreference;
+    RebuildMode rebuildMode;
     @NotNull
     String buildContentId;
     String buildConfigName;

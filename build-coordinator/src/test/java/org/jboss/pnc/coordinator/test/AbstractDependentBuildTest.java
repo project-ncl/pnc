@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import lombok.RequiredArgsConstructor;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.common.Configuration;
@@ -31,7 +32,6 @@ import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;

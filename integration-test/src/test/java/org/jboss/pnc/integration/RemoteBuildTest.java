@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.integration;
 
-import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Before;
 import org.junit.Test;
