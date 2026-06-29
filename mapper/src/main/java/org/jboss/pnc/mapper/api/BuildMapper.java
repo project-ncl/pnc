@@ -201,6 +201,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "buildContentId", source = "contentId")
     @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
     @Mapping(target = "alignmentPreference", source = "buildOptions.alignmentPreference")
+    @Mapping(target = "rebuildMode", source = "buildOptions.rebuildMode")
     @Mapping(target = "scmUrl", ignore = true)
     @Mapping(target = "scmRevision", ignore = true)
     @Mapping(target = "scmTag", ignore = true)

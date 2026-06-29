@@ -7741,6 +7741,12 @@ components:
           - FINISHED
         project:
           $ref: '#/components/schemas/ProjectRef'
+        rebuildMode:
+          type: string
+          enum:
+          - IMPLICIT_DEPENDENCY_CHECK
+          - EXPLICIT_DEPENDENCY_CHECK
+          - FORCE
         scmBuildConfigRevision:
           type: string
         scmBuildConfigRevisionInternal:
@@ -8403,6 +8409,12 @@ components:
           - PENDING
           - IN_PROGRESS
           - FINISHED
+        rebuildMode:
+          type: string
+          enum:
+          - IMPLICIT_DEPENDENCY_CHECK
+          - EXPLICIT_DEPENDENCY_CHECK
+          - FORCE
         scmBuildConfigRevision:
           type: string
         scmBuildConfigRevisionInternal:

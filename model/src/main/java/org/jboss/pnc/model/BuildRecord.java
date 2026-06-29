@@ -21,6 +21,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.enums.BuildStatus;
 import org.slf4j.Logger;
@@ -121,6 +122,10 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @Enumerated(EnumType.STRING)
     @Column(updatable = false)
     private AlignmentPreference alignmentPreference;
+
+    @Enumerated(EnumType.STRING)
+    @Column(updatable = false)
+    private RebuildMode rebuildMode;
 
     /**
      * The time which the build was submitted to the system.
@@ -678,6 +683,14 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
     private void setAlignmentPreference(AlignmentPreference alignmentPreference) {
         this.alignmentPreference = alignmentPreference;
+    }
+
+    public RebuildMode getRebuildMode() {
+        return rebuildMode;
+    }
+
+    public void setRebuildMode(RebuildMode rebuildMode) {
+        this.rebuildMode = rebuildMode;
     }
 
     public String getbuildOutputChecksum() {
