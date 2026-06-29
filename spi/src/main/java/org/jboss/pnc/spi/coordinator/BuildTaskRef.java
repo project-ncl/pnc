@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -56,6 +57,8 @@ public interface BuildTaskRef {
     boolean isTemporaryBuild();
 
     AlignmentPreference getAlignmentPreference();
+
+    RebuildMode getRebuildMode();
 
     BuildRecord getNoRebuildCause();
 
