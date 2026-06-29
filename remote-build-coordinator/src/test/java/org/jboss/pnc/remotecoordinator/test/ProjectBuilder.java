@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.remotecoordinator.test;
 
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;

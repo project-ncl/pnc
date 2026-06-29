@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.api.parameters;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import org.jboss.pnc.rest.validation.GroupBuildParametersConstraint;
 
@@ -47,7 +47,7 @@ public class GroupBuildParameters {
     /**
      * {@value SwaggerConstants#REBUILD_MODE_DESC} Defaults to {@value SwaggerConstants#DEFAULT_REBUILD_MODE}.
      * 
-     * @see org.jboss.pnc.enums.RebuildMode
+     * @see RebuildMode
      */
     @Parameter(description = SwaggerConstants.DEFAULT_REBUILD_MODE)
     @QueryParam("rebuildMode")

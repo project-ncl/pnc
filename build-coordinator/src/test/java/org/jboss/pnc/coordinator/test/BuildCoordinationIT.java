@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
@@ -36,7 +37,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.InMemory;

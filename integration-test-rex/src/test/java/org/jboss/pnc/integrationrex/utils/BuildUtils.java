@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integrationrex.utils;
 
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
@@ -24,7 +25,6 @@ import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
