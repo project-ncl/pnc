@@ -154,6 +154,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "buildContentId", ignore = true)
     @Mapping(target = "temporaryBuild", ignore = true)
     @Mapping(target = "alignmentPreference", ignore = true)
+    @Mapping(target = "rebuildMode", ignore = true)
     @Mapping(target = "submitTime", ignore = true)
     @Mapping(target = "startTime", ignore = true)
     @Mapping(target = "endTime", ignore = true)
