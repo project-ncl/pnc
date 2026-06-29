@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenImporting;
 
@@ -50,6 +51,8 @@ public class BuildMeta {
     private boolean temporaryBuild;
 
     private AlignmentPreference alignmentPreference;
+
+    private RebuildMode rebuildMode;
 
     @NotNull(groups = { WhenCreatingNew.class, WhenImporting.class })
     @Past(groups = { WhenCreatingNew.class, WhenImporting.class })
