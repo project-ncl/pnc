@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
@@ -92,6 +93,11 @@ public class BuildRef implements DTOEntity {
      * AlignmentPreference that was used for the build.
      */
     protected final AlignmentPreference alignmentPreference;
+
+    /**
+     * RebuildMode that was used for the build.
+     */
+    protected final RebuildMode rebuildMode;
 
     /**
      * Url to the SCM repository with the sources being built.
