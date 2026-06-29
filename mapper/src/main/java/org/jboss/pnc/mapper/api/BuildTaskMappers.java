@@ -212,6 +212,7 @@ public interface BuildTaskMappers {
     @Mapping(target = "buildConfigSetRecordId", source = "buildConfigSetRecordId")
     @Mapping(target = "buildOptions.temporaryBuild", source = "temporaryBuild")
     @Mapping(target = "buildOptions.alignmentPreference", source = "alignmentPreference")
+    @Mapping(target = "buildOptions.rebuildMode", source = "rebuildMode")
     @Mapping(target = "requestContext", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = { "taskDependants", "taskDependencies" })
     BuildTask toBuildTask(BuildTaskRef remoteTaskRef);
