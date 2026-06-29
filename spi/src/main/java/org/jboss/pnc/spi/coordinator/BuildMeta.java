@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.model.IdRev;
 
 import java.util.Date;
@@ -45,6 +46,9 @@ public class BuildMeta {
 
     @Getter
     AlignmentPreference alignmentPreference;
+
+    @Getter
+    RebuildMode rebuildMode;
 
     @Getter
     Date submitTime;

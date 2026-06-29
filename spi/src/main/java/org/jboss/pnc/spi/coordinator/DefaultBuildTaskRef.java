@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -74,6 +75,9 @@ public class DefaultBuildTaskRef implements BuildTaskRef {
 
     @Getter
     private final AlignmentPreference alignmentPreference;
+
+    @Getter
+    private final RebuildMode rebuildMode;
 
     @Getter
     private final BuildRecord noRebuildCause;
