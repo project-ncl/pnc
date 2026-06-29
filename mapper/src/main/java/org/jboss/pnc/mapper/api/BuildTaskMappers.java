@@ -223,6 +223,7 @@ public interface BuildTaskMappers {
     @Mapping(target = "temporaryBuild", source = "request.buildOptions.temporaryBuild")
     @Mapping(target = "status", constant = "REJECTED_ALREADY_BUILT")
     @Mapping(target = "alignmentPreference", source = "request.buildOptions.alignmentPreference")
+    @Mapping(target = "rebuildMode", source = "request.buildOptions.rebuildMode")
     @Mapping(target = "productMilestone", source = "request.currentProductMilestone.id")
     @Mapping(target = "buildConfigSetRecordId", source = "setRecordId")
     @Mapping(target = "user", source = "request.username", qualifiedBy = ByUsername.class)
@@ -242,6 +243,7 @@ public interface BuildTaskMappers {
     @Mapping(target = "contentId", expression = "java(ContentIdentityManager.getBuildContentId(request.getId()))")
     @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
     @Mapping(target = "alignmentPreference", source = "buildOptions.alignmentPreference")
+    @Mapping(target = "rebuildMode", source = "buildOptions.rebuildMode")
     @Mapping(target = "productMilestoneId", source = "currentProductMilestone.id")
     @Mapping(
             target = "noRebuildCauseId",
