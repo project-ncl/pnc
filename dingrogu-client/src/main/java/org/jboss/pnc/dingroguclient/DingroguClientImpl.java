@@ -140,6 +140,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .originRepoURL(buildTask.getBuildConfigurationAudited().getRepositoryConfiguration().getExternalUrl())
                 .tempBuild(buildTask.getBuildOptions().isTemporaryBuild())
                 .alignmentPreference(buildTask.getBuildOptions().getAlignmentPreference())
+                .rebuildMode(buildTask.getBuildOptions().getRebuildMode())
                 .buildContentId(contentId)
                 .buildConfigName(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getName())
                 .buildType(

@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test.event;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.util.ObjectWrapper;
@@ -32,7 +33,6 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotification
 import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.pnc.model.BuildConfigSetRecord;

@@ -18,6 +18,7 @@
 package org.jboss.pnc.remotecoordinator.test.dependencies;
 
 import lombok.RequiredArgsConstructor;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.GraphStructureException;
@@ -26,7 +27,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;

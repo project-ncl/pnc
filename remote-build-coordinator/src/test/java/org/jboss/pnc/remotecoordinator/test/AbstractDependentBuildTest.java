@@ -18,6 +18,7 @@
 package org.jboss.pnc.remotecoordinator.test;
 
 import lombok.RequiredArgsConstructor;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.GraphStructureException;
@@ -27,7 +28,6 @@ import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;

@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.api.enums.RebuildMode;
 
 /**
  * Class used to store all available build options of a BuildConfiguration or BuildConfigurationSet

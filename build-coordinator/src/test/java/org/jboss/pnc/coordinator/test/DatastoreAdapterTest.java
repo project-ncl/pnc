@@ -19,6 +19,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.test.mock.BifrostLogUploaderMock;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
@@ -35,7 +36,6 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
