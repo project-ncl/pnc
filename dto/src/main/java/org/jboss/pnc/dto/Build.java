@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
@@ -112,6 +113,7 @@ public class Build extends BuildRef {
             String buildContentId,
             Boolean temporaryBuild,
             AlignmentPreference alignmentPreference,
+            RebuildMode rebuildMode,
             String scmUrl,
             String scmRevision,
             String scmTag,
@@ -132,6 +134,7 @@ public class Build extends BuildRef {
                 buildContentId,
                 temporaryBuild,
                 alignmentPreference,
+                rebuildMode,
                 scmUrl,
                 scmRevision,
                 scmTag,

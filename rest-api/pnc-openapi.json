@@ -11034,6 +11034,10 @@
           "project" : {
             "$ref" : "#/components/schemas/ProjectRef"
           },
+          "rebuildMode" : {
+            "type" : "string",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+          },
           "scmBuildConfigRevision" : {
             "type" : "string"
           },
@@ -11869,6 +11873,10 @@
           "progress" : {
             "type" : "string",
             "enum" : [ "PENDING", "IN_PROGRESS", "FINISHED" ]
+          },
+          "rebuildMode" : {
+            "type" : "string",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
           },
           "scmBuildConfigRevision" : {
             "type" : "string"
