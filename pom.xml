@@ -109,7 +109,9 @@
     <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.42</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
-    <version.pncmetrics>1.1.3</version.pncmetrics>
+    <version.pncmetrics>1.1.12</version.pncmetrics>
+    <!-- Override EAP BOM-provided hibernate-validator (6.0.23.Final-redhat) to clear CVE-2025-35036; stays within 6.x to keep javax.validation namespace -->
+    <version.org.hibernate.validator>6.2.5.Final</version.org.hibernate.validator>
     <version.pnc-api>3.5.0</version.pnc-api>
     <version.pnc-common>3.4.0</version.pnc-common>
     <version.rex-api>1.2.3</version.rex-api>
@@ -142,7 +144,7 @@
     <version.weld-in-tests>3.1.4.Final</version.weld-in-tests>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
-    <version.shrinkwrap.resolver.bom>3.3.4</version.shrinkwrap.resolver.bom>
+    <version.shrinkwrap.resolver.bom>3.3.7</version.shrinkwrap.resolver.bom>
     <version.arquillian-bom>1.6.0.Final</version.arquillian-bom>
     <version.arquillian-weld>1.0.0.Final</version.arquillian-weld>
     <version.arquillian-jacoco>1.1.0</version.arquillian-jacoco>
@@ -1165,7 +1167,7 @@
       <dependency>
           <groupId>io.netty</groupId>
           <artifactId>netty-bom</artifactId>
-          <version>4.2.9.Final</version>
+          <version>4.2.15.Final</version>
           <type>pom</type>
           <scope>import</scope>
       </dependency>
