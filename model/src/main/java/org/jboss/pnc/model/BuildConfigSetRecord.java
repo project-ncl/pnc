@@ -20,6 +20,7 @@ package org.jboss.pnc.model;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildStatus;
 
 import javax.persistence.Cacheable;
@@ -121,6 +122,9 @@ public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {
 
     @Enumerated(EnumType.STRING)
     private AlignmentPreference alignmentPreference;
+
+    @Enumerated(EnumType.STRING)
+    private RebuildMode rebuildMode;
 
     /**
      * Example attributes POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
@@ -296,6 +300,14 @@ public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {
         this.alignmentPreference = alignmentPreference;
     }
 
+    public RebuildMode getRebuildMode() {
+        return rebuildMode;
+    }
+
+    public void setRebuildMode(RebuildMode rebuildMode) {
+        this.rebuildMode = rebuildMode;
+    }
+
     public Map<String, String> getAttributes() {
         return attributes;
     }
@@ -348,6 +360,8 @@ public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {
 
         private AlignmentPreference alignmentPreference;
 
+        private RebuildMode rebuildMode;
+
         public Builder() {
             buildRecords = new HashSet<>();
         }
@@ -366,6 +380,7 @@ public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {
             buildConfigSetRecord.setStatus(status);
             buildConfigSetRecord.setTemporaryBuild(temporaryBuild);
             buildConfigSetRecord.setAlignmentPreference(alignmentPreference);
+            buildConfigSetRecord.setRebuildMode(rebuildMode);
 
             if (productVersion == null && buildConfigurationSet != null) {
                 productVersion = buildConfigurationSet.getProductVersion();
@@ -428,6 +443,11 @@ public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {
 
         public Builder alignmentPreference(AlignmentPreference alignmentPreference) {
             this.alignmentPreference = alignmentPreference;
+            return this;
+        }
+
+        public Builder rebuildMode(RebuildMode rebuildMode) {
+            this.rebuildMode = rebuildMode;
             return this;
         }
     }

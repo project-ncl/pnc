@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
@@ -77,4 +78,5 @@ public class BuildExecutionConfigurationRest implements Serializable {
 
     protected AlignmentPreference alignmentPreference;
 
+    protected RebuildMode rebuildMode;
 }

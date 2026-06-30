@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
@@ -71,6 +72,7 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             boolean brewPullActive,
             String defaultAlignmentParams,
             AlignmentPreference alignmentPreference,
+            RebuildMode rebuildMode,
             String completionCallbackUrl) {
         super(
                 id,
@@ -97,7 +99,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 tempBuildTimestamp,
                 brewPullActive,
                 defaultAlignmentParams,
-                alignmentPreference);
+                alignmentPreference,
+                rebuildMode);
         this.completionCallbackUrl = completionCallbackUrl;
     }
 
@@ -128,7 +131,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             boolean brewPullActive,
             String completionCallbackUrl,
             String defaultAlignmentParams,
-            AlignmentPreference alignmentPreference) {
+            AlignmentPreference alignmentPreference,
+            RebuildMode rebuildMode) {
         super(
                 id,
                 buildContentId,
@@ -154,7 +158,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 tempBuildTimestamp,
                 brewPullActive,
                 defaultAlignmentParams,
-                alignmentPreference);
+                alignmentPreference,
+                rebuildMode);
         this.completionCallbackUrl = completionCallbackUrl;
     }
 
