@@ -39,6 +39,12 @@ public class ArtifactRepositoryMock extends IntIdRepositoryMock<Artifact> implem
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Set<Artifact> withIdentifierAndSha256AndTargetRepository(
+            Collection<Artifact.IdentifierSha256TargetRepository> identifierSha256TargetRepositorySet) {
+        throw new UnsupportedOperationException();
+    }
+
     public List<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
         throw new UnsupportedOperationException("Unimplemented method 'withIdentifierAndSha256'");
     }
