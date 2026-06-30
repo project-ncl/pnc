@@ -839,6 +839,8 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         private AlignmentPreference alignmentPreference;
 
+        private RebuildMode rebuildMode;
+
         private Date submitTime;
 
         private Date startTime;
@@ -940,6 +942,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             }
             buildRecord.setTemporaryBuild(temporaryBuild);
             buildRecord.setAlignmentPreference(alignmentPreference);
+            buildRecord.setRebuildMode(rebuildMode);
 
             if (!temporaryBuild) {
                 buildRecord.setProductMilestone(productMilestone);
@@ -994,6 +997,11 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         public BuildRecord.Builder alignmentPreference(AlignmentPreference alignmentPreference) {
             this.alignmentPreference = alignmentPreference;
+            return this;
+        }
+
+        public Builder rebuildMode(RebuildMode rebuildMode) {
+            this.rebuildMode = rebuildMode;
             return this;
         }
 

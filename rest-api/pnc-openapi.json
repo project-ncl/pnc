@@ -12328,6 +12328,10 @@
           "productVersion" : {
             "$ref" : "#/components/schemas/ProductVersionRef"
           },
+          "rebuildMode" : {
+            "type" : "string",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+          },
           "startTime" : {
             "type" : "string",
             "format" : "date-time"
@@ -12393,6 +12397,10 @@
           },
           "id" : {
             "type" : "string"
+          },
+          "rebuildMode" : {
+            "type" : "string",
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
           },
           "startTime" : {
             "type" : "string",

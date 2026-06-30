@@ -278,6 +278,7 @@ public class BuildTasksInitializer {
                 .status(org.jboss.pnc.enums.BuildStatus.BUILDING)
                 .temporaryBuild(buildOptions.isTemporaryBuild())
                 .alignmentPreference(buildOptions.getAlignmentPreference())
+                .rebuildMode(buildOptions.getRebuildMode())
                 .build();
 
         final BuildConfigSetRecord configSetRecord;

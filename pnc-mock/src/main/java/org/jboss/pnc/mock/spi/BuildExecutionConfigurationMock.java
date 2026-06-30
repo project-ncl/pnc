@@ -19,6 +19,7 @@
 package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -59,6 +60,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String tempBuildTimestamp;
     private String defaultAlignmentParams;
     private AlignmentPreference alignmentPreference;
+    private RebuildMode rebuildMode;
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
@@ -110,7 +112,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
                 null,
                 false,
                 "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
-                AlignmentPreference.PREFER_PERSISTENT);
+                AlignmentPreference.PREFER_PERSISTENT,
+                RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
     }
 
     @Override
@@ -304,6 +307,15 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setDefaultAlignmentParams(String defaultAlignmentParams) {
         this.defaultAlignmentParams = defaultAlignmentParams;
+    }
+
+    @Override
+    public RebuildMode getRebuildMode() {
+        return rebuildMode;
+    }
+
+    public void setRebuildMode(RebuildMode rebuildMode) {
+        this.rebuildMode = rebuildMode;
     }
 
     @Override

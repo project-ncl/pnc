@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.executor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -80,6 +81,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String defaultAlignmentParams;
 
     private final AlignmentPreference alignmentPreference;
+
+    private final RebuildMode rebuildMode;
 
     @Override
     public Boolean isScmBuildConfigRevisionInternal() {

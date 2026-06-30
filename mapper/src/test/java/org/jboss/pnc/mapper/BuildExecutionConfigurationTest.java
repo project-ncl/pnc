@@ -19,6 +19,7 @@
 package org.jboss.pnc.mapper;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
 import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
 import org.jboss.pnc.common.Configuration;
@@ -104,7 +105,8 @@ public class BuildExecutionConfigurationTest {
                 null,
                 false,
                 "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
-                AlignmentPreference.PREFER_PERSISTENT);
+                AlignmentPreference.PREFER_PERSISTENT,
+                RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = buildExecutionConfigurationMapper
                 .toDTO(buildExecutionConfiguration);
 

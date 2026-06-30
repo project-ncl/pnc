@@ -19,6 +19,7 @@
 package org.jboss.pnc.spi.executor;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.BuildRecord;
@@ -73,4 +74,5 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     AlignmentPreference getAlignmentPreference();
 
+    RebuildMode getRebuildMode();
 }

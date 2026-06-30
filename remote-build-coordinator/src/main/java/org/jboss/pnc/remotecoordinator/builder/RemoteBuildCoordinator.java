@@ -548,6 +548,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 .status(BuildStatus.NEW) // will transition to newStatus in next storeAndNotifyBuildConfigSetRecord
                 .temporaryBuild(buildOptions.isTemporaryBuild())
                 .alignmentPreference(buildOptions.getAlignmentPreference())
+                .rebuildMode(buildOptions.getRebuildMode())
                 .build();
 
         storeAndNotifyBuildConfigSetRecord(buildConfigSetRecord, newStatus, description);
