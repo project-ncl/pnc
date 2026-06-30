@@ -20,5 +20,6 @@
 BEGIN;
 
 ALTER TABLE buildrecord ADD COLUMN rebuildmode varchar(255);
+ALTER TABLE buildconfigsetrecord ADD COLUMN rebuildmode varchar(255);
 
 COMMIT;

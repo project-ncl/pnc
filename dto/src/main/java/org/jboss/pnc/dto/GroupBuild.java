@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildStatus;
 
 import java.time.Instant;
@@ -65,8 +66,9 @@ public class GroupBuild extends GroupBuildRef {
             Instant endTime,
             BuildStatus status,
             Boolean temporaryBuild,
-            AlignmentPreference alignmentPreference) {
-        super(id, startTime, endTime, status, temporaryBuild, alignmentPreference);
+            AlignmentPreference alignmentPreference,
+            RebuildMode rebuildMode) {
+        super(id, startTime, endTime, status, temporaryBuild, alignmentPreference, rebuildMode);
         this.groupConfig = groupConfig;
         this.user = user;
         this.productVersion = productVersion;

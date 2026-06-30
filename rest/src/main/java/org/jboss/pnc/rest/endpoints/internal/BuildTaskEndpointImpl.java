@@ -604,6 +604,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 meta.getAlignmentPreference(),
                 "alignmentPreference",
                 record);
+        comparePrimitiveFields(record.getRebuildMode(), meta.getRebuildMode(), "rebuildMode", record);
         compareFields(
                 record.getBuildConfigurationAuditedIdRev(),
                 meta.getIdRev() == null ? null : new IdRev(meta.getIdRev().getId(), meta.getIdRev().getRev()),
