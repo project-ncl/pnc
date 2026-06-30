@@ -2,10 +2,27 @@
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
   - package-ecosystem: "maven" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # wait after a new release till we create a PR, to reduce risk of pulling
+    # a compromised new version
+    cooldown:
+      default-days: 7
+      # Exclude our own repos from cooldown
+      # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown-
+      exclude:
+        - "org.jboss.da:*"
+        - "org.jboss.pnc*:*"        # match org.jboss.pnc:xyz and org.jboss.pnc.group:xyz
+  - package-ecosystem: "github-actions" # Also update Github actions
+    directory: "/"
+    schedule:
+      # Check for updates to GitHub Actions every week
+      interval: "weekly"
+    # wait after a new release till we create a PR, to reduce risk of pulling
+    # a compromised new version
+    cooldown:
+      default-days: 7
