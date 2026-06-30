@@ -220,6 +220,11 @@ public class Artifact implements GenericEntity<Integer> {
         return new IdentifierSha256(identifier, sha256);
     }
 
+    @Transient
+    public IdentifierSha256TargetRepository getIdentifierSha256TargetRepository() {
+        return new IdentifierSha256TargetRepository(identifier, sha256, targetRepository.getId());
+    }
+
     /**
      * Try to use the {@link Artifact.Builder} instead.
      *
@@ -842,6 +847,58 @@ public class Artifact implements GenericEntity<Integer> {
         public int hashCode() {
             int result = identifier.hashCode();
             result = 31 * result + sha256.hashCode();
+            return result;
+        }
+    }
+
+    public static class IdentifierSha256TargetRepository {
+        private String identifier;
+        private String sha256;
+        private Integer targetRepositoryId;
+
+        public IdentifierSha256TargetRepository(String identifier, String sha256, Integer targetRepositoryId) {
+            this.identifier = identifier;
+            this.sha256 = sha256;
+            this.targetRepositoryId = targetRepositoryId;
+        }
+
+        public String getSha256() {
+            return sha256;
+        }
+
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public Integer getTargetRepositoryId() {
+            return targetRepositoryId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof IdentifierSha256TargetRepository)) {
+                return false;
+            }
+
+            IdentifierSha256TargetRepository that = (IdentifierSha256TargetRepository) o;
+
+            if (!identifier.equals(that.identifier)) {
+                return false;
+            }
+            if (!sha256.equals(that.sha256)) {
+                return false;
+            }
+            return targetRepositoryId.equals(that.targetRepositoryId);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = identifier.hashCode();
+            result = 31 * result + sha256.hashCode();
+            result = 31 * result + targetRepositoryId.hashCode();
             return result;
         }
     }

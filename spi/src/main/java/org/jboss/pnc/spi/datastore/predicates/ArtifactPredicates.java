@@ -34,6 +34,8 @@ import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.DeliverableArtifact_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -45,8 +47,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import org.jboss.pnc.model.TargetRepository_;
 
 import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
 import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
@@ -186,6 +186,24 @@ public class ArtifactPredicates {
                         cb.and(
                                 cb.equal(root.get(Artifact_.identifier), identifierSha256.getIdentifier()),
                                 cb.equal(root.get(Artifact_.sha256), identifierSha256.getSha256())));
+            }
+            return cb.or(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        });
+    }
+
+    public static Predicate<Artifact> withIdentifierAndSha256AndTargetRepository(
+            Iterable<Artifact.IdentifierSha256TargetRepository> identifierSha256TargetRepositorySet) {
+        return ((root, query, cb) -> {
+            Join<Artifact, TargetRepository> targetRepositoryJoin = root.join(Artifact_.targetRepository);
+            List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            for (Artifact.IdentifierSha256TargetRepository idSha256Repo : identifierSha256TargetRepositorySet) {
+                predicates.add(
+                        cb.and(
+                                cb.equal(root.get(Artifact_.identifier), idSha256Repo.getIdentifier()),
+                                cb.equal(root.get(Artifact_.sha256), idSha256Repo.getSha256()),
+                                cb.equal(
+                                        targetRepositoryJoin.get(TargetRepository_.id),
+                                        idSha256Repo.getTargetRepositoryId())));
             }
             return cb.or(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
         });
