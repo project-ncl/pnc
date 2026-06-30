@@ -385,7 +385,9 @@ public class DatastoreTest {
         Assert.assertEquals(3, buildRecord.getBuiltArtifacts().size());
         Assert.assertEquals(2, buildRecord.getDependencies().size());
         Assert.assertEquals(1, buildRecord.getAttachments().size());
-        Assert.assertEquals(5, artifactRepository.queryAll().size());
+        // With targetRepository now part of uniqueness, builtDuplicateArtifact and importedDuplicateArtifact
+        // are stored as separate artifacts (6 total instead of 5)
+        Assert.assertEquals(6, artifactRepository.queryAll().size());
         Assert.assertEquals(1, attachmentRepository.queryAll().size());
 
         Set<Artifact.IdentifierSha256> identifiersAndSha = new HashSet<>();
@@ -395,10 +397,14 @@ public class DatastoreTest {
                         importedDuplicateArtifact.getSha256()));
         List<Artifact> artifactsFromDb = artifactRepository
                 .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(identifiersAndSha));
-        Assert.assertEquals(1, artifactsFromDb.size());
-        Assert.assertEquals(
-                buildsUntestedRepoPath,
-                artifactsFromDb.stream().findFirst().get().getTargetRepository().getRepositoryPath());
+        // Both builtDuplicateArtifact and importedDuplicateArtifact have the same identifier/sha256
+        Assert.assertEquals(2, artifactsFromDb.size());
+        // Verify both target repositories are present
+        Set<String> repoPaths = artifactsFromDb.stream()
+                .map(a -> a.getTargetRepository().getRepositoryPath())
+                .collect(java.util.stream.Collectors.toSet());
+        Assert.assertTrue(repoPaths.contains(buildsUntestedRepoPath));
+        Assert.assertTrue(repoPaths.contains("shared-imports"));
     }
 
     @Test
