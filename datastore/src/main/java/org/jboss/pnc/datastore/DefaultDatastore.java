@@ -154,7 +154,7 @@ public class DefaultDatastore implements Datastore {
         }
 
         Map<TargetRepository.IdentifierPath, TargetRepository> repositoriesCache = new HashMap<>();
-        Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
+        Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache = new HashMap<>();
 
         /**
          * Built artifacts must be saved before the dependencies. In case an artifact is built and the dependency
@@ -222,32 +222,36 @@ public class DefaultDatastore implements Datastore {
     private Set<Artifact> saveArtifacts(
             Collection<Artifact> artifacts,
             Map<TargetRepository.IdentifierPath, TargetRepository> storedTargetRepositories,
-            Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
+            Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache) {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
 
-        Set<Artifact.IdentifierSha256> artifactConstraints = new HashSet<>();
+        fetchOrSaveRequiredTargetRepositories(artifacts, storedTargetRepositories);
+
+        Set<Artifact.IdentifierSha256TargetRepository> artifactConstraints = new HashSet<>();
         for (Artifact artifact : artifacts) {
             // None of the generic proxy artifacts can be in the db because of per-build repos
             if (!isGenericProxy(artifact)) {
-                artifactConstraints.add(new Artifact.IdentifierSha256(artifact.getIdentifier(), artifact.getSha256()));
+                // link managed targetRepository before creating the constraint
+                artifact.setTargetRepository(
+                        storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
+                artifactConstraints.add(artifact.getIdentifierSha256TargetRepository());
             }
         }
 
-        fetchOrSaveRequiredTargetRepositories(artifacts, storedTargetRepositories);
-
         if (artifactConstraints.size() > 0) {
             logger.debug("Searching artifacts by {} constraints.", artifactConstraints.size());
-            Set<Artifact> artifactsInDb = artifactRepository.withIdentifierAndSha256(artifactConstraints);
+            Set<Artifact> artifactsInDb = artifactRepository
+                    .withIdentifierAndSha256AndTargetRepository(artifactConstraints);
             for (Artifact artifact : artifactsInDb) {
                 logger.trace("Found in DB, adding to cache. Artifact {}", artifact);
-                artifactCache.put(artifact.getIdentifierSha256(), artifact);
+                artifactCache.put(artifact.getIdentifierSha256TargetRepository(), artifact);
             }
         }
 
         for (Artifact artifact : artifacts) {
-            // link managed targetRepository
+            // link managed targetRepository (may already be set above for non-generic-proxy artifacts)
             artifact.setTargetRepository(
                     storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
 
@@ -316,9 +320,9 @@ public class DefaultDatastore implements Datastore {
 
     private Artifact getOrSaveRepositoryArtifact(
             Artifact artifact,
-            Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
+            Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache) {
         logger.trace("Saving repository artifact {}.", artifact);
-        Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256());
+        Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256TargetRepository());
 
         if (artifactFromDb == null) {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
@@ -326,6 +330,10 @@ public class DefaultDatastore implements Datastore {
             // Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
             artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
+
+            // Add newly saved artifact to cache to prevent duplicate saves when same artifact
+            // appears in both builtArtifacts and dependencies
+            artifactCache.put(artifactFromDb.getIdentifierSha256TargetRepository(), artifactFromDb);
 
             logger.trace("Saved new artifact {}.", artifactFromDb);
         } else {

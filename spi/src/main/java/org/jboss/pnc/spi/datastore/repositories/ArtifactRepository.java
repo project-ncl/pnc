@@ -33,6 +33,9 @@ public interface ArtifactRepository extends Repository<Artifact, Integer> {
 
     Set<Artifact> withIdentifierAndSha256(Collection<Artifact.IdentifierSha256> identifierSha256Set);
 
+    Set<Artifact> withIdentifierAndSha256AndTargetRepository(
+            Collection<Artifact.IdentifierSha256TargetRepository> identifierSha256TargetRepositorySet);
+
     List<Artifact> withIdentifierAndSha256(String identifier, String sha256);
 
     List<Artifact> withSha256In(Set<String> sha256);
