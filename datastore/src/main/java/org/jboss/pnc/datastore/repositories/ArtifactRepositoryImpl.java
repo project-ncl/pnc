@@ -70,6 +70,20 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
     }
 
     @Override
+    public Set<Artifact> withIdentifierAndSha256AndTargetRepository(
+            Collection<Artifact.IdentifierSha256TargetRepository> identifierSha256TargetRepositorySet) {
+        List<List<Artifact.IdentifierSha256TargetRepository>> partitionedList = Lists
+                .partition(new ArrayList<>(identifierSha256TargetRepositorySet), QUERY_ARTIFACT_PARITION_SIZE);
+        HashSet<Artifact> artifacts = new HashSet<>();
+        for (List<Artifact.IdentifierSha256TargetRepository> partition : partitionedList) {
+            List<Artifact> artifactsInDb = queryWithPredicates(
+                    ArtifactPredicates.withIdentifierAndSha256AndTargetRepository(partition));
+            artifacts.addAll(artifactsInDb);
+        }
+        return artifacts;
+    }
+
+    @Override
     public List<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
         return queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(identifier, sha256));
     }
