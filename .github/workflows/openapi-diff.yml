@@ -39,7 +39,7 @@ jobs:
           fi
       - name: Comment on PR
         if: steps.check-change.outputs.changed == 'yes'
-        uses: mshick/add-pr-comment@v2
+        uses: mshick/add-pr-comment@v3
         with:
           message: |
             # REST API CHANGED
