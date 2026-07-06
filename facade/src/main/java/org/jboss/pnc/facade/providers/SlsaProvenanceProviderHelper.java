@@ -44,9 +44,11 @@ import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import lombok.NoArgsConstructor;
 
@@ -68,6 +70,8 @@ public class SlsaProvenanceProviderHelper {
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
+    private BuildRecordRepository buildRecordRepository;
+
     private BuildMapper buildMapper;
 
     private ArtifactMapper artifactMapper;
@@ -81,14 +85,24 @@ public class SlsaProvenanceProviderHelper {
     public SlsaProvenanceProviderHelper(
             ArtifactRepository artifactRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            BuildRecordRepository buildRecordRepository,
             BuildMapper buildMapper,
             ArtifactMapper artifactMapper,
             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper) {
         this.artifactRepository = artifactRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildRecordRepository = buildRecordRepository;
         this.buildMapper = buildMapper;
         this.artifactMapper = artifactMapper;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
+    }
+
+    public Build getBuildById(String id) {
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildMapper.getIdMapper().toEntity(id));
+        if (buildRecord == null) {
+            throw new NotFoundException();
+        }
+        return buildMapper.toDTO(buildRecord);
     }
 
     public Artifact getArtifactById(String id) {

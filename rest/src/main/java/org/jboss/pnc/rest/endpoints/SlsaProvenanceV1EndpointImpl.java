@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -32,6 +33,7 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 import org.jboss.pnc.common.json.moduleprovider.SlsaConfigProvider;
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.facade.providers.SlsaProvenanceProviderHelper;
 import org.jboss.pnc.rest.api.endpoints.SlsaProvenanceV1Endpoint;
 import org.slf4j.Logger;
@@ -93,8 +95,29 @@ public class SlsaProvenanceV1EndpointImpl implements SlsaProvenanceV1Endpoint {
         return slsaProvenanceProviderHelper.createBuildProvenance(artifact.getBuild(), globalConfig, builderConfig);
     }
 
+    @Override
+    public Provenance getFromBuildId(String id) {
+        Build build = slsaProvenanceProviderHelper.getBuildById(id);
+        if (build == null) {
+            throw notFoundBuild("id", id);
+        }
+
+        Collection<Artifact> builtArtifacts = slsaProvenanceProviderHelper.getAllBuiltArtifacts(build);
+        if (builtArtifacts.isEmpty()) {
+            throw notBuiltInPnc("id", id);
+        }
+
+        return slsaProvenanceProviderHelper.createBuildProvenance(build, globalConfig, builderConfig);
+    }
+
     private static RuntimeException notFound(String prop, String value) {
         String reason = String.format("Artifact with %s: %s not found. %s", prop, value, PROVENANCE_UNAVAILABLE);
+        logger.debug(reason);
+        return new NotFoundException(reason);
+    }
+
+    private static RuntimeException notFoundBuild(String prop, String value) {
+        String reason = String.format("Build with %s: %s not found. %s", prop, value, PROVENANCE_UNAVAILABLE);
         logger.debug(reason);
         return new NotFoundException(reason);
     }

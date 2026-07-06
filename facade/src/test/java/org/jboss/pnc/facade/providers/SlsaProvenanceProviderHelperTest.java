@@ -218,6 +218,32 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
     }
 
     @Test
+    public void testFindBuildById() {
+        org.jboss.pnc.model.BuildRecord buildRecord = org.jboss.pnc.model.BuildRecord.Builder.newBuilder()
+                .id(builtArtifact.getBuildRecord().getId().toString())
+                .build();
+        when(buildRecordRepository.findByIdFetchProperties(builtArtifact.getBuildRecord().getId()))
+                .thenReturn(buildRecord);
+
+        Build found = providerHelper.getBuildById(builtArtifact.getBuildRecord().getId().toString());
+
+        assertNotNull(found);
+        assertThat(found.getId()).isEqualTo(builtArtifact.getBuildRecord().getId().toString());
+    }
+
+    @Test
+    public void testMissBuildById() {
+        when(buildRecordRepository.findByIdFetchProperties(any())).thenReturn(null);
+
+        try {
+            providerHelper.getBuildById("MISSING0BUILD0");
+            fail("Should have thrown not found exception");
+        } catch (Exception ex) {
+            // ok
+        }
+    }
+
+    @Test
     public void testProvenanceCreation() {
 
         // Initialize all the required data to create a provenance
