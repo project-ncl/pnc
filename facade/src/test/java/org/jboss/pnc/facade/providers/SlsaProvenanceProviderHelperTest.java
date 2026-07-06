@@ -42,7 +42,6 @@ import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.ResourceDescriptor;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.RunDetails;
 import org.jboss.pnc.common.Strings;
-import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 import org.jboss.pnc.common.json.moduleconfig.slsa.ProvenanceEntry;
@@ -391,10 +390,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         // Test `predicate`.`runDetails`.`builder`
         Builder slsaBuilder = runDetails.getBuilder();
-        String fixedBuilderId = SlsaProvenanceUtils.extractBaseUrl(slsaBuilder.getId());
-        assertThat(slsaBuilder.getId()).isEqualTo("https://orch-stage.redhat.com");
-        assertThat(slsaBuilder.getId()).isEqualTo(fixedBuilderId);
-
+        assertThat(slsaBuilder.getId()).startsWith("https://github.com/project-ncl/pnc");
         assertThat(slsaBuilder.getVersion().size()).isEqualTo(3);
         assertThat(slsaBuilder.getVersion().containsKey("https://github.com/project-ncl/environment-driver")).isTrue();
         assertThat(slsaBuilder.getVersion().containsKey("https://github.com/project-ncl/kafka-store")).isTrue();

@@ -141,9 +141,10 @@ public class SlsaProvenanceUtils {
                 .finishedOn(pncBuild.getEndTime())
                 .build();
 
+        Map<String, String> componentVersions = createComponentVersionsMap(pncBuild, builderConfig, invokedBodies);
         Builder builder = Builder.newBuilder()
-                .id(createBuilderId(pncBuild, builderConfig, invokedBodies))
-                .version(createComponentVersionsMap(pncBuild, builderConfig, invokedBodies))
+                .id(createBuilderId(pncBuild, builderConfig, invokedBodies, componentVersions))
+                .version(componentVersions)
                 .build();
 
         List<ResourceDescriptor> byproducts = createByproducts(pncBuild, builderConfig, invokedBodies);
@@ -159,6 +160,86 @@ public class SlsaProvenanceUtils {
 
         assertValidProvenance(provenance, false);
         return provenance;
+    }
+
+    private String createBuilderId(
+            Build pncBuild,
+            BuilderConfig builderConfig,
+            Map<String, Optional<String>> invokedBodies,
+            Map<String, String> componentVersions) {
+
+        Optional<String> pncBuilderId = createBuilderIdFromComponentVersion(componentVersions, "pnc");
+        if (pncBuilderId.isPresent()) {
+            return pncBuilderId.get();
+        }
+
+        return createBuilderId(pncBuild, builderConfig, invokedBodies);
+    }
+
+    private Optional<String> createBuilderIdFromComponentVersion(
+            Map<String, String> componentVersions,
+            String componentName) {
+
+        if (componentVersions == null || componentVersions.isEmpty() || Strings.isEmpty(componentName)) {
+            return Optional.empty();
+        }
+
+        return componentVersions.entrySet()
+                .stream()
+                .filter(e -> !Strings.isEmpty(e.getKey()))
+                .filter(e -> !Strings.isEmpty(e.getValue()))
+                .filter(e -> componentVersionNameMatches(e.getKey(), componentName))
+                .findFirst()
+                .map(e -> e.getKey() + "@" + e.getValue());
+    }
+
+    private boolean componentVersionNameMatches(String componentVersionName, String componentName) {
+        if (Strings.isEmpty(componentVersionName) || Strings.isEmpty(componentName)) {
+            return false;
+        }
+
+        if (componentVersionName.equalsIgnoreCase(componentName)) {
+            return true;
+        }
+
+        String normalized = Strings.stripSuffix(componentVersionName.trim(), "/");
+        normalized = Strings.stripSuffix(normalized, ".git");
+
+        String lastPathSegment = extractLastPathSegment(normalized);
+        return componentName.equalsIgnoreCase(lastPathSegment);
+    }
+
+    private String extractLastPathSegment(String value) {
+        if (Strings.isEmpty(value)) {
+            return value;
+        }
+
+        try {
+            URI uri = URI.create(value);
+            String path = uri.getPath();
+            if (!Strings.isEmpty(path)) {
+                return extractLastSlashSegment(path);
+            }
+        } catch (Exception ignored) {
+            // Not a URI, fall back to plain slash-based parsing.
+        }
+
+        return extractLastSlashSegment(value);
+    }
+
+    private String extractLastSlashSegment(String value) {
+        if (Strings.isEmpty(value)) {
+            return value;
+        }
+
+        String normalized = Strings.stripSuffix(value.trim(), "/");
+        int lastSlash = normalized.lastIndexOf('/');
+
+        if (lastSlash < 0 || lastSlash == normalized.length() - 1) {
+            return normalized;
+        }
+
+        return normalized.substring(lastSlash + 1);
     }
 
     /**
