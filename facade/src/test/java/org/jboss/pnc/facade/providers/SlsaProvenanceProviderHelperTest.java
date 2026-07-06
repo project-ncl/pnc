@@ -42,6 +42,7 @@ import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.ResourceDescriptor;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.RunDetails;
 import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 import org.jboss.pnc.common.json.moduleconfig.slsa.ProvenanceEntry;
@@ -271,7 +272,8 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         assertNotNull(repository);
         assertThat(repository.getDigest().containsKey(PROVENANCE_V1_SCM_COMMIT)).isTrue();
         assertThat(repository.getDigest().get(PROVENANCE_V1_SCM_COMMIT)).isEqualTo(build.getScmBuildConfigRevision());
-        assertThat(repository.getUri()).isEqualTo(build.getScmRepository().getExternalUrl());
+        assertThat(repository.getUri())
+                .isEqualTo(SlsaProvenanceUtils.toConformaCompliantGitUri(build.getScmRepository().getExternalUrl()));
     }
 
     @Test
@@ -462,7 +464,8 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         assertNotNull(downstreamRepository);
         assertThat(downstreamRepository.getDigest().containsKey(PROVENANCE_V1_SCM_COMMIT)).isTrue();
         assertThat(downstreamRepository.getDigest().get(PROVENANCE_V1_SCM_COMMIT)).isEqualTo(build.getScmRevision());
-        assertThat(downstreamRepository.getUri()).isEqualTo(build.getScmUrl());
+        assertThat(downstreamRepository.getUri())
+                .isEqualTo(SlsaProvenanceUtils.toConformaCompliantGitUri(build.getScmUrl()));
         assertThat(downstreamRepository.getAnnotations().containsKey(PROVENANCE_V1_SCM_TAG)).isTrue();
         assertThat(downstreamRepository.getAnnotations().get(PROVENANCE_V1_SCM_TAG)).isEqualTo(build.getScmTag());
 
@@ -481,7 +484,9 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         assertThat(env.getAnnotations().get(PROVENANCE_V1_ENVIRONMENT_TAG)).isEqualTo(imageTag);
         assertThat(env.getDigest().get(PROVENANCE_V1_ENVIRONMENT_SHA256)).isEqualTo(imageDigest);
-        assertThat(env.getUri()).isEqualTo(build.getEnvironment().getSystemImageRepositoryUrl() + "/" + imageDigestRef);
+        assertThat(env.getUri()).isEqualTo(
+                SlsaProvenanceUtils.toCustomerCompliantBuildEnvironmentUri(
+                        build.getEnvironment().getSystemImageRepositoryUrl() + "/" + imageDigestRef));
 
         // Test the dependencies
         for (Artifact artifact : dependencyArtifacts) {

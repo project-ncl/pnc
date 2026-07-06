@@ -49,6 +49,7 @@ import org.jboss.pnc.api.slsa.dto.provenance.v1.ResourceDescriptor;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.RunDetails;
 import org.jboss.pnc.common.Json;
 import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig;
 import org.jboss.pnc.common.json.moduleconfig.slsa.ProvenanceEntry;
@@ -204,11 +205,17 @@ public class SlsaProvenanceUtils {
         List<ResourceDescriptor> deps = new ArrayList<ResourceDescriptor>();
         if (!Strings.isEmpty(pncBuild.getScmBuildConfigRevision()) && pncBuild.getScmRepository() != null
                 && !Strings.isEmpty(pncBuild.getScmRepository().getExternalUrl())) {
+
             deps.add(
                     ResourceDescriptor.builder()
                             .name(PROVENANCE_V1_SCM_REPOSITORY)
-                            .digest(Map.of(PROVENANCE_V1_SCM_COMMIT, pncBuild.getScmBuildConfigRevision()))
-                            .uri(pncBuild.getScmRepository().getExternalUrl())
+                            .digest(
+                                    Map.of(
+                                            PROVENANCE_V1_SCM_COMMIT,
+                                            pncBuild.getScmBuildConfigRevision(),
+                                            PROVENANCE_V1_ARTIFACT_SHA1,
+                                            pncBuild.getScmBuildConfigRevision()))
+                            .uri(toConformaCompliantGitUri(pncBuild.getScmRepository().getExternalUrl()))
                             .build());
         }
 
@@ -217,8 +224,13 @@ public class SlsaProvenanceUtils {
             deps.add(
                     ResourceDescriptor.builder()
                             .name(PROVENANCE_V1_SCM_DOWNSTREAM_REPOSITORY)
-                            .digest(Map.of(PROVENANCE_V1_SCM_COMMIT, pncBuild.getScmRevision()))
-                            .uri(pncBuild.getScmUrl())
+                            .digest(
+                                    Map.of(
+                                            PROVENANCE_V1_SCM_COMMIT,
+                                            pncBuild.getScmRevision(),
+                                            PROVENANCE_V1_ARTIFACT_SHA1,
+                                            pncBuild.getScmRevision()))
+                            .uri(toConformaCompliantGitUri(pncBuild.getScmUrl()))
                             .annotations(Map.of(PROVENANCE_V1_SCM_TAG, pncBuild.getScmTag()))
                             .build());
         }
@@ -230,6 +242,25 @@ public class SlsaProvenanceUtils {
 
         deps.addAll(createResourceDescriptors(resolvedArtifacts));
         return deps;
+    }
+
+    public static String toConformaCompliantGitUri(String scmUrl) {
+        String normalizedUrl = Strings.stripSuffix(Urls.keepHostAndPathOnly(scmUrl), ".git");
+        return "git+https://" + normalizedUrl + ".git";
+    }
+
+    public static String toCustomerCompliantBuildEnvironmentUri(String imageUri) {
+        if (Strings.isEmpty(imageUri)) {
+            return imageUri;
+        }
+
+        int firstSlash = imageUri.indexOf('/');
+        if (firstSlash < 0 || firstSlash == imageUri.length() - 1) {
+            return imageUri;
+        }
+
+        String withoutRegistryHost = imageUri.substring(firstSlash + 1);
+        return withoutRegistryHost.replace("/", "_");
     }
 
     private ResourceDescriptor createBuildEnvironmentDescriptor(Environment environment) {
@@ -245,7 +276,9 @@ public class SlsaProvenanceUtils {
 
             return ResourceDescriptor.builder()
                     .name(PROVENANCE_V1_ENVIRONMENT)
-                    .uri(environment.getSystemImageRepositoryUrl() + "/" + imageDigestRef)
+                    .uri(
+                            toCustomerCompliantBuildEnvironmentUri(
+                                    environment.getSystemImageRepositoryUrl() + "/" + imageDigestRef))
                     .digest(Map.of(PROVENANCE_V1_ENVIRONMENT_SHA256, imageDigest))
                     .annotations(annotations)
                     .build();
@@ -254,8 +287,9 @@ public class SlsaProvenanceUtils {
         return ResourceDescriptor.builder()
                 .name(PROVENANCE_V1_ENVIRONMENT)
                 .uri(
-                        pncBuild.getEnvironment().getSystemImageRepositoryUrl() + "/"
-                                + pncBuild.getEnvironment().getSystemImageId())
+                        toCustomerCompliantBuildEnvironmentUri(
+                                pncBuild.getEnvironment().getSystemImageRepositoryUrl() + "/"
+                                        + pncBuild.getEnvironment().getSystemImageId()))
                 .build();
 
     }
