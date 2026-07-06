@@ -23,11 +23,13 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.ResourceDescriptor;
 import org.jboss.pnc.client.ArtifactClient;
+import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.client.SlsaProvenanceV1Client;
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.endpoints.SlsaProvenanceV1EndpointImpl;
@@ -59,6 +61,7 @@ public class SlsaProvenanceEndpointTest {
 
     private static final SecureRandom RANDOM = new SecureRandom();
     private static List<Artifact> builtArtifacts = new ArrayList<>();
+    private static List<Build> builds = new ArrayList<>();
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -73,6 +76,11 @@ public class SlsaProvenanceEndpointTest {
             builtArtifacts = artifacts.getAll().stream().filter(a -> a.getBuild() != null).collect(Collectors.toList());
 
             assertThat(builtArtifacts.isEmpty()).isFalse();
+        }
+
+        try (BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous())) {
+            builds = new ArrayList<>(client.getAll(null, null).getAll());
+            assertThat(builds.isEmpty()).isFalse();
         }
     }
 
@@ -174,6 +182,30 @@ public class SlsaProvenanceEndpointTest {
                     .findFirst()
                     .orElse(null);
             assertNotNull(subject);
+        }
+    }
+
+    @Test
+    public void shouldSendNotFoundByBuildId() throws RemoteResourceException {
+        String randomId = "MISSING0BUILD0";
+        try (SlsaProvenanceV1Client slsaClient = new SlsaProvenanceV1Client(RestClientConfiguration.asUser())) {
+            slsaClient.getFromBuildId(randomId);
+        } catch (RemoteResourceNotFoundException | NotFoundException nfe) {
+            String reason = String.format(
+                    "Build with id: %s not found. %s",
+                    randomId,
+                    SlsaProvenanceV1EndpointImpl.PROVENANCE_UNAVAILABLE);
+            assertThat(nfe.getMessage().equals(reason));
+        }
+    }
+
+    @Test
+    public void shouldProduceProvenanceForBuildId() throws RemoteResourceException {
+        try (SlsaProvenanceV1Client slsaClient = new SlsaProvenanceV1Client(RestClientConfiguration.asUser())) {
+            Provenance provenance = slsaClient.getFromBuildId(builds.get(0).getId());
+            assertThat(provenance).isNotNull();
+            assertThat(provenance.getSubject()).isNotNull();
+            assertThat(provenance.getSubject()).isNotEmpty();
         }
     }
 
