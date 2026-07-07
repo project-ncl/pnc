@@ -58,6 +58,9 @@ public interface SlsaProvenanceV1Endpoint {
     static final String GET_BY_ARTIFACT_ID_DESCR = "Generate the build provenance for an artifact identified by id.";
     static final String GET_BY_ARTIFACT_DIGEST_DESCR = "Generate build provenance for an artifact identified by an algorithm-qualified digest (for example: ?sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef).";
     static final String GET_BY_BUILD_ID_DESCR = "Generate the build provenance for a build identified by id.";
+    static final String GET_BY_ARTIFACT_ID_REDACTED_DESCR = "Generate the redacted build provenance for an artifact identified by id. Internal fields (artifactId, buildId, uri annotations and byproducts) are removed.";
+    static final String GET_BY_ARTIFACT_DIGEST_REDACTED_DESCR = "Generate the redacted build provenance for an artifact identified by an algorithm-qualified digest. Internal fields (artifactId, buildId, uri annotations and byproducts) are removed.";
+    static final String GET_BY_BUILD_ID_REDACTED_DESCR = "Generate the redacted build provenance for a build identified by id. Internal fields (artifactId, buildId, uri annotations and byproducts) are removed.";
     static final String FILTER_SHA256_DESC = "Generate build provenance for an artifact identified by sha256, for example: ?sha256=xxx ";
     static final String FILTER_SHA1_DESC = "Generate build provenance for an artifact identified by sha1, for example: ?sha1=xxx ";
     static final String FILTER_MD5_DESC = "Generate build provenance for an artifact identified by md5, for example: ?md5=xxx ";
@@ -130,5 +133,74 @@ public interface SlsaProvenanceV1Endpoint {
     @GET
     @Path("/builds/id/{id}")
     Provenance getFromBuildId(@Parameter(description = B_ID) @PathParam("id") @NotBlank String id);
+
+    /**
+     * {@value GET_BY_ARTIFACT_ID_REDACTED_DESCR}
+     *
+     * @param id {@value A_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_BY_ARTIFACT_ID_REDACTED_DESCR,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Provenance.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/artifacts/id/{id}/redacted")
+    Provenance getFromArtifactIdRedacted(@Parameter(description = A_ID) @PathParam("id") @NotBlank String id);
+
+    /**
+     * {@value GET_BY_ARTIFACT_DIGEST_REDACTED_DESCR}
+     *
+     * @param digest {@value A_DIGEST}
+     * @return
+     */
+    @Operation(
+            summary = GET_BY_ARTIFACT_DIGEST_REDACTED_DESCR,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Provenance.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/artifacts/redacted")
+    Provenance getFromArtifactDigestRedacted(
+            @Parameter(description = FILTER_SHA256_DESC) @QueryParam("sha256") String sha256,
+            @Parameter(description = FILTER_MD5_DESC) @QueryParam("md5") String md5,
+            @Parameter(description = FILTER_SHA1_DESC) @QueryParam("sha1") String sha1);
+
+    /**
+     * {@value GET_BY_BUILD_ID_REDACTED_DESCR}
+     *
+     * @param id {@value B_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_BY_BUILD_ID_REDACTED_DESCR,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Provenance.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/builds/id/{id}/redacted")
+    Provenance getFromBuildIdRedacted(@Parameter(description = B_ID) @PathParam("id") @NotBlank String id);
 
 }

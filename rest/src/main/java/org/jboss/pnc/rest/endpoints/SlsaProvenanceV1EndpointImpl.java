@@ -110,6 +110,21 @@ public class SlsaProvenanceV1EndpointImpl implements SlsaProvenanceV1Endpoint {
         return slsaProvenanceProviderHelper.createBuildProvenance(build, globalConfig, builderConfig);
     }
 
+    @Override
+    public Provenance getFromArtifactIdRedacted(String id) {
+        return slsaProvenanceProviderHelper.redactProvenance(getFromArtifactId(id));
+    }
+
+    @Override
+    public Provenance getFromArtifactDigestRedacted(String sha256, String md5, String sha1) {
+        return slsaProvenanceProviderHelper.redactProvenance(getFromArtifactDigest(sha256, md5, sha1));
+    }
+
+    @Override
+    public Provenance getFromBuildIdRedacted(String id) {
+        return slsaProvenanceProviderHelper.redactProvenance(getFromBuildId(id));
+    }
+
     private static RuntimeException notFound(String prop, String value) {
         String reason = String.format("Artifact with %s: %s not found. %s", prop, value, PROVENANCE_UNAVAILABLE);
         logger.debug(reason);
