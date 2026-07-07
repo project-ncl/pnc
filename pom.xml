@@ -109,11 +109,11 @@
     <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.42</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
-    <version.pncmetrics>1.1.3</version.pncmetrics>
-    <version.pnc-api>3.5.0</version.pnc-api>
-    <version.pnc-common>3.4.0</version.pnc-common>
+    <version.pncmetrics>1.1.12</version.pncmetrics>
+    <version.pnc-api>3.5.1</version.pnc-api>
+    <version.pnc-common>3.5.2-SNAPSHOT</version.pnc-common>
     <version.rex-api>1.2.3</version.rex-api>
-    <bifrost-client.version>3.5.0</bifrost-client.version>
+    <bifrost-client.version>3.5.1</bifrost-client.version>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
     <version.vertx-core>3.9.14</version.vertx-core>
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
@@ -153,6 +153,8 @@
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.21.2</version.org.jsoup.jsoup>
     <version.org.slf4j>2.0.17</version.org.slf4j>
+    <!-- Override version inherited from jboss-eap-jakartaee8 parent (6.0.23.Final-redhat) to fix CVE -->
+    <version.org.hibernate.validator>6.2.0.Final</version.org.hibernate.validator>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -1161,13 +1163,63 @@
           <version>${version.org.jsoup.jsoup}</version>
       </dependency>
 
-      <!-- Managing vulnerable versions of netty (4.1.84.Final) from vertx (from pnc rest-client) to avoid CVE -->
+      <!--
+        CVE fix: bump transitive dependencies whose parents cannot be bumped without
+        breaking changes.
+        TODO: check and remove when no longer relevant
+      -->
+
+      <!-- 1.76.0.redhat-00001 via keycloak-core and indy-promote-client -->
+      <dependency>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk18on</artifactId>
+          <version>1.84</version>
+      </dependency>
+      <dependency>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcpkix-jdk18on</artifactId>
+          <version>1.84</version>
+      </dependency>
+      <dependency>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcutil-jdk18on</artifactId>
+          <version>1.84</version>
+      </dependency>
+
+      <!-- kafka-clients-3.0.0.redhat-00008 via apicurio-registry-utils-kafka -->
+      <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka-clients</artifactId>
+          <version>3.9.2</version>
+      </dependency>
+
+      <!-- 3.13.0 via apicurio -->
+      <dependency>
+          <groupId>com.google.protobuf</groupId>
+          <artifactId>protobuf-java</artifactId>
+          <version>3.25.5</version>
+      </dependency>
+
+      <!-- guava-30.1.0.redhat-00001 via shrinkwrap-resolver-impl-maven -->
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>32.1.3-jre</version>
+      </dependency>
+
+      <!-- 4.1.77.Final-redhat-00001 via vertx -->
       <dependency>
           <groupId>io.netty</groupId>
           <artifactId>netty-bom</artifactId>
-          <version>4.2.9.Final</version>
+          <version>4.1.135.Final</version>
           <type>pom</type>
           <scope>import</scope>
+      </dependency>
+      <!-- 4.1.77.Final-redhat-00001 via jboss-eap-jakartaee8 parent pom -->
+      <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-handler</artifactId>
+          <version>4.1.135.Final</version>
       </dependency>
 
       <dependency>
