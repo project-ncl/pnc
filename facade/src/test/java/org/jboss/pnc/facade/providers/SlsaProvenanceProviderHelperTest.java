@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -241,6 +242,104 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         } catch (Exception ex) {
             // ok
         }
+    }
+
+    @Test
+    public void testRedactProvenanceRemovesSensitiveAnnotations() {
+        Map<String, Object> annotations = new HashMap<>();
+        annotations.put(PROVENANCE_V1_ARTIFACT_IDENTIFIER, "identifier-value");
+        annotations.put(PROVENANCE_V1_ARTIFACT_PURL, "purl-value");
+        annotations.put(PROVENANCE_V1_ARTIFACT_URI, "uri-value");
+        annotations.put(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID, "artifact-id-value");
+        annotations.put(PROVENANCE_V1_ARTIFACT_BUILD_ID, "build-id-value");
+
+        ResourceDescriptor subject = ResourceDescriptor.builder()
+                .name("artifact.jar")
+                .digest(Map.of(PROVENANCE_V1_ARTIFACT_SHA256, "sha256abc"))
+                .annotations(annotations)
+                .build();
+
+        BuildDefinition buildDef = BuildDefinition.builder()
+                .buildType("maven")
+                .resolvedDependencies(List.of(subject))
+                .build();
+
+        RunDetails runDetails = RunDetails.builder().byproducts(List.of(subject)).build();
+
+        org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate predicate = org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate
+                .builder()
+                .buildDefinition(buildDef)
+                .runDetails(runDetails)
+                .build();
+
+        Provenance provenance = Provenance.builder()
+                .type(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE)
+                .subject(List.of(subject))
+                .predicateType(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE)
+                .predicate(predicate)
+                .build();
+
+        Provenance redacted = providerHelper.redactProvenance(provenance);
+
+        // Subject: only identifier and purl remain
+        assertThat(redacted.getSubject()).hasSize(1);
+        Map<String, Object> redactedSubjectAnnotations = redacted.getSubject().get(0).getAnnotations();
+        assertThat(redactedSubjectAnnotations).containsKey(PROVENANCE_V1_ARTIFACT_IDENTIFIER);
+        assertThat(redactedSubjectAnnotations).containsKey(PROVENANCE_V1_ARTIFACT_PURL);
+        assertThat(redactedSubjectAnnotations).doesNotContainKey(PROVENANCE_V1_ARTIFACT_URI);
+        assertThat(redactedSubjectAnnotations).doesNotContainKey(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID);
+        assertThat(redactedSubjectAnnotations).doesNotContainKey(PROVENANCE_V1_ARTIFACT_BUILD_ID);
+
+        // resolvedDependencies: same keys removed
+        List<ResourceDescriptor> redactedDeps = redacted.getPredicate().getBuildDefinition().getResolvedDependencies();
+        assertThat(redactedDeps).hasSize(1);
+        Map<String, Object> redactedDepAnnotations = redactedDeps.get(0).getAnnotations();
+        assertThat(redactedDepAnnotations).doesNotContainKey(PROVENANCE_V1_ARTIFACT_URI);
+        assertThat(redactedDepAnnotations).doesNotContainKey(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID);
+        assertThat(redactedDepAnnotations).doesNotContainKey(PROVENANCE_V1_ARTIFACT_BUILD_ID);
+
+        // byproducts: empty
+        assertThat(redacted.getPredicate().getRunDetails().getByproducts()).isEmpty();
+    }
+
+    @Test
+    public void testRedactProvenancePreservesDigestAndName() {
+        Map<String, Object> annotations = new HashMap<>();
+        annotations.put(PROVENANCE_V1_ARTIFACT_IDENTIFIER, "my:artifact:1.0");
+        annotations.put(PROVENANCE_V1_ARTIFACT_BUILD_ID, "secret-build-id");
+
+        ResourceDescriptor subject = ResourceDescriptor.builder()
+                .name("my-artifact-1.0.jar")
+                .digest(Map.of(PROVENANCE_V1_ARTIFACT_SHA256, "deadbeef"))
+                .annotations(annotations)
+                .build();
+
+        BuildDefinition buildDef = BuildDefinition.builder().buildType("maven").resolvedDependencies(List.of()).build();
+
+        RunDetails runDetails = RunDetails.builder().byproducts(List.of()).build();
+
+        org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate predicate = org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate
+                .builder()
+                .buildDefinition(buildDef)
+                .runDetails(runDetails)
+                .build();
+
+        Provenance provenance = Provenance.builder()
+                .type(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE)
+                .subject(List.of(subject))
+                .predicateType(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE)
+                .predicate(predicate)
+                .build();
+
+        Provenance redacted = providerHelper.redactProvenance(provenance);
+
+        ResourceDescriptor redactedSubject = redacted.getSubject().get(0);
+        assertThat(redactedSubject.getName()).isEqualTo("my-artifact-1.0.jar");
+        assertThat(redactedSubject.getDigest()).containsKey(PROVENANCE_V1_ARTIFACT_SHA256);
+        assertThat(redactedSubject.getAnnotations()).containsKey(PROVENANCE_V1_ARTIFACT_IDENTIFIER);
+        assertThat(redactedSubject.getAnnotations()).doesNotContainKey(PROVENANCE_V1_ARTIFACT_BUILD_ID);
+        assertThat(redacted.getType()).isEqualTo(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_ATTESTATION_TYPE);
+        assertThat(redacted.getPredicateType()).isEqualTo(SlsaProvenanceUtils.SLSLA_BUILD_PROVENANCE_PREDICATE_TYPE);
     }
 
     @Test

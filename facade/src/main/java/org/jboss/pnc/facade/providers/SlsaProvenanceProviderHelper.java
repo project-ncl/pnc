@@ -21,8 +21,12 @@ import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
@@ -31,7 +35,11 @@ import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.slsa.dto.provenance.v1.BuildDefinition;
+import org.jboss.pnc.api.slsa.dto.provenance.v1.Predicate;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
+import org.jboss.pnc.api.slsa.dto.provenance.v1.ResourceDescriptor;
+import org.jboss.pnc.api.slsa.dto.provenance.v1.RunDetails;
 import org.jboss.pnc.common.http.PNCHttpClient;
 import org.jboss.pnc.common.http.PNCHttpClientConfig;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -52,6 +60,9 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import lombok.NoArgsConstructor;
 
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_ARTIFACT_ID;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_BUILD_ID;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_URI;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
@@ -165,6 +176,82 @@ public class SlsaProvenanceProviderHelper {
                 this::getBodyFromHttpRequest);
 
         return slsaProvenanceUtils.createBuildProvenance();
+    }
+
+    /**
+     * Remove internal fields from a provenance to avoid exposing internal data:
+     * <ul>
+     * <li>{@code artifactId}, {@code buildId}, and {@code uri} annotations are stripped from each subject and each
+     * resolvedDependency {@link ResourceDescriptor}.</li>
+     * <li>The {@code byproducts} list is removed from {@link RunDetails}.</li>
+     * </ul>
+     */
+    public Provenance redactProvenance(Provenance provenance) {
+        Set<String> sensitiveAnnotationKeys = Set
+                .of(PROVENANCE_V1_ARTIFACT_ARTIFACT_ID, PROVENANCE_V1_ARTIFACT_BUILD_ID, PROVENANCE_V1_ARTIFACT_URI);
+
+        List<ResourceDescriptor> redactedSubject = redactDescriptors(provenance.getSubject(), sensitiveAnnotationKeys);
+
+        BuildDefinition original = provenance.getPredicate().getBuildDefinition();
+        List<ResourceDescriptor> redactedResolvedDeps = redactDescriptors(
+                original.getResolvedDependencies(),
+                sensitiveAnnotationKeys);
+
+        BuildDefinition redactedBuildDef = BuildDefinition.builder()
+                .buildType(original.getBuildType())
+                .externalParameters(original.getExternalParameters())
+                .internalParameters(original.getInternalParameters())
+                .resolvedDependencies(redactedResolvedDeps)
+                .build();
+
+        RunDetails originalRunDetails = provenance.getPredicate().getRunDetails();
+        RunDetails redactedRunDetails = RunDetails.builder()
+                .builder(originalRunDetails.getBuilder())
+                .metadata(originalRunDetails.getMetadata())
+                .byproducts(Collections.emptyList())
+                .build();
+
+        Predicate redactedPredicate = Predicate.builder()
+                .buildDefinition(redactedBuildDef)
+                .runDetails(redactedRunDetails)
+                .build();
+
+        return Provenance.builder()
+                .type(provenance.getType())
+                .subject(redactedSubject)
+                .predicateType(provenance.getPredicateType())
+                .predicate(redactedPredicate)
+                .build();
+    }
+
+    private List<ResourceDescriptor> redactDescriptors(List<ResourceDescriptor> descriptors, Set<String> keysToRemove) {
+        if (descriptors == null) {
+            return Collections.emptyList();
+        }
+        return descriptors.stream().map(d -> {
+            // If there are no annotations return the original ResourceDescriptor
+            Map<String, Object> annotations = d.getAnnotations();
+            if (annotations == null || annotations.isEmpty()) {
+                return d;
+            }
+            // If there are no annotations matching the redacted values, return the original ResourceDescriptor
+            if (keysToRemove.stream().noneMatch(annotations::containsKey)) {
+                return d;
+            }
+
+            Map<String, Object> redacted = new HashMap<>(annotations);
+            keysToRemove.forEach(redacted::remove);
+
+            return ResourceDescriptor.builder()
+                    .name(d.getName())
+                    .digest(d.getDigest())
+                    .uri(d.getUri())
+                    .downloadLocation(d.getDownloadLocation())
+                    .mediaType(d.getMediaType())
+                    .content(d.getContent())
+                    .annotations(redacted)
+                    .build();
+        }).collect(Collectors.toList());
     }
 
     public Optional<String> getBodyFromHttpRequest(String url) {

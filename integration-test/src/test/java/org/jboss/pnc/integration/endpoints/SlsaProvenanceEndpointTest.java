@@ -187,7 +187,7 @@ public class SlsaProvenanceEndpointTest {
 
     @Test
     public void shouldSendNotFoundByBuildId() throws RemoteResourceException {
-        String randomId = "MISSING0BUILD0";
+        String randomId = "AV3UX5JTPWQAA";
         try (SlsaProvenanceV1Client slsaClient = new SlsaProvenanceV1Client(RestClientConfiguration.asUser())) {
             slsaClient.getFromBuildId(randomId);
         } catch (RemoteResourceNotFoundException | NotFoundException nfe) {
@@ -206,6 +206,58 @@ public class SlsaProvenanceEndpointTest {
             assertThat(provenance).isNotNull();
             assertThat(provenance.getSubject()).isNotNull();
             assertThat(provenance.getSubject()).isNotEmpty();
+        }
+    }
+
+    @Test
+    public void shouldProduceRedactedProvenanceForArtifactId() throws RemoteResourceException {
+        try (SlsaProvenanceV1Client slsaClient = new SlsaProvenanceV1Client(RestClientConfiguration.asUser())) {
+            Provenance provenance = slsaClient.getFromArtifactIdRedacted(builtArtifacts.get(0).getId());
+            assertThat(provenance).isNotNull();
+            assertThat(provenance.getSubject()).isNotEmpty();
+            provenance.getSubject().forEach(descriptor -> {
+                if (descriptor.getAnnotations() != null) {
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("artifactId");
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("buildId");
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("uri");
+                }
+            });
+            assertThat(provenance.getPredicate().getRunDetails().getByproducts()).isEmpty();
+        }
+    }
+
+    @Test
+    public void shouldProduceRedactedProvenanceForArtifactSha256() throws RemoteResourceException {
+        try (SlsaProvenanceV1Client slsaClient = new SlsaProvenanceV1Client(RestClientConfiguration.asUser())) {
+            Provenance provenance = slsaClient
+                    .getFromArtifactDigestRedacted(builtArtifacts.get(0).getSha256(), null, null);
+            assertThat(provenance).isNotNull();
+            assertThat(provenance.getSubject()).isNotEmpty();
+            provenance.getSubject().forEach(descriptor -> {
+                if (descriptor.getAnnotations() != null) {
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("artifactId");
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("buildId");
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("uri");
+                }
+            });
+            assertThat(provenance.getPredicate().getRunDetails().getByproducts()).isEmpty();
+        }
+    }
+
+    @Test
+    public void shouldProduceRedactedProvenanceForBuildId() throws RemoteResourceException {
+        try (SlsaProvenanceV1Client slsaClient = new SlsaProvenanceV1Client(RestClientConfiguration.asUser())) {
+            Provenance provenance = slsaClient.getFromBuildIdRedacted(builds.get(0).getId());
+            assertThat(provenance).isNotNull();
+            assertThat(provenance.getSubject()).isNotEmpty();
+            provenance.getSubject().forEach(descriptor -> {
+                if (descriptor.getAnnotations() != null) {
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("artifactId");
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("buildId");
+                    assertThat(descriptor.getAnnotations()).doesNotContainKey("uri");
+                }
+            });
+            assertThat(provenance.getPredicate().getRunDetails().getByproducts()).isEmpty();
         }
     }
 
