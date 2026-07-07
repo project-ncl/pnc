@@ -10115,11 +10115,147 @@
         }
       }
     },
+    "/slsa/build-provenance/v1/artifacts/id/{id}/redacted" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate the redacted build provenance for an artifact identified by id. Internal fields (artifactId, buildId, uri annotations and byproducts) are removed.",
+        "operationId" : "getFromArtifactIdRedacted",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the artifact",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slsa/build-provenance/v1/artifacts/redacted" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate the redacted build provenance for an artifact identified by an algorithm-qualified digest. Internal fields (artifactId, buildId, uri annotations and byproducts) are removed.",
+        "operationId" : "getFromArtifactDigestRedacted",
+        "parameters" : [ {
+          "name" : "sha256",
+          "in" : "query",
+          "description" : "Generate build provenance for an artifact identified by sha256, for example: ?sha256=xxx ",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "md5",
+          "in" : "query",
+          "description" : "Generate build provenance for an artifact identified by md5, for example: ?md5=xxx ",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sha1",
+          "in" : "query",
+          "description" : "Generate build provenance for an artifact identified by sha1, for example: ?sha1=xxx ",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/slsa/build-provenance/v1/builds/id/{id}" : {
       "get" : {
         "tags" : [ "Slsa Provenance" ],
         "summary" : "Generate the build provenance for a build identified by id.",
         "operationId" : "getFromBuildId",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provenance"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Can not find specified result"
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slsa/build-provenance/v1/builds/id/{id}/redacted" : {
+      "get" : {
+        "tags" : [ "Slsa Provenance" ],
+        "summary" : "Generate the redacted build provenance for a build identified by id. Internal fields (artifactId, buildId, uri annotations and byproducts) are removed.",
+        "operationId" : "getFromBuildIdRedacted",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
