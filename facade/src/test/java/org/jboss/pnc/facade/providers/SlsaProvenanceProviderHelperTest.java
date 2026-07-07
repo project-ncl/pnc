@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.api.enums.slsa.BuildSystem;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.BuildDefinition;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Builder;
@@ -755,6 +756,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .status(BuildStatus.SUCCESS)
                 .submitTime(Instant.now().minus(8, ChronoUnit.MINUTES))
                 .temporaryBuild(false)
+                .rebuildMode(RebuildMode.FORCE)
                 .user(buildConfigRevision.getCreationUser())
                 .build();
 
