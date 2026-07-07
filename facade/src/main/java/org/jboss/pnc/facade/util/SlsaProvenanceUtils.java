@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -389,17 +390,17 @@ public class SlsaProvenanceUtils {
         mergedParameters.put(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE, String.valueOf(rev.isBrewPullActive()));
 
         // Build details map with all relevant metadata
-        Map<String, Object> buildDetails = Map.of(
-                PROVENANCE_V1_BUILD_DETAILS_TYPE,
-                rev.getBuildType().toString(),
-                PROVENANCE_V1_BUILD_DETAILS_TEMPORARY,
-                String.valueOf(pncBuild.getTemporaryBuild()),
-                PROVENANCE_V1_BUILD_DETAILS_SCRIPT,
-                rev.getBuildScript(),
-                PROVENANCE_V1_BUILD_DETAILS_NAME,
-                rev.getName(),
-                PROVENANCE_V1_BUILD_DETAILS_PARAMETERS,
-                mergedParameters);
+        Map<String, Object> buildDetails = new LinkedHashMap<>();
+
+        buildDetails.put(PROVENANCE_V1_BUILD_DETAILS_TYPE, rev.getBuildType().toString());
+        buildDetails.put(PROVENANCE_V1_BUILD_DETAILS_TEMPORARY, String.valueOf(pncBuild.getTemporaryBuild()));
+        buildDetails.put(PROVENANCE_V1_BUILD_DETAILS_SCRIPT, rev.getBuildScript());
+        buildDetails.put(PROVENANCE_V1_BUILD_DETAILS_NAME, rev.getName());
+        buildDetails.put(PROVENANCE_V1_BUILD_DETAILS_PARAMETERS, mergedParameters);
+
+        if (pncBuild.getRebuildMode() != null) {
+            buildDetails.put("rebuildMode", pncBuild.getRebuildMode().toString());
+        }
 
         return Map.of(
                 PROVENANCE_V1_BUILD,
