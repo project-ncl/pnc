@@ -153,6 +153,8 @@
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.21.2</version.org.jsoup.jsoup>
     <version.org.slf4j>2.0.17</version.org.slf4j>
+    <!-- Override version inherited from jboss-eap-jakartaee8 parent (6.0.23.Final-redhat) to fix CVE -->
+    <version.org.hibernate.validator>6.2.0.Final</version.org.hibernate.validator>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
