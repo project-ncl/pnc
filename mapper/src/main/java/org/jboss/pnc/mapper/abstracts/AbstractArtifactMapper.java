@@ -30,6 +30,7 @@ import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.MapperCentralConfig;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
+import org.jboss.pnc.common.log.LogSanitizer;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeforeMapping;
@@ -89,7 +90,9 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
         }
         TargetRepository targetRepository = artifactDB.getTargetRepository();
         if (targetRepository == null) {
-            logger.error("Artifact DB object does not have target repository set: {}", artifactDB);
+            logger.error(
+                    "Artifact DB object does not have target repository set: {}",
+                    LogSanitizer.clean(artifactDB.toString()));
             return;
         }
         RepositoryType repositoryType = targetRepository.getRepositoryType();
