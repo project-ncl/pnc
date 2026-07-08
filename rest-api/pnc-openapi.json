@@ -7,7 +7,7 @@
       "name" : "Apache 2.0",
       "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "3.5.5-SNAPSHOT"
+    "version" : "3.5.6-SNAPSHOT"
   },
   "servers" : [ {
     "url" : "/pnc-rest",
@@ -223,7 +223,7 @@
             "type" : "array",
             "items" : {
               "type" : "string",
-              "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+              "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
             }
           }
         } ],
@@ -10858,7 +10858,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10932,7 +10932,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
           },
           "id" : {
             "type" : "string"
@@ -11010,7 +11010,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+            "enum" : [ "STANDARD", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
           },
           "id" : {
             "type" : "string"
