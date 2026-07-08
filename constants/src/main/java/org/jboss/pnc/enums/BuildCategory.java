@@ -41,4 +41,8 @@ public enum BuildCategory {
      * The build is built to be used for Project Lightwell upstream (no suffix) only
      */
     LIGHTWELL_UPSTREAM,
+    /**
+     * The build is built to be used for Project Lightwell Novel builds only.
+     */
+    LIGHTWELL_NOVEL,
 }
