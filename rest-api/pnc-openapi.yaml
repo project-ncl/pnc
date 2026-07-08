@@ -183,6 +183,7 @@ paths:
             - SERVICE
             - LIGHTWELL
             - LIGHTWELL_UPSTREAM
+            - LIGHTWELL_NOVEL
       responses:
         "200":
           description: Success with results
@@ -7625,6 +7626,7 @@ components:
           - SERVICE
           - LIGHTWELL
           - LIGHTWELL_UPSTREAM
+          - LIGHTWELL_NOVEL
         creationTime:
           type: string
           format: date-time
@@ -7689,6 +7691,7 @@ components:
           - SERVICE
           - LIGHTWELL
           - LIGHTWELL_UPSTREAM
+          - LIGHTWELL_NOVEL
         id:
           type: string
         identifier:
@@ -7764,6 +7767,7 @@ components:
           - SERVICE
           - LIGHTWELL
           - LIGHTWELL_UPSTREAM
+          - LIGHTWELL_NOVEL
         id:
           type: string
         modificationTime:
