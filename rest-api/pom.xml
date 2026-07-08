@@ -227,6 +227,14 @@
               <configuration>
                   <rules>
                       <jakartaDefaults>true</jakartaDefaults>
+                      <renames>
+                          <!-- Jackson JAXRS package in the rename file is not migrated by default -->
+                          <rename>src/main/resources/extra-jakarta-renames.properties</rename>
+
+                          <!-- The above^^ rename removed jakarta rename so they have to be explicitly re-added -->
+                          <!-- https://github.com/eclipse-transformer/transformer/blob/c95cdb65631844b3859e51d4de1aa0cd721596da/org.eclipse.transformer.jakarta/src/main/resources/org/eclipse/transformer/jakarta/jakarta-renames.properties -->
+                          <rename>jakarta-renames.properties</rename>
+                      </renames>
                   </rules>
               </configuration>
               <executions>
