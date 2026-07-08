@@ -223,7 +223,7 @@
             "type" : "array",
             "items" : {
               "type" : "string",
-              "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+              "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
             }
           }
         } ],
@@ -10889,7 +10889,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+            "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -10963,7 +10963,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+            "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
           },
           "id" : {
             "type" : "string"
@@ -11041,7 +11041,7 @@
           },
           "buildCategory" : {
             "type" : "string",
-            "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM" ]
+            "enum" : [ "STANDARD", "LEGACY_REDHAT", "SERVICE", "LIGHTWELL", "LIGHTWELL_UPSTREAM", "LIGHTWELL_NOVEL" ]
           },
           "id" : {
             "type" : "string"
