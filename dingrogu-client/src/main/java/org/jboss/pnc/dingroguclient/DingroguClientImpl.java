@@ -133,6 +133,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .buildDriverUrl(global.getExternalBuildDriverUrl())
                 .environmentDriverUrl(global.getExternalEnvironmentDriverUrl())
                 .bifrostUrl(global.getExternalBifrostUrl())
+                .orchUrl(global.getPncUrl())
                 .scmRepoURL(buildTask.getBuildConfigurationAudited().getRepositoryConfiguration().getInternalUrl())
                 .scmRevision(buildTask.getBuildConfigurationAudited().getScmRevision())
                 .preBuildSyncEnabled(
@@ -157,6 +158,7 @@ public class DingroguClientImpl implements DingroguClient {
                 .environmentImage(getEnvironmentImage(buildTask.getBuildConfigurationAudited().getBuildEnvironment()))
                 .environmentLabel(buildTask.getId())
                 .debugEnabled(buildTask.getBuildOptions().isKeepPodOnFailure())
+                .environmentParameters(buildTask.getBuildConfigurationAudited().getBuildEnvironment().getAttributes())
                 .build();
     }
 
