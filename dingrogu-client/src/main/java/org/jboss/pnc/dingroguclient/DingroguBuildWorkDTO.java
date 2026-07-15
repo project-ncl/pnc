@@ -40,6 +40,7 @@ public class DingroguBuildWorkDTO {
     String buildDriverUrl;
     String environmentDriverUrl;
     String bifrostUrl;
+    String orchUrl;
 
     String scmRepoURL;
     String scmRevision;
@@ -64,4 +65,5 @@ public class DingroguBuildWorkDTO {
 
     String buildScript;
     String podMemoryOverride;
+    Map<String, String> environmentParameters;
 }
