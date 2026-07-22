@@ -351,10 +351,12 @@ public class DatastoreAdapter {
             }
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTaskRef.getId());
-            userLog.info("Successfully completed.");
             BuildRecord buildRecord = datastore
                     .storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies, attachments);
             uploadLogs(errorLog.toString(), findOrCreateErrorLog(buildRecord), buildRecord);
+
+            // print the log after everything is tored in the db and logs uploaded
+            userLog.info("Successfully completed.");
             return buildRecord;
         } catch (Exception e) {
             return storeResult(buildTaskRef, Optional.of(buildResult), e);
