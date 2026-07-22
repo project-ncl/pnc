@@ -24,6 +24,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -387,6 +389,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         Map<String, Object> externalParams = buildDefinition.getExternalParameters();
         Map<String, Object> scmParams = (Map<String, Object>) externalParams.get(PROVENANCE_V1_SCM_REPOSITORY);
         assertThat(scmParams.get(PROVENANCE_V1_URI)).isEqualTo(build.getScmRepository().getExternalUrl());
+
         List<ResourceDescriptor> resolvedDependencies = buildDefinition.getResolvedDependencies();
 
         // Test `repository`
@@ -556,6 +559,8 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
                 .get(PROVENANCE_V1_BUILD_DETAILS_PARAMETERS);
         assertThat(mergedParams.get(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE))
                 .isEqualTo(String.valueOf(buildConfigRevision.isBrewPullActive()));
+        assertThat(mergedParams.get("BUILD_CATEGORY"))
+                .isEqualTo(org.jboss.pnc.api.enums.BuildCategory.STANDARD.toString());
 
         // Test `predicate`.`buildDefinition`.`externalParameters`.`environment`
         assertThat(externalParams.containsKey(PROVENANCE_V1_ENVIRONMENT)).isTrue();
@@ -606,9 +611,19 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         assertThat(env.getAnnotations().get(PROVENANCE_V1_ENVIRONMENT_TAG)).isEqualTo(imageTag);
         assertThat(env.getDigest().get(PROVENANCE_V1_ENVIRONMENT_SHA256)).isEqualTo(imageDigest);
-        assertThat(env.getUri()).isEqualTo(
-                SlsaProvenanceUtils.toCustomerCompliantBuildEnvironmentUri(
-                        build.getEnvironment().getSystemImageRepositoryUrl() + "/" + imageDigestRef));
+
+        String buildEnvURI = SlsaProvenanceUtils.toCustomerCompliantBuildEnvironmentUri(
+                build.getEnvironment().getSystemImageRepositoryUrl() + "/" + imageDigestRef);
+        assertThat(env.getUri()).isEqualTo(buildEnvURI);
+
+        try {
+            URI uri = new URI(buildEnvURI);
+            assertThat(uri.isAbsolute()).isTrue();
+            assertThat(uri.getScheme()).isEqualTo("urn");
+            assertThat(uri.getRawSchemeSpecificPart()).startsWith("pnc:env:");
+        } catch (URISyntaxException e) {
+            fail(buildEnvURI + " should be a valid URI");
+        }
 
         // Test the dependencies
         for (Artifact artifact : dependencyArtifacts) {
