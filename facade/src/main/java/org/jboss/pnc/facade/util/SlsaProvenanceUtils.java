@@ -39,7 +39,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.dto.ComponentVersion;
+import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.slsa.BuildSystem;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.BuildDefinition;
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Builder;
@@ -342,7 +344,7 @@ public class SlsaProvenanceUtils {
         }
 
         String withoutRegistryHost = imageUri.substring(firstSlash + 1);
-        return withoutRegistryHost.replace("/", "_");
+        return "urn:pnc:env:" + withoutRegistryHost.replace("/", "_");
     }
 
     private ResourceDescriptor createBuildEnvironmentDescriptor(Environment environment) {
@@ -388,6 +390,10 @@ public class SlsaProvenanceUtils {
                         .filter(e -> e.getKey() != null && e.getValue() != null)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         mergedParameters.put(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE, String.valueOf(rev.isBrewPullActive()));
+        // If not specified explicitly, it is implicitly the default STANDARD Build Category
+        mergedParameters.putIfAbsent(
+                BuildConfigurationParameterKeys.BUILD_CATEGORY.toString(),
+                BuildCategory.STANDARD.toString());
 
         // Build details map with all relevant metadata
         Map<String, Object> buildDetails = new LinkedHashMap<>();
