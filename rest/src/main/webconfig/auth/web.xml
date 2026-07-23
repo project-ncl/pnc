@@ -88,11 +88,4 @@
             <http-method>GET</http-method>
         </web-resource-collection>
     </security-constraint>
-
-    <session-config>
-        <cookie-config>
-            <http-only>true</http-only>
-            <secure>true</secure>
-        </cookie-config>
-    </session-config>
 </web-app>
