@@ -39,6 +39,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.remotecoordinator.BuildCoordinationException;
+import org.jboss.pnc.remotecoordinator.ConflictingArtifactException;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -279,7 +280,7 @@ public class DatastoreAdapter {
                     return storeResult(
                             buildTaskRef,
                             Optional.of(buildResult),
-                            new BuildCoordinationException(
+                            new ConflictingArtifactException(
                                     "Trying to store success build with invalid repository manager result. Conflicting artifact data found: "
                                             + builtConflicts.toString()));
                 }
@@ -366,7 +367,14 @@ public class DatastoreAdapter {
     public BuildRecord storeResult(BuildTaskRef buildTask, Optional<BuildResult> buildResult, Throwable e)
             throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
-        buildRecordBuilder.status(SYSTEM_ERROR);
+
+        final BuildStatus buildStatus;
+        if (e instanceof ConflictingArtifactException) {
+            buildStatus = FAILED;
+        } else {
+            buildStatus = SYSTEM_ERROR;
+        }
+        buildRecordBuilder.status(buildStatus);
 
         StringBuilder errorLog = new StringBuilder();
 
