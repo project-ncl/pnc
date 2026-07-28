@@ -42,10 +42,12 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "modificationTime", source = "lastModificationTime")
-    @Mapping(target = "parameters", source = "genericParameters")
+    @Mapping(
+            target = "parameters",
+            expression = "java( BuildConfigurationParametersUtils.withDefaults(dbEntity.getGenericParameters()) )")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration", "genericParameters" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
 
     @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)

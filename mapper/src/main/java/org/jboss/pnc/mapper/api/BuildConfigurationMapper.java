@@ -83,12 +83,14 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "scmRepository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
-    @Mapping(target = "parameters", source = "genericParameters")
+    @Mapping(
+            target = "parameters",
+            expression = "java( BuildConfigurationParametersUtils.withDefaults(dbEntity.getGenericParameters()) )")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
-                    "currentProductMilestone" })
+                    "currentProductMilestone", "genericParameters" })
     org.jboss.pnc.dto.BuildConfiguration toDTO(BuildConfiguration dbEntity);
 
     public static class IDMapper {

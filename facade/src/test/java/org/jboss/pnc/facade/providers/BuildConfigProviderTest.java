@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.assertj.core.api.Condition;
+import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.SCMRepository;
@@ -49,12 +50,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.mapper.BuildConfigurationParametersUtils.BUILD_CATEGORY_KEY;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -148,6 +151,44 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
         assertThat(stored.getScmRepository().getId()).isEqualTo(repoId);
         assertThat(stored.getBrewPullActive()).isEqualTo(Boolean.TRUE);
 
+    }
+
+    @Test
+    public void testGetSpecificFillsInDefaultBuildCategory() {
+        // With
+        assertThat(bc.getGenericParameters()).doesNotContainKey(BUILD_CATEGORY_KEY);
+
+        // When
+        org.jboss.pnc.dto.BuildConfiguration buildConfiguration = provider.getSpecific(bc.getId().toString());
+
+        // Then
+        assertThat(buildConfiguration.getParameters()).containsEntry(BUILD_CATEGORY_KEY, BuildCategory.STANDARD.name());
+    }
+
+    @Test
+    public void testGetSpecificKeepsExplicitBuildCategory() {
+        // With
+        bc.setGenericParameters(Collections.singletonMap(BUILD_CATEGORY_KEY, BuildCategory.SERVICE.name()));
+
+        // When
+        org.jboss.pnc.dto.BuildConfiguration buildConfiguration = provider.getSpecific(bc.getId().toString());
+
+        // Then
+        assertThat(buildConfiguration.getParameters()).containsEntry(BUILD_CATEGORY_KEY, BuildCategory.SERVICE.name());
+    }
+
+    @Test
+    public void testGetRevisionFillsInDefaultBuildCategory() {
+        // With
+        final Integer revision = 1;
+        BuildConfigurationAudited bca = BuildConfigurationAudited.fromBuildConfiguration(bc, revision);
+        when(buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), revision))).thenReturn(bca);
+
+        // When
+        BuildConfigurationRevision bcr = provider.getRevision(bc.getId().toString(), revision);
+
+        // Then
+        assertThat(bcr.getParameters()).containsEntry(BUILD_CATEGORY_KEY, BuildCategory.STANDARD.name());
     }
 
     // FIXME unignore after NCL-5114 is implemented
