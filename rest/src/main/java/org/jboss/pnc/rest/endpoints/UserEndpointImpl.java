@@ -96,7 +96,10 @@ public class UserEndpointImpl implements UserEndpoint {
             }
 
             String endPart = urlToRedirect.length == 3 ? urlToRedirect[2] : "/";
-            String absoluteUrl = scheme + "://" + serverName + "/" + endPart;
+            String absoluteUrl = buildRedirectUrl(scheme, serverName, endPart);
+            if (absoluteUrl == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid port in redirect URL").build();
+            }
             return Response.status(Response.Status.FOUND).location(URI.create(absoluteUrl)).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity("Redirect path contains an invalid url").build();
@@ -210,7 +213,7 @@ public class UserEndpointImpl implements UserEndpoint {
             }
 
             String endPart = urlToRedirect.length == 3 ? urlToRedirect[2] : "/";
-            return scheme + "://" + serverName + "/" + endPart;
+            return buildRedirectUrl(scheme, serverName, endPart);
         }
 
         return null;
@@ -334,6 +337,31 @@ public class UserEndpointImpl implements UserEndpoint {
         } else {
             return scheme + "://" + serverName + ":" + serverPort + path;
         }
+    }
+
+    private String buildRedirectUrl(String scheme, String serverName, String path) {
+        String host;
+        int port = -1;
+        int colonIndex = serverName.indexOf(':');
+        if (colonIndex >= 0) {
+            host = serverName.substring(0, colonIndex);
+            try {
+                port = Integer.parseInt(serverName.substring(colonIndex + 1));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            if (port < 1 || port > 65535) {
+                return null;
+            }
+        } else {
+            host = serverName;
+        }
+
+        boolean isDefaultPort = (scheme.equals("http") && port == 80) || (scheme.equals("https") && port == 443);
+        if (port > 0 && !isDefaultPort) {
+            return scheme + "://" + host + ":" + port + "/" + path;
+        }
+        return scheme + "://" + host + "/" + path;
     }
 
     private boolean isAllowedRedirectHost(String targetHost) {
