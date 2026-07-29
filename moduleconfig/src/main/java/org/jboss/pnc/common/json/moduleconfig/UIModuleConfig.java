@@ -26,7 +26,10 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 
 import javax.ws.rs.DefaultValue;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,9 +50,13 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
     private final Map<String, String> grafana;
+    private final List<String> allowedRedirectHosts;
 
     // all toplevel key/values which are not specified in constructor
     private final Map<String, Object> unspecifiedFields;
+
+    private static final List<String> DEFAULT_ALLOWED_REDIRECT_HOSTS = Collections
+            .unmodifiableList(Arrays.asList("localhost", "127.0.0.1"));
 
     public UIModuleConfig(
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
@@ -58,7 +65,8 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("userSupportUrl") String userSupportUrl,
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak,
-            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
+            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana,
+            @JsonProperty("allowedRedirectHosts") List<String> allowedRedirectHosts) {
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.bifrostWsUrl = bifrostWsUrl;
         this.userGuideUrl = userGuideUrl;
@@ -66,6 +74,8 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); // default to 24h
         this.keycloak = keycloak;
         this.grafana = grafana;
+        this.allowedRedirectHosts = allowedRedirectHosts != null ? allowedRedirectHosts
+                : DEFAULT_ALLOWED_REDIRECT_HOSTS;
         this.unspecifiedFields = new HashMap<>();
     }
 
@@ -117,6 +127,11 @@ public class UIModuleConfig extends AbstractModuleConfig {
     @JsonProperty("grafana")
     public Map<String, String> getGrafana() {
         return grafana;
+    }
+
+    @JsonProperty("allowedRedirectHosts")
+    public List<String> getAllowedRedirectHosts() {
+        return allowedRedirectHosts;
     }
 
     @JsonAnyGetter
