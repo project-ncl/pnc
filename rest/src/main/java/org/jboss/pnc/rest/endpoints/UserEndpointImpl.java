@@ -18,9 +18,12 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.auth.OidcDiscoveryService;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.Page;
@@ -42,6 +45,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @ApplicationScoped
 public class UserEndpointImpl implements UserEndpoint {
@@ -59,6 +63,20 @@ public class UserEndpointImpl implements UserEndpoint {
 
     @Inject
     private OidcDiscoveryService oidcDiscoveryService;
+
+    private List<String> allowedRedirectHosts;
+
+    @Inject
+    public void loadUIModuleConfig(Configuration configuration) {
+        try {
+            UIModuleConfig uiModuleConfig = configuration
+                    .getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
+            this.allowedRedirectHosts = uiModuleConfig.getAllowedRedirectHosts();
+        } catch (ConfigurationParseException e) {
+            logger.warn("Unable to load UIModuleConfig, using default allowed redirect hosts", e);
+            this.allowedRedirectHosts = List.of("localhost", "127.0.0.1");
+        }
+    }
 
     @Context
     private HttpServletRequest servletRequest;
@@ -375,12 +393,7 @@ public class UserEndpointImpl implements UserEndpoint {
             return true;
         }
 
-        // Allow localhost and 127.0.0.1
-        if (targetHostWithoutPort.equals("localhost") || targetHostWithoutPort.equals("127.0.0.1")) {
-            return true;
-        }
-
-        return false;
+        return allowedRedirectHosts.contains(targetHostWithoutPort);
     }
 
     @Override
