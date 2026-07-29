@@ -26,6 +26,7 @@ import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
