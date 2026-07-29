@@ -23,6 +23,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
+import java.util.Map;
+
 @ToString
 public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
@@ -37,11 +39,19 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     private Integer defaultRequestTimeout = 600;
 
     /**
-     * Name of the target repo to which the build repo of a successful TEMPORARY build should be promoted.
+     * Mapping of {@code BuildCategory} name to the Indy hosted repo used as the temp build promotion target. Keys are
+     * build category names (e.g. {@code "STANDARD"}, {@code "SERVICE"}).
      */
     @Getter
     @Setter
     @JsonProperty(required = false)
-    private String tempBuildPromotionTarget = "temporary-builds";
+    private Map<String, String> tempBuildPromotionTargets = Map.of();
+
+    public String getTempBuildPromotionTarget(String buildCategory) {
+        if (buildCategory != null && tempBuildPromotionTargets != null) {
+            return tempBuildPromotionTargets.get(buildCategory);
+        }
+        return null;
+    }
 
 }
