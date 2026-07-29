@@ -36,6 +36,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -53,6 +54,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_GENERIC_HTTP;
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
@@ -74,7 +76,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private final BuildPushOperationRepository buildPushOperationRepository;
 
-    private final String tempBuildPromotionGroup;
+    private final IndyRepoDriverModuleConfig indyRepoDriverConfig;
 
     @Inject
     public DefaultRemoteBuildsCleaner(
@@ -88,15 +90,14 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         this.causewayClient = causewayClient;
         this.buildPushOperationRepository = buildPushOperationRepository;
 
-        IndyRepoDriverModuleConfig config;
         try {
-            config = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+            this.indyRepoDriverConfig = configuration
+                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException(
                     "Cannot read configuration for " + IndyRepoDriverModuleConfig.class.getName() + ".",
                     e);
         }
-        this.tempBuildPromotionGroup = config.getTempBuildPromotionTarget();
     }
 
     @Override
@@ -152,7 +153,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                 // delete artifacts from consolidated repository
                 // (failed builds are not promoted and don't have artifacts in consolidated repository)
                 if (buildRecord.getStatus().completedSuccessfully()) {
-                    StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionGroup);
+                    String tempBuildPromotionTarget = resolveTempBuildPromotionTarget(buildRecord);
+                    StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionTarget);
 
                     BatchDeleteRequest request = new BatchDeleteRequest();
                     request.setTrackingID(buildContentId);
@@ -196,6 +198,18 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             IOUtils.closeQuietly(indy);
         }
         return result;
+    }
+
+    private String resolveTempBuildPromotionTarget(BuildRecord buildRecord) {
+        Map<String, String> genericParameters = buildRecord.getBuildConfigurationAudited().getGenericParameters();
+        String buildCategory = null;
+        if (genericParameters != null) {
+            buildCategory = genericParameters.get(BuildConfigurationParameterKeys.BUILD_CATEGORY.name());
+        }
+        if (buildCategory == null) {
+            buildCategory = "STANDARD";
+        }
+        return indyRepoDriverConfig.getTempBuildPromotionTarget(buildCategory);
     }
 
     /**
