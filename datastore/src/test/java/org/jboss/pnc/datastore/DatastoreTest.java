@@ -287,10 +287,13 @@ public class DatastoreTest {
                 .targetRepository(differentTargetRepository)
                 .build();
 
-        Map<Artifact, String> conflicts = datastore
-                .checkForBuiltArtifacts(List.of(sameRepositoryArtifact, differentRepositoryArtifact));
+        Map<Artifact, String> sameRepositoryConflicts = datastore
+                .checkForBuiltArtifacts(List.of(sameRepositoryArtifact));
+        Map<Artifact, String> differentRepositoryConflicts = datastore
+                .checkForBuiltArtifacts(List.of(differentRepositoryArtifact));
 
-        assertThat(conflicts).containsKey(sameRepositoryArtifact).doesNotContainKey(differentRepositoryArtifact);
+        assertThat(sameRepositoryConflicts).containsKey(sameRepositoryArtifact);
+        assertThat(differentRepositoryConflicts).isEmpty();
     }
 
     /**

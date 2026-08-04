@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.datastore;
 
-import com.google.common.collect.Lists;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -112,31 +111,24 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
-        Map<RepositoryType, Map<String, List<Artifact>>> repoTypes = new HashMap<>();
+        Map<RepositoryType, Map<String, Artifact>> repoTypes = new HashMap<>();
         for (Artifact artifact : artifacts) {
             RepositoryType repoType = artifact.getTargetRepository().getRepositoryType();
-            repoTypes.computeIfAbsent(repoType, ignored -> new HashMap<>())
-                    .computeIfAbsent(artifact.getIdentifier(), ignored -> Lists.newArrayList())
-                    .add(artifact);
+            repoTypes.computeIfAbsent(repoType, ignored -> new HashMap<>()).put(artifact.getIdentifier(), artifact);
         }
 
         Map<Artifact, String> conflicts = new HashMap<>();
         for (RepositoryType repoType : repoTypes.keySet()) {
-            Map<String, List<Artifact>> identifiers = repoTypes.get(repoType);
+            Map<String, Artifact> identifiers = repoTypes.get(repoType);
             List<Artifact> conflicting = artifactRepository
                     .queryWithPredicates(withIdentifierInAndBuilt(identifiers.keySet()));
             for (Artifact conflict : conflicting) {
-                if (conflict.getTargetRepository().getRepositoryType() == repoType) {
-                    List<Artifact> candidates = identifiers.get(conflict.getIdentifier());
-                    for (Artifact artifact : candidates) {
-                        if (Objects.equals(
-                                artifact.getTargetRepository().getRepositoryPath(),
-                                conflict.getTargetRepository().getRepositoryPath())) {
-                            conflicts.put(
-                                    artifact,
-                                    ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
-                        }
-                    }
+                Artifact artifact = identifiers.get(conflict.getIdentifier());
+                if (conflict.getTargetRepository().getRepositoryType() == repoType && Objects.equals(
+                        artifact.getTargetRepository().getRepositoryPath(),
+                        conflict.getTargetRepository().getRepositoryPath())) {
+                    conflicts
+                            .put(artifact, ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
                 }
             }
         }
