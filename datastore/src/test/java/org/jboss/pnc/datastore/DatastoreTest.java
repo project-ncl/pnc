@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -259,6 +260,37 @@ public class DatastoreTest {
         buildRecord = buildRecordRepository.save(buildRecord);
         builtArtifact1.setBuildRecord(buildRecord);
 
+    }
+
+    @Test
+    @InSequence(3)
+    public void shouldOnlyReportBuiltArtifactConflictForSameRepositoryPath() {
+        TargetRepository sameTargetRepository = TargetRepository.newBuilder()
+                .repositoryType(RepositoryType.MAVEN)
+                .repositoryPath("builds-untested")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
+                .temporaryRepo(false)
+                .build();
+        TargetRepository differentTargetRepository = TargetRepository.newBuilder()
+                .repositoryType(RepositoryType.MAVEN)
+                .repositoryPath("lightwell-upstream-temporary-builds")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
+                .temporaryRepo(true)
+                .build();
+
+        Artifact sameRepositoryArtifact = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_1_IDENTIFIER)
+                .targetRepository(sameTargetRepository)
+                .build();
+        Artifact differentRepositoryArtifact = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_1_IDENTIFIER)
+                .targetRepository(differentTargetRepository)
+                .build();
+
+        Map<Artifact, String> conflicts = datastore
+                .checkForBuiltArtifacts(List.of(sameRepositoryArtifact, differentRepositoryArtifact));
+
+        assertThat(conflicts).containsKey(sameRepositoryArtifact).doesNotContainKey(differentRepositoryArtifact);
     }
 
     /**
