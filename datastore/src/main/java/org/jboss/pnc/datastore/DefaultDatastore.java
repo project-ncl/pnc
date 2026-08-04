@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -111,26 +112,31 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
-        Map<RepositoryType, Map<String, Artifact>> repoTypes = new HashMap<>();
+        Map<RepositoryType, Map<String, List<Artifact>>> repoTypes = new HashMap<>();
         for (Artifact artifact : artifacts) {
             RepositoryType repoType = artifact.getTargetRepository().getRepositoryType();
-            if (!repoTypes.containsKey(repoType)) {
-                repoTypes.put(repoType, new HashMap<>());
-            }
-            Map<String, Artifact> identifiers = repoTypes.get(repoType);
-            identifiers.put(artifact.getIdentifier(), artifact);
+            repoTypes.computeIfAbsent(repoType, ignored -> new HashMap<>())
+                    .computeIfAbsent(artifact.getIdentifier(), ignored -> Lists.newArrayList())
+                    .add(artifact);
         }
 
         Map<Artifact, String> conflicts = new HashMap<>();
         for (RepositoryType repoType : repoTypes.keySet()) {
-            Map<String, Artifact> identifiers = repoTypes.get(repoType);
+            Map<String, List<Artifact>> identifiers = repoTypes.get(repoType);
             List<Artifact> conflicting = artifactRepository
                     .queryWithPredicates(withIdentifierInAndBuilt(identifiers.keySet()));
             for (Artifact conflict : conflicting) {
                 if (conflict.getTargetRepository().getRepositoryType() == repoType) {
-                    Artifact artifact = identifiers.get(conflict.getIdentifier());
-                    conflicts
-                            .put(artifact, ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
+                    List<Artifact> candidates = identifiers.get(conflict.getIdentifier());
+                    for (Artifact artifact : candidates) {
+                        if (Objects.equals(
+                                artifact.getTargetRepository().getRepositoryPath(),
+                                conflict.getTargetRepository().getRepositoryPath())) {
+                            conflicts.put(
+                                    artifact,
+                                    ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
+                        }
+                    }
                 }
             }
         }
