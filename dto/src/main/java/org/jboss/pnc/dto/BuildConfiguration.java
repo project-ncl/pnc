@@ -102,7 +102,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
     protected final User creationUser;
 
     /**
-     * User who last modified the build config.
+     * User who first modified the build config.
      */
     protected final User modificationUser;
 
