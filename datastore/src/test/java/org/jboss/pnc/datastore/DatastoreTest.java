@@ -263,7 +263,7 @@ public class DatastoreTest {
     }
 
     @Test
-    @InSequence(3)
+    @InSequence(7)
     public void shouldOnlyReportBuiltArtifactConflictForSameRepositoryPath() {
         TargetRepository sameTargetRepository = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
