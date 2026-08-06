@@ -25,6 +25,13 @@
 
     <module-name>rest</module-name>
 
+    <session-config>
+        <cookie-config>
+            <http-only>true</http-only>
+            <secure>true</secure>
+        </cookie-config>
+    </session-config>
+
     <login-config>
         <!-- EAPSUP-2073: setup to support both LDAP and OIDC -->
         <auth-method>BASIC?silent=true,OIDC</auth-method>
