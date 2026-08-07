@@ -41,6 +41,9 @@
         <listener-class>org.wildfly.security.http.oidc.OidcConfigurationServletListener</listener-class>
     </listener>
     <security-role>
+        <role-name>pnc-users</role-name>
+    </security-role>
+    <security-role>
         <role-name>pnc-app-build-delete</role-name>
     </security-role>
     <security-role>
