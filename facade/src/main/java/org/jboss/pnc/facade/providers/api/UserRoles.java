@@ -22,6 +22,9 @@ package org.jboss.pnc.facade.providers.api;
  */
 public class UserRoles {
 
+    /** Role for regular PNC users (required for creation/update operations) */
+    public static final String USERS = "pnc-users";
+
     /** Role used by all PNC human admins */
     public static final String USERS_ADMIN = "pnc-users-admin";
 

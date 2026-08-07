@@ -109,6 +109,7 @@ public class DefaultObserverTest {
                 null,
                 "false",
                 null,
+                null,
                 null);
     }
 
@@ -144,6 +145,7 @@ public class DefaultObserverTest {
                 null,
                 "false",
                 null,
+                null,
                 null);
     }
 
@@ -178,6 +180,7 @@ public class DefaultObserverTest {
                 "true",
                 null,
                 "false",
+                null,
                 null,
                 null);
     }

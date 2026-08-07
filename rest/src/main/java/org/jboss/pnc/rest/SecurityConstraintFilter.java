@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest;
 
 import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.facade.util.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +26,15 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -46,6 +50,9 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
     @Inject
     UserService userService;
 
+    @Inject
+    SystemConfig systemConfig;
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         String method = requestContext.getRequest().getMethod().toUpperCase();
@@ -60,5 +67,16 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
                 && !userService.isUserLoggedIn()) {
             throw new NotAuthorizedException("Authorization required to access this resource.");
         }
+        if (systemConfig.isRequirePncUsersRoleForMutating()
+                && Strings.anyStringEquals(method, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
+                && !isInternalPath(path) && userService.isUserLoggedIn() && !userService.hasLoggedInUserRole(USERS)) {
+            throw new ForbiddenException("You must have the " + USERS + " role to perform this operation.");
+        }
+    }
+
+    private static boolean isInternalPath(String path) {
+        return path.startsWith("/build-tasks/") || path.startsWith("/bpm/") || path.startsWith("/debug/")
+                || path.startsWith("/health") || path.matches("/deliverable-analyses/complete")
+                || path.matches("/builds/[^/]+/brew-push/complete") || path.matches("/operations/[^/]+/complete");
     }
 }
