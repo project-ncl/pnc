@@ -12,8 +12,7 @@
       "externalDaUrl": "",
       "externalIndyUrl": "http://localhost/indy-external/",
       "externalPncUrl": "",
-      "externalBifrostUrl": "http://localhost:8081/",
-      "isPersistentBuildingAllowed": true
+      "externalBifrostUrl": "http://localhost:8081/"
     },
     {
       "@module-group": "slsa",
