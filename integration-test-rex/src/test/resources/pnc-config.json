@@ -13,7 +13,8 @@
       "externalIndyUrl": "http://localhost/indy-external/",
       "externalPncUrl": "",
       "externalBifrostUrl": "http://localhost:8081/",
-      "externalDingroguUrl": "http://host.testcontainers.internal:8088/"
+      "externalDingroguUrl": "http://host.testcontainers.internal:8088/",
+      "isPersistentBuildingAllowed": true
     },
     {
       "@module-group":"pnc",

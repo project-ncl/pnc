@@ -11,7 +11,8 @@
             "repourUrl": "${env.PNC_REPOUR_URL}",
 
             "externalDaUrl": "${env.PNC_UI_DA_URL}",
-            "externalIndyUrl": "${env.EXTERNAL_REPOSITORY_MVN_PATH}"
+            "externalIndyUrl": "${env.EXTERNAL_REPOSITORY_MVN_PATH}",
+            "isPersistentBuildingAllowed": true
         },
         {
             "@module-group": "pnc",
