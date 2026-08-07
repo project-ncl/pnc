@@ -18,6 +18,9 @@
 package org.jboss.pnc.facade.impl;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
@@ -56,6 +59,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 /**
  *
@@ -88,6 +92,9 @@ public class BuildTriggererImpl implements BuildTriggerer {
     @Inject
     private GenericSettingProvider genericSettingProvider;
 
+    @Inject
+    private Configuration configuration;
+
     @Override
     public String triggerBuild(
             final int buildConfigId,
@@ -95,6 +102,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
             BuildOptions buildOptions) throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
+        throwCoreExceptionIfPersistentBuildingDisabled(buildOptions.isTemporaryBuild());
 
         BuildSetTask result = doTriggerBuild(buildConfigId, buildConfigurationRevision, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigId);
@@ -105,6 +113,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
             throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
+        throwCoreExceptionIfPersistentBuildingDisabled(buildOptions.isTemporaryBuild());
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
         return result.getBuildConfigSetRecord().get().getId().getId();
@@ -235,4 +244,25 @@ public class BuildTriggererImpl implements BuildTriggerer {
         }
     }
 
+    private void throwCoreExceptionIfPersistentBuildingDisabled(boolean isTemporaryBuild)
+            throws BuildConflictException {
+        System.out.println("******* throw core exception if persistent building disabled");
+
+        GlobalModuleGroup globalConfig = null;
+        try {
+            globalConfig = configuration.getGlobalConfig();
+        } catch (ConfigurationParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        final boolean isPersistentBuild = !isTemporaryBuild;
+
+        System.out.println("************ is persistent build: " + isPersistentBuild);
+        System.out.println("************ persistent building allowed: " + globalConfig.isPersistentBuildingAllowed());
+
+        if (isPersistentBuild && !globalConfig.isPersistentBuildingAllowed()) {
+            throw new BuildConflictException(
+                    "Triggering persistent builds is currently disabled, only temporary builds triggering is allowed.");
+        }
+    }
 }

@@ -20,7 +20,8 @@
             "externalRepourUrl": "http://1.2.3.10",
             "externalUiLoggerUrl": "http://1.2.3.11",
             "externalDingroguUrl": "http://1.2.3.12",
-            "externalReqourUrl": "http://1.2.3.13"
+            "externalReqourUrl": "http://1.2.3.13",
+            "isPersistentBuildingAllowed": false
         }
     ]
 }

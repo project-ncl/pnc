@@ -57,6 +57,8 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     public boolean tempUseDingroguRepositoryCreation;
     public boolean useDingroguBuildProcess;
 
+    public boolean isPersistentBuildingAllowed;
+
     private String externalEttUrl;
     private String brewContentUrl;
 
@@ -250,6 +252,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setUseDingroguBuildProcess(boolean useDingroguBuildProcess) {
         this.useDingroguBuildProcess = useDingroguBuildProcess;
+    }
+
+    public boolean isPersistentBuildingAllowed() {
+        return isPersistentBuildingAllowed;
+    }
+
+    public void setPersistentBuildingAllowed(boolean persistentBuildingAllowed) {
+        isPersistentBuildingAllowed = persistentBuildingAllowed;
     }
 
     public String getExternalLogEventDurationUrl() {
