@@ -151,7 +151,7 @@
     <version.logback>1.5.25</version.logback>
     <version.git-commit-id-plugin>9.0.2</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
-    <version.org.jsoup.jsoup>1.21.2</version.org.jsoup.jsoup>
+    <version.org.jsoup.jsoup>1.23.1</version.org.jsoup.jsoup>
     <version.org.slf4j>2.0.17</version.org.slf4j>
 
     <datetime>${timestamp}</datetime>
