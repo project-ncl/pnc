@@ -24,6 +24,8 @@ jobs:
       project_name: 'project-ncl/pnc'
       SCA: true
       SAST: true
+      SCA_EXCLUDES: "test-common/**,pnc-mock/**,integration-test/**,integration-test-rex/**"
+      SAST_EXCLUDES: "test-common/,pnc-mock/,integration-test/,integration-test-rex/"
       triggering_run_id: ${{ github.event.workflow_run.id }}
       pr_feedback: true
     secrets:
