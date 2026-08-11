@@ -29,6 +29,8 @@ jobs:
       project_name: 'project-ncl/pnc'
       SCA: true
       SAST: true
+      SCA_EXCLUDES: "test-common/**,pnc-mock/**,integration-test/**,integration-test-rex/**"
+      SAST_EXCLUDES: "test-common/,pnc-mock/,integration-test/,integration-test-rex/"
     secrets:
       MEND_URL: ${{ secrets.MEND_URL }}
       MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
