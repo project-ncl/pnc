@@ -29,6 +29,7 @@
         <cookie-config>
             <http-only>true</http-only>
             <secure>true</secure>
+            <max-age>36000</max-age>
         </cookie-config>
     </session-config>
 
