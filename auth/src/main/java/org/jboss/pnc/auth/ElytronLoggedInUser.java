@@ -146,7 +146,12 @@ public class ElytronLoggedInUser implements LoggedInUser {
         userInfo.firstName = accessToken.getClaimValueAsString("firstName");
         userInfo.lastName = accessToken.getClaimValueAsString("lastName");
         userInfo.email = accessToken.getClaimValueAsString("email");
-        userInfo.roles = new HashSet<>(accessToken.getRealmAccessClaim().getRoles());
+        if (accessToken.getRealmAccessClaim() != null && accessToken.getRealmAccessClaim().getRoles() != null) {
+            userInfo.roles = new HashSet<>(accessToken.getRealmAccessClaim().getRoles());
+        } else {
+            // for the other SSO server at the other company
+            userInfo.roles = new HashSet<>(accessToken.getStringListClaimValue("groups"));
+        }
 
         return userInfo;
     }
