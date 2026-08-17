@@ -35,6 +35,7 @@ import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -69,7 +70,8 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
         }
         if (systemConfig.isRequirePncUsersRoleForMutating()
                 && Strings.anyStringEquals(method, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
-                && !isInternalPath(path) && userService.isUserLoggedIn() && !userService.hasLoggedInUserRole(USERS)) {
+                && !isInternalPath(path) && userService.isUserLoggedIn()
+                && !(userService.hasLoggedInUserRole(USERS) || userService.hasLoggedInUserRole(USERS_ADMIN))) {
             throw new ForbiddenException("You must have the " + USERS + " role to perform this operation.");
         }
     }
