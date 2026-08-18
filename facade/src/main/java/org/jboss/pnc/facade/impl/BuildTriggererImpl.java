@@ -18,12 +18,15 @@
 package org.jboss.pnc.facade.impl;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
+import org.jboss.pnc.enums.BuildCategory;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
@@ -32,17 +35,22 @@ import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +58,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +94,12 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
     @Inject
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
+    @Inject
+    private BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    private TemporaryBuildsCleaner temporaryBuildsCleaner;
 
     @Inject
     private HibernateLazyInitializer hibernateLazyInitializer;
@@ -138,6 +153,11 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     "Can't find Build Configuration with id=" + buildConfigId + ", rev="
                             + buildConfigurationRevision.getAsInt());
 
+            deletePreviousLightwellUpstreamTemporaryBuild(
+                    buildConfigId,
+                    buildConfigurationAudited.getGenericParameters(),
+                    buildOptions);
+
             buildSetTask = buildCoordinator.buildConfigurationAudited(
                     hibernateLazyInitializer
                             .initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited),
@@ -148,6 +168,11 @@ public class BuildTriggererImpl implements BuildTriggerer {
             Preconditions.checkArgument(
                     buildConfiguration != null,
                     "Can't find Build Configuration with id=" + buildConfigId);
+
+            deletePreviousLightwellUpstreamTemporaryBuild(
+                    buildConfigId,
+                    buildConfiguration.getGenericParameters(),
+                    buildOptions);
 
             buildSetTask = buildCoordinator.buildConfig(
                     hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(buildConfiguration),
@@ -160,6 +185,109 @@ public class BuildTriggererImpl implements BuildTriggerer {
                 buildConfigId,
                 buildSetTask.getBuildTasks().stream().map(BuildTask::getId).collect(Collectors.joining()));
         return buildSetTask;
+    }
+
+    /**
+     * Before starting a temporary build of a Build Configuration whose build category is
+     * {@link BuildCategory#LIGHTWELL_UPSTREAM}, delete the previous successful temporary build (if any) of the same
+     * Build Configuration so that only a single successful temporary LIGHTWELL_UPSTREAM build is ever kept.
+     *
+     * <p>
+     * The build category is not a first class field on the build; it is read from the Build Configuration's generic
+     * parameter {@link BuildConfigurationParameterKeys#BUILD_CATEGORY}, which is how the rest of PNC determines a
+     * build's category.
+     *
+     * <p>
+     * The deletion is performed synchronously and, if it fails, a {@link CoreException} is thrown so the new build is
+     * not started.
+     *
+     * @param buildConfigId the id of the Build Configuration being built
+     * @param genericParameters the generic parameters of the Build Configuration (revision) being built
+     * @param buildOptions the options of the build being triggered
+     */
+    private void deletePreviousLightwellUpstreamTemporaryBuild(
+            int buildConfigId,
+            Map<String, String> genericParameters,
+            BuildOptions buildOptions) throws CoreException {
+
+        if (!buildOptions.isTemporaryBuild()) {
+            return;
+        }
+
+        boolean isLightwellUpstream = genericParameters != null && BuildCategory.LIGHTWELL_UPSTREAM.name()
+                .equals(genericParameters.get(BuildConfigurationParameterKeys.BUILD_CATEGORY.name()));
+        if (!isLightwellUpstream) {
+            return;
+        }
+
+        BuildRecord previousBuild = buildRecordRepository.queryWithBuildConfigurationId(buildConfigId)
+                .stream()
+                .filter(br -> br.isTemporaryBuild() && br.getStatus() == BuildStatus.SUCCESS)
+                .filter(this::isLightwellUpstreamBuild)
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
+                .orElse(null);
+
+        if (previousBuild == null) {
+            logger.info(
+                    "No previous successful temporary LIGHTWELL_UPSTREAM build found for Build Configuration {}.",
+                    buildConfigId);
+            return;
+        }
+
+        logger.info(
+                "Deleting previous successful temporary LIGHTWELL_UPSTREAM build {} of Build Configuration {} before "
+                        + "triggering a new temporary build.",
+                previousBuild.getId(),
+                buildConfigId);
+
+        try {
+            Result result = temporaryBuildsCleaner.deleteTemporaryBuild(previousBuild.getId());
+            if (!result.isSuccess()) {
+                throw new CoreException(
+                        "Failed to delete previous successful temporary LIGHTWELL_UPSTREAM build "
+                                + previousBuild.getId() + " of Build Configuration " + buildConfigId + ": "
+                                + result.getMessage());
+            }
+        } catch (ValidationException e) {
+            // A concurrent trigger of the same Build Configuration may have already deleted the build between our
+            // query and this deletion. If it is already gone, the blocker is cleared and we can safely proceed.
+            if (buildRecordRepository.queryById(previousBuild.getId()) == null) {
+                logger.info(
+                        "Previous temporary LIGHTWELL_UPSTREAM build {} of Build Configuration {} was already deleted "
+                                + "(likely by a concurrent trigger); proceeding.",
+                        previousBuild.getId(),
+                        buildConfigId);
+                return;
+            }
+            throw new CoreException(
+                    "Failed to delete previous successful temporary LIGHTWELL_UPSTREAM build " + previousBuild.getId()
+                            + " of Build Configuration " + buildConfigId,
+                    e);
+        }
+    }
+
+    /**
+     * Determines whether the given build record's own build category is {@link BuildCategory#LIGHTWELL_UPSTREAM}. The
+     * category is read from the {@link BuildConfigurationParameterKeys#BUILD_CATEGORY} generic parameter of the exact
+     * Build Configuration revision the build was produced from, so builds from an older revision that had a different
+     * category are not matched.
+     *
+     * @param buildRecord the build record to inspect
+     * @return true if the build was produced as a LIGHTWELL_UPSTREAM build
+     */
+    private boolean isLightwellUpstreamBuild(BuildRecord buildRecord) {
+        BuildConfigurationAudited buildConfigurationAudited = buildRecord.getBuildConfigurationAudited();
+        if (buildConfigurationAudited == null) {
+            buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .queryById(buildRecord.getBuildConfigurationAuditedIdRev());
+        }
+        if (buildConfigurationAudited == null) {
+            return false;
+        }
+
+        Map<String, String> genericParameters = buildConfigurationAudited.getGenericParameters();
+        return genericParameters != null && BuildCategory.LIGHTWELL_UPSTREAM.name()
+                .equals(genericParameters.get(BuildConfigurationParameterKeys.BUILD_CATEGORY.name()));
     }
 
     private BuildSetTask doTriggerGroupBuild(
