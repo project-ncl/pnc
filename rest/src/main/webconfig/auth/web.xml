@@ -26,6 +26,7 @@
     <module-name>rest</module-name>
 
     <session-config>
+        <session-timeout>600</session-timeout>
         <cookie-config>
             <http-only>true</http-only>
             <secure>true</secure>
