@@ -42,6 +42,9 @@
         <!-- EAPSUP-2073: setup to support both LDAP and OIDC -->
         <listener-class>org.wildfly.security.http.oidc.OidcConfigurationServletListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>org.jboss.pnc.rest.OidcConnectionTtlListener</listener-class>
+    </listener>
     <security-role>
         <role-name>pnc-app-build-delete</role-name>
     </security-role>
