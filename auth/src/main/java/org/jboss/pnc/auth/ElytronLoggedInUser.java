@@ -150,6 +150,9 @@ public class ElytronLoggedInUser implements LoggedInUser {
             userInfo.roles = new HashSet<>(accessToken.getRealmAccessClaim().getRoles());
         } else {
             // for the other SSO server at the other company
+            // preferred_username for the other SSO is just a random id, sub contains the email address which is
+            // more readable. Could also have used 'emailAddress'.
+            userInfo.username = accessToken.getClaimValueAsString("sub");
             userInfo.roles = new HashSet<>(accessToken.getStringListClaimValue("groups"));
         }
 
