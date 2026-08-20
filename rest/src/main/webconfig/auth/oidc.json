@@ -6,7 +6,6 @@
     "ssl-required" : "EXTERNAL",
     "autodetect-bearer-only": "${env.OIDC_AUTODETECT_BEARER_ONLY:true}",
     "token-minimum-time-to-live": 30,
-    "connection-pool-size": 1,
     "credentials": {
         "secret": "${env.OIDC_CLIENT_SECRET}"
     }
