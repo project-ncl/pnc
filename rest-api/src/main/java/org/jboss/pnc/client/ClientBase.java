@@ -269,6 +269,31 @@ public abstract class ClientBase<T> implements Closeable {
         return null;
     }
 
+    protected int getMaxRetries() {
+        return Math.max(0, configuration.getMaxRetries());
+    }
+
+    protected boolean isRetryableException(Exception e) {
+        if (e instanceof ProcessingException) {
+            return true;
+        }
+        if (e instanceof WebApplicationException) {
+            int status = ((WebApplicationException) e).getResponse().getStatus();
+            return status >= 500;
+        }
+        return false;
+    }
+
+    protected void waitForRetry(int attempt) {
+        long delay = configuration.getRetryDelayMillis() * (long) Math.pow(2, attempt);
+        logger.debug("Request failed, retrying in {}ms (attempt {}/{})", delay, attempt + 1, getMaxRetries());
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     protected boolean shouldRetryOn401(Exception e) {
         // Check if it's a 401 error and we have a token supplier to refresh
         if (e instanceof javax.ws.rs.WebApplicationException) {

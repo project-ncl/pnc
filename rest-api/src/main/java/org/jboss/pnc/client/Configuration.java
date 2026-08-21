@@ -62,6 +62,18 @@ public class Configuration {
      */
     private final int pageSize;
 
+    @Builder.Default
+    private final long connectTimeoutMillis = 30_000L;
+
+    @Builder.Default
+    private final long readTimeoutMillis = 60_000L;
+
+    @Builder.Default
+    private final int maxRetries = 5;
+
+    @Builder.Default
+    private final long retryDelayMillis = 500L;
+
     /**
      * Define which values from the logging MDC are added as headers to the request. A key is a MDC key. A value is a
      * header name
