@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -63,7 +64,9 @@ public class ClientTest {
         }).build();
         server.start();
         try {
-            Configuration configuration = getBasicConfiguration(8080).addDefaultMdcToHeadersMappings().build();
+            Configuration configuration = getBasicConfiguration(8080).maxRetries(0)
+                    .addDefaultMdcToHeadersMappings()
+                    .build();
 
             ProjectClient projectClient = new ProjectClient(configuration);
 
@@ -107,6 +110,52 @@ public class ClientTest {
 
         // then
         Assert.assertEquals(2, tokenGenerator.getInvocationCount());
+    }
+
+    @Test
+    public void shouldRetryOnServerError() throws RemoteResourceException {
+        // given
+        Configuration configuration = getBasicConfiguration(8081).maxRetries(2).retryDelayMillis(100).build();
+
+        wireMockServer.stubFor(
+                get(urlMatching(".*")).willReturn(
+                        aResponse().withStatus(500).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
+
+        BuildClient buildClient = new BuildClient(configuration);
+
+        // when
+        try {
+            buildClient.getSpecific("1");
+            Assert.fail("Expected RemoteResourceException");
+        } catch (RemoteResourceException e) {
+            // expected
+        }
+
+        // then - initial request + 2 retries = 3 total
+        wireMockServer.verify(3, getRequestedFor(urlMatching(".*")));
+    }
+
+    @Test
+    public void shouldNotRetryOnClientError() throws RemoteResourceException {
+        // given
+        Configuration configuration = getBasicConfiguration(8081).maxRetries(2).retryDelayMillis(100).build();
+
+        wireMockServer.stubFor(
+                get(urlMatching(".*")).willReturn(
+                        aResponse().withStatus(400).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
+
+        BuildClient buildClient = new BuildClient(configuration);
+
+        // when
+        try {
+            buildClient.getSpecific("1");
+            Assert.fail("Expected RemoteResourceException");
+        } catch (RemoteResourceException e) {
+            // expected
+        }
+
+        // then - only 1 request, no retries for 4xx
+        wireMockServer.verify(1, getRequestedFor(urlMatching(".*")));
     }
 
     private Configuration.ConfigurationBuilder getBasicConfiguration(int port) {
