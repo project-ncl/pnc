@@ -5,7 +5,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 3.4.5
+  version: 3.4.8-SNAPSHOT
 servers:
 - url: /pnc-rest
   variables: {}
@@ -180,6 +180,8 @@ paths:
             - STANDARD
             - SERVICE
             - LIGHTWELL
+            - LIGHTWELL_UPSTREAM
+            - LIGHTWELL_NOVEL
       responses:
         "200":
           description: Success with results
@@ -7221,6 +7223,8 @@ components:
           - STANDARD
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
+          - LIGHTWELL_NOVEL
         creationTime:
           type: string
           format: date-time
@@ -7283,6 +7287,8 @@ components:
           - STANDARD
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
+          - LIGHTWELL_NOVEL
         id:
           type: string
         identifier:
@@ -7355,6 +7361,8 @@ components:
           - STANDARD
           - SERVICE
           - LIGHTWELL
+          - LIGHTWELL_UPSTREAM
+          - LIGHTWELL_NOVEL
         id:
           type: string
         modificationTime:

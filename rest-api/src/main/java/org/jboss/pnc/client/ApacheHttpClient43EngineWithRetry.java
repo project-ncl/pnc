@@ -45,7 +45,7 @@ public class ApacheHttpClient43EngineWithRetry extends ApacheHttpClient43Engine 
         builder.disableContentCompression();
         builder.setDefaultRequestConfig(requestBuilder.build());
 
-        HttpRequestRetryHandler retryHandler = new StandardHttpRequestRetryHandler();
+        HttpRequestRetryHandler retryHandler = new StandardHttpRequestRetryHandler(5, true);
         builder.setRetryHandler(retryHandler);
         return builder.build();
     }
