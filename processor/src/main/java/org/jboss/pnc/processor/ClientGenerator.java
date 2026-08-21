@@ -39,12 +39,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -268,6 +266,7 @@ public class ClientGenerator extends AbstractProcessor {
                                 .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
                                 .returns(TypeName.get(void.class))
                                 .addStatement(coreStatement)
+                                .addStatement("return")
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("throw new RemoteResourceNotFoundException(e)");
                         MethodSpec methodSpec = completeMethod(methodBuilder, coreStatement);
@@ -343,22 +342,24 @@ public class ClientGenerator extends AbstractProcessor {
     private MethodSpec completeMethod(
             MethodSpec.Builder methodBuilder,
             Consumer<MethodSpec.Builder> coreStatementConsumer) {
-        // Generate retry logic for 401 responses
-        methodBuilder = methodBuilder.nextControlFlow("catch ($T e)", Exception.class)
-                .beginControlFlow("if (shouldRetryOn401(e))")
-                .beginControlFlow("try")
-                .addComment("Retry after refreshing token");
-
-        // Execute the core statement again (retry)
-        coreStatementConsumer.accept(methodBuilder);
-
-        return methodBuilder.nextControlFlow("catch ($T retryException)", Exception.class)
-                .addStatement("throw handleException(retryException)")
+        ClassName remoteResourceException = ClassName.get("org.jboss.pnc.client", "RemoteResourceException");
+        return methodBuilder.nextControlFlow("catch ($T e)", Exception.class)
+                .beginControlFlow("if (!retriedOn401 && shouldRetryOn401(e))")
+                .addStatement("retriedOn401 = true")
+                .addStatement("attempt--")
+                .addStatement("continue")
                 .endControlFlow()
-                .nextControlFlow("else")
+                .beginControlFlow("if (attempt < getMaxRetries() && isRetryableException(e))")
+                .addStatement("waitForRetry(attempt)")
+                .addStatement("continue")
+                .endControlFlow()
                 .addStatement("throw handleException(e)")
                 .endControlFlow()
                 .endControlFlow()
+                .addStatement(
+                        "throw new $T($S, -1)",
+                        remoteResourceException,
+                        "Request failed after exhausting all retries")
                 .build();
     }
 
@@ -366,7 +367,9 @@ public class ClientGenerator extends AbstractProcessor {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(restApiMethod.getSimpleName().toString())
                 .addModifiers(Modifier.PUBLIC)
                 .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"));
-        methodBuilder.beginControlFlow("try");
+        methodBuilder.addStatement("boolean retriedOn401 = false")
+                .beginControlFlow("for (int attempt = 0; attempt <= getMaxRetries(); attempt++)")
+                .beginControlFlow("try");
         return methodBuilder;
     }
 
