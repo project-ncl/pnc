@@ -38,6 +38,7 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericPara
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.InvalidRequestException;
@@ -54,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.EJBAccessException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -65,6 +67,8 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 @ApplicationScoped
 public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {
@@ -91,6 +95,9 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Inject
     private AlignmentConfig alignmentConfig;
+
+    @Inject
+    private UserService userService;
 
     private EndpointHelper<Integer, BuildConfiguration, BuildConfigurationRef> endpointHelper;
 
@@ -329,6 +336,11 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     private BuildOptions toBuildOptions(BuildParameters buildParams) {
+        if (buildParams.isKeepPodOnFailure() && !userService.hasLoggedInUserRole(USERS_ADMIN)) {
+            throw new EJBAccessException(
+                    "Only users with the " + USERS_ADMIN + " role are allowed to set keep-pod-alive feature");
+        }
+
         BuildOptions buildOptions = new BuildOptions(
                 buildParams.isTemporaryBuild(),
                 buildParams.isBuildDependencies(),

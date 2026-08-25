@@ -1524,7 +1524,7 @@
         }, {
           "name" : "keepPodOnFailure",
           "in" : "query",
-          "description" : "Should we keep the build container running, if the build fails?",
+          "description" : "Should we keep the build container running, if the build fails? Requires the pnc-users-admin role.",
           "schema" : {
             "type" : "boolean",
             "default" : false
@@ -2312,7 +2312,7 @@
         }, {
           "name" : "keepPodOnFailure",
           "in" : "query",
-          "description" : "Should we keep the build container running, if the build fails?",
+          "description" : "Should we keep the build container running, if the build fails? Requires the pnc-users-admin role.",
           "schema" : {
             "type" : "boolean",
             "default" : false

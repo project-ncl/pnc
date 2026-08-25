@@ -83,7 +83,7 @@ public interface SwaggerConstants {
     public static final String REBUILD_MODE_DESC = "What should varant rebuild?";
     public static final String DEFAULT_REBUILD_MODE = "IMPLICIT_DEPENDENCY_CHECK";
     public static final String BUILD_DEPENDENCIES_DESC = "Should we build also dependencies of this Build Config?";
-    public static final String KEEP_POD_ON_FAIL_DESC = "Should we keep the build container running, if the build fails?";
+    public static final String KEEP_POD_ON_FAIL_DESC = "Should we keep the build container running, if the build fails? Requires the pnc-users-admin role.";
     public static final String LATEST_BUILD_DESC = "Should return only latest build?";
     public static final String LATEST_GROUP_BUILD_DESC = "Should return only latest group build?";
     public static final String RUNNING_BUILDS_DESC = "Should return only running builds?";

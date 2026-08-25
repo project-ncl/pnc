@@ -27,6 +27,7 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -35,6 +36,7 @@ import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.integration.setup.Deployments;
@@ -60,7 +62,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.asSystem;
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.asUser;
+import static org.junit.Assert.assertThrows;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -97,6 +101,43 @@ public class BuildTest {
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldTriggerBuildWithKeepPodOnFailureAsAdmin() throws ClientException {
+        // with
+        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
+        BuildParameters buildParameters = getPersistentParameters(true);
+        buildParameters.setKeepPodOnFailure(true);
+
+        // when
+        Build build = new BuildConfigurationClient(asSystem()).trigger(buildConfiguration.getId(), buildParameters);
+
+        // then
+        assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldRejectBuildWithKeepPodOnFailureAsNonAdmin() throws ClientException {
+        // with
+        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
+        BuildParameters buildParameters = getPersistentParameters();
+        buildParameters.setKeepPodOnFailure(true);
+
+        // when
+        RemoteResourceException exception = assertThrows(
+                RemoteResourceException.class,
+                () -> buildConfigurationClient.trigger(buildConfiguration.getId(), buildParameters));
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(403);
+        ErrorResponse errorResponse = exception.getResponse().get();
+        assertThat(errorResponse.getErrorType()).isEqualTo("EJBAccessException");
+        String details = (String) errorResponse.getDetails();
+        assertThat(details)
+                .isEqualTo("Only users with the pnc-users-admin role are allowed to set keep-pod-alive feature");
     }
 
     @Test
