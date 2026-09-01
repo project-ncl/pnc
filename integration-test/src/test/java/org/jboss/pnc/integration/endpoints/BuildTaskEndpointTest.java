@@ -100,7 +100,7 @@ public class BuildTaskEndpointTest {
 
         // then
         int statusCode = -1;
-        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
+        try (CloseableHttpClient httpClient = HttpUtils.getHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 statusCode = response.getStatusLine().getStatusCode();
                 Assert.assertEquals(
@@ -133,7 +133,7 @@ public class BuildTaskEndpointTest {
         request.setEntity(new StringEntity(jsonBody, ContentType.APPLICATION_JSON));
         // then
         int statusCode = -1;
-        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
+        try (CloseableHttpClient httpClient = HttpUtils.getHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 statusCode = response.getStatusLine().getStatusCode();
                 Assert.assertEquals(
