@@ -110,6 +110,22 @@ public class PncStatusEndpointTest {
     }
 
     @Test
+    public void shouldFailWhenMaintenanceModeOnAndBannerNull() {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asSystem());
+        var pncStatus = PncStatus.builder().isMaintenanceMode(true).build();
+
+        // when + then
+        RemoteResourceException remoteResourceException = assertThrows(
+                RemoteResourceException.class,
+                () -> client.setPncStatus(pncStatus));
+        ErrorResponse errorResponse = remoteResourceException.getResponse().get();
+        assertThat(errorResponse.getErrorType()).isEqualTo("BadRequestException");
+        assertThat(errorResponse.getErrorMessage())
+                .isEqualTo("Can't set maintenance mode when banner is null or empty.");
+    }
+
+    @Test
     public void shouldFailWhenEtaInPast() {
         // given
         var client = new PncStatusClient(RestClientConfiguration.asSystem());
