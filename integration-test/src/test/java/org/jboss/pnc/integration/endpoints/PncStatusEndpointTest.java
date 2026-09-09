@@ -106,22 +106,7 @@ public class PncStatusEndpointTest {
         ErrorResponse errorResponse = remoteResourceException.getResponse().get();
         assertThat(errorResponse.getErrorType()).isEqualTo("BadRequestException");
         assertThat(errorResponse.getErrorMessage())
-                .isEqualTo("Can't set ETA when maintenance mode is off and banner is null.");
-    }
-
-    @Test
-    public void shouldFailOnBlankBanner() {
-        // given
-        var client = new PncStatusClient(RestClientConfiguration.asSystem());
-        var pncStatus = PncStatus.builder().banner(Strings.EMPTY).isMaintenanceMode(false).build();
-
-        // when + then
-        RemoteResourceException remoteResourceException = assertThrows(
-                RemoteResourceException.class,
-                () -> client.setPncStatus(pncStatus));
-        ErrorResponse errorResponse = remoteResourceException.getResponse().get();
-        assertThat(errorResponse.getErrorType()).isEqualTo("BadRequestException");
-        assertThat(errorResponse.getErrorMessage()).isEqualTo("Banner cannot be blank.");
+                .isEqualTo("Can't set ETA when maintenance mode is off and banner is null or empty.");
     }
 
     @Test
@@ -256,6 +241,23 @@ public class PncStatusEndpointTest {
                 .build();
 
         // when
+        PncStatus actualPncStatus = client.getPncStatus();
+
+        // then
+        assertThat(actualPncStatus).isEqualTo(expectedPncStatus);
+    }
+
+    @Test
+    @InSequence(70)
+    public void shouldClearBannerOnBlankBanner() throws RemoteResourceException {
+        // given
+        var client = new PncStatusClient(RestClientConfiguration.asSystem());
+        client.setPncStatus(PncStatus.builder().banner(BEFORE_MAINTENANCE_BANNER).isMaintenanceMode(false).build());
+        var pncStatus = PncStatus.builder().banner(Strings.EMPTY).isMaintenanceMode(false).build();
+        var expectedPncStatus = PncStatus.builder().isMaintenanceMode(false).build();
+
+        // when
+        client.setPncStatus(pncStatus);
         PncStatus actualPncStatus = client.getPncStatus();
 
         // then
