@@ -18,6 +18,7 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Attachment;
@@ -49,6 +50,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,6 +69,13 @@ import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName
 public class DefaultDatastore implements Datastore {
 
     public static final Logger logger = LoggerFactory.getLogger(DefaultDatastore.class);
+
+    /**
+     * Qualities that represent an uncurated, freshly-created artifact whose build category and quality may be corrected
+     * when the artifact is later reused as a built artifact. Any other (curated) quality is left untouched.
+     */
+    private static final EnumSet<ArtifactQuality> CORRECTABLE_QUALITIES = EnumSet
+            .of(ArtifactQuality.NEW, ArtifactQuality.IMPORTED);
 
     private ArtifactRepository artifactRepository;
 
@@ -159,10 +168,10 @@ public class DefaultDatastore implements Datastore {
          * (re-downloaded), it must be linked to built artifacts repository.
          */
         logger.debug("Saving built artifacts ...");
-        final Set<Artifact> savedBuiltArtifacts = saveArtifacts(builtArtifacts, repositoriesCache, artifactCache);
+        final Set<Artifact> savedBuiltArtifacts = saveArtifacts(builtArtifacts, repositoriesCache, artifactCache, true);
 
         logger.debug("Saving dependencies ...");
-        buildRecord.setDependencies(saveArtifacts(dependencies, repositoriesCache, artifactCache));
+        buildRecord.setDependencies(saveArtifacts(dependencies, repositoriesCache, artifactCache, false));
 
         logger.debug("Saving attachments ...");
         final Set<Attachment> savedAttachments = saveAttachments(attachments);
@@ -215,12 +224,16 @@ public class DefaultDatastore implements Datastore {
      *
      * @param artifacts of in-memory artifacts to either insert to the database or find the matching record in the db
      * @param artifactCache
+     * @param built whether the artifacts are the build's built artifacts (as opposed to its dependencies). When true,
+     *        an existing artifact reused from the db has its build category and quality corrected to the values
+     *        reported for this build (see {@link #getOrSaveRepositoryArtifact}).
      * @return Set of up to date JPA artifact entities
      */
     private Set<Artifact> saveArtifacts(
             Collection<Artifact> artifacts,
             Map<TargetRepository.IdentifierPath, TargetRepository> storedTargetRepositories,
-            Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache) {
+            Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache,
+            boolean built) {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
@@ -257,7 +270,7 @@ public class DefaultDatastore implements Datastore {
             if (isGenericProxy(artifact)) {
                 artifactFromDb = saveHttpArtifact(artifact);
             } else {
-                artifactFromDb = getOrSaveRepositoryArtifact(artifact, artifactCache);
+                artifactFromDb = getOrSaveRepositoryArtifact(artifact, artifactCache, built);
             }
 
             savedArtifacts.add(artifactFromDb);
@@ -318,7 +331,8 @@ public class DefaultDatastore implements Datastore {
 
     private Artifact getOrSaveRepositoryArtifact(
             Artifact artifact,
-            Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache) {
+            Map<Artifact.IdentifierSha256TargetRepository, Artifact> artifactCache,
+            boolean built) {
         logger.trace("Saving repository artifact {}.", artifact);
         Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256TargetRepository());
 
@@ -336,9 +350,53 @@ public class DefaultDatastore implements Datastore {
             logger.trace("Saved new artifact {}.", artifactFromDb);
         } else {
             logger.trace("Artifact already present in DB {}", artifactFromDb);
+            if (built) {
+                updateBuiltArtifactMetadata(artifactFromDb, artifact);
+            }
         }
 
         return artifactFromDb;
+    }
+
+    /**
+     * Corrects the build category and quality of an existing artifact that is being reused as a built artifact of the
+     * current build. Without this, an artifact that was first created outside a build (e.g. by the Deliverable
+     * Analyzer, which sets quality NEW/IMPORTED and leaves the default STANDARD build category) would keep those stale
+     * values even though this build actually produced it - for example a temporary build would fail to mark it
+     * TEMPORARY.
+     *
+     * @param existing the managed artifact loaded from the db, reused as a built artifact
+     * @param built the in-memory built artifact reported for this build, carrying the correct values
+     */
+    private void updateBuiltArtifactMetadata(Artifact existing, Artifact built) {
+        // An already-built artifact would have been reported as a conflict earlier (checkForBuiltArtifacts), so this
+        // only corrects artifacts that were not produced by a build yet.
+        if (existing.isBuilt()) {
+            return;
+        }
+        // Only correct artifacts still carrying the uncurated quality assigned when they were first created outside a
+        // build (NEW/IMPORTED, e.g. by the Deliverable Analyzer). Never touch curated states such as VERIFIED, TESTED,
+        // DEPRECATED, BLACKLISTED or DELETED - overwriting those would silently undo a deliberate decision (for
+        // example clearing a blacklist or downgrading a promoted artifact).
+        if (!CORRECTABLE_QUALITIES.contains(existing.getArtifactQuality())) {
+            return;
+        }
+        if (built.getBuildCategory() != null && built.getBuildCategory() != existing.getBuildCategory()) {
+            logger.debug(
+                    "Correcting build category of reused built artifact {} from {} to {}.",
+                    existing.getId(),
+                    existing.getBuildCategory(),
+                    built.getBuildCategory());
+            existing.setBuildCategory(built.getBuildCategory());
+        }
+        if (built.getArtifactQuality() != null && built.getArtifactQuality() != existing.getArtifactQuality()) {
+            logger.debug(
+                    "Correcting quality of reused built artifact {} from {} to {}.",
+                    existing.getId(),
+                    existing.getArtifactQuality(),
+                    built.getArtifactQuality());
+            existing.setArtifactQuality(built.getArtifactQuality());
+        }
     }
 
     private Artifact saveHttpArtifact(Artifact artifact) {
