@@ -33,16 +33,13 @@ public class PncStatusEndpointImpl implements PncStatusEndpoint {
 
     @Override
     public void setPncStatus(PncStatus pncStatus) {
-        if (pncStatus.getBanner() == null && Boolean.FALSE.equals(pncStatus.getIsMaintenanceMode())
-                && pncStatus.getEta() != null) {
-            throw new BadRequestException("Can't set ETA when maintenance mode is off and banner is null.");
+        var isBannerEmpty = pncStatus.getBanner() == null || pncStatus.getBanner().isBlank();
+
+        if (isBannerEmpty && Boolean.FALSE.equals(pncStatus.getIsMaintenanceMode()) && pncStatus.getEta() != null) {
+            throw new BadRequestException("Can't set ETA when maintenance mode is off and banner is null or empty.");
         }
 
-        if (pncStatus.getBanner() != null && pncStatus.getBanner().isBlank()) {
-            throw new BadRequestException("Banner cannot be blank.");
-        }
-
-        if (pncStatus.getBanner() == null) {
+        if (isBannerEmpty) {
             genericSettingProvider.clearAnnouncementBanner();
         } else {
             genericSettingProvider.setAnnouncementBanner(pncStatus.getBanner());
