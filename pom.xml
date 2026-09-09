@@ -128,7 +128,7 @@
     <version.json-schema-validator>2.0.1</version.json-schema-validator>
 
     <!-- OTEL Dependencies for Instrumentation -->
-    <version.io.opentelemetry.instrumentation>2.24.0</version.io.opentelemetry.instrumentation>
+    <version.io.opentelemetry.instrumentation>2.31.1</version.io.opentelemetry.instrumentation>
     <version.org.jboss.pnc.otel>2.0.0</version.org.jboss.pnc.otel>
 
     <!-- TEST Dependency properties (CVEs not critical) -->
