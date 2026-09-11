@@ -30,14 +30,19 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Set;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
@@ -268,4 +273,83 @@ public interface GenericSettingEndpoint {
     @Path("deactivate-maintenance-mode")
     @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
     public void deactivateMaintenanceMode();
+
+    static final String LIMITED_BUILD_USER = "Username of the limited build user";
+    static final String GET_LIMITED_BUILD_USERS_DESC = "Get the list of users restricted to limited builds";
+    static final String ADD_LIMITED_BUILD_USER_DESC = "Add a user to the limited build users list";
+    static final String REMOVE_LIMITED_BUILD_USER_DESC = "Remove a user from the limited build users list";
+
+    /**
+     * {@value GET_LIMITED_BUILD_USERS_DESC}
+     *
+     * @return set of usernames restricted to limited builds
+     */
+    @Operation(
+            summary = GET_LIMITED_BUILD_USERS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Set.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("limited-build-users")
+    Set<String> getLimitedBuildUsers();
+
+    /**
+     * {@value ADD_LIMITED_BUILD_USER_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     *
+     * @param username {@value LIMITED_BUILD_USER}
+     */
+    @Operation(
+            summary = "[role:pnc-users-admin] " + ADD_LIMITED_BUILD_USER_DESC,
+            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = FORBIDDEN_CODE,
+                            description = FORBIDDEN_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @Path("limited-build-users/{username}")
+    void addLimitedBuildUser(
+            @Parameter(description = LIMITED_BUILD_USER, required = true) @PathParam("username") String username);
+
+    /**
+     * {@value REMOVE_LIMITED_BUILD_USER_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     *
+     * @param username {@value LIMITED_BUILD_USER}
+     */
+    @Operation(
+            summary = "[role:pnc-users-admin] " + REMOVE_LIMITED_BUILD_USER_DESC,
+            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = FORBIDDEN_CODE,
+                            description = FORBIDDEN_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @DELETE
+    @Path("limited-build-users/{username}")
+    void removeLimitedBuildUser(
+            @Parameter(description = LIMITED_BUILD_USER, required = true) @PathParam("username") String username);
 }
