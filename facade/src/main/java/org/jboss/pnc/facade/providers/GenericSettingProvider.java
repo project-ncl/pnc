@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.dto.notification.GenericSettingNotification;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -31,6 +32,10 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
@@ -42,6 +47,8 @@ import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 @Stateless
 @Slf4j
 public class GenericSettingProvider {
+
+    private static final String LIMITED_BUILD_USERS = "LIMITED_BUILD_USERS";
 
     @Inject
     private GenericSettingRepository genericSettingRepository;
@@ -100,7 +107,20 @@ public class GenericSettingProvider {
             return true;
         }
 
-        return !isInMaintenanceMode();
+        return !isInMaintenanceMode() && !isCurrentUserLimitedBuildUser();
+    }
+
+    public boolean isCurrentUserLimitedBuildUser() {
+
+        if (userService.hasLoggedInUserRole(USERS_ADMIN)) {
+            return false;
+        }
+
+        String username = userService.currentUsername();
+        if (Strings.isEmpty(username)) {
+            return false;
+        }
+        return getLimitedBuildUsers().contains(username);
     }
 
     public void setPNCVersion(String version) {
@@ -170,6 +190,42 @@ public class GenericSettingProvider {
     public void clearEta() {
         requireAdmin();
         clearByKey(ANNOUNCEMENT_ETA);
+    }
+
+    public Set<String> getLimitedBuildUsers() {
+        GenericSetting setting = genericSettingRepository.queryByKey(LIMITED_BUILD_USERS);
+        if (setting == null || Strings.isEmpty(setting.getValue())) {
+            return new LinkedHashSet<>();
+        }
+        return Arrays.stream(setting.getValue().split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public void addLimitedBuildUser(String username) {
+        requireAdmin();
+        if (Strings.isEmpty(username) || username.trim().isEmpty() || username.contains(",")) {
+            throw new InvalidEntityException("Username is invalid: '" + username + "'");
+        }
+        Set<String> users = getLimitedBuildUsers();
+        users.add(username.trim());
+        log.info("Adding limited user: '{}'", username.trim());
+        saveLimitedBuildUsers(users);
+    }
+
+    public void removeLimitedBuildUser(String username) {
+        requireAdmin();
+        Set<String> users = getLimitedBuildUsers();
+        users.remove(username);
+        log.info("Removing limited user: '{}'", username);
+        saveLimitedBuildUsers(users);
+    }
+
+    private void saveLimitedBuildUsers(Set<String> users) {
+        GenericSetting setting = createGenericParameterIfNotFound(LIMITED_BUILD_USERS);
+        setting.setValue(String.join(",", users));
+        genericSettingRepository.save(setting);
     }
 
     public void notifyListeners() {

@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.response.Banner;
 import org.jboss.pnc.rest.api.endpoints.GenericSettingEndpoint;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.util.Strings;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -79,5 +80,20 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
         genericSettingProvider.deactivateMaintenanceMode();
         genericSettingProvider.setAnnouncementBanner(Strings.EMPTY); // For backwards-compatibility
         genericSettingProvider.notifyListeners();
+    }
+
+    @Override
+    public Set<String> getLimitedBuildUsers() {
+        return genericSettingProvider.getLimitedBuildUsers();
+    }
+
+    @Override
+    public void addLimitedBuildUser(String username) {
+        genericSettingProvider.addLimitedBuildUser(username);
+    }
+
+    @Override
+    public void removeLimitedBuildUser(String username) {
+        genericSettingProvider.removeLimitedBuildUser(username);
     }
 }
