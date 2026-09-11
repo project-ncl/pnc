@@ -3569,6 +3569,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /generic-setting/limited-build-users:
+    get:
+      tags:
+      - Internal
+      summary: Get the list of users restricted to limited builds
+      operationId: getLimitedBuildUsers
+      responses:
+        "200":
+          description: Success with results
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Invalid input parameters or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /generic-setting/limited-build-users/{username}:
+    post:
+      tags:
+      - Internal
+      summary: "[role:pnc-users-admin] Add a user to the limited build users list"
+      operationId: addLimitedBuildUser
+      parameters:
+      - name: username
+        in: path
+        description: Username of the limited build user
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Entity successfully updated
+        "403":
+          description: User must be logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "400":
+          description: Invalid input parameters or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Internal
+      summary: "[role:pnc-users-admin] Remove a user from the limited build users\
+        \ list"
+      operationId: removeLimitedBuildUser
+      parameters:
+      - name: username
+        in: path
+        description: Username of the limited build user
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Entity successfully updated
+        "403":
+          description: User must be logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "400":
+          description: Invalid input parameters or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /generic-setting/pnc-version:
     get:
       tags:

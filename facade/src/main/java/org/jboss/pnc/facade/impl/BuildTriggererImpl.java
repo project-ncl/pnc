@@ -361,7 +361,8 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
     private void throwCoreExceptionIfInMaintenanceModeAndNonSystemUser() throws BuildConflictException {
 
-        if (!genericSettingProvider.isCurrentUserAllowedToTriggerBuilds()) {
+        if (genericSettingProvider.isInMaintenanceMode()
+                && !genericSettingProvider.isCurrentUserAllowedToTriggerBuilds()) {
             String reason = genericSettingProvider.getAnnouncementBanner();
 
             if (reason == null) {
@@ -369,6 +370,10 @@ public class BuildTriggererImpl implements BuildTriggerer {
             }
 
             throw new BuildConflictException("PNC is in maintenance mode: " + reason);
+        }
+
+        if (genericSettingProvider.isCurrentUserLimitedBuildUser()) {
+            throw new BuildConflictException("User '" + user.currentUsername() + "' is not allowed to trigger builds.");
         }
     }
 
