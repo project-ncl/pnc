@@ -108,8 +108,8 @@ public abstract class ClientBase<T> implements Closeable {
         // Use MicroProfile REST Client Builder (standard, portable across all runtimes)
         RestClientBuilder restClientBuilder = RestClientBuilder.newBuilder()
                 .baseUri(baseUri)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS);
+                .connectTimeout(configuration.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)
+                .readTimeout(configuration.getReadTimeoutMillis(), TimeUnit.MILLISECONDS);
 
         // Register providers
         restClientBuilder.register(JacksonProviderWithDateISO8601.class);
