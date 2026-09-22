@@ -30,6 +30,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -720,16 +721,33 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 }
 
             } else {
-                log.debug("[buildTaskId: {}] Storing success build result.", buildTaskId);
-                BuildRecord buildRecord = datastoreAdapter.storeResult(buildTaskRef, buildResult);
-                if (buildRecord.getStatus().completedSuccessfully()) {
-                    coordinationStatus = BuildCoordinationStatus.DONE;
+                Map<Artifact, String> builtConflicts = datastoreAdapter
+                        .findOutBuiltConflicts(buildTaskRef, buildResult);
+
+                final BuildRecord buildRecord;
+                if (builtConflicts.isEmpty()) {
+                    log.debug("[buildTaskId: {}] Storing success build result.", buildTaskId);
+                    buildRecord = datastoreAdapter.storeResult(buildTaskRef, buildResult);
+                    if (buildRecord.getStatus().completedSuccessfully()) {
+                        coordinationStatus = BuildCoordinationStatus.DONE;
+                    } else {
+                        log.warn(
+                                "[buildTaskId: {}] Something went wrong while storing the result. The status has changed to {}.",
+                                buildTaskId,
+                                buildRecord.getStatus());
+                        coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                    }
                 } else {
-                    log.warn(
-                            "[buildTaskId: {}] Something went wrong while storing the success result. The status has changed to {}.",
-                            buildTaskId,
-                            buildRecord.getStatus());
-                    coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                    // [NCL-9939] successful build, but containing conflicting artifacts => store as FAILED
+                    log.debug("[buildTaskId: {}] Storing build result with conflicting artifacts.", buildTaskId);
+                    buildRecord = datastoreAdapter.storeResult(
+                            buildTaskRef,
+                            Optional.of(buildResult),
+                            new BuildCoordinationException(
+                                    "Trying to store success build with invalid repository manager result. Conflicting artifact data found: "
+                                            + builtConflicts.toString()),
+                            BuildStatus.FAILED);
+                    coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                 }
             }
 

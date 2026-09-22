@@ -270,11 +270,8 @@ public class DatastoreAdapter {
                     }
                 }
 
-                builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
-                if (buildTaskRef.isTemporaryBuild()) {
-                    checkTemporaryArtifacts(builtArtifacts);
-                }
-                Map<Artifact, String> builtConflicts = datastore.checkForBuiltArtifacts(builtArtifacts);
+                builtArtifacts = computeBuiltArtifacts(buildTaskRef, buildResult);
+                Map<Artifact, String> builtConflicts = findOutBuiltConflicts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
                     return storeResult(
                             buildTaskRef,
@@ -363,10 +360,38 @@ public class DatastoreAdapter {
         }
     }
 
+    private Map<Artifact, String> findOutBuiltConflicts(List<Artifact> builtArtifacts) {
+        return datastore.checkForBuiltArtifacts(builtArtifacts);
+    }
+
+    public Map<Artifact, String> findOutBuiltConflicts(BuildTaskRef buildTaskRef, BuildResult buildResult) {
+        return datastore.checkForBuiltArtifacts(computeBuiltArtifacts(buildTaskRef, buildResult));
+    }
+
+    private List<Artifact> computeBuiltArtifacts(BuildTaskRef buildTaskRef, BuildResult buildResult) {
+        List<Artifact> builtArtifacts = Collections.emptyList();
+        if (buildResult.getRepositoryManagerResult().isPresent()) {
+            RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
+            builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
+            if (buildTaskRef.isTemporaryBuild()) {
+                checkTemporaryArtifacts(builtArtifacts);
+            }
+        }
+        return builtArtifacts;
+    }
+
     public BuildRecord storeResult(BuildTaskRef buildTask, Optional<BuildResult> buildResult, Throwable e)
             throws DatastoreException {
+        return storeResult(buildTask, buildResult, e, SYSTEM_ERROR);
+    }
+
+    public BuildRecord storeResult(
+            BuildTaskRef buildTask,
+            Optional<BuildResult> buildResult,
+            Throwable e,
+            BuildStatus defaultBuildStatus) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
-        buildRecordBuilder.status(SYSTEM_ERROR);
+        buildRecordBuilder.status(defaultBuildStatus);
 
         StringBuilder errorLog = new StringBuilder();
 
