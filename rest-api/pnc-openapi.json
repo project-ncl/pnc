@@ -1510,8 +1510,8 @@
           "description" : "What should varant rebuild?",
           "schema" : {
             "type" : "string",
-            "default" : "IMPLICIT_DEPENDENCY_CHECK",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
+            "default" : "IMPLICIT_DEPENDENCY_CHECK"
           }
         }, {
           "name" : "buildDependencies",
@@ -2298,8 +2298,8 @@
           "description" : "What should varant rebuild?",
           "schema" : {
             "type" : "string",
-            "default" : "IMPLICIT_DEPENDENCY_CHECK",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
+            "default" : "IMPLICIT_DEPENDENCY_CHECK"
           }
         }, {
           "name" : "buildDependencies",
@@ -5993,8 +5993,8 @@
           "description" : "IMPLICIT_DEPENDENCY_CHECK",
           "schema" : {
             "type" : "string",
-            "default" : "IMPLICIT_DEPENDENCY_CHECK",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
+            "default" : "IMPLICIT_DEPENDENCY_CHECK"
           }
         }, {
           "name" : "timestampAlignment",
