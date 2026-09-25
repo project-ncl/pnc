@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@646d9b629925d6405fb06ed1476aefd6b2cdca86 # v0.0.23
+    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@f0ec1696c5dfea0d6d16c135c14f54049b94edaf # v0.0.24
     with:
       java_version: 11
       build_command: "mvn clean install -DskipTests"
@@ -24,7 +24,7 @@ jobs:
 
   call-mend-ci:
     needs: build
-    uses: project-ncl/shared-github-actions/.github/workflows/mend-ci.yml@646d9b629925d6405fb06ed1476aefd6b2cdca86 # v0.0.23
+    uses: project-ncl/shared-github-actions/.github/workflows/mend-ci.yml@f0ec1696c5dfea0d6d16c135c14f54049b94edaf # v0.0.24
     with:
       project_name: 'project-ncl/pnc'
       SCA: true
