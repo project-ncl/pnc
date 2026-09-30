@@ -746,8 +746,9 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
         Build build = Build.builder()
                 .alignmentPreference(AlignmentPreference.PREFER_PERSISTENT)
-                .attributes(
-                        Map.of("BREW_BUILD_NAME", "org.jboss.pnc:parent", "BREW_BUILD_VERSION", "1.2.3", "FOO", "bar"))
+                .attributes(Map.of("FOO", "bar"))
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.3")
                 .buildConfigRevision(buildConfigRevision)
                 .buildContentId("build-" + id)
                 .endTime(Instant.now())

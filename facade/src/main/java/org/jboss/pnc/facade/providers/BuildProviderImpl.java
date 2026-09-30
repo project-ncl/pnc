@@ -29,7 +29,6 @@ import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.TimeUtils;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -268,34 +267,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         if (!key.matches("[a-zA-Z_0-9]+")) {
             throw new IllegalArgumentException("Attribute key must match [a-zA-Z_0-9]+");
         }
-        switch (key) {
-            case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
-                buildRecord.setExecutionRootName(value);
-                break;
-            case Attributes.BUILD_BREW_VERSION: // workaround for NCL-4889
-                buildRecord.setExecutionRootVersion(value);
-                break;
-            default:
-                buildRecord.putAttribute(key, value);
-                break;
-        }
+        buildRecord.putAttribute(key, value);
         repository.save(buildRecord);
     }
 
     @Override
     public void removeAttribute(String buildId, String key) {
         BuildRecord buildRecord = getBuildRecord(buildId);
-        switch (key) {
-            case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
-                buildRecord.setExecutionRootName(null);
-                break;
-            case Attributes.BUILD_BREW_VERSION: // workaround for NCL-4889
-                buildRecord.setExecutionRootVersion(null);
-                break;
-            default:
-                buildRecord.removeAttribute(key);
-                break;
-        }
+        buildRecord.removeAttribute(key);
         repository.save(buildRecord);
     }
 

@@ -10682,6 +10682,12 @@
           "environment" : {
             "$ref" : "#/components/schemas/Environment"
           },
+          "executionRootName" : {
+            "type" : "string"
+          },
+          "executionRootVersion" : {
+            "type" : "string"
+          },
           "groupBuild" : {
             "$ref" : "#/components/schemas/GroupBuildRef"
           },
