@@ -78,15 +78,6 @@ public class DingroguClientImpl implements DingroguClient {
     }
 
     @Override
-    public void submitBuildPush(DingroguBuildPushDTO dto) {
-        String url = global.getExternalDingroguUrl() + "/workflow/brew-push/start";
-        submitRequestWithRetries(
-                Request.builder().method(Request.Method.POST).uri(URI.create(url)).build(),
-                dto,
-                Optional.of(serviceAccountClient.getAuthHeaderValue()));
-    }
-
-    @Override
     public void submitRepositoryCreation(DingroguRepositoryCreationDTO dto) {
         String url = global.getExternalDingroguUrl() + "/workflow/repository-creation/start";
         submitRequestWithRetries(
