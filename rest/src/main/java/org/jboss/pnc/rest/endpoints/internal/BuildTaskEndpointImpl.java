@@ -1,25 +1,58 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static java.lang.Integer.parseInt;
+import static java.text.MessageFormat.format;
+import static org.jboss.pnc.mapper.api.BuildTaskMappers.toBuildStatus;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withEndTime;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withIds;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withOneOfCombinationOfAttributes;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withStartTime;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSubmitTime;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import org.jboss.pnc.api.dto.ErrorResponse;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.common.Date.ExpiresDate;
+import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Attachment;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.internal.BuildDriverResultRest;
 import org.jboss.pnc.dto.internal.BuildImport;
 import org.jboss.pnc.dto.internal.BuildResultRest;
@@ -27,24 +60,17 @@ import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
 import org.jboss.pnc.dto.internal.ImportBuildsRequest;
 import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.dto.Artifact;
-import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenImporting;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.AttachmentMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildMetaMapper;
 import org.jboss.pnc.mapper.api.BuildResultMapper;
-import org.jboss.pnc.common.Date.ExpiresDate;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
-import org.jboss.pnc.facade.validation.InvalidEntityException;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
@@ -63,7 +89,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildMeta;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.KV;
@@ -78,43 +103,7 @@ import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.lang.Integer.parseInt;
-import static java.text.MessageFormat.format;
-import static org.jboss.pnc.mapper.api.BuildTaskMappers.toBuildStatus;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withEndTime;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withIds;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withOneOfCombinationOfAttributes;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withStartTime;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSubmitTime;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Dependent
 public class BuildTaskEndpointImpl implements BuildTaskEndpoint {

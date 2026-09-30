@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 /**
  * JBoss, Home of Professional Open Source.
@@ -18,16 +22,15 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLException;
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
-import org.jboss.pnc.model.*;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.*;
 
 /**
  *

@@ -1,19 +1,6 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.model;
 
@@ -74,15 +61,18 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     @ManyToMany
     @JoinTable(
             name = "build_configuration_set_map",
-            joinColumns = { @JoinColumn(
-                    name = "build_configuration_set_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")) },
-            inverseJoinColumns = { @JoinColumn(
-                    name = "build_configuration_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")) },
-            indexes = { @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
+            joinColumns = {
+                    @JoinColumn(
+                            name = "build_configuration_set_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")) },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "build_configuration_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")) },
+            indexes = {
+                    @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
                     @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id") })
     private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 

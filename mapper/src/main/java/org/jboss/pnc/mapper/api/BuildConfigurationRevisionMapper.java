@@ -1,19 +1,6 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.mapper.api;
 
@@ -32,7 +19,11 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class,
+        uses = {
+                RefToReferenceMapper.class,
+                ProjectMapper.class,
+                EnvironmentMapper.class,
+                SCMRepositoryMapper.class,
                 UserMapper.class },
         imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
@@ -65,7 +56,14 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration", "repositoryConfiguration",
-                    "buildEnvironment", "project", "genericParameters", "creationUser", "lastModificationUser" })
+            ignoreUnmappedSourceProperties = {
+                    "idRev",
+                    "buildConfiguration",
+                    "repositoryConfiguration",
+                    "buildEnvironment",
+                    "project",
+                    "genericParameters",
+                    "creationUser",
+                    "lastModificationUser" })
     BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
 }

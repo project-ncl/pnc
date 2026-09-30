@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    JBoss, Home of Professional Open Source.
-    Copyright 2014-2022 Red Hat, Inc., and individual contributors
-    as indicated by the @author tags.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+    SPDX-License-Identifier: Apache-2.0
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -23,14 +10,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>messaging</artifactId>
-  <name>messaging</name>
   <packaging>jar</packaging>
+  <name>messaging</name>
 
   <dependencies>
 
@@ -95,7 +82,6 @@
 
   </dependencies>
 
-
   <build>
     <plugins>
       <plugin>
@@ -111,7 +97,9 @@
     <profile>
       <id>provision-test-eap</id>
       <activation>
-        <property><name>!skipTests</name></property>
+        <property>
+          <name>!skipTests</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -120,10 +108,10 @@
             <artifactId>eap-maven-plugin</artifactId>
             <executions>
               <execution>
-                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>package</goal>
                 </goals>
+                <phase>pre-integration-test</phase>
                 <!-- Layers, excluded layers and scripts are inherited from parent plugin config -->
                 <configuration>
                   <layers combine.children="append">
@@ -146,6 +134,5 @@
       </build>
     </profile>
   </profiles>
-
 
 </project>

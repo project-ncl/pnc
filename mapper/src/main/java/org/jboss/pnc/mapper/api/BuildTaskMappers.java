@@ -1,21 +1,16 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.mapper.api;
+
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
@@ -24,10 +19,10 @@ import org.jboss.pnc.mapper.UserFetcher;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.common.enums.StopFlag;
 import org.jboss.pnc.rex.common.enums.Transition;
 import org.jboss.pnc.rex.dto.TaskDTO;
-import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.TransitionTimeDTO;
 import org.jboss.pnc.rex.model.TransitionTime;
 import org.jboss.pnc.rex.model.requests.MinimizedTask;
@@ -42,14 +37,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @Mapper(
         config = MapperCentralConfig.class,
@@ -76,9 +63,21 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependants", source = "task.dependants")
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
-                    "remoteRollback", "stoppedCause", "milestoneTask" })
+            ignoreUnmappedSourceProperties = {
+                    "remoteStart",
+                    "remoteCancel",
+                    "callerNotifications",
+                    "state",
+                    "stopFlag",
+                    "serverResponses",
+                    "id",
+                    "idRev",
+                    "configuration",
+                    "timestamps",
+                    "queue",
+                    "remoteRollback",
+                    "stoppedCause",
+                    "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(TaskDTO task, BuildMeta meta);
 
     @Mapping(target = "buildConfigSetRecordId", ignore = true)
@@ -112,9 +111,21 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependants", source = "task.dependants")
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
-                    "remoteRollback", "stoppedCause", "milestoneTask" })
+            ignoreUnmappedSourceProperties = {
+                    "remoteStart",
+                    "remoteCancel",
+                    "callerNotifications",
+                    "state",
+                    "stopFlag",
+                    "serverResponses",
+                    "id",
+                    "idRev",
+                    "configuration",
+                    "timestamps",
+                    "queue",
+                    "remoteRollback",
+                    "stoppedCause",
+                    "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(MinimizedTask task, BuildMeta meta);
 
     @BeforeMapping

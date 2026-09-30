@@ -1,21 +1,18 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.facade.providers;
+
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_ARTIFACT_ID;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_BUILD_ID;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_URI;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
@@ -59,17 +56,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import lombok.NoArgsConstructor;
-
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_ARTIFACT_ID;
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_BUILD_ID;
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_URI;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
-
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @PermitAll
 @Stateless

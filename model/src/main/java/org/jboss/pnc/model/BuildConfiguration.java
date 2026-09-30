@@ -1,19 +1,6 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.model;
 
@@ -83,7 +70,8 @@ import org.jboss.pnc.enums.BuildType;
 @Audited
 @Table(
         uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = { "name", "active" }),
-        indexes = { @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
+        indexes = {
+                @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
                 @Index(name = "idx_buildconfiguration_buildenvironment", columnList = "buildenvironment_id"),
                 @Index(name = "idx_buildconfiguration_project", columnList = "project_id"),
                 @Index(
@@ -179,15 +167,18 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ManyToMany(cascade = { CascadeType.REFRESH })
     @JoinTable(
             name = "build_configuration_dep_map",
-            joinColumns = { @JoinColumn(
-                    name = "dependency_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")) },
-            inverseJoinColumns = { @JoinColumn(
-                    name = "dependant_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")) },
-            indexes = { @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
+            joinColumns = {
+                    @JoinColumn(
+                            name = "dependency_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")) },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "dependant_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")) },
+            indexes = {
+                    @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
                     @Index(name = "idx_build_configuration_dep_map_dependency", columnList = "dependency_id") })
     private Set<BuildConfiguration> dependencies;
 

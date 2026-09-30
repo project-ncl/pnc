@@ -1,40 +1,32 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.jboss.pnc.mapper;
 
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.AttachmentMapper;
 import org.jboss.pnc.mapper.api.BuildDriverResultMapper;
 import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.mapper.api.EnvironmentDriverResultMapper;
 import org.jboss.pnc.mapper.api.RepositoryManagerResultMapper;
-import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.mapper.api.RepourResultMapper;
 import org.jboss.pnc.mapper.api.SshCredentialsMapper;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.spi.BuildResultMock;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.junit.Assert;
@@ -47,13 +39,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-
-import org.jboss.pnc.mapper.api.BuildMapper;
-
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

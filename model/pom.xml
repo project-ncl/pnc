@@ -1,35 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    JBoss, Home of Professional Open Source.
-    Copyright 2014-2022 Red Hat, Inc., and individual contributors
-    as indicated by the @author tags.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+    SPDX-License-Identifier: Apache-2.0
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>model</artifactId>
-  <name>model</name>
   <packaging>jar</packaging>
+  <name>model</name>
 
   <description>Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration.</description>
 
@@ -134,9 +121,10 @@
     <dependency>
       <groupId>org.infinispan</groupId>
       <artifactId>infinispan-hibernate-cache-v53</artifactId>
-      <scope>test</scope>  
+      <scope>test</scope>
     </dependency>
-    <dependency> <!-- required by hibernate cache -->
+    <dependency>
+      <!-- required by hibernate cache -->
       <groupId>org.wildfly.arquillian</groupId>
       <artifactId>wildfly-arquillian-container-managed</artifactId>
       <scope>test</scope>
@@ -151,15 +139,15 @@
         <version>${version.org.hibernate.hibernate-core}</version>
         <executions>
           <execution>
+            <goals>
+              <goal>enhance</goal>
+            </goals>
             <configuration>
               <failOnError>true</failOnError>
               <enableLazyInitialization>true</enableLazyInitialization>
               <enableDirtyTracking>false</enableDirtyTracking>
               <enableAssociationManagement>false</enableAssociationManagement>
             </configuration>
-            <goals>
-              <goal>enhance</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

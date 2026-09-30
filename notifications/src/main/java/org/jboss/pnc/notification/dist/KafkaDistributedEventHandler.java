@@ -1,19 +1,6 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.notification.dist;
 
@@ -21,12 +8,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
-import io.apicurio.registry.utils.IoUtil;
-import io.apicurio.registry.utils.kafka.AsyncProducer;
-import io.apicurio.registry.utils.kafka.ConsumerContainer;
-import io.apicurio.registry.utils.kafka.ConsumerSkipRecordsSerializationExceptionHandler;
-import io.apicurio.registry.utils.kafka.Oneof2;
-import io.apicurio.registry.utils.kafka.ProducerActions;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -41,6 +22,13 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.apicurio.registry.utils.IoUtil;
+import io.apicurio.registry.utils.kafka.AsyncProducer;
+import io.apicurio.registry.utils.kafka.ConsumerContainer;
+import io.apicurio.registry.utils.kafka.ConsumerSkipRecordsSerializationExceptionHandler;
+import io.apicurio.registry.utils.kafka.Oneof2;
+import io.apicurio.registry.utils.kafka.ProducerActions;
 
 public class KafkaDistributedEventHandler extends AbstractDistributedEventHandler {
 

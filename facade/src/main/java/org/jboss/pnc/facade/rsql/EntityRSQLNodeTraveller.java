@@ -1,29 +1,26 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.facade.rsql;
 
-import cz.jirutka.rsql.parser.ast.AndNode;
-import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.LogicalNode;
-import cz.jirutka.rsql.parser.ast.Node;
-import cz.jirutka.rsql.parser.ast.OrNode;
-import cz.jirutka.rsql.parser.ast.RSQLOperators;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.LIKE;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.NOT_LIKE;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_MULTIPLE_CHARACTERS;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_SINGLE_CHARACTER;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
+
 import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 import org.jboss.pnc.facade.rsql.converter.Value;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
@@ -32,21 +29,13 @@ import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.SingularAttribute;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
-import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.LIKE;
-import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.NOT_LIKE;
-import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_MULTIPLE_CHARACTERS;
-import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_SINGLE_CHARACTER;
+import cz.jirutka.rsql.parser.ast.AndNode;
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.Node;
+import cz.jirutka.rsql.parser.ast.OrNode;
+import cz.jirutka.rsql.parser.ast.RSQLOperators;
 
 /**
  *

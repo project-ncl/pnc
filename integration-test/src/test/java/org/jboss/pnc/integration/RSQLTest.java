@@ -1,23 +1,22 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.integration;
 
-import io.restassured.http.ContentType;
+import static io.restassured.RestAssured.given;
+import static java.util.Optional.empty;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -42,18 +41,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static io.restassured.RestAssured.given;
-import static java.util.Optional.empty;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
+import io.restassured.http.ContentType;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -202,14 +190,24 @@ public class RSQLTest {
     @Test
     public void shouldFilterProjectsBasedOnLikeOperator() throws RemoteResourceException {
         String sortQury = "sort=asc=name";
-        String[] queries = new String[] { "name=like=%De%", "name=like=%de%", "name=like=*de*", "name=like=P%",
-                "name=like=P*", "name=like=%termd%", "name=like=_auseway", "name=like=?auseway" };
+        String[] queries = new String[] {
+                "name=like=%De%",
+                "name=like=%de%",
+                "name=like=*de*",
+                "name=like=P%",
+                "name=like=P*",
+                "name=like=%termd%",
+                "name=like=_auseway",
+                "name=like=?auseway" };
         String[][] results = new String[][] { // must be sorted lexicographically
                 { "Dependency Analysis", "JBoss EAP Demo Project", "Project Newcastle Demo Project 1" },
                 { "Dependency Analysis", "JBoss EAP Demo Project", "Project Newcastle Demo Project 1" },
                 { "Dependency Analysis", "JBoss EAP Demo Project", "Project Newcastle Demo Project 1" },
                 { "Pnc Build Agent", "Project Newcastle Demo Project 1" },
-                { "Pnc Build Agent", "Project Newcastle Demo Project 1" }, { "termd" }, {}, { "Causeway" } };
+                { "Pnc Build Agent", "Project Newcastle Demo Project 1" },
+                { "termd" },
+                {},
+                { "Causeway" } };
 
         for (int i = 0; i < queries.length; i++) {
             RemoteCollection<Project> projects = projectClient.getAll(Optional.of(sortQury), Optional.of(queries[i]));
@@ -220,20 +218,40 @@ public class RSQLTest {
     @Test
     public void shouldFilterProjectsBasedOnNotLikeOperator() throws RemoteResourceException {
         String sortQury = "sort=asc=name";
-        String[] queries = new String[] { "name=notlike=%De%", "name=notlike=%de%", "name=notlike=*de*",
-                "name=notlike=P%", "name=notlike=P*", "name=notlike=%termd%", "name=notlike=_auseway",
+        String[] queries = new String[] {
+                "name=notlike=%De%",
+                "name=notlike=%de%",
+                "name=notlike=*de*",
+                "name=notlike=P%",
+                "name=notlike=P*",
+                "name=notlike=%termd%",
+                "name=notlike=_auseway",
                 "name=notlike=?auseway" };
         String[][] results = new String[][] { // must be sorted lexicographically
-                { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Pnc Build Agent", "termd" },
                 { "Causeway", "Pnc Build Agent", "termd" },
                 { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "termd" },
                 { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "termd" },
-                { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "Pnc Build Agent",
+                {
+                        "Causeway",
+                        "Dependency Analysis",
+                        "JBoss EAP Demo Project",
+                        "Pnc Build Agent",
                         "Project Newcastle Demo Project 1" },
-                { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "Pnc Build Agent",
-                        "Project Newcastle Demo Project 1", "termd" },
-                { "Dependency Analysis", "JBoss EAP Demo Project", "Pnc Build Agent",
-                        "Project Newcastle Demo Project 1", "termd" } };
+                {
+                        "Causeway",
+                        "Dependency Analysis",
+                        "JBoss EAP Demo Project",
+                        "Pnc Build Agent",
+                        "Project Newcastle Demo Project 1",
+                        "termd" },
+                {
+                        "Dependency Analysis",
+                        "JBoss EAP Demo Project",
+                        "Pnc Build Agent",
+                        "Project Newcastle Demo Project 1",
+                        "termd" } };
 
         for (int i = 0; i < queries.length; i++) {
             RemoteCollection<Project> projects = projectClient.getAll(Optional.of(sortQury), Optional.of(queries[i]));
