@@ -140,7 +140,6 @@ public class DingroguClientImpl implements DingroguClient {
                                 buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildType().name()))
                 .buildCategory(getBuildCategory(buildTask.getBuildConfigurationAudited().getGenericParameters()))
                 .defaultAlignmentParams(buildTask.getBuildConfigurationAudited().getDefaultAlignmentParams())
-                .brewPullActive(buildTask.getBuildConfigurationAudited().isBrewPullActive())
                 .genericParameters(buildTask.getBuildConfigurationAudited().getGenericParameters())
                 .buildConfigurationId(buildTask.getBuildConfigurationAudited().getId().toString())
                 .buildScript(buildTask.getBuildConfigurationAudited().getBuildConfiguration().getBuildScript())

@@ -7678,8 +7678,6 @@ components:
       - name
       type: object
       properties:
-        brewPullActive:
-          type: boolean
         buildScript:
           type: string
         buildType:
@@ -7739,8 +7737,6 @@ components:
       - name
       type: object
       properties:
-        brewPullActive:
-          type: boolean
         buildScript:
           type: string
         buildType:
@@ -7774,8 +7770,6 @@ components:
       - id
       type: object
       properties:
-        brewPullActive:
-          type: boolean
         buildScript:
           type: string
         buildType:
@@ -7823,8 +7817,6 @@ components:
       - id
       type: object
       properties:
-        brewPullActive:
-          type: boolean
         buildScript:
           type: string
         buildType:
@@ -7860,8 +7852,6 @@ components:
       - name
       type: object
       properties:
-        brewPullActive:
-          type: boolean
         buildScript:
           type: string
         buildType:
@@ -7977,8 +7967,6 @@ components:
       type: object
       properties:
         autoalign:
-          type: boolean
-        brewpullactive:
           type: boolean
         buildConfigSetRecordId:
           type: integer

@@ -557,8 +557,6 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         assertThat(buildParametersEntry.get(PROVENANCE_V1_BUILD_DETAILS_NAME)).isEqualTo(buildConfigRevision.getName());
         Map<String, Object> mergedParams = (Map<String, Object>) buildParametersEntry
                 .get(PROVENANCE_V1_BUILD_DETAILS_PARAMETERS);
-        assertThat(mergedParams.get(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE))
-                .isEqualTo(String.valueOf(buildConfigRevision.isBrewPullActive()));
         assertThat(mergedParams.get("BUILD_CATEGORY"))
                 .isEqualTo(org.jboss.pnc.api.enums.BuildCategory.STANDARD.toString());
 
@@ -710,7 +708,6 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
         User user = User.builder().username("demo-user").build();
 
         BuildConfigurationRevision buildConfigRevision = BuildConfigurationRevision.builder()
-                .brewPullActive(false)
                 .buildScript("mvn deploy -DskipTests=true")
                 .buildType(BuildType.MVN)
                 .creationTime(Instant.now())

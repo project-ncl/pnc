@@ -103,7 +103,6 @@ public class BuildExecutionConfigurationTest {
                 new HashMap<>(),
                 false,
                 null,
-                false,
                 "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
                 AlignmentPreference.PREFER_PERSISTENT,
                 RebuildMode.IMPLICIT_DEPENDENCY_CHECK);

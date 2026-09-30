@@ -10858,9 +10858,6 @@
         "required" : [ "buildType", "id", "name" ],
         "type" : "object",
         "properties" : {
-          "brewPullActive" : {
-            "type" : "boolean"
-          },
           "buildScript" : {
             "type" : "string"
           },
@@ -10934,9 +10931,6 @@
         "required" : [ "buildType", "id", "name" ],
         "type" : "object",
         "properties" : {
-          "brewPullActive" : {
-            "type" : "boolean"
-          },
           "buildScript" : {
             "type" : "string"
           },
@@ -10974,9 +10968,6 @@
         "required" : [ "id" ],
         "type" : "object",
         "properties" : {
-          "brewPullActive" : {
-            "type" : "boolean"
-          },
           "buildScript" : {
             "type" : "string"
           },
@@ -11035,9 +11026,6 @@
         "required" : [ "id" ],
         "type" : "object",
         "properties" : {
-          "brewPullActive" : {
-            "type" : "boolean"
-          },
           "buildScript" : {
             "type" : "string"
           },
@@ -11075,9 +11063,6 @@
         "required" : [ "buildType", "id", "name" ],
         "type" : "object",
         "properties" : {
-          "brewPullActive" : {
-            "type" : "boolean"
-          },
           "buildScript" : {
             "type" : "string"
           },
@@ -11237,9 +11222,6 @@
         "type" : "object",
         "properties" : {
           "autoalign" : {
-            "type" : "boolean"
-          },
-          "brewpullactive" : {
             "type" : "boolean"
           },
           "buildConfigSetRecordId" : {
