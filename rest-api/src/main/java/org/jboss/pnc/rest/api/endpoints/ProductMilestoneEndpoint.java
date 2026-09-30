@@ -31,7 +31,6 @@ import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
-import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
@@ -55,7 +54,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
@@ -268,32 +266,7 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
-    void closeMilestone(
-            @Parameter(description = PM_ID) @PathParam("id") String id,
-            @Valid MilestoneCloseRequest closeRequest);
-
-    static final String CLOSE_MILESTONE_CANCEL_DESC = "Cancel product milestone close process.";
-
-    /**
-     * {@value CLOSE_MILESTONE_CANCEL_DESC}
-     * 
-     * @param id {@value PM_ID}
-     */
-    @Operation(
-            summary = CLOSE_MILESTONE_CANCEL_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @DELETE
-    @RespondWithStatus(Response.Status.ACCEPTED)
-    @Path("/{id}/close")
-    void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") String id);
+    void closeMilestone(@Parameter(description = PM_ID) @PathParam("id") String id);
 
     static final String GET_DELIVERABLES_DESC = "Gets artifacts delivered in this milestone.";
 

@@ -36,7 +36,7 @@ public enum MilestoneCloseStatus {
      */
     FAILED,
     /**
-     * Milestone close finished successfully and builds were pushed to Koji.
+     * Milestone close finished successfully.
      */
     SUCCEEDED,
     /**

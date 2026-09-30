@@ -1078,11 +1078,11 @@ paths:
         description: What should varant rebuild?
         schema:
           type: string
+          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
-          default: IMPLICIT_DEPENDENCY_CHECK
       - name: buildDependencies
         in: query
         description: Should we build also dependencies of this Build Config?
@@ -1643,11 +1643,11 @@ paths:
         description: What should varant rebuild?
         schema:
           type: string
+          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
-          default: IMPLICIT_DEPENDENCY_CHECK
       - name: buildDependencies
         in: query
         description: Should we build also dependencies of this Build Config?
@@ -3944,11 +3944,11 @@ paths:
         description: IMPLICIT_DEPENDENCY_CHECK
         schema:
           type: string
+          default: IMPLICIT_DEPENDENCY_CHECK
           enum:
           - IMPLICIT_DEPENDENCY_CHECK
           - EXPLICIT_DEPENDENCY_CHECK
           - FORCE
-          default: IMPLICIT_DEPENDENCY_CHECK
       - name: timestampAlignment
         in: query
         description: This feature was disabled. Setting this value has no effect on
@@ -4894,11 +4894,6 @@ paths:
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MilestoneCloseRequest'
       responses:
         "202":
           description: Request was accepted for processing
@@ -4910,33 +4905,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         "409":
           description: Conflict while saving an entity
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "500":
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    delete:
-      tags:
-      - Product Milestones
-      summary: Cancel product milestone close process.
-      operationId: cancelMilestoneClose
-      parameters:
-      - name: id
-        in: path
-        description: ID of the product milestone
-        required: true
-        schema:
-          type: string
-      responses:
-        "202":
-          description: Request was accepted for processing
-        "400":
-          description: Invalid input parameters or validation error
           content:
             application/json:
               schema:
@@ -8687,11 +8655,6 @@ components:
         startedOn:
           type: string
           format: date-time
-    MilestoneCloseRequest:
-      type: object
-      properties:
-        skipBrewPush:
-          type: boolean
     MilestoneInfo:
       type: object
       properties:

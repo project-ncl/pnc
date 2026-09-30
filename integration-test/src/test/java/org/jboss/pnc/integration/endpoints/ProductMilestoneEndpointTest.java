@@ -30,7 +30,6 @@ import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Product;
@@ -287,8 +286,7 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone created = client.createNew(newMilestone);
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
-        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId(), MilestoneCloseRequest.builder().build()))
-                .cause()
+        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId())).cause()
                 .isInstanceOfSatisfying(
                         ClientErrorException.class,
                         e -> assertThat(e.getResponse().getStatus()).isEqualTo(409));
@@ -596,13 +594,13 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
-    public void shouldCloseMilestoneWithoutBuildPush() throws RemoteResourceException {
+    public void shouldCloseMilestone() throws RemoteResourceException {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         ProductMilestone preClose = client.getSpecific(milestone6.getId());
         assertThat(preClose.getEndDate()).isNull();
 
-        client.closeMilestone(milestone6.getId(), MilestoneCloseRequest.builder().skipBrewPush(true).build());
+        client.closeMilestone(milestone6.getId());
 
         ProductMilestone postClose = client.getSpecific(milestone6.getId());
         assertThat(postClose.getEndDate()).isNotNull();

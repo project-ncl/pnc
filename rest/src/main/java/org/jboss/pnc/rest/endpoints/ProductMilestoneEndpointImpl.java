@@ -33,7 +33,6 @@ import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
-import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -107,14 +106,8 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public void closeMilestone(String id, MilestoneCloseRequest closeRequest) {
-        boolean skipPush = closeRequest != null && Boolean.TRUE.equals(closeRequest.getSkipBrewPush());
-        productMilestoneProvider.closeMilestone(id, skipPush);
-    }
-
-    @Override
-    public void cancelMilestoneClose(String id) {
-        productMilestoneProvider.cancelMilestoneCloseProcess(id);
+    public void closeMilestone(String id) {
+        productMilestoneProvider.closeMilestone(id);
     }
 
     @Override
