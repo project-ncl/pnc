@@ -28,7 +28,6 @@ import javax.ws.rs.core.Context;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -44,7 +43,6 @@ import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
@@ -71,9 +69,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private DeliverableAnalyzerOperationProvider delAnalyzerProvider;
-
-    @Inject
-    private BuildPushOperationProvider buildPushOperationProvider;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -120,17 +115,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Override
     public void cancelMilestoneClose(String id) {
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
-    }
-
-    @Override
-    public Page<BuildPushOperation> getPushOperations(String id, boolean latest, PageParameters pageParameters) {
-        return buildPushOperationProvider.getOperationsForMilestone(
-                pageParameters.getPageIndex(),
-                pageParameters.getPageSize(),
-                pageParameters.getSort(),
-                pageParameters.getQ(),
-                latest,
-                id);
     }
 
     @Override

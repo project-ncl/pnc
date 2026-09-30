@@ -1510,8 +1510,8 @@
           "description" : "What should varant rebuild?",
           "schema" : {
             "type" : "string",
-            "default" : "IMPLICIT_DEPENDENCY_CHECK",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
+            "default" : "IMPLICIT_DEPENDENCY_CHECK"
           }
         }, {
           "name" : "buildDependencies",
@@ -2298,8 +2298,8 @@
           "description" : "What should varant rebuild?",
           "schema" : {
             "type" : "string",
-            "default" : "IMPLICIT_DEPENDENCY_CHECK",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
+            "default" : "IMPLICIT_DEPENDENCY_CHECK"
           }
         }, {
           "name" : "buildDependencies",
@@ -2408,47 +2408,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/BuildConfiguration"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/build-pushes/{id}" : {
-      "get" : {
-        "tags" : [ "Build pushes" ],
-        "summary" : "Get specific Report of Build Push Operation.",
-        "operationId" : "getPushReport",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the Build Push Report.",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushReport"
                 }
               }
             }
@@ -3483,215 +3442,6 @@
         }
       }
     },
-    "/builds/{id}/brew-push" : {
-      "get" : {
-        "tags" : [ "Builds" ],
-        "summary" : "Get latest Brew push result for specific build.",
-        "operationId" : "getPushResult",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the build",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushReport"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "deprecated" : true
-      },
-      "post" : {
-        "tags" : [ "Builds" ],
-        "summary" : "Push build to Brew.",
-        "operationId" : "push",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the build",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/BuildPushParameters"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperation"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Build contains artifacts of insufficient quality",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict while saving an entity",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "tags" : [ "Builds" ],
-        "summary" : "Cancels push of build to Brew.",
-        "operationId" : "cancelPush",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the build",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing"
-          },
-          "404" : {
-            "description" : "Can not find any Brew push in progress."
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/builds/{id}/brew-push/complete" : {
-      "post" : {
-        "tags" : [ "Internal", "Builds" ],
-        "summary" : "Notifies that the Brew push finished.",
-        "operationId" : "completePush",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the build",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/BuildPushCompleted"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing"
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict while saving an entity",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/builds/{id}/build-config-revision" : {
       "get" : {
         "tags" : [ "Builds" ],
@@ -3713,89 +3463,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/BuildConfigurationRevision"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/builds/{id}/build-push-operations" : {
-      "get" : {
-        "tags" : [ "Builds" ],
-        "summary" : "Get build push operations for specified build.",
-        "operationId" : "getPushOperations",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the build",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "pageIndex",
-          "in" : "query",
-          "description" : "Index of the page to return. Index starts with 0.",
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 0
-          }
-        }, {
-          "name" : "pageSize",
-          "in" : "query",
-          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 50
-          }
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "q",
-          "in" : "query",
-          "description" : "RSQL Query.",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperationPage"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5439,66 +5106,6 @@
         }
       }
     },
-    "/group-builds/{id}/brew-push" : {
-      "post" : {
-        "tags" : [ "Group Builds" ],
-        "summary" : "Push all perfomred builds from this group build to Brew.",
-        "operationId" : "brewPush",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the group build",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/GroupBuildPushRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing"
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict while saving an entity",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/group-builds/{id}/builds" : {
       "get" : {
         "tags" : [ "Group Builds" ],
@@ -5993,8 +5600,8 @@
           "description" : "IMPLICIT_DEPENDENCY_CHECK",
           "schema" : {
             "type" : "string",
-            "default" : "IMPLICIT_DEPENDENCY_CHECK",
-            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ]
+            "enum" : [ "IMPLICIT_DEPENDENCY_CHECK", "EXPLICIT_DEPENDENCY_CHECK", "FORCE" ],
+            "default" : "IMPLICIT_DEPENDENCY_CHECK"
           }
         }, {
           "name" : "timestampAlignment",
@@ -6422,119 +6029,6 @@
                 }
               }
             }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/operations/build-pushes" : {
-      "get" : {
-        "tags" : [ "Operations" ],
-        "summary" : "Gets all build push operations.",
-        "operationId" : "getAllBuildPushOperation",
-        "parameters" : [ {
-          "name" : "pageIndex",
-          "in" : "query",
-          "description" : "Index of the page to return. Index starts with 0.",
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 0
-          }
-        }, {
-          "name" : "pageSize",
-          "in" : "query",
-          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 50
-          }
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "q",
-          "in" : "query",
-          "description" : "RSQL Query.",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperationPage"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/operations/build-pushes/{id}" : {
-      "get" : {
-        "tags" : [ "Operations" ],
-        "summary" : "Gets a specific build push operation.",
-        "operationId" : "getSpecificBuildPush",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the operation",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperation"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
           },
           "500" : {
             "description" : "Server error",
@@ -7352,97 +6846,6 @@
                 }
               }
             }
-          },
-          "500" : {
-            "description" : "Server error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/product-milestones/{id}/build-push-operations" : {
-      "get" : {
-        "tags" : [ "Product Milestones" ],
-        "summary" : "Get build push operations for specified milestone.",
-        "operationId" : "getPushOperations_1",
-        "parameters" : [ {
-          "name" : "id",
-          "in" : "path",
-          "description" : "ID of the product milestone",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "latest",
-          "in" : "query",
-          "description" : "Should return only latest operation for each build?",
-          "schema" : {
-            "type" : "boolean",
-            "default" : false
-          }
-        }, {
-          "name" : "pageIndex",
-          "in" : "query",
-          "description" : "Index of the page to return. Index starts with 0.",
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 0
-          }
-        }, {
-          "name" : "pageSize",
-          "in" : "query",
-          "description" : "Number of entries that should be included in a page. Maximum page size is 200.",
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 50
-          }
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "description" : "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "q",
-          "in" : "query",
-          "description" : "RSQL Query.",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperationPage"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
           },
           "500" : {
             "description" : "Server error",
@@ -11878,151 +11281,6 @@
           }
         }
       },
-      "BuildPushCompleted" : {
-        "type" : "object",
-        "properties" : {
-          "brewBuildId" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "brewBuildUrl" : {
-            "type" : "string"
-          },
-          "callback" : {
-            "$ref" : "#/components/schemas/Request"
-          },
-          "operationId" : {
-            "type" : "string"
-          }
-        }
-      },
-      "BuildPushOperation" : {
-        "required" : [ "id" ],
-        "type" : "object",
-        "properties" : {
-          "build" : {
-            "$ref" : "#/components/schemas/BuildRef"
-          },
-          "endTime" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "outcome" : {
-            "$ref" : "#/components/schemas/OperationOutcome"
-          },
-          "parameters" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "progressStatus" : {
-            "type" : "string",
-            "enum" : [ "NEW", "PENDING", "IN_PROGRESS", "FINISHED" ]
-          },
-          "result" : {
-            "type" : "string",
-            "enum" : [ "SUCCESSFUL", "FAILED", "REJECTED", "CANCELLED", "TIMEOUT", "SYSTEM_ERROR" ]
-          },
-          "startTime" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "submitTime" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "user" : {
-            "$ref" : "#/components/schemas/User"
-          }
-        }
-      },
-      "BuildPushOperationPage" : {
-        "type" : "object",
-        "properties" : {
-          "content" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/BuildPushOperation"
-            }
-          },
-          "pageIndex" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "totalHits" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "BuildPushParameters" : {
-        "required" : [ "tagPrefix" ],
-        "type" : "object",
-        "properties" : {
-          "reimport" : {
-            "type" : "boolean"
-          },
-          "tagPrefix" : {
-            "type" : "string"
-          }
-        }
-      },
-      "BuildPushReport" : {
-        "type" : "object",
-        "properties" : {
-          "brewBuildId" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "brewBuildUrl" : {
-            "type" : "string"
-          },
-          "build" : {
-            "$ref" : "#/components/schemas/BuildRef"
-          },
-          "endTime" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "progressStatus" : {
-            "type" : "string",
-            "enum" : [ "NEW", "PENDING", "IN_PROGRESS", "FINISHED" ]
-          },
-          "result" : {
-            "type" : "string",
-            "enum" : [ "SUCCESSFUL", "FAILED", "REJECTED", "CANCELLED", "TIMEOUT", "SYSTEM_ERROR" ]
-          },
-          "startTime" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "submitTime" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "tagPrefix" : {
-            "type" : "string"
-          },
-          "user" : {
-            "$ref" : "#/components/schemas/User"
-          }
-        }
-      },
       "BuildRecordInsights" : {
         "type" : "object",
         "properties" : {
@@ -12722,14 +11980,6 @@
           }
         }
       },
-      "GroupBuildPushRequest" : {
-        "type" : "object",
-        "properties" : {
-          "tagPrefix" : {
-            "type" : "string"
-          }
-        }
-      },
       "GroupBuildRef" : {
         "required" : [ "id" ],
         "type" : "object",
@@ -12829,18 +12079,6 @@
             "type" : "string"
           },
           "name" : {
-            "type" : "string"
-          }
-        }
-      },
-      "Header" : {
-        "required" : [ "name", "value" ],
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "value" : {
             "type" : "string"
           }
         }
@@ -13210,33 +12448,6 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/BuildConfigurationWithLatestBuild"
-            }
-          },
-          "pageIndex" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "totalHits" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "PageBuildPushOperation" : {
-        "type" : "object",
-        "properties" : {
-          "content" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/BuildPushOperation"
             }
           },
           "pageIndex" : {
@@ -14429,29 +13640,6 @@
           "taskId" : {
             "type" : "integer",
             "format" : "int64"
-          }
-        }
-      },
-      "Request" : {
-        "required" : [ "method" ],
-        "type" : "object",
-        "properties" : {
-          "attachment" : {
-            "type" : "object"
-          },
-          "headers" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Header"
-            }
-          },
-          "method" : {
-            "type" : "string",
-            "enum" : [ "GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "OPTIONS" ]
-          },
-          "uri" : {
-            "type" : "string",
-            "format" : "uri"
           }
         }
       },
