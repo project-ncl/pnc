@@ -10303,10 +10303,6 @@
           "artifact" : {
             "$ref" : "#/components/schemas/Artifact"
           },
-          "brewId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
           "builtFromSource" : {
             "type" : "boolean"
           },

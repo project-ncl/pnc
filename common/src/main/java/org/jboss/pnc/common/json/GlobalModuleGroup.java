@@ -59,7 +59,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     public boolean isPersistentBuildingAllowed;
 
     private String externalEttUrl;
-    private String brewContentUrl;
 
     public String getBpmUrl() {
         return bpmUrl;
@@ -291,13 +290,5 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalEttUrl(String externalEttUrl) {
         this.externalEttUrl = externalEttUrl;
-    }
-
-    public String getBrewContentUrl() {
-        return brewContentUrl;
-    }
-
-    public void setBrewContentUrl(String brewContentUrl) {
-        this.brewContentUrl = brewContentUrl;
     }
 }
