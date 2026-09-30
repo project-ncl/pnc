@@ -29,8 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -59,7 +57,6 @@ public class ProductMilestoneFactory {
                 .id(getNextId())
                 .version(productVersion)
                 .product(product)
-                .attributes(Map.of(BREW_TAG_PREFIX, "tag-prefix"))
                 .build();
 
         return createNewProductMilestoneFromProductVersion(pV, milestoneVersion);

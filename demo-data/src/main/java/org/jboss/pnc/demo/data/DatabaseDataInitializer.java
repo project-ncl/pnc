@@ -24,7 +24,6 @@ import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
@@ -221,9 +220,6 @@ public class DatabaseDataInitializer {
     DemoDataConfig demoDataConfig;
 
     @Inject
-    SystemConfig systemConfig;
-
-    @Inject
     BuildConfigurationAuditedHelper helper;
 
     BuildConfiguration buildConfiguration1;
@@ -366,30 +362,18 @@ public class DatabaseDataInitializer {
         ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_1)
                 .product(product1)
-                .generateBrewTagPrefix(
-                        product1.getAbbreviation(),
-                        PNC_PRODUCT_VERSION_1,
-                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion1 = productVersionRepository.save(productVersion1);
 
         ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_2)
                 .product(product1)
-                .generateBrewTagPrefix(
-                        product1.getAbbreviation(),
-                        PNC_PRODUCT_VERSION_2,
-                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 
         ProductVersion productVersion3 = ProductVersion.Builder.newBuilder()
                 .version(EAP_PRODUCT_VERSION)
                 .product(product2)
-                .generateBrewTagPrefix(
-                        product2.getAbbreviation(),
-                        EAP_PRODUCT_VERSION,
-                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion3 = productVersionRepository.save(productVersion3);
 

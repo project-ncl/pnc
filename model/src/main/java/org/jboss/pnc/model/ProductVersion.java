@@ -17,13 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
@@ -53,7 +50,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.pnc.constants.Patterns;
-import org.jboss.util.StringPropertyReplacer;
 
 /**
  * Class that contains all the versions for a Product
@@ -249,15 +245,6 @@ public class ProductVersion implements GenericEntity<Integer> {
         this.attributes = attributes;
     }
 
-    public void generateBrewTagPrefix(String productAbbreviation, String version, String tagPattern) {
-        Properties properties = new Properties();
-        properties.put("product_short_name", productAbbreviation.toLowerCase());
-        properties.put("product_version", version);
-        String replaced = StringPropertyReplacer.replaceProperties(tagPattern, properties);
-
-        this.attributes.put(BREW_TAG_PREFIX, replaced);
-    }
-
     @Override
     public String toString() {
         return "ProductVersion [id=" + id + ", version=" + version + "]";
@@ -396,21 +383,5 @@ public class ProductVersion implements GenericEntity<Integer> {
             return this;
         }
 
-        /**
-         * Will generate read-only value for Brew tag prefix for import of binaries
-         *
-         * @param productAbbreviation Abbreviation, which corresponds to product.getAbbreviation()
-         * @param version Version of this product version in format \d+\.\d+
-         * @return
-         */
-        public Builder generateBrewTagPrefix(String productAbbreviation, String version, String tagPattern) {
-            Properties properties = new Properties();
-            properties.put("product_short_name", productAbbreviation.toLowerCase());
-            properties.put("product_version", version);
-            String replaced = StringPropertyReplacer.replaceProperties(tagPattern, properties);
-
-            this.attributes.put(BREW_TAG_PREFIX, replaced);
-            return this;
-        }
     }
 }
