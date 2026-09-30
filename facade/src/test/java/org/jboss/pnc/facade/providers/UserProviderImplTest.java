@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -29,13 +36,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserProviderImplTest extends AbstractIntIdProviderTest<User> {

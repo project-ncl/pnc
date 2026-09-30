@@ -18,8 +18,31 @@
 
 package org.jboss.pnc.remotecoordinator.builder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
+import static java.text.MessageFormat.format;
+
+import java.net.URI;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
@@ -69,32 +92,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
-import java.io.Serializable;
-import java.net.URI;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.text.MessageFormat.format;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

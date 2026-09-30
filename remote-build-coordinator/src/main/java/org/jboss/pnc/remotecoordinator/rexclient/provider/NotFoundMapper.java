@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.remotecoordinator.rexclient.provider;
 
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
-import org.jboss.pnc.remotecoordinator.rexclient.exception.TaskNotFoundException;
-import org.jboss.pnc.rex.dto.responses.ErrorResponse;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
+import org.jboss.pnc.remotecoordinator.rexclient.exception.TaskNotFoundException;
+import org.jboss.pnc.rex.dto.responses.ErrorResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class NotFoundMapper implements ResponseExceptionMapper<NotFoundException> {

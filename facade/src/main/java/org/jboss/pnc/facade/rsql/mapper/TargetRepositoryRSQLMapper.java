@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.TargetRepository_;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository_;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>

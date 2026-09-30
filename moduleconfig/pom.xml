@@ -23,14 +23,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>moduleconfig</artifactId>
-  <name>moduleconfig</name>
   <packaging>jar</packaging>
+  <name>moduleconfig</name>
 
   <description>A set of classes to provide typed access to configurations. Contains also the template for the configuration file.</description>
 
@@ -95,8 +95,8 @@
   <build>
     <testResources>
       <testResource>
-        <directory>src/test/resources</directory>
         <filtering>false</filtering>
+        <directory>src/test/resources</directory>
       </testResource>
     </testResources>
   </build>

@@ -17,6 +17,23 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJBAccessException;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.dto.Build;
@@ -53,22 +70,6 @@ import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.EJBAccessException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 @ApplicationScoped
 public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {

@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.datastore.repositories.internal;
 
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 public class SortInfoConverter {
 

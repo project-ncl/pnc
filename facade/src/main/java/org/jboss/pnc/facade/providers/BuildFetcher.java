@@ -17,8 +17,26 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.Math.min;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.facade.util.MergeIterator;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
@@ -43,25 +61,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.impl.CursorPageInfo;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import static java.lang.Math.min;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is used for fetching builds in an DB effective way. This means reading data in bulk and precisely

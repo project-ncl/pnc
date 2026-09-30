@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.auth;
 
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -24,12 +31,6 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.enterprise.inject.Produces;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

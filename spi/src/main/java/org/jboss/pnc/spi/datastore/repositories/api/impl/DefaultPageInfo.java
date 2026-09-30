@@ -17,8 +17,9 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
-import com.google.common.base.Preconditions;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+
+import com.google.common.base.Preconditions;
 
 public class DefaultPageInfo implements PageInfo {
 

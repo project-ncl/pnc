@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.jboss.pnc.enums.BuildType;
-
 import java.time.Instant;
 import java.util.Map;
 
+import org.jboss.pnc.enums.BuildType;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.spi.datastore.repositories.AttachmentRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class AttachmentRepositoryImpl extends AbstractRepository<Attachment, Integer> implements AttachmentRepository {

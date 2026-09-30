@@ -17,20 +17,22 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-import org.jboss.pnc.common.util.StringUtils;
-
-import javax.ws.rs.DefaultValue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.DefaultValue;
+
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Runtime configuration parameters for the Web UI.

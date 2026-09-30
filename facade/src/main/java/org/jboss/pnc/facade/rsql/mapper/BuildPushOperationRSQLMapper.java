@@ -17,14 +17,12 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.BuildPushOperation_;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
-import org.jboss.pnc.model.GenericEntity;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.model.BuildPushOperation;
+import org.jboss.pnc.model.BuildPushOperation_;
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  *

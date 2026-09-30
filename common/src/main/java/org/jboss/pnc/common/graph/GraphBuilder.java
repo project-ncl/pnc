@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.common.graph;
 
+import java.util.Collection;
+import java.util.function.Function;
+
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.function.Function;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

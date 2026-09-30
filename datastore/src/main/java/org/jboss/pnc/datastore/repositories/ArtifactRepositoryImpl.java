@@ -17,19 +17,22 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
-import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-
-import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.ejb.Stateless;
+
+import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+
+import com.google.common.collect.Lists;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Stateless
 @Slf4j

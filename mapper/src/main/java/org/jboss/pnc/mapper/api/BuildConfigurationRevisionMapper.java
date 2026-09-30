@@ -32,7 +32,11 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class,
+        uses = {
+                RefToReferenceMapper.class,
+                ProjectMapper.class,
+                EnvironmentMapper.class,
+                SCMRepositoryMapper.class,
                 UserMapper.class },
         imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
@@ -65,7 +69,14 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration", "repositoryConfiguration",
-                    "buildEnvironment", "project", "genericParameters", "creationUser", "lastModificationUser" })
+            ignoreUnmappedSourceProperties = {
+                    "idRev",
+                    "buildConfiguration",
+                    "repositoryConfiguration",
+                    "buildEnvironment",
+                    "project",
+                    "genericParameters",
+                    "creationUser",
+                    "lastModificationUser" })
     BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
 }

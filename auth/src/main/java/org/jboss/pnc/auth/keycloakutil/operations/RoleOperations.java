@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.auth.keycloakutil.operations;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.keycloak.representations.idm.RoleRepresentation;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.composeResourceUrl;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doDeleteJSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doGetJSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doPostJSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getAttrForType;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getIdForType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.keycloak.representations.idm.RoleRepresentation;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

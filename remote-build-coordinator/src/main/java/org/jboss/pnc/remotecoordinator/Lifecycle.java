@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.remotecoordinator;
 
+import javax.enterprise.context.Dependent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
 
 /**
  *

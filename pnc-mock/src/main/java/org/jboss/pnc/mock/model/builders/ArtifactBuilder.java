@@ -18,14 +18,13 @@
 
 package org.jboss.pnc.mock.model.builders;
 
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
-
 import java.time.Instant;
 import java.util.Date;
 
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

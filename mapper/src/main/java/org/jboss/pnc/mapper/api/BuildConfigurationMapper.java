@@ -68,10 +68,21 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "repositoryConfiguration", "project", "productVersion",
-                    "buildEnvironment", "buildConfigurationSets", "dependencies", "indirectDependencies",
-                    "allDependencies", "dependants", "currentProductMilestone", "active", "genericParameters",
-                    "creationUser", "lastModificationUser" })
+            ignoreUnmappedSourceProperties = {
+                    "repositoryConfiguration",
+                    "project",
+                    "productVersion",
+                    "buildEnvironment",
+                    "buildConfigurationSets",
+                    "dependencies",
+                    "indirectDependencies",
+                    "allDependencies",
+                    "dependants",
+                    "currentProductMilestone",
+                    "active",
+                    "genericParameters",
+                    "creationUser",
+                    "lastModificationUser" })
     BuildConfigurationRef toRef(BuildConfiguration dbEntity);
 
     @Override
@@ -89,8 +100,13 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
-                    "currentProductMilestone", "genericParameters" })
+            ignoreUnmappedSourceProperties = {
+                    "dependants",
+                    "active",
+                    "indirectDependencies",
+                    "allDependencies",
+                    "currentProductMilestone",
+                    "genericParameters" })
     org.jboss.pnc.dto.BuildConfiguration toDTO(BuildConfiguration dbEntity);
 
     public static class IDMapper {

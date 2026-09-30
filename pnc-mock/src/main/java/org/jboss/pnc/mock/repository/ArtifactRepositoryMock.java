@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:05 PM

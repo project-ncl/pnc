@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.common.json.moduleconfig.microprofile;
 
-import org.eclipse.microprofile.config.spi.ConfigSource;
-import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 
 public class SchedulerMicroprofileConfig implements ConfigSource {
 

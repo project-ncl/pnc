@@ -17,12 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints.internal.api;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -30,7 +25,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * This endpoint is used for starting and interacting with BPM processes.

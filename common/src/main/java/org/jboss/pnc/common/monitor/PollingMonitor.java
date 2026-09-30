@@ -18,17 +18,18 @@
 
 package org.jboss.pnc.common.monitor;
 
-import org.jboss.pnc.common.concurrent.MDCExecutors;
-import org.jboss.pnc.common.util.ReadEnvProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+
+import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.util.ReadEnvProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *

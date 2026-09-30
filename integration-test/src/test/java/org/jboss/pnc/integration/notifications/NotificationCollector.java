@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.integration.notifications;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.websocket.ClientEndpoint;
-import javax.websocket.OnMessage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.websocket.ClientEndpoint;
+import javax.websocket.OnMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ClientEndpoint
 public class NotificationCollector {

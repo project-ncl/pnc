@@ -17,20 +17,21 @@
  */
 package org.jboss.pnc.spi;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.

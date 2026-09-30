@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.model;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import javax.persistence.EntityManager;
 import javax.persistence.RollbackException;
 import javax.validation.ConstraintViolationException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jakub Bartecek

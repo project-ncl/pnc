@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.model;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+
+import java.util.Date;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jakub Bartecek

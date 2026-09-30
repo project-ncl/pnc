@@ -17,6 +17,19 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.spi.datastore.predicates.TargetRepositoryPredicates.withIdentifierAndPathIn;
+
+import java.util.Collections;
+import java.util.Set;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.facade.providers.api.TargetRepositoryProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -24,19 +37,6 @@ import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.model.TargetRepository.IdentifierPath;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
-import java.util.Collections;
-import java.util.Set;
-
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
-import static org.jboss.pnc.spi.datastore.predicates.TargetRepositoryPredicates.withIdentifierAndPathIn;
 
 @PermitAll
 @Stateless

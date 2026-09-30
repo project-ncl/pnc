@@ -18,20 +18,20 @@
 
 package org.jboss.pnc.facade.deliverables;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.enterprise.context.Dependent;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.messaging.spi.AnalysisStatusMessage;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.remotecoordinator.notifications.buildTask.MessageSenderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author jakubvanko

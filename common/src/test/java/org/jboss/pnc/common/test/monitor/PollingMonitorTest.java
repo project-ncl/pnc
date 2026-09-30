@@ -18,6 +18,13 @@
 
 package org.jboss.pnc.common.test.monitor;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+
 import org.jboss.pnc.common.monitor.CancellableCompletableFuture;
 import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.junit.AfterClass;
@@ -26,13 +33,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

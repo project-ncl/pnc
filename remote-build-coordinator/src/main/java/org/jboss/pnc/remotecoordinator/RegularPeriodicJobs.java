@@ -17,15 +17,17 @@
  */
 package org.jboss.pnc.remotecoordinator;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.concurrent.TimeUnit;
+
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped

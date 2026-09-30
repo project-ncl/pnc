@@ -17,40 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfiguration;
-import org.jboss.pnc.dto.Project;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import static org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint.BC_ID;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -66,6 +32,40 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Projects")
 @Path("/projects")
@@ -167,7 +167,8 @@ public interface ProjectEndpoint {
      */
     @Operation(
             summary = UPDATE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,

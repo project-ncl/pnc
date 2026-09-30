@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.restclient;
 
+import static org.jboss.pnc.restclient.websocket.predicates.OperationNotificationPredicates.withOperationFinished;
+import static org.jboss.pnc.restclient.websocket.predicates.OperationNotificationPredicates.withOperationID;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.BuildPushesClient;
 import org.jboss.pnc.client.Configuration;
@@ -28,14 +36,6 @@ import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static org.jboss.pnc.restclient.websocket.predicates.OperationNotificationPredicates.withOperationFinished;
-import static org.jboss.pnc.restclient.websocket.predicates.OperationNotificationPredicates.withOperationID;
 
 /**
  * AdvancedBuildClient that provides additional features to wait for a build to finish.

@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.integration.setup;
 
+import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.auth.DefaultServiceAccountClient;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
@@ -24,12 +32,11 @@ import org.jboss.pnc.integration.mock.RemoteBuildsCleanerRemoteMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.integration.mock.client.ServiceAccountClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
-import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
+import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -38,14 +45,6 @@ import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.List;
+
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
-
-import javax.ejb.Stateless;
-import java.util.List;
 
 @Stateless
 public class BuildConfigurationSetRepositoryImpl extends AbstractRepository<BuildConfigurationSet, Integer>

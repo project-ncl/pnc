@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
+
 import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.rest.api.endpoints.BuildPushesEndpoint;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *

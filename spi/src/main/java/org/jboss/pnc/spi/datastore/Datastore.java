@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Attachment;
@@ -29,12 +35,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Topmost datastore interface.

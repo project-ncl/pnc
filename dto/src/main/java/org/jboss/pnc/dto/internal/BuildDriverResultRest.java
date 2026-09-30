@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.dto.internal;
 
+import java.io.Serializable;
+
+import org.jboss.pnc.enums.BuildStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.enums.BuildStatus;
-
-import java.io.Serializable;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,15 +17,17 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Builder;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * The report of the deliverable analysis.

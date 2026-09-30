@@ -17,10 +17,31 @@
  */
 package org.jboss.pnc.remotecoordinator.builder.datastore;
 
+import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
+import static org.jboss.pnc.enums.BuildStatus.FAILED;
+import static org.jboss.pnc.enums.BuildStatus.NEW;
+import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.bifrost.dto.Checksums;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.AttachmentType;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.bifrost.upload.BifrostUploadException;
 import org.jboss.pnc.bifrost.upload.LogMetadata;
@@ -43,7 +64,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
@@ -53,25 +73,6 @@ import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
-import static org.jboss.pnc.enums.BuildStatus.FAILED;
-import static org.jboss.pnc.enums.BuildStatus.NEW;
-import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
@@ -581,7 +582,7 @@ public class DatastoreAdapter {
         log.debug(
                 "Storing REJECTED build of {} to datastore. Reason: {}",
                 datastore.getBuildConfigurationAudited(buildTask.getIdRev()).getName(), // TODO Print just IdRev or
-                                                                                        // keep?
+                // keep?
                 statusDescription);
         datastore.storeCompletedBuild(
                 buildRecordBuilder,

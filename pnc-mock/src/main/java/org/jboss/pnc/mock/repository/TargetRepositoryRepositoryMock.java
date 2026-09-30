@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

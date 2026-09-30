@@ -18,14 +18,14 @@
 
 package org.jboss.pnc.mock.spi;
 
-import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -47,15 +47,18 @@ public class RepositoryManagerResultMock {
         return new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {
-                Artifact[] artifacts = { ArtifactBuilder.mockArtifact(base + 11),
+                Artifact[] artifacts = {
+                        ArtifactBuilder.mockArtifact(base + 11),
                         ArtifactBuilder.mockArtifact(base + 12) };
                 return Arrays.asList(artifacts);
             }
 
             @Override
             public List<Artifact> getDependencies() {
-                Artifact[] artifacts = { ArtifactBuilder.mockImportedArtifact(base + 21),
-                        ArtifactBuilder.mockImportedArtifact(base + 22), ArtifactBuilder.mockArtifact(base + 13) };
+                Artifact[] artifacts = {
+                        ArtifactBuilder.mockImportedArtifact(base + 21),
+                        ArtifactBuilder.mockImportedArtifact(base + 22),
+                        ArtifactBuilder.mockArtifact(base + 13) };
                 return Arrays.asList(artifacts);
             }
 

@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.integration.utils;
 
-import io.restassured.response.Response;
-
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import io.restassured.response.Response;
 
 public class ResponseUtils {
 

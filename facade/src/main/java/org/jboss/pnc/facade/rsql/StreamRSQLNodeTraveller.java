@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.facade.rsql;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.NestedNullException;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.regex.Pattern;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.NestedNullException;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;

@@ -17,8 +17,19 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.SetJoin;
+import javax.persistence.criteria.Subquery;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
@@ -40,17 +51,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
-import javax.persistence.criteria.Subquery;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildRecord} entity.

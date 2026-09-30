@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.model;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import javax.persistence.EntityManager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

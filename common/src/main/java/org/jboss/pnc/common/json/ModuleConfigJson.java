@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.common.json;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@class")
 public class ModuleConfigJson {

@@ -17,23 +17,23 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Builder(toBuilder = true, builderClassName = "Builder")

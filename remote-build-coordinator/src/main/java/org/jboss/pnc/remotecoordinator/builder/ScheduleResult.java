@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import java.util.Collection;
+
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.util.graph.Graph;
-
-import java.util.Collection;
 
 public class ScheduleResult {
     Graph<RemoteBuildTask> buildGraph;

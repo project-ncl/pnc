@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.facade.validation;
 
-import org.jboss.pnc.facade.validation.model.InvalidEntityDetailsRest;
+import java.lang.reflect.Field;
+import java.util.Optional;
 
 import javax.validation.ConstraintViolation;
 
-import java.lang.reflect.Field;
-import java.util.Optional;
+import org.jboss.pnc.facade.validation.model.InvalidEntityDetailsRest;
 
 public class InvalidEntityException extends DTOValidationException {
 

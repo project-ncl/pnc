@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.List;
+import java.util.Set;
+
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.datastore.predicates.TargetRepositoryPredicates;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-
-import javax.ejb.Stateless;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

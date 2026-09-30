@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.ws.rs.ext.Providers;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException> {

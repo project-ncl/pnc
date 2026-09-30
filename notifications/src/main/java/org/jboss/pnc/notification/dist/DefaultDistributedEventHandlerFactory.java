@@ -22,7 +22,6 @@ import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

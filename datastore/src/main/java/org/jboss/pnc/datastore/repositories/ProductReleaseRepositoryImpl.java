@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class ProductReleaseRepositoryImpl extends AbstractRepository<ProductRelease, Integer>

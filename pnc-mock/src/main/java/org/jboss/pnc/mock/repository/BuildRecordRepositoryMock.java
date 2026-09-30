@@ -17,16 +17,8 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
-import javax.persistence.Tuple;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -35,7 +27,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+import javax.persistence.Tuple;
+
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM

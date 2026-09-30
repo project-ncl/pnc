@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -26,7 +28,6 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.UserClient;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -37,8 +38,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunAsClient
 @RunWith(Arquillian.class)

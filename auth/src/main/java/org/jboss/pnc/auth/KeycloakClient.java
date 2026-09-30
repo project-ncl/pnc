@@ -17,19 +17,19 @@
  */
 package org.jboss.pnc.auth;
 
-import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.util.BasicAuthHelper;
-import org.keycloak.util.JsonSerialization;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.APPLICATION_FORM_URL_ENCODED;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doPost;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.setSslRequired;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
+import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.util.BasicAuthHelper;
+import org.keycloak.util.JsonSerialization;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-
 import java.util.List;
 import java.util.Set;
+
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

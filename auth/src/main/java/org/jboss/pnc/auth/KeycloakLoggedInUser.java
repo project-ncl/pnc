@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.auth;
 
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

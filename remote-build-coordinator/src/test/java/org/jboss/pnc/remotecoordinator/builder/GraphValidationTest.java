@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
-import lombok.extern.slf4j.Slf4j;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.BuildOptions;
@@ -28,9 +31,7 @@ import org.jboss.util.graph.Vertex;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GraphValidationTest {

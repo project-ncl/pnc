@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.mapper;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * Converts between operation parameters, which represent URL and list of URLs.

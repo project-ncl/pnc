@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.stream.Stream;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -33,14 +41,6 @@ import org.jboss.util.Strings;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 @RunAsClient
 @RunWith(Arquillian.class)

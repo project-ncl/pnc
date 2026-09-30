@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
-import org.jboss.pnc.rex.api.parameters.TaskFilterParameters;
-import org.jboss.pnc.rex.dto.TaskDTO;
-import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
@@ -29,10 +27,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
+import org.jboss.pnc.rex.api.parameters.TaskFilterParameters;
+import org.jboss.pnc.rex.dto.TaskDTO;
+import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
 @ApplicationScoped
 @Alternative

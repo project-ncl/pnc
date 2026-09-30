@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
@@ -32,10 +36,6 @@ import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public interface BuildCoordinator {
 

@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.common.util;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
-import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class CompletableFutureUtilsTest {
 

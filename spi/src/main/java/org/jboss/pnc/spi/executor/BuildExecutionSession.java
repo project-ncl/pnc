@@ -18,16 +18,15 @@
 
 package org.jboss.pnc.spi.executor;
 
+import java.net.URI;
+import java.util.Date;
+import java.util.Optional;
+
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

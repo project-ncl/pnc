@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedStateException;
@@ -25,10 +29,6 @@ import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
 @Provider
 public class ValidationExceptionExceptionMapper implements ExceptionMapper<DTOValidationException> {

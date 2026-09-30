@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.facade.rsql;
 
+import java.util.Comparator;
+
 import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import java.util.Comparator;
 
 /**
  *

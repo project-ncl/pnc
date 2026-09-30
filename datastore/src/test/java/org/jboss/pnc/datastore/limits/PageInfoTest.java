@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.datastore.limits;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class PageInfoTest {
 

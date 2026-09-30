@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
-import org.jboss.pnc.dto.response.Parameter;
-import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
+import org.jboss.pnc.dto.response.Parameter;
+import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
 
 /**
  * Provider of statically defined BuildConfiguration generic parameters, that are known to the Orchestrator.

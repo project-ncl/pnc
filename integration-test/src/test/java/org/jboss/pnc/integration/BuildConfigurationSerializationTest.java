@@ -17,16 +17,7 @@
  */
 package org.jboss.pnc.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import org.jboss.pnc.client.patch.BuildConfigurationPatchBuilder;
-import org.jboss.pnc.client.patch.ObjectMapperProvider;
-import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.dto.BuildConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -34,7 +25,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.client.patch.BuildConfigurationPatchBuilder;
+import org.jboss.pnc.client.patch.ObjectMapperProvider;
+import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.dto.BuildConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

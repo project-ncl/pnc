@@ -17,10 +17,13 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+
+import java.time.Instant;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
@@ -29,12 +32,11 @@ import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
-import java.time.Instant;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * A build config cointains the information needed to execute a build of a project, i.e. link to the sources, the build

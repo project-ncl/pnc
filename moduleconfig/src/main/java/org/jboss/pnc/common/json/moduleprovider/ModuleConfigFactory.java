@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.common.json.moduleprovider;
 
+import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -26,13 +30,8 @@ import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

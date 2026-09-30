@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.client.patch;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
@@ -24,11 +29,6 @@ import com.github.fge.jsonpatch.AddOperation;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.RemoveOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

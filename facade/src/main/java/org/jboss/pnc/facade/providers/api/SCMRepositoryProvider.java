@@ -17,7 +17,8 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
-import lombok.Data;
+import java.util.Optional;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
@@ -26,7 +27,7 @@ import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.model.RepositoryConfiguration;
 
-import java.util.Optional;
+import lombok.Data;
 
 public interface SCMRepositoryProvider
         extends Provider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {

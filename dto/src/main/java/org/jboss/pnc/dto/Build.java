@@ -17,24 +17,26 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+
+import java.time.Instant;
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
-import java.time.Instant;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * The build.

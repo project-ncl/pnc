@@ -17,12 +17,8 @@
  */
 package org.jboss.pnc.messaging;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.messaging.spi.Message;
-import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -35,8 +31,14 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.Collections;
-import java.util.Map;
+
+import org.jboss.pnc.messaging.spi.Message;
+import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

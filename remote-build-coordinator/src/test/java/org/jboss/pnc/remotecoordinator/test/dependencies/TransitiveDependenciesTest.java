@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.remotecoordinator.test.dependencies;
 
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
 import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -31,11 +36,6 @@ import org.jboss.util.graph.Graph;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Let A -> B, C denote that config A depends on configs B and C <br/>

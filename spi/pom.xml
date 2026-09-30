@@ -23,14 +23,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>spi</artifactId>
-  <name>spi</name>
   <packaging>jar</packaging>
+  <name>spi</name>
 
   <description>Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with model.</description>
 

@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.client;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import org.jboss.pnc.common.logging.MDCUtils;
-
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import org.jboss.pnc.common.logging.MDCUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

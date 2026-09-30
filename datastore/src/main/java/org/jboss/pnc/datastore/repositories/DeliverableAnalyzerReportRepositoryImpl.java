@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class DeliverableAnalyzerReportRepositoryImpl extends AbstractRepository<DeliverableAnalyzerReport, Base32LongID>

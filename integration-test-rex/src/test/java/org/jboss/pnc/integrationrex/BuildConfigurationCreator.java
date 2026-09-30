@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.integrationrex;
 
+import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.jboss.pnc.auth.KeycloakClient;
 import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.EnvironmentClient;
@@ -31,14 +39,6 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.enums.BuildType;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 
 public class BuildConfigurationCreator {
 

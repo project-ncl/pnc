@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.constants;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.jboss.pnc.constants.Patterns.PRODUCT_MILESTONE_VERSION;
+import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
 
 import java.util.regex.Pattern;
 
-import static org.jboss.pnc.constants.Patterns.PRODUCT_MILESTONE_VERSION;
-import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,13 +17,15 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.ToString;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
 import java.net.MalformedURLException;
 import java.util.Objects;
+
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+import lombok.ToString;
 
 @ToString
 public class BpmModuleConfig extends AbstractModuleConfig {

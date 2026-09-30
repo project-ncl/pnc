@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
-
-import javax.ejb.Stateless;
 
 /**
  * @author Jakub Bartecek

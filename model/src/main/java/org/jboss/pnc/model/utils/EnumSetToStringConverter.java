@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.model.utils;
 
-import javax.persistence.AttributeConverter;
 import java.util.EnumSet;
 import java.util.StringJoiner;
+
+import javax.persistence.AttributeConverter;
 
 /**
  * Generic converter which converts between EnumSet<E> and String. It automatically converts the attribute annotated

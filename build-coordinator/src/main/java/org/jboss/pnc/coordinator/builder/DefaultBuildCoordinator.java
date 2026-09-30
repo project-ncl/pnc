@@ -17,7 +17,33 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
+import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.concurrent.Sequence;
@@ -50,7 +76,6 @@ import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
@@ -64,30 +89,6 @@ import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 /**
  *

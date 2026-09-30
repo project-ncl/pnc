@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.auth.keycloakutil.util;
 
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.createFile;
+import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Files.isRegularFile;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,11 +43,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-
-import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.createFile;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.isRegularFile;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.remotecoordinator.test.event;
 
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class TestCDIBuildSetStatusChangedReceiver {

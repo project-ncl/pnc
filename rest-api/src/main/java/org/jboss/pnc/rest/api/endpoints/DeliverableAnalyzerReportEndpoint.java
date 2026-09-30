@@ -17,33 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.dto.DeliverableAnalyzerReport;
-import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
-import org.jboss.pnc.dto.response.AnalyzedArtifact;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.pncmetrics.rest.TimedMetric;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
-
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_CODE;
@@ -56,6 +29,34 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.dto.DeliverableAnalyzerReport;
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
+import org.jboss.pnc.dto.response.AnalyzedArtifact;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * This endpoint provides API for manipulating with {@code DeliverableAnalyzerReport} for external usage, not internal,
@@ -80,11 +81,13 @@ public interface DeliverableAnalyzerReportEndpoint {
      */
     @Operation(
             summary = GET_ALL_DESC,
-            responses = { @ApiResponse(
-                    responseCode = SUCCESS_CODE,
-                    description = SUCCESS_DESCRIPTION,
-                    content = @Content(
-                            schema = @Schema(implementation = SwaggerPages.DeliverableAnalyzerReportPage.class))),
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = SwaggerPages.DeliverableAnalyzerReportPage.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -149,7 +152,8 @@ public interface DeliverableAnalyzerReportEndpoint {
 
     @Operation(
             summary = ADD_DEL_AN_REPORT_LABEL,
-            responses = { @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -168,7 +172,8 @@ public interface DeliverableAnalyzerReportEndpoint {
 
     @Operation(
             summary = REMOVE_DEL_AN_REPORT_LABEL,
-            responses = { @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -187,11 +192,13 @@ public interface DeliverableAnalyzerReportEndpoint {
 
     @Operation(
             summary = GET_DEL_AN_REPORT_LABEL_HISTORY,
-            responses = { @ApiResponse(
-                    responseCode = SUCCESS_CODE,
-                    description = SUCCESS_DESCRIPTION,
-                    content = @Content(
-                            schema = @Schema(implementation = SwaggerPages.DeliverableAnalyzerLabelEntryPage.class))),
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = SwaggerPages.DeliverableAnalyzerLabelEntryPage.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,

@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import java.util.Optional;
+import java.util.Set;
+
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
@@ -26,9 +29,6 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.validation.DTOValidationException;
-
-import java.util.Optional;
-import java.util.Set;
 
 public interface ArtifactProvider
         extends Provider<Integer, org.jboss.pnc.model.Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {

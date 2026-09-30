@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildConfigurationSupportedGenericParametersProviderTest {
 

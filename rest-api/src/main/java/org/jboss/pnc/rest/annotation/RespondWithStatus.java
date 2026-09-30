@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.rest.annotation;
 
-import javax.ws.rs.NameBinding;
-import javax.ws.rs.core.Response;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import javax.ws.rs.NameBinding;
+import javax.ws.rs.core.Response;
 
 /**
  * Annotation to override default 2xx response HTTP status.

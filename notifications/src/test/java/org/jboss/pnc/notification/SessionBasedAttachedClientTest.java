@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.notification;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import javax.websocket.Session;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import org.junit.Test;
 
 public class SessionBasedAttachedClientTest {
 

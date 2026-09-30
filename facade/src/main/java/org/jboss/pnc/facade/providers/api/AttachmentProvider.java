@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import java.util.Optional;
+
 import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.AttachmentRef;
 import org.jboss.pnc.dto.response.Page;
-
-import java.util.Optional;
 
 public interface AttachmentProvider
         extends Provider<Integer, org.jboss.pnc.model.Attachment, Attachment, AttachmentRef> {

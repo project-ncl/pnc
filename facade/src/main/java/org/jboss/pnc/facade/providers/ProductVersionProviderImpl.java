@@ -17,7 +17,21 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.Tuple;
+
 import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.ProductVersion;
@@ -48,19 +62,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.Tuple;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
+import lombok.extern.slf4j.Slf4j;
 
 @PermitAll
 @Stateless

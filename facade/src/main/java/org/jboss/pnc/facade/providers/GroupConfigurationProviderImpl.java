@@ -17,6 +17,18 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
+
+import java.util.List;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.LockModeType;
+
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
@@ -34,17 +46,7 @@ import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.LockModeType;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
 
 @PermitAll
 @Slf4j

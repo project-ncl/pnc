@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.facade.impl;
 
-import lombok.Value;
 import org.hibernate.Hibernate;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
+
+import lombok.Value;
 
 @Value
 public class OperationChangedEventImpl implements OperationChangedEvent {

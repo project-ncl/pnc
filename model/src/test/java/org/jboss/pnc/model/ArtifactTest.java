@@ -17,21 +17,21 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.BuildCategory;
-import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
+import org.jboss.pnc.enums.RepositoryType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jakub Bartecek

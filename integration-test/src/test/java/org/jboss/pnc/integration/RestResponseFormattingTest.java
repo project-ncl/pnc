@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import static io.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 import javax.ws.rs.core.Response;
 
@@ -36,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.restassured.http.ContentType;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 @RunAsClient
 @RunWith(Arquillian.class)

@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.auth;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.enterprise.context.Dependent;
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides access to authenticated user info. In case no authentication is configured or there are problems

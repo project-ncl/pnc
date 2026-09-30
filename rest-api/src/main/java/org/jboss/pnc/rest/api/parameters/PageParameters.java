@@ -19,10 +19,11 @@ package org.jboss.pnc.rest.api.parameters;
 
 import javax.ws.rs.QueryParam;
 
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
  * Parameters for queriing and sorting lists.

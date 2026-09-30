@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.common.util;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class TimeUtilsTest {
 

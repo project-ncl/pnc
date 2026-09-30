@@ -17,6 +17,22 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
@@ -43,21 +59,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.

@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.integration.mock.client;
 
-import org.jboss.pnc.auth.KeycloakServiceClient;
-
 import javax.enterprise.context.ApplicationScoped;
+
+import org.jboss.pnc.auth.KeycloakServiceClient;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.mapper.api.ByUsername;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
+import org.jboss.pnc.mapper.api.ByUsername;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
 @ApplicationScoped
 @Transactional

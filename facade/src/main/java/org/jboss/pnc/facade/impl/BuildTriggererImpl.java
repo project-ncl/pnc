@@ -17,12 +17,26 @@
  */
 package org.jboss.pnc.facade.impl;
 
-import com.google.common.base.Preconditions;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildCategory;
@@ -54,21 +68,7 @@ import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import com.google.common.base.Preconditions;
 
 /**
  *

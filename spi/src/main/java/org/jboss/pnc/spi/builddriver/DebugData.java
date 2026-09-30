@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.spi.SshCredentials;
-
 import java.util.function.Consumer;
+
+import org.jboss.pnc.spi.SshCredentials;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 7/22/16 Time: 11:10 AM

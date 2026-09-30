@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.facade.deliverables;
 
+import java.util.List;
+
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-
-import java.util.List;
 
 /**
  * @author jakubvanko

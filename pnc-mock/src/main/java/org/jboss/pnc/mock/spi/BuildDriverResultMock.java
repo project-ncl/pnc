@@ -18,10 +18,10 @@
 
 package org.jboss.pnc.mock.spi;
 
+import java.util.Optional;
+
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-
-import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

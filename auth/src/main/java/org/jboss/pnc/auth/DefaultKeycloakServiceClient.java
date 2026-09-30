@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.auth;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.keycloak.representations.AccessTokenResponse;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

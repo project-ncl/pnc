@@ -17,8 +17,37 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
-import io.undertow.Undertow;
-import io.undertow.util.HttpString;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
+import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
+
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.http.entity.ContentType;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -58,35 +87,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
-import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
+import io.undertow.Undertow;
+import io.undertow.util.HttpString;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -753,12 +755,12 @@ public class BuildEndpointTest {
         Set<String> expectedVerticesKeys = Set.of(build6Id, buildId, build2Id, build5Id);
         List<Edge<Build>> expectedEdges = List.of(
                 Edge.<Build> builder().source(build6Id).target(buildId).cost(1).build(), // importedArtifact1 (set to be
-                                                                                         // part of buildId Build in
-                                                                                         // shouldSetBuiltArtifacts)
+                // part of buildId Build in
+                // shouldSetBuiltArtifacts)
                 Edge.<Build> builder().source(buildId).target(build2Id).cost(1).build(), // builtArtifact3 (set as a
-                                                                                         // dependency of buildId Build
-                                                                                         // in
-                                                                                         // shouldSetDependentArtifacts)
+                // dependency of buildId Build
+                // in
+                // shouldSetDependentArtifacts)
                 Edge.<Build> builder().source(build6Id).target(build5Id).cost(1).build()); // builtArtifact10
 
         // act

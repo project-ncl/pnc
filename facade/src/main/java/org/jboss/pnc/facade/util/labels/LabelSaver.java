@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.model.GenericEntity;
-
 import java.io.Serializable;
+
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  * Gets the requests what to store and without no further validation stores into DB requested entities.

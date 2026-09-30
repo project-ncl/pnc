@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.spi;
 
-import org.jboss.pnc.enums.BuildStatus;
-
 import java.util.Arrays;
+
+import org.jboss.pnc.enums.BuildStatus;
 
 /**
  * Status represent the status of the BuildSet has in the BuildCoordinator.

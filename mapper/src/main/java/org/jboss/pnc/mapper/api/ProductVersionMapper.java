@@ -51,8 +51,13 @@ public interface ProductVersionMapper
 
     @Override
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "product", "productReleases", "productMilestones",
-                    "currentProductMilestone", "buildConfigurationSets", "buildConfigurations" })
+            ignoreUnmappedSourceProperties = {
+                    "product",
+                    "productReleases",
+                    "productMilestones",
+                    "currentProductMilestone",
+                    "buildConfigurationSets",
+                    "buildConfigurations" })
     ProductVersionRef toRef(ProductVersion dbEntity);
 
     @Override

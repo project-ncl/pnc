@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.common.test.util;
 
-import org.jboss.pnc.common.util.TimeUtils;
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
+
+import org.jboss.pnc.common.util.TimeUtils;
+import org.junit.Test;
 
 /**
  * @author Jakub Bartecek

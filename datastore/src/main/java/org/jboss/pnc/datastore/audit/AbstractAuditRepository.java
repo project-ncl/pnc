@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.datastore.audit;
 
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.query.AuditQuery;
-import org.jboss.pnc.spi.datastore.audit.AuditRepository;
-import org.jboss.pnc.spi.datastore.audit.Revision;
-import org.jboss.pnc.model.GenericEntity;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.query.AuditQuery;
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.audit.AuditRepository;
+import org.jboss.pnc.spi.datastore.audit.Revision;
 
 public abstract class AbstractAuditRepository<Entity extends GenericEntity<ID>, ID extends Number>
         implements AuditRepository<Entity, ID> {

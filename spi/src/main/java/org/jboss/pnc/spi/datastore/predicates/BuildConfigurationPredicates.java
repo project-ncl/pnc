@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import java.util.Set;
+
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.SetJoin;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildConfigurationSet_;
@@ -30,10 +35,6 @@ import org.jboss.pnc.model.Project_;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.SetJoin;
-import java.util.Set;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildConfiguration} entity.

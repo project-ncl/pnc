@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
 
 @Getter
 public class SchedulerConfig extends AbstractModuleConfig {

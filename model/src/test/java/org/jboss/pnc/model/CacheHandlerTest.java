@@ -17,24 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.stat.SessionStatistics;
-import org.hibernate.stat.Statistics;
-import org.jboss.pnc.model.utils.HibernateMetric;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.persistence.EntityManager;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-
 import static org.jboss.pnc.model.utils.HibernateStatsUtils.COLLECTION_STATS_PREFIX;
 import static org.jboss.pnc.model.utils.HibernateStatsUtils.ENTITY_STATS_PREFIX;
 import static org.jboss.pnc.model.utils.HibernateStatsUtils.REGION_STATS_PREFIX;
@@ -45,6 +27,25 @@ import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheR
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.SessionStatistics;
+import org.hibernate.stat.Statistics;
+import org.jboss.pnc.model.utils.HibernateMetric;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CacheHandlerTest extends AbstractModelTest {
 
@@ -133,7 +134,8 @@ public class CacheHandlerTest extends AbstractModelTest {
                 statistics);
         logger.debug("All second level cache stats: {}", secondLevelCacheStatMap);
 
-        String[] mappedEntities = { REGION_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
+        String[] mappedEntities = {
+                REGION_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigurationSet",

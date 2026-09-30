@@ -17,6 +17,16 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
@@ -26,15 +36,6 @@ import org.hibernate.engine.jdbc.dialect.spi.DialectResolver;
 import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
 
 @Dependent
 public class DefaultSequenceHandlerRepository implements SequenceHandlerRepository {

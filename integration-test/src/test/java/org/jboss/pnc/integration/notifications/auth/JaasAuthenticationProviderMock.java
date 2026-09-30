@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.integration.notifications.auth;
 
+import javax.enterprise.context.Dependent;
+import javax.servlet.http.HttpServletRequest;
+
 import org.jboss.pnc.auth.AuthProvider;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.auth.NoAuthLoggedInUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Authentication provider which acts as a {@link org.jboss.pnc.auth.NoAuthAuthenticationProvider}, however, it has got

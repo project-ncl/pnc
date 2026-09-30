@@ -17,13 +17,24 @@
  */
 package org.jboss.pnc.facade.impl;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.transaction.Transactional;
+import javax.ws.rs.core.MediaType;
+
 import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -49,18 +60,8 @@ import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.slf4j.MDC;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.transaction.Transactional;
-import javax.ws.rs.core.MediaType;
-import java.net.URI;
-import java.sql.Date;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped

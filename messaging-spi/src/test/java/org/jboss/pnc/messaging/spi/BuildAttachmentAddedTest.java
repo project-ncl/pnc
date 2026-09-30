@@ -17,18 +17,18 @@
  */
 package org.jboss.pnc.messaging.spi;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.enums.BuildStatus;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildAttachmentAddedTest {
     @Test

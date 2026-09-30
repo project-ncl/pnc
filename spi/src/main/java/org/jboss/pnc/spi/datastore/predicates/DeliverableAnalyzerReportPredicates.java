@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.model.DeliverableAnalyzerReport_;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
+import org.jboss.pnc.model.DeliverableAnalyzerReport_;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.DeliverableAnalyzerReport} entity.

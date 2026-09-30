@@ -17,28 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.PncStatus;
-import org.jboss.pnc.dto.response.Banner;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.util.Set;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
@@ -49,6 +27,30 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import java.util.Set;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.jboss.pnc.dto.PncStatus;
+import org.jboss.pnc.dto.response.Banner;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/generic-setting")
@@ -99,7 +101,8 @@ public interface GenericSettingEndpoint {
      */
     @Operation(
             summary = SET_ANNOUNCEMENT_BANNER_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -155,7 +158,8 @@ public interface GenericSettingEndpoint {
      */
     @Operation(
             summary = SET_PNC_VERSION_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -237,7 +241,8 @@ public interface GenericSettingEndpoint {
      */
     @Operation(
             summary = "[role:pnc-users-admin] " + ACTIVATE_MAINTENANCE_MODE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -260,7 +265,8 @@ public interface GenericSettingEndpoint {
      */
     @Operation(
             summary = "[role:pnc-users-admin] " + DEACTIVATE_MAINTENANCE_MODE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -310,7 +316,8 @@ public interface GenericSettingEndpoint {
      */
     @Operation(
             summary = "[role:pnc-users-admin] " + ADD_LIMITED_BUILD_USER_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = FORBIDDEN_CODE,
                             description = FORBIDDEN_DESCRIPTION,
@@ -335,7 +342,8 @@ public interface GenericSettingEndpoint {
      */
     @Operation(
             summary = "[role:pnc-users-admin] " + REMOVE_LIMITED_BUILD_USER_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = FORBIDDEN_CODE,
                             description = FORBIDDEN_DESCRIPTION,

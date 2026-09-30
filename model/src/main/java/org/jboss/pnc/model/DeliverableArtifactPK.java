@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.model;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import java.io.Serializable;
 
 /**
  * The composite primary key of the {@link DeliverableArtifact} table.

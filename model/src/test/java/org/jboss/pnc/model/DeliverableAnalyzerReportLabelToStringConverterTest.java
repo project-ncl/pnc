@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.EnumSet;
+
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.model.utils.DeliverableAnalyzerReportLabelToStringConverter;
 import org.junit.Test;
-
-import java.util.EnumSet;
 
 public class DeliverableAnalyzerReportLabelToStringConverterTest extends AbstractModelTest {
 

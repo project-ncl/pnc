@@ -18,7 +18,6 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.client.Configuration;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 
 /**
