@@ -158,7 +158,7 @@ public class ArtifactEndpointTest {
         result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.STANDARD)));
         assertThat(result).allSatisfy(a -> assertThat(a.getBuildCategory().equals(BuildCategory.STANDARD)));
 
-        result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.SERVICE)));
+        result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.LIGHTWELL)));
         assertThat(result).hasSize(1); // from DatabaseDataInitializer
 
         result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.LEGACY_REDHAT)));

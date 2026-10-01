@@ -47,9 +47,9 @@ public class BuildConfigurationParametersUtilsTest {
 
     @Test
     public void shouldKeepExplicitBuildCategory() {
-        String service = BuildCategory.SERVICE.name();
+        String lightwell = BuildCategory.LIGHTWELL.name();
 
-        assertThat(withDefaults(Collections.singletonMap(BUILD_CATEGORY_KEY, service)))
-                .containsExactly(entry(BUILD_CATEGORY_KEY, service));
+        assertThat(withDefaults(Collections.singletonMap(BUILD_CATEGORY_KEY, lightwell)))
+                .containsExactly(entry(BUILD_CATEGORY_KEY, lightwell));
     }
 }
