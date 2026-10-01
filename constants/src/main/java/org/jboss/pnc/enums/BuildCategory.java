@@ -30,10 +30,6 @@ public enum BuildCategory {
      */
     STANDARD,
     /**
-     * The build is built to be used in On-Premise Red Hat products.
-     */
-    LEGACY_REDHAT,
-    /**
      * The build is built to be used in Managed services only.
      */
     SERVICE,
