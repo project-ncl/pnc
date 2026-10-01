@@ -40,7 +40,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
     /**
      * Mapping of {@code BuildCategory} name to the Indy hosted repo used as the temp build promotion target. Keys are
-     * build category names (e.g. {@code "STANDARD"}, {@code "SERVICE"}).
+     * build category names (e.g. {@code "STANDARD"}, {@code "LIGHTWELL"}).
      */
     @Getter
     @Setter

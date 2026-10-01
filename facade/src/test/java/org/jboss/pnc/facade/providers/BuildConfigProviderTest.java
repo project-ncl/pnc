@@ -168,13 +168,14 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
     @Test
     public void testGetSpecificKeepsExplicitBuildCategory() {
         // With
-        bc.setGenericParameters(Collections.singletonMap(BUILD_CATEGORY_KEY, BuildCategory.SERVICE.name()));
+        bc.setGenericParameters(Collections.singletonMap(BUILD_CATEGORY_KEY, BuildCategory.LIGHTWELL.name()));
 
         // When
         org.jboss.pnc.dto.BuildConfiguration buildConfiguration = provider.getSpecific(bc.getId().toString());
 
         // Then
-        assertThat(buildConfiguration.getParameters()).containsEntry(BUILD_CATEGORY_KEY, BuildCategory.SERVICE.name());
+        assertThat(buildConfiguration.getParameters())
+                .containsEntry(BUILD_CATEGORY_KEY, BuildCategory.LIGHTWELL.name());
     }
 
     @Test

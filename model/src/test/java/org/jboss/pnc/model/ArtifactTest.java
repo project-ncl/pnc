@@ -128,7 +128,7 @@ public class ArtifactTest extends AbstractModelTest {
 
         // when
         Artifact updatableArtifact = em.find(Artifact.class, artifactId);
-        updatableArtifact.setBuildCategory(BuildCategory.SERVICE);
+        updatableArtifact.setBuildCategory(BuildCategory.LEGACY_REDHAT);
 
         em.getTransaction().begin();
         em.merge(updatableArtifact);
@@ -137,7 +137,7 @@ public class ArtifactTest extends AbstractModelTest {
         // then
         Artifact foundArtifact = em.find(Artifact.class, artifactId);
         assertNotNull(foundArtifact);
-        assertEquals(BuildCategory.SERVICE, foundArtifact.getBuildCategory());
+        assertEquals(BuildCategory.LEGACY_REDHAT, foundArtifact.getBuildCategory());
     }
 
     private void insertBasicTargetRepository() {

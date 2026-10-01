@@ -740,7 +740,7 @@ public class DatabaseDataInitializer {
                 .deployPath("demo/built-artifact11/1.0/built-artifact11-1.0.pom")
                 .size(10L)
                 .artifactQuality(ArtifactQuality.DELETED)
-                .buildCategory(BuildCategory.SERVICE)
+                .buildCategory(BuildCategory.LIGHTWELL)
                 .purl("pkg:maven/demo/built-artifact11@1.0?type=pom")
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()

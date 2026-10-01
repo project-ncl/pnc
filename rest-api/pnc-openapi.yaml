@@ -180,7 +180,6 @@ paths:
             enum:
             - STANDARD
             - LEGACY_REDHAT
-            - SERVICE
             - LIGHTWELL
             - LIGHTWELL_UPSTREAM
             - LIGHTWELL_NOVEL
@@ -7718,7 +7717,6 @@ components:
           enum:
           - STANDARD
           - LEGACY_REDHAT
-          - SERVICE
           - LIGHTWELL
           - LIGHTWELL_UPSTREAM
           - LIGHTWELL_NOVEL
@@ -7783,7 +7781,6 @@ components:
           enum:
           - STANDARD
           - LEGACY_REDHAT
-          - SERVICE
           - LIGHTWELL
           - LIGHTWELL_UPSTREAM
           - LIGHTWELL_NOVEL
@@ -7859,7 +7856,6 @@ components:
           enum:
           - STANDARD
           - LEGACY_REDHAT
-          - SERVICE
           - LIGHTWELL
           - LIGHTWELL_UPSTREAM
           - LIGHTWELL_NOVEL

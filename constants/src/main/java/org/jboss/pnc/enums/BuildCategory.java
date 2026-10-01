@@ -34,10 +34,6 @@ public enum BuildCategory {
      */
     LEGACY_REDHAT,
     /**
-     * The build is built to be used in Managed services only.
-     */
-    SERVICE,
-    /**
      * The build is built to be used for Project Lightwell only.
      */
     LIGHTWELL,
