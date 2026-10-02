@@ -27,12 +27,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
-import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
@@ -44,7 +42,6 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
@@ -57,7 +54,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
@@ -270,69 +266,7 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
-    void closeMilestone(
-            @Parameter(description = PM_ID) @PathParam("id") String id,
-            @Valid MilestoneCloseRequest closeRequest);
-
-    static final String CLOSE_MILESTONE_CANCEL_DESC = "Cancel product milestone close process.";
-
-    /**
-     * {@value CLOSE_MILESTONE_CANCEL_DESC}
-     * 
-     * @param id {@value PM_ID}
-     */
-    @Operation(
-            summary = CLOSE_MILESTONE_CANCEL_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @DELETE
-    @RespondWithStatus(Response.Status.ACCEPTED)
-    @Path("/{id}/close")
-    void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") String id);
-
-    static final String GET_PUSH_OPERATIONS_DESC = "Get build push operations for specified milestone.";
-    static final String LATEST_OPERATION_DESC = "Should return only latest operation for each build?";
-
-    /**
-     * {@value GET_PUSH_OPERATIONS_DESC}
-     *
-     * @param id {@value PM_ID}
-     * @param latest {@value LATEST_OPERATION_DESC}
-     * @param pageParameters
-     *
-     * @return
-     */
-    @Operation(
-            summary = GET_PUSH_OPERATIONS_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(
-                                    schema = @Schema(implementation = SwaggerPages.BuildPushOperationPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("{id}/build-push-operations")
-    @TimedMetric
-    Page<BuildPushOperation> getPushOperations(
-            @Parameter(description = PM_ID) @PathParam("id") String id,
-            @Parameter(description = LATEST_OPERATION_DESC) @QueryParam("latest") @DefaultValue("false") boolean latest,
-            @Valid @BeanParam PageParameters pageParameters);
+    void closeMilestone(@Parameter(description = PM_ID) @PathParam("id") String id);
 
     static final String GET_DELIVERABLES_DESC = "Gets artifacts delivered in this milestone.";
 

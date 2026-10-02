@@ -42,8 +42,6 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private final int coordinatorThreadPoolSize;
 
-    private final String brewTagPattern;
-
     /**
      * maximum number of build tasks processed at a time (build tasks that are in progress, regardless of whether they
      * are starting bpm process, being build by executor, etc)
@@ -116,7 +114,6 @@ public class SystemConfig extends AbstractModuleConfig {
     public SystemConfig(
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
-            @JsonProperty("brewTagPattern") String brewTagPattern,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
             @JsonProperty("keycloakServiceAccountConfig") KeycloakClientConfig keycloakServiceAccountConfig,
             @JsonProperty("ldapClientConfig") LDAPClientConfig ldapClientConfig,
@@ -152,7 +149,6 @@ public class SystemConfig extends AbstractModuleConfig {
                 "coordinatorMaxConcurrentBuilds",
                 coordinatorMaxConcurrentBuilds,
                 10);
-        this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
         this.ldapClientConfig = ldapClientConfig;
         this.serviceAccountClientConfig = serviceAccountClientConfig;
@@ -213,10 +209,6 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getCoordinatorMaxConcurrentBuilds() {
         return coordinatorMaxConcurrentBuilds;
-    }
-
-    public String getBrewTagPattern() {
-        return brewTagPattern;
     }
 
     public int getTemporaryBuildsLifeSpan() {
@@ -368,9 +360,8 @@ public class SystemConfig extends AbstractModuleConfig {
     @Override
     public String toString() {
         return "SystemConfig{" + "authenticationProviderId='" + authenticationProviderId + '\''
-                + ", coordinatorThreadPoolSize=" + coordinatorThreadPoolSize + ", brewTagPattern='" + brewTagPattern
-                + '\'' + ", coordinatorMaxConcurrentBuilds=" + coordinatorMaxConcurrentBuilds
-                + ", keycloakServiceAccountConfig=" + keycloakServiceAccountConfig
+                + ", coordinatorThreadPoolSize=" + coordinatorThreadPoolSize + ", coordinatorMaxConcurrentBuilds="
+                + coordinatorMaxConcurrentBuilds + ", keycloakServiceAccountConfig=" + keycloakServiceAccountConfig
                 + ", serviceTokenRefreshIfExpiresInSeconds=" + serviceTokenRefreshIfExpiresInSeconds
                 + ", temporaryBuildsLifeSpan=" + temporaryBuildsLifeSpan + ", messageSenderId='" + messageSenderId
                 + '\'' + ", messagingInternalQueueSize=" + messagingInternalQueueSize + ", distributedEventType='"

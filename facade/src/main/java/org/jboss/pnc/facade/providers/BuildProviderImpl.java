@@ -29,7 +29,6 @@ import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.TimeUtils;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -268,34 +267,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         if (!key.matches("[a-zA-Z_0-9]+")) {
             throw new IllegalArgumentException("Attribute key must match [a-zA-Z_0-9]+");
         }
-        switch (key) {
-            case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
-                buildRecord.setExecutionRootName(value);
-                break;
-            case Attributes.BUILD_BREW_VERSION: // workaround for NCL-4889
-                buildRecord.setExecutionRootVersion(value);
-                break;
-            default:
-                buildRecord.putAttribute(key, value);
-                break;
-        }
+        buildRecord.putAttribute(key, value);
         repository.save(buildRecord);
     }
 
     @Override
     public void removeAttribute(String buildId, String key) {
         BuildRecord buildRecord = getBuildRecord(buildId);
-        switch (key) {
-            case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
-                buildRecord.setExecutionRootName(null);
-                break;
-            case Attributes.BUILD_BREW_VERSION: // workaround for NCL-4889
-                buildRecord.setExecutionRootVersion(null);
-                break;
-            default:
-                buildRecord.removeAttribute(key);
-                break;
-        }
+        buildRecord.removeAttribute(key);
         repository.save(buildRecord);
     }
 
@@ -686,24 +665,23 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 String status = (String) rawBuildInsight[9];
                 Boolean temporaryBuild = (Boolean) rawBuildInsight[10];
                 Boolean autoAlign = (Boolean) rawBuildInsight[11];
-                Boolean brewPullActive = (Boolean) rawBuildInsight[12];
-                String buildType = (String) rawBuildInsight[13];
-                String executionRootName = (String) rawBuildInsight[14];
-                String executionRootVersion = (String) rawBuildInsight[15];
-                Integer userId = (Integer) rawBuildInsight[16];
-                String username = (String) rawBuildInsight[17];
-                Integer buildConfigurationId = (Integer) rawBuildInsight[18];
-                Integer buildConfigurationRev = (Integer) rawBuildInsight[19];
-                String buildConfigurationName = (String) rawBuildInsight[20];
-                Long buildConfigSetRecordId = ((BigInteger) rawBuildInsight[21]).longValue();
-                Integer productMilestoneId = (Integer) rawBuildInsight[22];
-                String productMilestoneVersion = (String) rawBuildInsight[23];
-                Integer projectId = (Integer) rawBuildInsight[24];
-                String projectName = (String) rawBuildInsight[25];
-                Integer productVersionId = (Integer) rawBuildInsight[26];
-                String productVersion = (String) rawBuildInsight[27];
-                Integer productId = (Integer) rawBuildInsight[28];
-                String productName = (String) rawBuildInsight[29];
+                String buildType = (String) rawBuildInsight[12];
+                String executionRootName = (String) rawBuildInsight[13];
+                String executionRootVersion = (String) rawBuildInsight[14];
+                Integer userId = (Integer) rawBuildInsight[15];
+                String username = (String) rawBuildInsight[16];
+                Integer buildConfigurationId = (Integer) rawBuildInsight[17];
+                Integer buildConfigurationRev = (Integer) rawBuildInsight[18];
+                String buildConfigurationName = (String) rawBuildInsight[19];
+                Long buildConfigSetRecordId = ((BigInteger) rawBuildInsight[20]).longValue();
+                Integer productMilestoneId = (Integer) rawBuildInsight[21];
+                String productMilestoneVersion = (String) rawBuildInsight[22];
+                Integer projectId = (Integer) rawBuildInsight[23];
+                String projectName = (String) rawBuildInsight[24];
+                Integer productVersionId = (Integer) rawBuildInsight[25];
+                String productVersion = (String) rawBuildInsight[26];
+                Integer productId = (Integer) rawBuildInsight[27];
+                String productName = (String) rawBuildInsight[28];
 
                 BuildRecordInsights buildRecordInsights = BuildRecordInsights.builder()
                         .buildId(buildRecordId)
@@ -718,7 +696,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                         .status(status)
                         .temporarybuild(temporaryBuild)
                         .autoalign(autoAlign)
-                        .brewpullactive(brewPullActive)
                         .buildType(buildType)
                         .executionRootName(executionRootName)
                         .executionRootVersion(executionRootVersion)

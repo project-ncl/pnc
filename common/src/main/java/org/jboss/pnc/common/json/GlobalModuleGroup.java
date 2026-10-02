@@ -32,7 +32,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     private String externalBifrostUrl;
     private String externalBuildDriverUrl;
-    private String externalCausewayUrl;
     private String externalCleanerUrl;
     private String externalDaUrl;
     private String externalDeliverablesAnalyzerUrl;
@@ -60,7 +59,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     public boolean isPersistentBuildingAllowed;
 
     private String externalEttUrl;
-    private String brewContentUrl;
 
     public String getBpmUrl() {
         return bpmUrl;
@@ -132,14 +130,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalCleanerUrl(String externalCleanerUrl) {
         this.externalCleanerUrl = externalCleanerUrl;
-    }
-
-    public String getExternalCausewayUrl() {
-        return externalCausewayUrl;
-    }
-
-    public void setExternalCausewayUrl(String externalCausewayUrl) {
-        this.externalCausewayUrl = externalCausewayUrl;
     }
 
     public String getExternalDaUrl() {
@@ -300,13 +290,5 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalEttUrl(String externalEttUrl) {
         this.externalEttUrl = externalEttUrl;
-    }
-
-    public String getBrewContentUrl() {
-        return brewContentUrl;
-    }
-
-    public void setBrewContentUrl(String brewContentUrl) {
-        this.brewContentUrl = brewContentUrl;
     }
 }

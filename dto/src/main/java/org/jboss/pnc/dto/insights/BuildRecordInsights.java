@@ -101,11 +101,6 @@ public class BuildRecordInsights {
     private final Boolean autoalign;
 
     /**
-     * Whether the build has used brew pull.
-     */
-    private final Boolean brewpullactive;
-
-    /**
      * The type of the build.
      */
     private final String buildType;

@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -285,23 +284,6 @@ public interface WebSocketClient extends AutoCloseable {
     CompletableFuture<BuildChangedNotification> catchBuildChangedNotification(
             FallbackRequestSupplier<Build> reconnectSupplier,
             Predicate<BuildChangedNotification>... filters);
-
-    /**
-     * Specific version of {@link #catchSingleNotification} method for {@link OperationNotification} with a supplier
-     * invoked on reconnect.
-     * 
-     * The reconnectSupplier must retrieve a {@link OperationNotification} contextually compatible with the
-     * {@param filters}. The supplier must contain the same {@link OperationNotification} that the WS message would
-     * have.
-     *
-     * @param reconnectSupplier OperationNotification supplier on reconnect
-     * @param filters the filters
-     * @return the completable future
-     * @see #catchSingleNotification
-     */
-    CompletableFuture<OperationNotification> catchBuildPushResult(
-            FallbackRequestSupplier<BuildPushOperation> reconnectSupplier,
-            Predicate<OperationNotification>... filters);
 
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link GroupBuildChangedNotification} with a

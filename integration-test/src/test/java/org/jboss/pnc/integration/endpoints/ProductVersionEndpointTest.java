@@ -30,7 +30,6 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.client.patch.ProductVersionPatchBuilder;
 import org.jboss.pnc.common.Maps;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
@@ -200,22 +199,6 @@ public class ProductVersionEndpointTest {
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         assertThatThrownBy(() -> client.createNew(productVersion)).isInstanceOf(ClientException.class);
-    }
-
-    @Test
-    public void shouldGenerateBrewTagWhenCreatingProductVersion() throws Exception {
-        // given
-        final String version = "42.3";
-        ProductVersion productVersion = ProductVersion.builder().product(product).version(version).build();
-
-        // when
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
-        ProductVersion created = client.createNew(productVersion);
-
-        // then
-        assertThat(created.getAttributes()).containsKey(Attributes.BREW_TAG_PREFIX);
-        assertThat(created.getAttributes().get(Attributes.BREW_TAG_PREFIX))
-                .isEqualTo(product.getAbbreviation().toLowerCase() + "-" + version + "-pnc");
     }
 
     @Test

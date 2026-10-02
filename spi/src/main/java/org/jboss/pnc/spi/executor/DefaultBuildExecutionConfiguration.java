@@ -76,8 +76,6 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
 
     private final String tempBuildTimestamp;
 
-    private final boolean brewPullActive;
-
     private final String defaultAlignmentParams;
 
     private final AlignmentPreference alignmentPreference;

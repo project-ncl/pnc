@@ -17,19 +17,13 @@
  */
 package org.jboss.pnc.notification;
 
-import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.OperationNotification;
-import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
-import org.jboss.pnc.mapper.api.BuildPushReportMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
-import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.notification.dist.Distributed;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -59,16 +53,7 @@ public class DefaultEventObserver {
     DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
 
     @Inject
-    BuildPushOperationRepository buildPushOperationRepository;
-
-    @Inject
-    BuildPushReportMapper buildPushReportMapper;
-
-    @Inject
     DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
-
-    @Inject
-    BuildPushOperationMapper buildPushOperationMapper;
 
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
@@ -99,17 +84,6 @@ public class DefaultEventObserver {
             deliverableAnalyzerOperation.setProgressStatus(operationChangedEvent.getStatus());
             deliverableAnalyzerOperation.setResult(operationChangedEvent.getResult());
             operationToSend = deliverableAnalyzerOperationMapper.toDTO(deliverableAnalyzerOperation);
-        } else if (operationChangedEvent.getOperationClass() == BuildPushOperation.class) {
-            notificationType = "BUILD_PUSH";
-            BuildPushOperation buildPushOperation = buildPushOperationRepository
-                    .queryById(operationChangedEvent.getId());
-            buildPushOperation.setProgressStatus(operationChangedEvent.getStatus());
-            buildPushOperation.setResult(operationChangedEvent.getResult());
-            operationToSend = buildPushOperationMapper.toDTO(buildPushOperation);
-            if (buildPushOperation.getProgressStatus() == ProgressStatus.FINISHED) { // TODO: Remove in next version
-                notifier.sendMessage(
-                        new BuildPushResultNotification(buildPushReportMapper.fromOperation(buildPushOperation)));
-            }
         } else {
             notificationType = "UNKNOWN-OPERATION";
             operationToSend = null;

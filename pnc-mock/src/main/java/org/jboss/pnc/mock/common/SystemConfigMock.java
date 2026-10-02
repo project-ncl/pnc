@@ -42,7 +42,6 @@ public class SystemConfigMock {
         return new SystemConfig(
                 null,
                 null,
-                null,
                 "10",
                 keycloakClientConfig,
                 null,

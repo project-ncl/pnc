@@ -20,10 +20,8 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
-import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
@@ -59,9 +57,6 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     @Inject
     private BuildProvider buildProvider;
 
-    @Inject
-    private BrewPusher brewPusher;
-
     private EndpointHelper<Base32LongID, GroupBuild, GroupBuildRef> endpointHelper;
 
     @PostConstruct
@@ -89,12 +84,6 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     @Override
     public Page<Build> getBuilds(String id, PageParameters pageParams, BuildsFilterParameters filterParams) {
         return buildProvider.getBuildsForGroupBuild(toBuildPageInfo(pageParams, filterParams), id);
-    }
-
-    @Override
-    public void brewPush(String id, GroupBuildPushRequest buildConfigSetRecordPushRequest) {
-        // TODO progress updates
-        brewPusher.pushGroup(id, buildConfigSetRecordPushRequest.getTagPrefix());
     }
 
     @Override

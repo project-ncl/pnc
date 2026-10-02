@@ -72,8 +72,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     private BuildConfiguration buildConfiguration;
 
-    private boolean brewPullActive;
-
     /**
      * Instantiates a new project build configuration.
      */
@@ -218,14 +216,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
         this.defaultAlignmentParams = defaultAlignmentParams;
     }
 
-    public boolean isBrewPullActive() {
-        return brewPullActive;
-    }
-
-    public void setBrewPullActive(boolean brewPullActive) {
-        this.brewPullActive = brewPullActive;
-    }
-
     @Override
     public String toString() {
         return "BuildConfigurationAudit [project=" + project + ", name=" + name + ", id=" + id + ", rev=" + rev + "]";
@@ -272,7 +262,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
             configurationAudited.setLastModificationUser(buildConfiguration.getLastModificationUser());
             configurationAudited.setDefaultAlignmentParams(buildConfiguration.getDefaultAlignmentParams());
             configurationAudited.buildConfiguration = buildConfiguration;
-            configurationAudited.brewPullActive = buildConfiguration.isBrewPullActive();
             return configurationAudited;
         }
 

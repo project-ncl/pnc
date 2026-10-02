@@ -69,14 +69,9 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     private Artifact artifact;
 
     /**
-     * Boolean flag denoting whether the artifact was built in a build-system (like PNC or Brew).
+     * Boolean flag denoting whether the artifact was built in a build-system.
      */
     private boolean builtFromSource;
-
-    /**
-     * The id of the Brew build in case this artifact was built in Brew.
-     */
-    private Long brewBuildId;
 
     /**
      * The list of archive filenames associated with this artifact
@@ -157,6 +152,6 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     @Override
     public String toString() {
         return "DeliverableArtifact{" + "report=" + report.getId() + ", artifact=" + artifact + ", builtFromSource="
-                + builtFromSource + ", brewBuildId=" + brewBuildId + '}';
+                + builtFromSource + '}';
     }
 }

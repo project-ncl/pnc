@@ -96,6 +96,16 @@ public class Build extends BuildRef {
      */
     private final BuildRef noRebuildCause;
 
+    /**
+     * Identifier of the built project sources. In case of Maven, it is GA of the POM being built.
+     */
+    private final String executionRootName;
+
+    /**
+     * See {@link Build#executionRootName}. Contains the corresponding version.
+     */
+    private final String executionRootVersion;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Build(
             ProjectRef project,
@@ -123,7 +133,9 @@ public class Build extends BuildRef {
             BuildRef noRebuildCause,
             Instant lastUpdateTime,
             String scmBuildConfigRevision,
-            Boolean scmBuildConfigRevisionInternal) {
+            Boolean scmBuildConfigRevisionInternal,
+            String executionRootName,
+            String executionRootVersion) {
         super(
                 id,
                 submitTime,
@@ -151,6 +163,8 @@ public class Build extends BuildRef {
         this.productMilestone = productMilestone;
         this.groupBuild = groupBuild;
         this.noRebuildCause = noRebuildCause;
+        this.executionRootName = executionRootName;
+        this.executionRootVersion = executionRootVersion;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

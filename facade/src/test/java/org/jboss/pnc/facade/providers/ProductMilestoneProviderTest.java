@@ -20,14 +20,12 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -55,12 +53,6 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
 
     @Mock
     private ProductMilestoneRepository repository;
-
-    @Mock
-    private BrewPusher brewPusher;
-
-    @Mock
-    private BuildPushOperationRepository buildPushOperationRepository;
 
     @Mock
     private UserService userService;
@@ -233,29 +225,6 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     }
 
     @Test
-    public void testCancelMilestoneCloseProcess() {
-
-        // when
-        provider.cancelMilestoneCloseProcess(mock.getId().toString());
-
-        // then
-        verify(brewPusher, times(1)).cancelPushOfMilestone(eq(mock.getId().toString()));
-    }
-
-    @Test
-    public void testCancelMilestoneCloseProcessShouldFailIfAlreadyClosed() {
-        // given
-        ProductMilestone closed = ProductMilestoneFactory.getInstance()
-                .createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
-        closed.setEndDate(new Date());
-        repositoryList.add(closed);
-
-        // when then
-        assertThatThrownBy(() -> provider.cancelMilestoneCloseProcess(closed.getId().toString()))
-                .isInstanceOf(RepositoryViolationException.class);
-    }
-
-    @Test
     public void testCloseMilestoneShouldFailIfAlreadyClosed() {
         // given
         ProductMilestone closed = ProductMilestoneFactory.getInstance()
@@ -266,18 +235,17 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         org.jboss.pnc.dto.ProductMilestone milestone = provider.getSpecific(closed.getId().toString());
 
         // when then
-        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId(), false))
+        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId()))
                 .isInstanceOf(RepositoryViolationException.class);
     }
 
     @Test
     public void testCloseMilestone() {
         // when
-        when(buildPushOperationRepository.queryWithPredicates(any())).thenReturn(List.of());
-        provider.closeMilestone(mock.getId().toString(), false);
+        provider.closeMilestone(mock.getId().toString());
 
         // then
-        verify(brewPusher, times(2)).pushBuild(any(), any(), any());
+        assertThat(mock.getEndDate()).isNotNull();
     }
 
     private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(
