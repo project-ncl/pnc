@@ -48,7 +48,7 @@ public class GroupBuildEndpointTest {
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildEndpointTest.class);
 
     private static String groupBuildId1;
-    private static GroupBuildClient anonymousClient = new GroupBuildClient(RestClientConfiguration.asAnonymous());
+    private static GroupBuildClient anonymousClient = new GroupBuildClient(RestClientConfiguration.asUser());
 
     @Deployment
     public static EnterpriseArchive deploy() {

@@ -35,10 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 /**
@@ -46,6 +48,7 @@ import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildEndpointImpl.class);

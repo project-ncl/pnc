@@ -39,13 +39,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
@@ -109,11 +113,13 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public Artifact create(Artifact artifact) {
         return endpointHelper.create(artifact);
     }
 
     @Override
+    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public void update(String id, Artifact artifact) {
         endpointHelper.update(id, artifact);
     }

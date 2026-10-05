@@ -21,10 +21,14 @@ import org.jboss.pnc.api.dto.ComponentVersion;
 import org.jboss.pnc.environmentdriver.BuildInformationConstants;
 import org.jboss.pnc.rest.api.endpoints.VersionEndpoint;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import java.time.ZonedDateTime;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class VersionEndpointImpl implements VersionEndpoint {
 
     @Override

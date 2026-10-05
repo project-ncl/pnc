@@ -20,10 +20,13 @@ package org.jboss.pnc.rest.endpoints;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.dto.Artifact;
@@ -52,6 +55,7 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject

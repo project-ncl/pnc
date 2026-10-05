@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -80,6 +81,7 @@ import java.util.Set;
 
 import static java.text.MessageFormat.format;
 import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
 /**
  *
@@ -88,6 +90,7 @@ import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
  */
 @ApplicationScoped
 @Slf4j
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class BuildEndpointImpl implements BuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointImpl.class);
@@ -150,6 +153,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     public void delete(String id, String callback) {
         if (!provider.delete(id, callback)) {
             throw new NotFoundException("Temporary build with id: " + id + " was not found.");
@@ -157,6 +161,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void update(String id, Build build) {
         endpointHelper.update(id, build);
     }
@@ -197,6 +202,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void setBuiltArtifacts(String id, List<String> artifactIds) {
         provider.setBuiltArtifacts(id, artifactIds);
     }
@@ -236,6 +242,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void setDependentArtifacts(String id, List<String> artifactIds) {
         provider.setDependentArtifacts(id, artifactIds);
     }

@@ -23,6 +23,9 @@ import org.jboss.pnc.rest.endpoints.internal.api.BpmEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +37,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class BpmEndpointImpl implements BpmEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmEndpointImpl.class);

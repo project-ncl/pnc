@@ -20,6 +20,8 @@ package org.jboss.pnc.integration;
 import static io.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
 
+import org.jboss.pnc.integration.setup.Credentials;
+
 import javax.ws.rs.core.Response;
 
 import org.hamcrest.core.IsEqual;
@@ -52,7 +54,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnErrorInJsonFormat() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic("system", "system.1234")
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
@@ -66,7 +71,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnEmptyBodyAndStatus404() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic("system", "system.1234")
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
@@ -80,7 +88,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnInJsonAndStatusNoContent() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic("system", "system.1234")
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
@@ -93,7 +104,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnStatusUnauthorizedAndHeader() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic("system", "system.1234")
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()

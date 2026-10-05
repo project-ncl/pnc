@@ -86,7 +86,7 @@ public class BuildPushTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         RemoteCollection<Build> builds = bc.getAll(null, null);
 
         // Sort by ID to retain IDs in the test

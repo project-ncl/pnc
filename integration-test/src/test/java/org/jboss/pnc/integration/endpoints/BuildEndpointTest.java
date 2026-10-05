@@ -113,7 +113,7 @@ public class BuildEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         RemoteCollection<Build> builds = bc.getAll(null, null);
 
         // Sort by ID to retain IDs in the test
@@ -133,7 +133,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldSortResults() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         String sort = "=asc=submitTime";
 
         List<Long> notSorted = bc.getAll(null, null)
@@ -157,7 +157,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterResults() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         String rsql = "id==" + buildId;
 
         List<String> filtered = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
@@ -174,7 +174,10 @@ public class BuildEndpointTest {
         int pageSize = 1;
 
         for (int pageIndex = 0; pageIndex <= 3; pageIndex++) {
-            final io.restassured.response.Response response = given().redirects()
+            final io.restassured.response.Response response = given().auth()
+                    .preemptive()
+                    .basic("user", "pass.1234")
+                    .redirects()
                     .follow(false)
                     .port(8080)
                     .when()
@@ -188,7 +191,10 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldSupportPageSizeZero() throws Exception {
-        final io.restassured.response.Response response = given().redirects()
+        final io.restassured.response.Response response = given().auth()
+                .preemptive()
+                .basic("user", "pass.1234")
+                .redirects()
                 .follow(false)
                 .port(8080)
                 .when()
@@ -207,14 +213,17 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldBeAbleToReachAllBuildsWhenPaging() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
 
         List<String> buildIds = bc.getAll(null, null).getAll().stream().map(Build::getId).collect(Collectors.toList());
         List<String> pagedBuildIds = new ArrayList<>();
         int pageSize = 1;
 
         for (int pageIndex = 0; pageIndex < buildIds.size(); pageIndex++) {
-            final io.restassured.response.Response response = given().redirects()
+            final io.restassured.response.Response response = given().auth()
+                    .preemptive()
+                    .basic("user", "pass.1234")
+                    .redirects()
                     .follow(false)
                     .port(8080)
                     .when()
@@ -231,7 +240,10 @@ public class BuildEndpointTest {
     public void shouldReturnCorrectPageCount() {
         int pageSize = 1;
 
-        final io.restassured.response.Response response = given().redirects()
+        final io.restassured.response.Response response = given().auth()
+                .preemptive()
+                .basic("user", "pass.1234")
+                .redirects()
                 .follow(false)
                 .port(8080)
                 .when()
@@ -244,7 +256,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByUserId() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
 
         Build build = bc.getAll(null, null).getAll().iterator().next();
         String userId = build.getUser().getId();
@@ -263,7 +275,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByUsername() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         String username = "demo-user";
         String rsql = "user.username==" + username;
 
@@ -280,7 +292,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByBuildConfigurationName() throws Exception {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
         String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
         BuildsFilterParameters filter = new BuildsFilterParameters();
         filter.setBuildConfigName(buildConfigName);
@@ -298,7 +310,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByBuildConfigurationNameLike() throws Exception {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
         String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
         BuildsFilterParameters filter = new BuildsFilterParameters();
         filter.setBuildConfigName("*" + buildConfigName.substring(1, buildConfigName.length() - 2) + "*");
@@ -316,7 +328,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByBuildConfigurationNameNotLike() throws Exception {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
         String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
         BuildsFilterParameters filter = new BuildsFilterParameters();
         filter.setBuildConfigName("!*" + buildConfigName.substring(1, buildConfigName.length() - 2) + "*");
@@ -335,7 +347,7 @@ public class BuildEndpointTest {
     @Test
     public void shouldNotUseUnderscoreAsWildcard() throws Exception {
         // With
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
         String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
         assertThat(buildConfigName).contains("-");
         String underscoredName = buildConfigName.replaceAll("-", "_");
@@ -377,7 +389,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
         String buildConfigName = "SomeRandomName";
         BuildsFilterParameters filter = new BuildsFilterParameters();
         filter.setBuildConfigName(buildConfigName);
@@ -394,7 +406,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByBuildConfigurationNameAndUserId() throws Exception {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
         String username = "pnc-admin";
@@ -416,7 +428,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFilterByBuildConfigurationNameAndInvalidUserId() throws Exception {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
         String username = "random-user-name";
@@ -433,7 +445,7 @@ public class BuildEndpointTest {
     @Test
     @InSequence(10)
     public void shouldGetBuilds() throws RemoteResourceException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Build> all = client.getAll(null, null);
 
@@ -442,7 +454,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFailGetAllWithLargePage() throws RemoteResourceException {
-        final Configuration clientConfig = RestClientConfiguration.asAnonymous();
+        final Configuration clientConfig = RestClientConfiguration.asUser();
 
         Configuration largePageConfig = Configuration.builder()
                 .basicAuth(clientConfig.getBasicAuth())
@@ -460,7 +472,7 @@ public class BuildEndpointTest {
     @Test
     @InSequence(10)
     public void shouldGetSpecificBuild() throws ClientException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         Build dto = client.getSpecific(buildId);
 
@@ -523,7 +535,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldGetSCMArchiveLink() throws ClientException, ReflectiveOperationException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         // Disable redirects so we can test the actual response
         client.setFollowRedirects(false);
@@ -560,7 +572,7 @@ public class BuildEndpointTest {
     @Test
     public void shouldGetBuildConfigurationRevision() throws ClientException {
         // when
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
         BuildConfigurationRevision bcRevision = client.getBuildConfigRevision(buildId);
 
         // then
@@ -582,7 +594,7 @@ public class BuildEndpointTest {
         }).build();
         server.start();
         try {
-            BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+            BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
             // when
             Optional<InputStream> stream = client.getAlignLogs(buildId);
@@ -612,7 +624,7 @@ public class BuildEndpointTest {
         }).build();
         server.start();
         try {
-            BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+            BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
             // when
             Optional<InputStream> stream = client.getBuildLogs(buildId);
@@ -631,7 +643,7 @@ public class BuildEndpointTest {
     @Test
     public void shouldReturnAttachments() throws ClientException {
         // given
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         // when
         var attachments = client.getAttachments(buildId).getAll();
@@ -748,7 +760,7 @@ public class BuildEndpointTest {
     @InSequence(1)
     public void testGetImplicitDependencyGraph() throws ClientException {
         // arrange
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         Set<String> expectedVerticesKeys = Set.of(build6Id, buildId, build2Id, build5Id);
         List<Edge<Build>> expectedEdges = List.of(
@@ -773,7 +785,7 @@ public class BuildEndpointTest {
     @InSequence(2)
     public void testGetImplicitDependencyGraphWithDependants() throws ClientException {
         // arrange
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         Set<String> expectedVerticesKeys = Set.of(build6Id, buildId, build2Id, build3Id);
         List<Edge<Build>> expectedEdges = List.of(

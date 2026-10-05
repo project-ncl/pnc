@@ -72,13 +72,13 @@ public class ProductEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        ProductClient client = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient client = new ProductClient(RestClientConfiguration.asUser());
         productId = client.getAll().iterator().next().getId();
     }
 
     @Before
     public void before() throws RemoteResourceException {
-        ProductClient client = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient client = new ProductClient(RestClientConfiguration.asUser());
         System.out.println("All things: ");
         for (Product product : client.getAll()) {
             System.out.println("  " + product);
@@ -89,7 +89,7 @@ public class ProductEndpointTest {
     @Test
     @InSequence(10)
     public void testGetAll() throws RemoteResourceException {
-        ProductClient client = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient client = new ProductClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Product> all = client.getAll();
 
@@ -154,7 +154,7 @@ public class ProductEndpointTest {
 
     @Test
     public void testGetSpecific() throws ClientException {
-        ProductClient client = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient client = new ProductClient(RestClientConfiguration.asUser());
 
         Product dto = client.getSpecific(productId);
 
@@ -195,7 +195,7 @@ public class ProductEndpointTest {
 
     @Test
     public void testGetProductVersions() throws ClientException {
-        ProductClient client = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient client = new ProductClient(RestClientConfiguration.asUser());
 
         RemoteCollection<ProductVersion> all = client.getProductVersions(productId);
 

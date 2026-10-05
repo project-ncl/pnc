@@ -26,12 +26,16 @@ import org.jboss.pnc.rest.api.endpoints.TargetRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class TargetRepositoryEndpointImpl implements TargetRepositoryEndpoint {
 
     @Context
@@ -66,6 +70,7 @@ public class TargetRepositoryEndpointImpl implements TargetRepositoryEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public TargetRepository createNew(TargetRepository targetRepository) {
         return endpointHelper.create(targetRepository);
     }
