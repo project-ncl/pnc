@@ -78,11 +78,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -163,6 +170,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     @Inject
     private DingroguClient dingroguClient;
 
+    /**
+     * Bean-managed transaction used to store a completed analysis. Storing a large analysis can take longer than the
+     * default JTA transaction timeout (300s), so we drive the transaction manually with an extended timeout (see
+     * {@link #COMPLETE_ANALYSIS_TX_TIMEOUT_SECONDS}) to prevent the transaction reaper from aborting it.
+     */
+    @Inject
+    private UserTransaction userTransaction;
+
+    /**
+     * Transaction timeout, in seconds, for storing a completed deliverable analysis. Set generously above the default
+     * 300s because a single analysis may contain a very large number of artifacts.
+     */
+    static final int COMPLETE_ANALYSIS_TX_TIMEOUT_SECONDS = (int) Duration.ofMinutes(30).getSeconds();
+
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(
             String id,
@@ -222,22 +243,75 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     @Override
-    @Transactional
     public void completeAnalysis(AnalysisResult analysisResult) {
+        Base32LongID operationId = analysisResult.getDeliverableAnalyzerOperationId();
         log.info(
                 "Processing deliverables of operation with id={} in {} results.",
-                analysisResult.getDeliverableAnalyzerOperationId(),
+                operationId,
                 analysisResult.getResults().size());
 
-        DeliverableAnalyzerReport report = createReportForCompletedAnalysis(
-                analysisResult.getDeliverableAnalyzerOperationId(),
-                analysisResult.isWasRunAsScratchAnalysis());
-        for (FinderResult finderResult : analysisResult.getResults()) {
-            processDeliverables(
-                    report,
-                    finderResult.getBuilds(),
-                    finderResult.getUrl(),
-                    finderResult.getNotFoundArtifacts());
+        // Store the whole analysis atomically in a single bean-managed transaction with an extended timeout, so
+        // that large analyses are not aborted by the transaction reaper at the default 300s JTA timeout.
+        runInTransactionWithExtendedTimeout(() -> {
+            DeliverableAnalyzerReport report = createReportForCompletedAnalysis(
+                    operationId,
+                    analysisResult.isWasRunAsScratchAnalysis());
+            for (FinderResult finderResult : analysisResult.getResults()) {
+                processDeliverables(
+                        report,
+                        finderResult.getBuilds(),
+                        finderResult.getUrl(),
+                        finderResult.getNotFoundArtifacts());
+            }
+        });
+    }
+
+    /**
+     * Runs the given work in a bean-managed JTA transaction using {@link #COMPLETE_ANALYSIS_TX_TIMEOUT_SECONDS} as the
+     * timeout instead of the container default. The timeout is reset afterwards because the executing (pooled) thread
+     * may be reused for other work.
+     */
+    private void runInTransactionWithExtendedTimeout(Runnable work) {
+        // The outer finally always resets the timeout, even if begin() fails, so the elevated timeout is never
+        // leaked onto the (pooled, reused) executor thread.
+        try {
+            try {
+                userTransaction.setTransactionTimeout(COMPLETE_ANALYSIS_TX_TIMEOUT_SECONDS);
+                userTransaction.begin();
+            } catch (NotSupportedException | SystemException e) {
+                throw new RuntimeException("Failed to begin transaction for storing deliverable analysis.", e);
+            }
+            boolean committed = false;
+            try {
+                work.run();
+                userTransaction.commit();
+                committed = true;
+            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException e) {
+                // Only commit's checked exceptions are wrapped here; RuntimeExceptions and Errors thrown by the
+                // work propagate unchanged (an Error must not be swallowed into a RuntimeException).
+                throw new RuntimeException("Failed to commit transaction for storing deliverable analysis.", e);
+            } finally {
+                if (!committed) {
+                    rollbackQuietly();
+                }
+            }
+        } finally {
+            try {
+                userTransaction.setTransactionTimeout(0); // restore the container default for this thread
+            } catch (SystemException e) {
+                log.warn("Failed to reset transaction timeout after storing deliverable analysis.", e);
+            }
+        }
+    }
+
+    private void rollbackQuietly() {
+        try {
+            int status = userTransaction.getStatus();
+            if (status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK) {
+                userTransaction.rollback();
+            }
+        } catch (SystemException e) {
+            log.error("Failed to roll back transaction after error storing deliverable analysis.", e);
         }
     }
 
@@ -347,11 +421,27 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
          */
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl.toString());
+            // Prefetch all existing artifacts matching the not-found SHA-256s in a single query, instead of
+            // querying the DB once per artifact (the N+1 that drove this transaction over the timeout). The map
+            // is kept up to date with artifacts created below so duplicates within this deliverable are still
+            // de-duplicated (see NCL-8718); duplicates across deliverables are handled by each deliverable's
+            // transaction re-running this prefetch.
+            Set<String> notFoundSha256s = notFoundArtifacts.stream()
+                    .map(Artifact::getSha256)
+                    .collect(Collectors.toSet());
+            Map<String, List<org.jboss.pnc.model.Artifact>> existingArtifactsBySha256 = artifactRepository
+                    .withSha256In(notFoundSha256s)
+                    .stream()
+                    .collect(Collectors.groupingBy(org.jboss.pnc.model.Artifact::getSha256));
             Iterator<Artifact> iterator = notFoundArtifacts.iterator();
             while (iterator.hasNext()) {
                 Artifact art = iterator.next();
                 stats.notFoundCounter().accept(art);
-                org.jboss.pnc.model.Artifact artifact = findOrCreateNotFoundArtifact(art, distributionRepository, user);
+                org.jboss.pnc.model.Artifact artifact = findOrCreateNotFoundArtifact(
+                        art,
+                        distributionRepository,
+                        user,
+                        existingArtifactsBySha256);
                 addDeliveredArtifact(
                         artifact,
                         report,
@@ -539,7 +629,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
             Artifact artifact,
             TargetRepository targetRepo,
-            User user) {
+            User user,
+            Map<String, List<org.jboss.pnc.model.Artifact>> existingArtifactsBySha256) {
 
         // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
         // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact.
@@ -548,11 +639,13 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         Path path = Paths.get(artifact.getFilename());
         String filename = path.getFileName().toString();
 
-        // Search for artifacts with the same SHA-256 and filter for its name. If no matches are found, create the
-        // artifact. Yes, if an artifact was renamed in the ZIP, we will create a new entry in the DB.
-        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
-                .withSha256In(Collections.singleton(artifact.getSha256()));
-        artifacts = artifacts.stream().filter(art -> art.getFilename().equals(filename)).collect(Collectors.toList());
+        // Use the prefetched artifacts with the same SHA-256 and filter for its name. If no matches are found, create
+        // the artifact. Yes, if an artifact was renamed in the ZIP, we will create a new entry in the DB.
+        List<org.jboss.pnc.model.Artifact> artifacts = existingArtifactsBySha256
+                .getOrDefault(artifact.getSha256(), Collections.emptyList())
+                .stream()
+                .filter(art -> art.getFilename().equals(filename))
+                .collect(Collectors.toList());
         if (artifacts.size() == 1) {
             return artifacts.iterator().next();
         }
@@ -575,8 +668,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         // There was no artifact found with the same SHA-256, filename, target repo and identifier. We can create a new
-        // one.
-        return createArtifact(mapNotFoundArtifact(artifact, user), targetRepo);
+        // one. Register it so subsequent not-found artifacts in this deliverable with the same SHA-256 reuse it
+        // instead of creating a duplicate (the DB is no longer queried per artifact).
+        org.jboss.pnc.model.Artifact created = createArtifact(mapNotFoundArtifact(artifact, user), targetRepo);
+        existingArtifactsBySha256.computeIfAbsent(artifact.getSha256(), k -> new ArrayList<>()).add(created);
+        return created;
     }
 
     private org.jboss.pnc.model.Artifact createArtifact(
