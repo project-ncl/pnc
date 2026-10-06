@@ -47,6 +47,9 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepo
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+
+import javax.transaction.UserTransaction;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,6 +94,8 @@ public class DeliverableAnalyzerManagerTest {
     private GlobalModuleGroup globalConfig;
     @Mock
     private UserService userService;
+    @Mock
+    private UserTransaction userTransaction;
 
     @InjectMocks
     private DeliverableAnalyzerManagerImpl processor;
