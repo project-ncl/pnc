@@ -90,7 +90,14 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
 
     @Override
     public List<Artifact> withSha256In(Set<String> sha256) {
-        return queryWithPredicates(ArtifactPredicates.withSha256In(sha256));
+        // [NCLSUP-912] partition the IN clause to a maximum size to avoid a StackOverflow in Hibernate when a large
+        // number of SHA-256s is queried at once (e.g. batched not-found artifact lookups during deliverable analysis)
+        List<List<String>> partitionedList = Lists.partition(new ArrayList<>(sha256), QUERY_ARTIFACT_PARITION_SIZE);
+        List<Artifact> artifacts = new ArrayList<>();
+        for (List<String> partition : partitionedList) {
+            artifacts.addAll(queryWithPredicates(ArtifactPredicates.withSha256In(new HashSet<>(partition))));
+        }
+        return artifacts;
     }
 
 }
