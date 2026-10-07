@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.messaging;
 
-import lombok.Getter;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.jms.TextMessage;
-import java.util.HashSet;
-import java.util.Set;
+
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

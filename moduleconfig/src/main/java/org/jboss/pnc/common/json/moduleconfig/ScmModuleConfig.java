@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/6/16 Time: 12:47 PM

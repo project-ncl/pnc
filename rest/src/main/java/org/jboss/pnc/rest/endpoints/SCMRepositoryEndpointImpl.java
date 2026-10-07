@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
@@ -28,14 +36,6 @@ import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {

@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -34,10 +38,6 @@ import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductVersionEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductVersionEndpointImpl implements ProductVersionEndpoint {

@@ -56,7 +56,9 @@ public interface SCMRepositoryMapper
 
     @Override
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "internalUrlNormalized", "externalUrlNormalized",
+            ignoreUnmappedSourceProperties = {
+                    "internalUrlNormalized",
+                    "externalUrlNormalized",
                     "buildConfigurations" })
     SCMRepository toDTO(RepositoryConfiguration dbEntity);
 

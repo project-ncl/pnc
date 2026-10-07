@@ -17,9 +17,25 @@
  */
 package org.jboss.pnc.integration.notifications;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
+
+import java.net.URI;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.websocket.ContainerProvider;
+import javax.websocket.WebSocketContainer;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -49,30 +65,15 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.websocket.ContainerProvider;
-import javax.websocket.WebSocketContainer;
-import java.net.URI;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)

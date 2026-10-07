@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.facade.util;
 
+import static org.jboss.pnc.api.constants.Attributes.IMAGE_DIGEST_REF;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.*;
+import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.INVOKE;
+import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.REPLACE;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -72,11 +77,6 @@ import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
 
 import lombok.AllArgsConstructor;
-
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.*;
-import static org.jboss.pnc.api.constants.Attributes.IMAGE_DIGEST_REF;
-import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.INVOKE;
-import static org.jboss.pnc.common.json.moduleconfig.slsa.BuilderConfig.ResolverMethod.REPLACE;
 
 @AllArgsConstructor
 public class SlsaProvenanceUtils {

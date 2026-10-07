@@ -18,16 +18,15 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLException;
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
-import org.jboss.pnc.model.*;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.*;
 
 /**
  *

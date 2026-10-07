@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.validation.model;
 
-import org.jboss.pnc.facade.validation.ConflictedEntryException;
-
 import javax.xml.bind.annotation.XmlType;
+
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
 
 @XmlType
 public class ConflictedEntryDetailsRest {

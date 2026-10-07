@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.remotecoordinator.maintenance;
 
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.IndyClientHttp;
@@ -32,11 +37,6 @@ import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.log.MDCUtils;
-
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -77,8 +77,10 @@ public class IndyFactory {
         }
 
         try {
-            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
-                    new IndyPromoteClientModule(), new IndyPromoteAdminClientModule() };
+            IndyClientModule[] modules = new IndyClientModule[] {
+                    new IndyFoloAdminClientModule(),
+                    new IndyPromoteClientModule(),
+                    new IndyPromoteAdminClientModule() };
 
             SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
                     // disable indy client metrics to avoid plague of o11phant library

@@ -17,15 +17,18 @@
  */
 package org.jboss.pnc.mapper;
 
+import static java.util.function.Function.identity;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import static java.util.function.Function.identity;
 import java.util.stream.Collectors;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupConfigurationRef;

@@ -24,7 +24,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.jboss.pnc.api.dto.OperationOutcome;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.OperationRef;

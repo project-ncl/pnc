@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.remotecoordinator.notifications.buildTask;
 
+import java.util.Map;
+import java.util.Optional;
+
+import javax.enterprise.inject.Instance;
+
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.messaging.spi.Message;
 import org.jboss.pnc.messaging.spi.MessageSender;
@@ -25,11 +30,6 @@ import org.jboss.pnc.test.cdi.TestInstance;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import javax.enterprise.inject.Instance;
-
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

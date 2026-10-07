@@ -22,14 +22,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>model</artifactId>
-  <name>model</name>
   <packaging>jar</packaging>
+  <name>model</name>
 
   <description>Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration.</description>
 
@@ -134,9 +134,10 @@
     <dependency>
       <groupId>org.infinispan</groupId>
       <artifactId>infinispan-hibernate-cache-v53</artifactId>
-      <scope>test</scope>  
+      <scope>test</scope>
     </dependency>
-    <dependency> <!-- required by hibernate cache -->
+    <dependency>
+      <!-- required by hibernate cache -->
       <groupId>org.wildfly.arquillian</groupId>
       <artifactId>wildfly-arquillian-container-managed</artifactId>
       <scope>test</scope>
@@ -151,15 +152,15 @@
         <version>${version.org.hibernate.hibernate-core}</version>
         <executions>
           <execution>
+            <goals>
+              <goal>enhance</goal>
+            </goals>
             <configuration>
               <failOnError>true</failOnError>
               <enableLazyInitialization>true</enableLazyInitialization>
               <enableDirtyTracking>false</enableDirtyTracking>
               <enableAssociationManagement>false</enableAssociationManagement>
             </configuration>
-            <goals>
-              <goal>enhance</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

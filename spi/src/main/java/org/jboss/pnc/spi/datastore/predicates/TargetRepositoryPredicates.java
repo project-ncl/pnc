@@ -18,13 +18,14 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.persistence.criteria.Path;
+
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.persistence.criteria.Path;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

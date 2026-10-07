@@ -18,9 +18,18 @@
 
 package org.jboss.pnc.remotecoordinator.test;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.AttachmentType;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -41,7 +50,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
@@ -50,14 +58,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

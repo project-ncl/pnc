@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -48,12 +55,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RunWith(Arquillian.class)
 public class RemoteBuildCoordinatorIT {

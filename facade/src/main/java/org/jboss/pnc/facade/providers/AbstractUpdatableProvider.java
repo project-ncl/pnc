@@ -18,8 +18,9 @@
 package org.jboss.pnc.facade.providers;
 
 import java.io.Serializable;
+
 import javax.annotation.security.PermitAll;
-import lombok.extern.slf4j.Slf4j;
+
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
@@ -27,6 +28,8 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.UpdatableEntityMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Extension of abstract provider adding update functionality.

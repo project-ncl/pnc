@@ -17,6 +17,19 @@
  */
 package org.jboss.pnc.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.asSystem;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.asUser;
+import static org.junit.Assert.assertThrows;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -38,9 +51,9 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.integration.utils.ResponseUtils;
-import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
+import org.jboss.pnc.integration.setup.Deployments;
+import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
@@ -52,19 +65,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.asSystem;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.asUser;
-import static org.junit.Assert.assertThrows;
 
 @RunAsClient
 @RunWith(Arquillian.class)

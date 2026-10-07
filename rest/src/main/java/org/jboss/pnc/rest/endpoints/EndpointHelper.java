@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.io.Serializable;
+
+import javax.ws.rs.NotFoundException;
+
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.NotFoundException;
-import java.io.Serializable;
 
 public class EndpointHelper<DBEntityID extends Serializable, DTO extends REF, REF extends DTOEntity> {
 

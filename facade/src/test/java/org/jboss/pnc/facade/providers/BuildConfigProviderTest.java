@@ -17,6 +17,19 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.mapper.BuildConfigurationParametersUtils.BUILD_CATEGORY_KEY;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -46,19 +59,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.mapper.BuildConfigurationParametersUtils.BUILD_CATEGORY_KEY;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConfiguration> {

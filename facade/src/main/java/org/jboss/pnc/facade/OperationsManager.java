@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade;
 
+import java.util.Map;
+
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ProgressStatus;
@@ -25,8 +27,6 @@ import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.Operation;
-
-import java.util.Map;
 
 public interface OperationsManager {
 

@@ -18,6 +18,22 @@
 
 package org.jboss.pnc.remotecoordinator.builder;
 
+import static org.jboss.pnc.enums.BuildType.RPM;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
@@ -39,21 +55,6 @@ import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.enums.BuildType.RPM;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

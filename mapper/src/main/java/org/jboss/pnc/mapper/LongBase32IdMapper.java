@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.mapper.api.IdMapper;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
+import org.jboss.pnc.mapper.api.IdMapper;
 
 public class LongBase32IdMapper implements IdMapper<Long, String> {
 

@@ -17,12 +17,32 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
@@ -39,32 +59,12 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
 
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Group Builds")
 @Path("/group-builds")
@@ -140,7 +140,8 @@ public interface GroupBuildEndpoint {
     @Operation(
             summary = DELETE_DESC,
             description = DELETE_DESC2,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -196,7 +197,8 @@ public interface GroupBuildEndpoint {
      */
     @Operation(
             summary = BREW_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -225,7 +227,8 @@ public interface GroupBuildEndpoint {
      */
     @Operation(
             summary = CANCEL_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,

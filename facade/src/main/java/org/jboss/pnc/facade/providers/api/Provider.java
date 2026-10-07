@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import java.io.Serializable;
+
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import java.io.Serializable;
 
 /**
  *

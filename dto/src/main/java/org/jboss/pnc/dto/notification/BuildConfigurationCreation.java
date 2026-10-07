@@ -17,19 +17,18 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import lombok.Data;
+import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
 
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
-import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+import lombok.Data;
 
 /**
  * Notification about created Build Config.

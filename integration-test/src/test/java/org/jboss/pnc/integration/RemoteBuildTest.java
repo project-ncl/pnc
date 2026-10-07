@@ -17,19 +17,16 @@
  */
 package org.jboss.pnc.integration;
 
-import org.jboss.pnc.api.enums.RebuildMode;
-import org.jboss.pnc.test.category.DebugTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import static org.assertj.core.api.Assertions.assertThat;
+
+import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Build;
@@ -40,6 +37,10 @@ import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.restclient.AdvancedBuildConfigurationClient;
+import org.jboss.pnc.test.category.DebugTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

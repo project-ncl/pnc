@@ -17,7 +17,13 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.Result;
@@ -29,11 +35,7 @@ import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Optional;
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j

@@ -17,18 +17,20 @@
  */
 package org.jboss.pnc.dto;
 
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+
+import java.util.Map;
+
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.util.Map;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jboss.pnc.processor.annotation.PatchSupport;
-
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  * A product is a deliverable package composed of multiple project.

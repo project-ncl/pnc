@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
+
 import org.jboss.pnc.facade.rsql.RSQLException;
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.facade.rsql.converter.CastValueConverter;
@@ -27,10 +31,6 @@ import org.jboss.pnc.model.ProductRelease_;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.util.NotImplementedException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
 
 /**
  * Mapper for converting RSQL over {@link org.jboss.pnc.dto.response.MilestoneInfo} into Criteria API.

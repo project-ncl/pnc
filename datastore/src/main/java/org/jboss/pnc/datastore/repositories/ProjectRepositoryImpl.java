@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class ProjectRepositoryImpl extends AbstractRepository<Project, Integer> implements ProjectRepository {

@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.restclient;
 
+import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withFailedTaskId;
+import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withSuccessTaskId;
+
+import java.util.concurrent.CompletableFuture;
+
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteResourceException;
@@ -27,11 +32,6 @@ import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
-
-import java.util.concurrent.CompletableFuture;
-
-import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withFailedTaskId;
-import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withSuccessTaskId;
 
 /**
  * AdvancedSCMRepositoryClient that provides additional features to wait for a SCM repository to finish creating.

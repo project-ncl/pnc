@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.integrationrex.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
+import java.util.EnumSet;
+
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
@@ -28,11 +33,6 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.EnumSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class BuildUtils {
 

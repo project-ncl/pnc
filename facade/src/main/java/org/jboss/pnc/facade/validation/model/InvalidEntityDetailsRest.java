@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.validation.model;
 
-import org.jboss.pnc.facade.validation.InvalidEntityException;
-
 import javax.xml.bind.annotation.XmlType;
+
+import org.jboss.pnc.facade.validation.InvalidEntityException;
 
 @XmlType
 public class InvalidEntityDetailsRest {

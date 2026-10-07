@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.dto.response.statistics;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
+import java.util.EnumMap;
+
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.enums.RepositoryType;
 
-import java.util.EnumMap;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Builder;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * Statistics about proportion of repository type of delivered artifacts.

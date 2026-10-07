@@ -17,16 +17,6 @@
  */
 package org.jboss.pnc.messaging;
 
-import org.jboss.pnc.common.concurrent.MDCThreadPoolExecutor;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +25,17 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PreDestroy;
+import javax.ejb.Singleton;
+import javax.inject.Inject;
+
+import org.jboss.pnc.common.concurrent.MDCThreadPoolExecutor;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Message sender does not guarantee message delivery to MQ. Unsent messages are logged as errors.

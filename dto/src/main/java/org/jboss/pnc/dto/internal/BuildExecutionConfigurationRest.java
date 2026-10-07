@@ -17,21 +17,23 @@
  */
 package org.jboss.pnc.dto.internal;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
-import lombok.extern.jackson.Jacksonized;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

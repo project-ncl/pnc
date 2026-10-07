@@ -18,11 +18,11 @@
 
 package org.jboss.pnc.mock.executor;
 
+import java.util.Optional;
+
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
-
-import java.util.Optional;
 
 class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChangedEvent {
 

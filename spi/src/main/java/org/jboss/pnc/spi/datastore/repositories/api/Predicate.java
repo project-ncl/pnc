@@ -17,13 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api;
 
-import org.jboss.pnc.model.BuildRecord;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public interface Predicate<T> {
     javax.persistence.criteria.Predicate apply(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb);

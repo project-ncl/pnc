@@ -17,59 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.Artifact;
-import org.jboss.pnc.dto.Attachment;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildPushOperation;
-import org.jboss.pnc.dto.BuildPushReport;
-import org.jboss.pnc.dto.insights.BuildRecordInsights;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
-import org.jboss.pnc.dto.requests.BuildPushParameters;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Graph;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.RunningBuildCount;
-import org.jboss.pnc.dto.response.SSHCredentials;
-import org.jboss.pnc.pncmetrics.rest.TimedMetric;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.AttachmentPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.util.List;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
@@ -93,6 +40,61 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
+import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Attachment;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildPushOperation;
+import org.jboss.pnc.dto.BuildPushReport;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Graph;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.RunningBuildCount;
+import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.AttachmentPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Builds")
 @Path("/builds")
@@ -183,7 +185,8 @@ public interface BuildEndpoint {
             summary = "[role:pnc-app-build-delete, pnc-app-build-user, pnc-users-admin] " + DELETE_DESC,
             description = DELETE_DESC2,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -207,7 +210,8 @@ public interface BuildEndpoint {
     @Operation(
             summary = "[role:pnc-app-build-user, pnc-users-admin] " + UPDATE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -438,7 +442,8 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = ADD_ATTRIBUTE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -466,7 +471,8 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = REMOVE_ATTRIBUTE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -588,7 +594,8 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = CANCEL_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = NOT_FOUND_CODE,
                             description = "Can not find any Brew push in progress."),
@@ -612,7 +619,8 @@ public interface BuildEndpoint {
     @Operation(
             summary = COMPLETE_PUSH_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -663,7 +671,8 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = CANCEL_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -890,7 +899,8 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = GET_IMPLICIT_DEPENDENCY_GRAPH,
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,

@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.integration.mock;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
 
 @Alternative
 @ApplicationScoped

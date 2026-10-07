@@ -17,13 +17,7 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-import org.jboss.pnc.api.enums.LabelOperation;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -35,7 +29,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.util.Date;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * The label entry is used for tracking history of changes done with {@link DeliverableAnalyzerReport}.

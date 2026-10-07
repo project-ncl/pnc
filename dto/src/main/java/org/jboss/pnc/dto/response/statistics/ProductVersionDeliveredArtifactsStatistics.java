@@ -18,6 +18,7 @@
 package org.jboss.pnc.dto.response.statistics;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;

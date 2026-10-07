@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import java.util.Optional;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.BuildRef;
@@ -41,18 +43,25 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
-import java.util.Optional;
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, UserMapper.class, StatusMapper.class, SCMRepositoryMapper.class,
-                ProjectMapper.class, BuildConfigurationRevisionMapper.class, EnvironmentMapper.class,
-                BrewNameWorkaround.class, GroupBuildMapper.class, BuildBCRevisionFetcher.class,
-                ProductMilestoneMapper.class, AttachmentMapper.class })
+        uses = {
+                RefToReferenceMapper.class,
+                UserMapper.class,
+                StatusMapper.class,
+                SCMRepositoryMapper.class,
+                ProjectMapper.class,
+                BuildConfigurationRevisionMapper.class,
+                EnvironmentMapper.class,
+                BrewNameWorkaround.class,
+                GroupBuildMapper.class,
+                BuildBCRevisionFetcher.class,
+                ProductMilestoneMapper.class,
+                AttachmentMapper.class })
 
 public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRecord, Build, BuildRef> {
 
@@ -73,10 +82,22 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
             qualifiedBy = BuildHelpers.class,
-            ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
-                    "builtArtifacts", "dependencies", "buildConfigurationId", "buildConfigurationRev",
-                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap",
+            ignoreUnmappedSourceProperties = {
+                    "sshCommand",
+                    "sshPassword",
+                    "executionRootName",
+                    "executionRootVersion",
+                    "builtArtifacts",
+                    "dependencies",
+                    "buildConfigurationId",
+                    "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev",
+                    "buildEnvironment",
+                    "buildConfigurationAudited",
+                    "buildOutputChecksum",
+                    "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds",
+                    "attributesMap",
                     "attachments" })
     Build toDTO(BuildRecord dbEntity);
 
@@ -98,10 +119,22 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
             qualifiedBy = BuildHelpersNoBCRevision.class,
-            ignoreUnmappedSourceProperties = { "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
-                    "builtArtifacts", "dependencies", "buildConfigurationId", "buildConfigurationRev",
-                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
+            ignoreUnmappedSourceProperties = {
+                    "sshCommand",
+                    "sshPassword",
+                    "executionRootName",
+                    "executionRootVersion",
+                    "builtArtifacts",
+                    "dependencies",
+                    "buildConfigurationId",
+                    "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev",
+                    "buildEnvironment",
+                    "buildConfigurationAudited",
+                    "buildOutputChecksum",
+                    "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds",
+                    "attributesMap" })
     Build toDTOWithoutBCR(BuildRecord dbEntity);
 
     @Override
@@ -109,12 +142,30 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "scmRevision", "scmTag", "sshCommand", "sshPassword",
-                    "executionRootName", "executionRootVersion", "builtArtifacts", "dependencies", "productMilestone",
-                    "buildConfigSetRecord", "buildConfigurationId", "buildConfigurationRev", "buildEnvironment",
-                    "buildConfigurationAudited", "dependentBuildRecordIds", "dependencyBuildRecordIds", "user",
-                    "attributes", "attributesMap", "buildConfigurationAuditedIdRev", "buildOutputChecksum",
-                    "scmBuildConfigRevision", "scmBuildConfigRevisionInternal" })
+            ignoreUnmappedSourceProperties = {
+                    "scmRevision",
+                    "scmTag",
+                    "sshCommand",
+                    "sshPassword",
+                    "executionRootName",
+                    "executionRootVersion",
+                    "builtArtifacts",
+                    "dependencies",
+                    "productMilestone",
+                    "buildConfigSetRecord",
+                    "buildConfigurationId",
+                    "buildConfigurationRev",
+                    "buildEnvironment",
+                    "buildConfigurationAudited",
+                    "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds",
+                    "user",
+                    "attributes",
+                    "attributesMap",
+                    "buildConfigurationAuditedIdRev",
+                    "buildOutputChecksum",
+                    "scmBuildConfigRevision",
+                    "scmBuildConfigRevisionInternal" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -213,8 +264,14 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "progress", source = "status")
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "statusDescription", "buildSetTask", "buildConfigSetRecordId",
-                    "buildOptions", "dependants", "dependencies", "requestContext" })
+            ignoreUnmappedSourceProperties = {
+                    "statusDescription",
+                    "buildSetTask",
+                    "buildConfigSetRecordId",
+                    "buildOptions",
+                    "dependants",
+                    "dependencies",
+                    "requestContext" })
     Build fromBuildTask(BuildTask buildTask);
 
     public static <T> T unwrap(Optional<T> optional) {

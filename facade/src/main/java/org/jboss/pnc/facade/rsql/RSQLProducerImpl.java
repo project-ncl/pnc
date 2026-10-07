@@ -17,28 +17,30 @@
  */
 package org.jboss.pnc.facade.rsql;
 
-import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.RSQLParserException;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.Node;
-import cz.jirutka.rsql.parser.ast.RSQLOperators;
-import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.StableEmptySortInfo;
-import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
-import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
+import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
+import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.StableEmptySortInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.RSQLParserException;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.Node;
+import cz.jirutka.rsql.parser.ast.RSQLOperators;
 
 /**
  *

@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.enums.BuildStatus;
-
 import java.io.Serializable;
 import java.util.Optional;
+
+import org.jboss.pnc.enums.BuildStatus;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-18.

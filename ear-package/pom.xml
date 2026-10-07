@@ -23,28 +23,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>ear-package</artifactId>
-  <name>ear-package</name>
   <packaging>ear</packaging>
+  <name>ear-package</name>
 
   <properties>
     <includeMessagingInAppXml>true</includeMessagingInAppXml>
   </properties>
-
-  <profiles>
-    <profile>
-      <id>without-messaging</id>
-      <properties>
-        <excludeMessaging>messaging.jar</excludeMessaging>
-        <includeMessagingInAppXml>false</includeMessagingInAppXml>
-      </properties>
-    </profile>
-  </profiles>
 
   <dependencies>
     <!-- Depend on the modules so that we can package them -->
@@ -77,9 +67,9 @@
       <artifactId>model</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>rest</artifactId>
-        <type>war</type>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>rest</artifactId>
+      <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -159,14 +149,12 @@
           <configuration>
             <archive>
               <manifestEntries combine.children="append">
-                <Dependencies>
-                  org.apache.commons.beanutils,
+                <Dependencies>org.apache.commons.beanutils,
                   org.apache.commons.codec,
                   org.apache.commons.collections,
                   org.apache.commons.io,
                   org.apache.httpcomponents.core,
-                  jdk.net,
-                </Dependencies>
+                  jdk.net,</Dependencies>
               </manifestEntries>
             </archive>
           </configuration>
@@ -177,13 +165,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-ear-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-io</artifactId>
-            <version>2.7.1</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
@@ -323,8 +304,25 @@
             </webModule>
           </modules>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-io</artifactId>
+            <version>2.7.1</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>without-messaging</id>
+      <properties>
+        <excludeMessaging>messaging.jar</excludeMessaging>
+        <includeMessagingInAppXml>false</includeMessagingInAppXml>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

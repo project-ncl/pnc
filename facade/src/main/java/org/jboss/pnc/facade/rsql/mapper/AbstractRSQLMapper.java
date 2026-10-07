@@ -17,20 +17,19 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLException;
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
-import org.jboss.pnc.facade.rsql.converter.CastValueConverter;
-import org.jboss.pnc.facade.rsql.converter.ValueConverter;
-import org.jboss.pnc.model.Artifact_;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation;
-import org.jboss.pnc.model.GenericEntity;
+import java.io.Serializable;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
-import java.io.Serializable;
+
+import org.jboss.pnc.facade.rsql.RSQLException;
+import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.facade.rsql.converter.CastValueConverter;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  *

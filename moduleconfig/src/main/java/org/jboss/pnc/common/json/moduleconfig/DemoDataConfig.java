@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DemoDataConfig extends AbstractModuleConfig {
 

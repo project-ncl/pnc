@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import java.util.concurrent.TimeoutException;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.TimeoutException;
 
 /**
  * Let A -> B, C denote that config A depends on configs B and C <br/>

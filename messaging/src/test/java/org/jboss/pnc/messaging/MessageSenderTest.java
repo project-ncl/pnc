@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.messaging;
 
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.messaging.spi.MessageSender;
@@ -30,12 +37,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

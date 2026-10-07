@@ -17,6 +17,37 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withCausingBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
+
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Artifact;
@@ -38,36 +69,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Fetch;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withCausingBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Base32LongID>

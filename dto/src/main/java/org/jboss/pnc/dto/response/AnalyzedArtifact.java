@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.dto.response;
 
-import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
-
 import java.util.List;
 import java.util.Set;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.dto.Artifact;
+
+import lombok.Builder;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * This DTO provides information about the artifact, which was analyzed by deliverable analyzer operation.

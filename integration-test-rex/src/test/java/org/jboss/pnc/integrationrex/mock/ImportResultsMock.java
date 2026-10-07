@@ -17,7 +17,14 @@
  */
 package org.jboss.pnc.integrationrex.mock;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.Date.from;
+
+import java.time.Instant;
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.common.Random;
 import org.jboss.pnc.dto.internal.BuildDriverResultRest;
 import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
 import org.jboss.pnc.dto.internal.BuildImport;
@@ -26,14 +33,7 @@ import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
 import org.jboss.pnc.dto.internal.IdRev;
 import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.common.Random;
 import org.jboss.pnc.enums.BuildStatus;
-
-import java.time.Instant;
-import java.util.Map;
-
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.util.Date.from;
 
 public class ImportResultsMock {
 

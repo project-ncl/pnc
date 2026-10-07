@@ -17,8 +17,27 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.constants.MDCKeys;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
@@ -49,7 +68,6 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
@@ -73,23 +91,6 @@ import org.jboss.util.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
 
 /**
  * Individual build submitted: - collect all the tasks based on the dependencies

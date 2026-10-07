@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.common.json;
 
+import java.io.IOException;
+
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 
 /**
  * @author Pavel Slegr

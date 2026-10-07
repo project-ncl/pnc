@@ -19,6 +19,7 @@ package org.jboss.pnc.remotecoordinator.test.mock;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;

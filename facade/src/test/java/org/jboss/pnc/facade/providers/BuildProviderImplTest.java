@@ -17,13 +17,36 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.math.BigInteger;
+import java.time.ZoneId;
+import java.time.temporal.IsoFields;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.auth.ServiceAccountClient;
-import org.jboss.pnc.dto.insights.BuildRecordInsights;
-import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.dto.response.Edge;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -38,9 +61,10 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -60,31 +84,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.IsoFields;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.common.util.RandomUtils.randInt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.github.tomakehurst.wiremock.WireMockServer;
 
 /**
  *
@@ -160,21 +160,37 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                     .findFirst()
                     .map(
                             a -> Collections.singletonList(
-                                    new Object[] { BigInteger.valueOf(a.getId().getLongId()), a.getBuildContentId(),
-                                            a.getSubmitTime(), a.getStartTime(), a.getEndTime(), a.getLastUpdateTime(),
-                                            a.getSubmitTime().getYear(), a.getSubmitTime().getMonth(),
+                                    new Object[] {
+                                            BigInteger.valueOf(a.getId().getLongId()),
+                                            a.getBuildContentId(),
+                                            a.getSubmitTime(),
+                                            a.getStartTime(),
+                                            a.getEndTime(),
+                                            a.getLastUpdateTime(),
+                                            a.getSubmitTime().getYear(),
+                                            a.getSubmitTime().getMonth(),
                                             a.getSubmitTime()
                                                     .toInstant()
                                                     .atZone(ZoneId.systemDefault())
                                                     .toLocalDate()
                                                     .get(IsoFields.QUARTER_OF_YEAR),
-                                            a.getStatus(), a.isTemporaryBuild(), false, false, "",
-                                            a.getExecutionRootName(), a.getExecutionRootVersion(), 0, "username",
-                                            a.getBuildConfigurationId(), a.getBuildConfigurationAuditedIdRev().getId(),
+                                            a.getStatus(),
+                                            a.isTemporaryBuild(),
+                                            false,
+                                            false,
+                                            "",
+                                            a.getExecutionRootName(),
+                                            a.getExecutionRootVersion(),
+                                            0,
+                                            "username",
+                                            a.getBuildConfigurationId(),
+                                            a.getBuildConfigurationAuditedIdRev().getId(),
                                             a.getBuildConfigurationAudited().getName(),
-                                            BigInteger.valueOf(a.getBuildConfigSetRecord().getId().getLongId()), 0, // productMilestone
+                                            BigInteger.valueOf(a.getBuildConfigSetRecord().getId().getLongId()),
+                                            0, // productMilestone
                                             "", // milestoneVersion
-                                            0, "", // projectName
+                                            0,
+                                            "", // projectName
                                             0, // productVersionId
                                             "", // productVersion
                                             0, // productId

@@ -17,32 +17,32 @@
  */
 package org.jboss.pnc.mapper.abstracts;
 
+import java.net.MalformedURLException;
+import java.util.function.Consumer;
+
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.log.LogSanitizer;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.MapperCentralConfig;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
-import org.jboss.pnc.common.log.LogSanitizer;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-
-import java.net.MalformedURLException;
-import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>

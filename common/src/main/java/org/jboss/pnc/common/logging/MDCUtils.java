@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.common.logging;
 
-import org.jboss.pnc.api.constants.MDCHeaderKeys;
-import org.jboss.pnc.api.constants.MDCKeys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
+import org.jboss.pnc.api.constants.MDCKeys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

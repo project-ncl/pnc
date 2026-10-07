@@ -17,9 +17,8 @@
  */
 package org.jboss.pnc.web;
 
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -28,8 +27,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 /**
  * Dynamically serves a configuration file for the UI.

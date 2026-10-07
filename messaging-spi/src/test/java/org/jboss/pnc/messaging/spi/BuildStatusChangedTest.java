@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.messaging.spi;
 
+import java.io.IOException;
+
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
@@ -30,8 +32,6 @@ import org.jboss.pnc.enums.SystemImageType;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

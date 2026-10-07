@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import javax.persistence.criteria.MapJoin;
+
 import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildEnvironment_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.MapJoin;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildEnvironment} entity.

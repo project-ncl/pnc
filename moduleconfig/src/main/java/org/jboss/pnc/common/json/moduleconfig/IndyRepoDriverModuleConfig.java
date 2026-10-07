@@ -17,13 +17,15 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import java.util.Map;
+
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
-import java.util.Map;
 
 @ToString
 public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {

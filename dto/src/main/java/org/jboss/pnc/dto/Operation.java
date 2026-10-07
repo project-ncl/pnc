@@ -23,7 +23,6 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 import java.util.Map;
 
-import lombok.experimental.SuperBuilder;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -31,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @PatchSupport

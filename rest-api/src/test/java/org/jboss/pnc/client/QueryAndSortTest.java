@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.client;
 
+import java.util.Optional;
+
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.junit.Test;
-
-import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

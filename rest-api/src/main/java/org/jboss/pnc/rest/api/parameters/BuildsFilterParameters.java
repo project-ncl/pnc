@@ -20,9 +20,10 @@ package org.jboss.pnc.rest.api.parameters;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
  * Parameters for filtering build lists.

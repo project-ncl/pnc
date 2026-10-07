@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import java.lang.annotation.Annotation;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.event.NotificationOptions;
 import javax.enterprise.util.TypeLiteral;
-import java.lang.annotation.Annotation;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
+
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

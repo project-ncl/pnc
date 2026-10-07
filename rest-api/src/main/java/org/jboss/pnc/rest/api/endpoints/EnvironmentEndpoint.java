@@ -17,35 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.dto.requests.EnvironmentDeprecationRequest;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildEnvironmentPage;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -58,6 +29,34 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.requests.EnvironmentDeprecationRequest;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildEnvironmentPage;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Environments")
 @Path("/environments")

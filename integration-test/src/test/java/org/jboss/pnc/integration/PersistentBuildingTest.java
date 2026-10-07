@@ -17,6 +17,15 @@
  */
 package org.jboss.pnc.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.asUser;
+
+import java.util.EnumSet;
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -42,15 +51,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.EnumSet;
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
-import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.asUser;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -90,9 +90,9 @@ public class PersistentBuildingTest {
         // when
         assertThatThrownBy(
                 () -> buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(false, true)))
-                        .isInstanceOf(RemoteResourceException.class)
-                        .hasMessageContaining(
-                                "Triggering persistent builds is currently disabled, only temporary builds triggering is allowed.");
+                .isInstanceOf(RemoteResourceException.class)
+                .hasMessageContaining(
+                        "Triggering persistent builds is currently disabled, only temporary builds triggering is allowed.");
     }
 
     @Test

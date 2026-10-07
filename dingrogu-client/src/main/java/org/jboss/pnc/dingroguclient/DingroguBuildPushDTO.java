@@ -18,12 +18,8 @@
 package org.jboss.pnc.dingroguclient;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.api.dto.Request;
-
-import java.util.List;
 
 @Value
 @Builder

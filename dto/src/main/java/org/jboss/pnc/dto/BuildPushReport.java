@@ -17,16 +17,18 @@
  */
 package org.jboss.pnc.dto;
 
+import java.time.Instant;
+
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
-
-import java.time.Instant;
 
 /**
  * The report of the build push.

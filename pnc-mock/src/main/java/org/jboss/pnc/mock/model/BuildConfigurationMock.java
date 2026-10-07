@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.mock.model;
 
+import java.util.Date;
+
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-
-import java.util.Date;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

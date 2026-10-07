@@ -20,7 +20,6 @@ package org.jboss.pnc.notification.dist;
 import java.util.Objects;
 import java.util.Properties;
 
-import io.apicurio.registry.utils.IoUtil;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -33,6 +32,8 @@ import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+
+import io.apicurio.registry.utils.IoUtil;
 
 @Listener(clustered = true, observation = Listener.Observation.POST)
 public class InfinispanDistributedEventHandler extends AbstractDistributedEventHandler {

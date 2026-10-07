@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.Valid;
+
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
@@ -37,13 +45,6 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.Optional;
-import java.util.Set;
 
 @ApplicationScoped
 public class ArtifactEndpointImpl implements ArtifactEndpoint {

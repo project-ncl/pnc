@@ -17,8 +17,12 @@
  */
 package org.jboss.pnc.remotecoordinator.rexclient.provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.jboss.pnc.api.constants.HttpHeaders.AUTHORIZATION_STRING;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
@@ -26,12 +30,9 @@ import javax.ws.rs.client.ClientResponseContext;
 import javax.ws.rs.client.ClientResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import static org.jboss.pnc.api.constants.HttpHeaders.AUTHORIZATION_STRING;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class LoggingFilter implements ClientRequestFilter, ClientResponseFilter {

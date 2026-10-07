@@ -17,18 +17,18 @@
  */
 package org.jboss.pnc.test.arquillian;
 
+import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestDependencies;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.jar.Manifest;
+
 import org.jboss.shrinkwrap.api.Node;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.impl.base.path.PathUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.jar.Manifest;
-
-import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestDependencies;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

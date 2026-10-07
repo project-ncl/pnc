@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.facade;
 
+import java.util.List;
+
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
-
-import java.util.List;
 
 public interface DeliverableAnalyzerManager {
     /**

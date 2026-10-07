@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.mock.datastore;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.spi.coordinator.BuildTaskRef;
-import org.jboss.pnc.spi.datastore.BuildTaskRepository;
-import org.jboss.pnc.spi.exception.RemoteRequestException;
-
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
+import org.jboss.pnc.spi.datastore.BuildTaskRepository;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 @ApplicationScoped
 public class BuildTaskRepositoryMock implements BuildTaskRepository {

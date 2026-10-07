@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.util.Collection;
 import java.util.Collections;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * Collection REST response.

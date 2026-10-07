@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.dto.validation;
 
-import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
-import org.jboss.pnc.dto.validation.NoHtmlDTO;
-import org.jboss.pnc.dto.validation.validators.NoHtmlValidator;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
+import org.jboss.pnc.dto.validation.validators.NoHtmlValidator;
+import org.junit.Test;
 
 public class NoHtmlValidatorTest {
     @Test

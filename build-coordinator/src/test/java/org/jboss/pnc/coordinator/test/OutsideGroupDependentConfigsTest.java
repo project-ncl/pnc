@@ -17,6 +17,16 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
@@ -26,16 +36,6 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * Group consists of configA,config B and configC. <br/>

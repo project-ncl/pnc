@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.facade.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.verify;
+
+import java.util.EnumSet;
+
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerLabelSaver;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifierImpl;
@@ -28,12 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.EnumSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeliverableAnalyzerReportLabelModifierTest {

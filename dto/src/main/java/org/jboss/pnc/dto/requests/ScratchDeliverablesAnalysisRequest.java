@@ -17,13 +17,15 @@
  */
 package org.jboss.pnc.dto.requests;
 
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.URL;
+
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.hibernate.validator.constraints.URL;
-
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * This type of request differs from {@link DeliverablesAnalysisRequest} in a way that this request is used to start

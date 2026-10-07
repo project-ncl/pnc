@@ -20,20 +20,19 @@ package org.jboss.pnc.facade.rsql;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.ASC;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.DESC;
 
-import cz.jirutka.rsql.parser.ast.Node;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo.SortingDirection;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.LogicalNode;

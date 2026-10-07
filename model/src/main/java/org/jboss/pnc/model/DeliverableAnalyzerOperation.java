@@ -17,8 +17,9 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -26,9 +27,9 @@ import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
 
 @Entity
 @DiscriminatorValue("DelAnalysis")

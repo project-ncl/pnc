@@ -17,6 +17,23 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.notProducedInBuild;
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
+
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Set;
+
+import javax.ejb.Stateless;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+
 import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -41,22 +58,6 @@ import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
-
-import javax.ejb.Stateless;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Set;
-
-import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
-import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.notProducedInBuild;
 
 @Stateless
 public class DeliverableArtifactRepositoryImpl extends AbstractRepository<DeliverableArtifact, DeliverableArtifactPK>

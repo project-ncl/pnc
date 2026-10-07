@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.api.enums.RebuildMode;
-import org.jboss.pnc.common.Strings;
-import org.jboss.pnc.enums.BuildStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -50,16 +51,16 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.enums.BuildStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -75,7 +76,8 @@ import java.util.stream.Collectors;
 // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        indexes = { @Index(name = "idx_buildrecord_user", columnList = "user_id"),
+        indexes = {
+                @Index(name = "idx_buildrecord_user", columnList = "user_id"),
                 @Index(name = "idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
                 @Index(name = "idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id"),
                 @Index(name = "idx_buildrecord_buildconfiguration", columnList = "buildconfiguration_id"),
@@ -242,20 +244,23 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @ManyToMany
     @JoinTable(
             name = "build_record_artifact_dependencies_map",
-            joinColumns = { @JoinColumn(
-                    name = "build_record_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")) },
-            inverseJoinColumns = { @JoinColumn(
-                    name = "dependency_artifact_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")) },
+            joinColumns = {
+                    @JoinColumn(
+                            name = "build_record_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")) },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "dependency_artifact_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")) },
             uniqueConstraints = @UniqueConstraint(
                     name = "uk_build_record_id_dependency_artifact_id",
                     columnNames = { "build_record_id", "dependency_artifact_id" }),
-            indexes = { @Index(
-                    name = "idx_build_record_artifact_dependencies_map",
-                    columnList = "dependency_artifact_id") })
+            indexes = {
+                    @Index(
+                            name = "idx_build_record_artifact_dependencies_map",
+                            columnList = "dependency_artifact_id") })
     @Column(updatable = false)
     private Set<Artifact> dependencies;
 

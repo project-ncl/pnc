@@ -17,13 +17,11 @@
  */
 package org.jboss.pnc.auth;
 
+import javax.enterprise.context.Dependent;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.SecurityContext;
 
 @Dependent
 @AuthProvider

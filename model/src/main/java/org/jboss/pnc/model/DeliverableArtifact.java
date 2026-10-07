@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -34,9 +33,10 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *

@@ -22,13 +22,6 @@ import java.time.Instant;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.experimental.SuperBuilder;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
@@ -38,8 +31,8 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Data

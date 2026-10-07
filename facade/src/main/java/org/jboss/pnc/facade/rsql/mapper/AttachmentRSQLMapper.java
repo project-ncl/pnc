@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.Attachment;
-import org.jboss.pnc.model.Attachment_;
-import org.jboss.pnc.model.GenericEntity;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.model.Attachment;
+import org.jboss.pnc.model.Attachment_;
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>

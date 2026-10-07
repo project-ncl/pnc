@@ -17,6 +17,18 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerLabelEntryPredicates.withReportId;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.deliverablesanalyzer.dto.LicenseInfo;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
@@ -42,19 +54,6 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerLabelEntryPredicates.withReportId;
 
 @PermitAll
 @Stateless

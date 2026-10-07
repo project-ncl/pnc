@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.common.util;
 
-import org.jboss.util.StringPropertyReplacer;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +33,8 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import org.jboss.util.StringPropertyReplacer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.

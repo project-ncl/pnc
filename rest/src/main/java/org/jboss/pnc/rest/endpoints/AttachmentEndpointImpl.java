@@ -17,25 +17,21 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.AttachmentRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.AttachmentProvider;
 import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.api.endpoints.AttachmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import java.util.Optional;
-
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ATTACHMENT_ADMIN;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped

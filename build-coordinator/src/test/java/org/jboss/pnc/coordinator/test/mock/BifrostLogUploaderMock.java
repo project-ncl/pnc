@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.coordinator.test.mock;
 
+import java.io.File;
+import java.net.URI;
+
+import javax.enterprise.inject.Alternative;
+
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.bifrost.upload.BifrostUploadException;
 import org.jboss.pnc.bifrost.upload.LogMetadata;
-
-import javax.enterprise.inject.Alternative;
-import java.io.File;
-import java.net.URI;
 
 @Alternative
 public class BifrostLogUploaderMock extends BifrostLogUploader {

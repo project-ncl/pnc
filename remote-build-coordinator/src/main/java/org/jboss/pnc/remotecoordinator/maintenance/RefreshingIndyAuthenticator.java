@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.remotecoordinator.maintenance;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.http.Header;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -24,9 +27,6 @@ import org.apache.http.message.BasicHeader;
 import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
 import org.commonjava.util.jhttpc.JHttpCException;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class RefreshingIndyAuthenticator extends IndyClientAuthenticator {

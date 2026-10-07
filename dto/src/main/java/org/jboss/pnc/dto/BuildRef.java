@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
+import java.time.Instant;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
@@ -30,9 +30,12 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * The build.

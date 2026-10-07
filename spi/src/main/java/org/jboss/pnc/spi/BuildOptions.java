@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.spi;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.api.enums.RebuildMode;
 
 /**
  * Class used to store all available build options of a BuildConfiguration or BuildConfigurationSet

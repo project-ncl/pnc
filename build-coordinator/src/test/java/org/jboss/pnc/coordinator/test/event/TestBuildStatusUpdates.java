@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.coordinator.test.event;
 
+import javax.enterprise.event.Observes;
+
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.junit.Assert;
-
-import javax.enterprise.event.Observes;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.integrationrex;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+
+import org.jboss.pnc.integrationrex.mock.LogJsonAction;
+import org.wiremock.webhooks.WebhookDefinition;
+import org.wiremock.webhooks.Webhooks;
+
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
-import org.jboss.pnc.integrationrex.mock.LogJsonAction;
-import org.wiremock.webhooks.WebhookDefinition;
-import org.wiremock.webhooks.Webhooks;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 
 public class WireMockUtils {
     public static WebhookDefinition baseBPMWebhook() {

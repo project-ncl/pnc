@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.integrationrex.setup.arquillian;
 
+import java.lang.reflect.Method;
+
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestClass;
-
-import java.lang.reflect.Method;
 
 public class LifecycleObserver {
 

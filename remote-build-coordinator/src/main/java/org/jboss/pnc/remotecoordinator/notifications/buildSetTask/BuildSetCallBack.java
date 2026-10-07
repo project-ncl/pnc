@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.remotecoordinator.notifications.buildSetTask;
 
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-
 import java.util.function.Consumer;
+
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

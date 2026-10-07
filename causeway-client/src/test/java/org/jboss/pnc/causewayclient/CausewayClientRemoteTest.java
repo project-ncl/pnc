@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.causewayclient;
 
+import java.io.IOException;
+
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
@@ -34,8 +36,6 @@ import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

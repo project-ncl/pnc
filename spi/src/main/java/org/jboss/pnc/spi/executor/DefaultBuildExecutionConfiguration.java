@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.spi.executor;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
-import java.util.List;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor

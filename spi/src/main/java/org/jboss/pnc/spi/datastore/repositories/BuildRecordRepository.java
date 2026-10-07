@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.Tuple;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
@@ -24,12 +31,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-
-import javax.persistence.Tuple;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.

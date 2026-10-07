@@ -17,19 +17,20 @@
  */
 package org.jboss.pnc.dto;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Collections;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import java.util.Collections;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
 
 public class UserTest {
 

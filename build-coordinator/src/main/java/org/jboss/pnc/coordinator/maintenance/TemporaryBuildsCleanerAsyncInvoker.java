@@ -17,23 +17,23 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

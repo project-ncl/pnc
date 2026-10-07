@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProductVersion_;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductVersion_;
 
 /**
  *

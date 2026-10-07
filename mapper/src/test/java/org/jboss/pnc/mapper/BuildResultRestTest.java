@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mapper;
 
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
 import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.junit.Test;
 
 /**

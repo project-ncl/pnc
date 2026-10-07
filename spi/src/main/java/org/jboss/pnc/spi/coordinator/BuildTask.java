@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.BuildOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.

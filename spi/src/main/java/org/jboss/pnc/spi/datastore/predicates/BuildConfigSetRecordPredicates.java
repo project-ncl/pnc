@@ -17,19 +17,17 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import java.util.Date;
+import java.util.EnumSet;
+
+import javax.persistence.criteria.Join;
+
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-import java.util.Date;
-import java.util.EnumSet;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.

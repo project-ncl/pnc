@@ -23,14 +23,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>integration-test-rex</artifactId>
-  <name>integration-test-rex</name>
   <packaging>jar</packaging>
+  <name>integration-test-rex</name>
 
   <description>Tests for REST endpoints. REST to DB related tests run against im memory database. REST to executor related tests use mocked executor to avoid using remote services.</description>
 
@@ -65,14 +65,14 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>ear-package</artifactId>
-      <scope>test</scope>
       <type>ear</type>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>ear-package</artifactId>
-      <scope>test</scope>
       <type>pom</type>
+      <scope>test</scope>
       <exclusions>
         <!-- Avoid using private apis -->
         <exclusion>
@@ -89,8 +89,8 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>rest</artifactId>
-      <scope>test</scope>
       <classifier>classes</classifier>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -160,8 +160,8 @@
       <artifactId>arquillian-transaction-jta</artifactId>
     </dependency>
     <dependency>
-      <artifactId>jboss-transaction-api_1.3_spec</artifactId>
       <groupId>org.jboss.spec.javax.transaction</groupId>
+      <artifactId>jboss-transaction-api_1.3_spec</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -181,7 +181,8 @@
       <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency> <!--Required to add lib to Arquillian deployment. -->
+    <dependency>
+      <!--Required to add lib to Arquillian deployment. -->
       <groupId>org.jboss</groupId>
       <artifactId>jboss-common-core</artifactId>
     </dependency>
@@ -192,13 +193,13 @@
     <dependency>
       <groupId>com.github.java-json-tools</groupId>
       <artifactId>json-patch</artifactId>
+      <scope>test</scope>
       <exclusions>
         <exclusion>
           <groupId>com.google.code.findbugs</groupId>
           <artifactId>jsr305</artifactId>
         </exclusion>
       </exclusions>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -230,20 +231,13 @@
     <plugins>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <additionalClasspathElements>
             <additionalClasspathElement>${project.basedir}/ear-package/target/ear-package-${project.version}.ear</additionalClasspathElement>
           </additionalClasspathElements>
           <includes>
-            <include>**/*.java</include> <!--TODO rename tests to follow the convention. (*IT.java, IT*.java) -->
+            <include>**/*.java</include>
+            <!--TODO rename tests to follow the convention. (*IT.java, IT*.java) -->
           </includes>
           <groups>org.jboss.pnc.test.category.ContainerTest</groups>
           <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
@@ -252,6 +246,14 @@
             <pnc-config-path>${test.server.build.dir}/pnc-config.json</pnc-config-path>
           </systemPropertyVariables>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -267,10 +269,10 @@
             <executions>
               <execution>
                 <id>copy-auth-properties</id>
-                <phase>generate-resources</phase>
                 <goals>
                   <goal>copy-resources</goal>
                 </goals>
+                <phase>generate-resources</phase>
                 <configuration>
                   <overwrite>true</overwrite>
                   <outputDirectory>${project.build.testOutputDirectory}/</outputDirectory>
@@ -293,7 +295,9 @@
     <profile>
       <id>provision-test-eap</id>
       <activation>
-        <property><name>!skipTests</name></property>
+        <property>
+          <name>!skipTests</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -308,10 +312,10 @@
             <executions>
               <execution>
                 <id>prepare-properties</id>
-                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>java</goal>
                 </goals>
+                <phase>pre-integration-test</phase>
               </execution>
             </executions>
           </plugin>
@@ -321,10 +325,10 @@
             <version>1.2.1</version>
             <executions>
               <execution>
-                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>read-project-properties</goal>
                 </goals>
+                <phase>pre-integration-test</phase>
                 <configuration>
                   <files>
                     <file>${basedir}/target/test.properties</file>
@@ -336,14 +340,6 @@
           <plugin>
             <groupId>org.jboss.eap.plugins</groupId>
             <artifactId>eap-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>package</goal>
-                </goals>
-              </execution>
-            </executions>
             <!-- Layers, excluded layers and scripts are inherited from parent's plugin config -->
             <configuration>
               <layers combine.children="append">
@@ -369,6 +365,14 @@
               </packaging-scripts>
               <skipDeployment>true</skipDeployment>
             </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>package</goal>
+                </goals>
+                <phase>pre-integration-test</phase>
+              </execution>
+            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -382,9 +386,9 @@
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
-                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.build.dir}/pnc-config.json" />
+                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.build.dir}/pnc-config.json"/>
                     <replace file="${test.server.build.dir}/pnc-config.json" propertyFile="${basedir}/target/test.properties">
-                      <replaceFilter token="@keycloakPort@" property="keycloakPort" />
+                      <replaceFilter property="keycloakPort" token="@keycloakPort@"/>
                     </replace>
                   </target>
                 </configuration>

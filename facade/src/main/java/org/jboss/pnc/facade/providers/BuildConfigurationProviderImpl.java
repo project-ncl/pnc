@@ -17,6 +17,32 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependencyConfiguration;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withScmRepositoryId;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -72,31 +98,6 @@ import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependencyConfiguration;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withScmRepositoryId;
 
 @PermitAll
 @Stateless

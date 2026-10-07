@@ -17,19 +17,20 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductReleaseEndpoint;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @ApplicationScoped
 public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {

@@ -17,41 +17,21 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.Operation;
-import org.jboss.pnc.dto.OperationRef;
-import org.jboss.pnc.dto.User;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
-import org.jboss.pnc.facade.providers.api.OperationProvider;
-import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.facade.validation.InvalidEntityException;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
-import org.jboss.pnc.mapper.api.UpdatableEntityMapper;
-import org.jboss.pnc.mapper.api.UserMapper;
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.sql.Date;
-import java.time.Instant;
-import java.util.Map;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.spi.datastore.predicates.OperationPredicates.withMilestoneId;
+import org.jboss.pnc.dto.Operation;
+import org.jboss.pnc.dto.OperationRef;
+import org.jboss.pnc.facade.providers.api.OperationProvider;
+import org.jboss.pnc.mapper.api.UpdatableEntityMapper;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+
+import lombok.extern.slf4j.Slf4j;
 
 @PermitAll
 @Slf4j

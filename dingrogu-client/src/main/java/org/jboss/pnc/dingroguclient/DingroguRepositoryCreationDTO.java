@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.dingroguclient;
 
-import lombok.Builder;
-import lombok.Data;
 import org.jboss.pnc.api.enums.JobNotificationType;
 import org.jboss.pnc.dto.BuildConfiguration;
+
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder

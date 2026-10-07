@@ -17,18 +17,17 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import java.time.Instant;
+import java.util.Set;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-
-import java.time.Instant;
-import java.util.Set;
 
 /**
  * Representing remote running task.

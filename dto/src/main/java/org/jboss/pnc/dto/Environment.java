@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SystemImageType;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 

@@ -19,7 +19,6 @@
 package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 /**
  * BuildScheduler is used to direct the build to by scheduler defined execution engine. Example: BuildCoordinator uses

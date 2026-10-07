@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.enums;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-
 import static org.jboss.pnc.enums.BuildProgress.FINISHED;
 import static org.jboss.pnc.enums.BuildProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.BuildProgress.PENDING;
+
+import java.util.Arrays;
+import java.util.EnumSet;
 
 /**
  * Status of a running/completed Build/GroupBuild.
@@ -181,7 +181,8 @@ public enum BuildStatus {
         BuildCoordinationStatus[] cancelled = { BuildCoordinationStatus.CANCELLED };
         BuildCoordinationStatus[] newBuild = { BuildCoordinationStatus.NEW };
         BuildCoordinationStatus[] enqueued = { BuildCoordinationStatus.ENQUEUED };
-        BuildCoordinationStatus[] building = { BuildCoordinationStatus.BUILDING,
+        BuildCoordinationStatus[] building = {
+                BuildCoordinationStatus.BUILDING,
                 BuildCoordinationStatus.BUILD_COMPLETED };
         BuildCoordinationStatus[] waitingForDependencies = { BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES };
         BuildCoordinationStatus[] notRequired = { BuildCoordinationStatus.REJECTED_ALREADY_BUILT };

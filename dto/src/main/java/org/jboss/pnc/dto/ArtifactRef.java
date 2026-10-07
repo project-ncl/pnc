@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.dto;
 
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+
+import java.time.Instant;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenImporting;
@@ -26,12 +33,6 @@ import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
-import java.time.Instant;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 

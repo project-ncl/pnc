@@ -57,9 +57,10 @@ import org.jboss.pnc.enums.SystemImageType;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        uniqueConstraints = { @UniqueConstraint(
-                name = "uk_buildenvironment_imageid_imagerepositoryurl",
-                columnNames = { "systemImageId", "systemImageRepositoryUrl" }) },
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_buildenvironment_imageid_imagerepositoryurl",
+                        columnNames = { "systemImageId", "systemImageRepositoryUrl" }) },
         indexes = { @Index(name = "idx_buildenvironment_systemimageid", columnList = "systemimageid") })
 public class BuildEnvironment implements GenericEntity<Integer> {
 

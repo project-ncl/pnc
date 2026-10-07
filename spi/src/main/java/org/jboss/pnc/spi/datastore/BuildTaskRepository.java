@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 public interface BuildTaskRepository {
 

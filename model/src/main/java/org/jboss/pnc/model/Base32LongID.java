@@ -20,6 +20,7 @@ package org.jboss.pnc.model;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 

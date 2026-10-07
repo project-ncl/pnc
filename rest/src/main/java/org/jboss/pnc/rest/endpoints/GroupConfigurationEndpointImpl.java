@@ -17,6 +17,15 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
+import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
+
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -44,14 +53,6 @@ import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Optional;
-
-import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
-import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 /**
  *

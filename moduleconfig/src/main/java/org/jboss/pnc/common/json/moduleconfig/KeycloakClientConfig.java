@@ -17,17 +17,20 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.common.util.IoUtils;
-
-import javax.ws.rs.DefaultValue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+
+import javax.ws.rs.DefaultValue;
+
+import org.jboss.pnc.common.util.IoUtils;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

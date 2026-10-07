@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.auth;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

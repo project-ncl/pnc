@@ -17,13 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
-import org.jboss.pnc.common.Strings;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.BuildCategory;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -47,10 +44,14 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -69,7 +70,8 @@ import java.util.Set;
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_artifact_name",
                 columnNames = { "identifier", "sha256", "targetRepository_id" }),
-        indexes = { @Index(name = "idx_artifact_targetRepository", columnList = "targetRepository_id"),
+        indexes = {
+                @Index(name = "idx_artifact_targetRepository", columnList = "targetRepository_id"),
                 @Index(name = "idx_artifact_identifier", columnList = "identifier"),
                 @Index(name = "idx_artifact_filename", columnList = "filename"),
                 @Index(name = "idx_artifact_md5", columnList = "md5"),

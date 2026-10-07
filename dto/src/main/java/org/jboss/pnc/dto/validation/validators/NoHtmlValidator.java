@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.dto.validation.validators;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 /**
  * Implementation for the annotation NoHtml to verify that the String doesn't contain HTML tags. This is useful to

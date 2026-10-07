@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import org.jboss.pnc.enums.ResultStatus;
+
 import lombok.Builder;
 import lombok.Getter;
-import org.jboss.pnc.enums.ResultStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
-import org.jboss.pnc.mapper.LongIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -35,7 +34,10 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, GroupConfigurationMapper.class,
+        uses = {
+                RefToReferenceMapper.class,
+                ProductVersionMapper.class,
+                GroupConfigurationMapper.class,
                 UserMapper.class })
 public interface GroupBuildMapper extends EntityMapper<Base32LongID, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
     Base32LongIdMapper idMapper = new Base32LongIdMapper();
@@ -61,7 +63,11 @@ public interface GroupBuildMapper extends EntityMapper<Base32LongID, BuildConfig
     // Workaround for NCL-4228
     @Reference
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "attributes", "buildRecords", "buildConfigurationSet", "user",
+            ignoreUnmappedSourceProperties = {
+                    "attributes",
+                    "buildRecords",
+                    "buildConfigurationSet",
+                    "user",
                     "productVersion" })
     GroupBuildRef toRef(BuildConfigSetRecord dbEntity);
 

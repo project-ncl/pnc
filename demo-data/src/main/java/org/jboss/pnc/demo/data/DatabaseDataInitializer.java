@@ -17,7 +17,29 @@
  */
 package org.jboss.pnc.demo.data;
 
-import com.google.common.base.Preconditions;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
@@ -84,27 +106,7 @@ import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
-import javax.ejb.Singleton;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
+import com.google.common.base.Preconditions;
 
 /**
  * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build

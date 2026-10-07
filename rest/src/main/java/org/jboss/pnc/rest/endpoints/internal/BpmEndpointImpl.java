@@ -17,21 +17,22 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
-import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
-import org.jboss.pnc.rest.endpoints.internal.api.BpmEndpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
+import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.rest.endpoints.internal.api.BpmEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BpmEndpointImpl implements BpmEndpoint {

@@ -17,17 +17,26 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.datastore.DeploymentFactory;
+import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
@@ -39,15 +48,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-
-import java.util.Date;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

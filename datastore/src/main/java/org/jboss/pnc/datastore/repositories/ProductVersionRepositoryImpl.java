@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
@@ -26,13 +33,6 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
 
 @Stateless
 public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVersion, Integer>

@@ -17,16 +17,18 @@
  */
 package org.jboss.pnc.spi.environment;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import java.io.Serializable;
+import java.util.Optional;
+
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.SshCredentials;
 
-import java.io.Serializable;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

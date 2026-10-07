@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.dto.requests;
 
-import org.jboss.pnc.dto.validation.constraints.SCMUrl;
-
 import javax.validation.constraints.NotBlank;
+
+import org.jboss.pnc.dto.validation.constraints.SCMUrl;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
 /**
  * Request to create new SCM repository config with given URL.
