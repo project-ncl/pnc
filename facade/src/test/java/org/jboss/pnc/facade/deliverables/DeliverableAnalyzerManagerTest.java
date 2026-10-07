@@ -60,7 +60,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
-import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -129,7 +128,6 @@ public class DeliverableAnalyzerManagerTest {
 
         when(artifactRepository.queryWithPredicates(any())).thenReturn(artifacts); // just return all for the cache
         when((userService.currentUser())).thenReturn(USER);
-        when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
         when(deliverableAnalyzerOperationRepository.queryById(any())).thenReturn(deliverableAnalyzerOperation);
         when(deliverableAnalyzerReportRepository.save(any()))
                 .thenReturn(DeliverableAnalyzerReport.builder().id(ID).build());
@@ -159,7 +157,7 @@ public class DeliverableAnalyzerManagerTest {
 
         // verify that:
         // all artifacts were set as distributed
-        verify(deliverableArtifactRepository, times(14)).save(argThat(da -> da.getReport().getId().equals(ID)));
+        verify(deliverableArtifactRepository, times(8)).save(argThat(da -> da.getReport().getId().equals(ID)));
         // unknown artifacts were converted and set as distributed
         verify(deliverableArtifactRepository, times(2)).save(argThat(da -> {
             return da.getArtifact().getArtifactQuality().equals(ArtifactQuality.IMPORTED)
@@ -169,30 +167,13 @@ public class DeliverableAnalyzerManagerTest {
                             .getRepositoryType()
                             .equals(RepositoryType.DISTRIBUTION_ARCHIVE)
                     && da.getArtifact().getTargetRepository().getRepositoryPath().equals(distributionUrl)
-                    && !da.isBuiltFromSource() && da.getBrewBuildId() == null;
-        }));
-        // brew unbuilt artifacts were converted and set as distributed
-        verify(deliverableArtifactRepository, times(2)).save(argThat(da -> {
-            return da.getArtifact().getArtifactQuality().equals(ArtifactQuality.IMPORTED)
-                    && da.getArtifact().getTargetRepository().getIdentifier().equals(INDY_MAVEN)
-                    && da.getArtifact().getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN)
-                    && !da.isBuiltFromSource() && da.getBrewBuildId() != null;
-        }));
-        // brew built artifacts (in brew build "second-build-ever") were converted and set as distributed
-        verify(deliverableArtifactRepository, times(2)).save(argThat(da -> {
-            return da.getArtifact().getArtifactQuality().equals(ArtifactQuality.NEW)
-                    && da.getArtifact().getTargetRepository().getIdentifier().equals(INDY_MAVEN)
-                    && da.getArtifact().getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN)
-                    && da.getArtifact().getTargetRepository().getRepositoryPath().contains("second-build-ever")
-                    && da.isBuiltFromSource() && da.getBrewBuildId() != null;
+                    && !da.isBuiltFromSource();
         }));
         // PNC artifacts were set as distributed
         verify(deliverableArtifactRepository, times(artifacts.size()))
                 .save(argThat(da -> artifacts.contains(da.getArtifact())));
         verify(deliverableAnalyzerReportRepository).save(
-                argThat(
-                        r -> r.getArtifacts().size() == 14 && r.getLabels().isEmpty()
-                                && r.getLabelHistory().isEmpty()));
+                argThat(r -> r.getArtifacts().size() == 8 && r.getLabels().isEmpty() && r.getLabelHistory().isEmpty()));
     }
 
     @Test
@@ -221,8 +202,6 @@ public class DeliverableAnalyzerManagerTest {
         Set<Build> ret = new HashSet<>();
         ret.add(preparePncBuild("1"));
         ret.add(preparePncBuild("2"));
-        ret.add(prepareBrewBuild(1, "first-build-ever"));
-        ret.add(prepareBrewBuild(2, "second-build-ever"));
         return ret;
     }
 
@@ -231,19 +210,6 @@ public class DeliverableAnalyzerManagerTest {
         artifacts.add(prepareUnknownArtifact("foo-bar-baz.xml"));
         artifacts.add(prepareUnknownArtifact("bazBarBoo.tar.gz"));
         return artifacts;
-    }
-
-    private Build prepareBrewBuild(long id, String nvr) {
-        Set<Artifact> artifacts = new HashSet<>();
-        artifacts.add(prepareMavenArtifact("foo.bar", "baz" + id, "1.0.0.redhat-1", 123400 + id, true));
-        artifacts.add(prepareMavenArtifact("foo.bar", "buzz" + id, "1.0.0.redhat-1", 567800 + id, true));
-        artifacts.add(prepareMavenArtifact("bar.foo", "bizz" + id, "1.0.0", 951200 + id, false));
-        return Build.builder()
-                .buildSystemType(BuildSystemType.BREW)
-                .brewId(id)
-                .brewNVR(nvr)
-                .artifacts(artifacts)
-                .build();
     }
 
     private Build preparePncBuild(String id) {
@@ -265,25 +231,6 @@ public class DeliverableAnalyzerManagerTest {
     private Artifact prepareUnknownArtifact(String filename) {
         Artifact.ArtifactBuilder builder = Artifact.builder().builtFromSource(false);
         prepareArtifact(builder, filename);
-        return builder.build();
-    }
-
-    private MavenArtifact prepareMavenArtifact(
-            String groupId,
-            String artifactId,
-            String version,
-            Long brewId,
-            boolean buildFromSource) {
-        MavenArtifact.MavenArtifactBuilder builder = MavenArtifact.builder()
-                .groupId(groupId)
-                .artifactId(artifactId)
-                .type("jar")
-                .version(version)
-                .artifactType(ArtifactType.MAVEN)
-                .buildSystemType(BuildSystemType.BREW)
-                .brewId(brewId)
-                .builtFromSource(buildFromSource);
-        prepareArtifact(builder, artifactId + "-" + version + ".jar");
         return builder.build();
     }
 

@@ -103,10 +103,6 @@
       <artifactId>messaging</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>causeway-client</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.pnc.metrics</groupId>
       <artifactId>pncmetrics</artifactId>
     </dependency>
@@ -252,12 +248,6 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>messaging-spi</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>causeway-client</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

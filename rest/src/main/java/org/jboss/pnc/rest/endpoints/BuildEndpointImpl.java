@@ -17,40 +17,26 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.api.dto.ExceptionResolution;
-import org.jboss.pnc.api.dto.Result;
-import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.dto.Attachment;
-import org.jboss.pnc.auth.ServiceAccountClient;
-import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildPushOperation;
-import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
-import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.BuildPushStatus;
-import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.AttachmentProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
@@ -62,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -75,7 +60,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.text.MessageFormat.format;
@@ -123,19 +107,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     private BuildTriggerer buildTriggerer;
 
     @Inject
-    private BrewPusher brewPusher;
-
-    @Inject
     private GlobalModuleGroup globalConfig;
-
-    @Inject
-    private ServiceAccountClient serviceAccountClient;
-
-    @Inject
-    private ManagedExecutorService executorService;
-
-    @Inject
-    private BuildPushOperationProvider buildPushOperationProvider;
 
     private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
@@ -259,141 +231,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public void removeAttribute(String id, String key) {
         provider.removeAttribute(id, key);
-    }
-
-    @Override
-    public BuildPushReport getPushResult(String buildId) {
-        BuildPushReport brewPushResult = brewPusher.getBrewPushResult(buildId);
-        if (brewPushResult == null) {
-            throw new NotFoundException();
-        }
-
-        return new BuildPushReportCompatibility(brewPushResult);
-    }
-
-    @Override
-    public Page<BuildPushOperation> getPushOperations(String buildId, PageParameters pageParameters) {
-        return buildPushOperationProvider.getOperationsForBuild(
-                pageParameters.getPageIndex(),
-                pageParameters.getPageSize(),
-                pageParameters.getSort(),
-                pageParameters.getQ(),
-                buildId);
-    }
-
-    @Value
-    @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
-    @Deprecated(forRemoval = true, since = "3.2")
-    // TODO: when removing, remove @AllArgsConstructor(access = AccessLevel.PROTECTED) from BuildPushReport
-    private static class BuildPushReportCompatibility extends BuildPushReport {
-        Object productMilestoneCloseResult = null;
-        String buildId;
-        BuildPushStatus status;
-        String logContext;
-        String message = null;
-        String userInitiator;
-
-        public BuildPushReportCompatibility(BuildPushReport buildPushReport) {
-            super(
-                    buildPushReport.getId(),
-                    buildPushReport.getSubmitTime(),
-                    buildPushReport.getStartTime(),
-                    buildPushReport.getEndTime(),
-                    buildPushReport.getUser(),
-                    buildPushReport.getProgressStatus(),
-                    buildPushReport.getResult(),
-                    buildPushReport.getBuild(),
-                    buildPushReport.getTagPrefix(),
-                    buildPushReport.getBrewBuildId(),
-                    buildPushReport.getBrewBuildUrl());
-
-            buildId = buildPushReport.getBuild().getId();
-            logContext = buildPushReport.getBuild().getId();
-            userInitiator = buildPushReport.getUser().getUsername();
-            if (buildPushReport.getResult() == null) {
-                status = BuildPushStatus.ACCEPTED;
-            } else {
-                switch (buildPushReport.getResult()) {
-                    case SUCCESSFUL:
-                        status = BuildPushStatus.SUCCESS;
-                        break;
-                    case FAILED:
-                        status = BuildPushStatus.FAILED;
-                        break;
-                    case REJECTED:
-                        status = BuildPushStatus.REJECTED;
-                        break;
-                    case CANCELLED:
-                        status = BuildPushStatus.CANCELED;
-                        break;
-                    case TIMEOUT:
-                    case SYSTEM_ERROR:
-                    default:
-                        status = BuildPushStatus.SYSTEM_ERROR;
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public BuildPushOperation push(String id, BuildPushParameters buildPushParameters) {
-        BuildPushOperation buildPushOperation = brewPusher.pushBuild(id, buildPushParameters);
-        BuildPushOperationCompatibility compat = new BuildPushOperationCompatibility(buildPushOperation.toBuilder());
-        return compat;
-    }
-
-    @Value
-    @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
-    @Deprecated(forRemoval = true, since = "3.2")
-    private static class BuildPushOperationCompatibility extends BuildPushOperation {
-        Object productMilestoneCloseResult = null;
-        String buildId;
-        BuildPushStatus status = BuildPushStatus.ACCEPTED;
-        Integer brewBuildId = null;
-        String brewBuildUrl = null;
-        String logContext;
-        String message = null;
-        String userInitiator;
-
-        public BuildPushOperationCompatibility(BuildPushOperationBuilder<?, ?> b) {
-            super(b);
-            buildId = getBuild().getId();
-            logContext = getBuild().getId();
-            userInitiator = getUser().getUsername();
-        }
-    }
-
-    @Override
-    public void cancelPush(String id) {
-        brewPusher.cancelPushOfBuild(id);
-    }
-
-    @Override
-    public void completePush(String id, BuildPushCompleted buildPushCompleted) {
-        executorService.execute(() -> {
-            ResultStatus result;
-            ExceptionResolution exceptionResolution = null;
-            try {
-                brewPusher.brewPushComplete(id, buildPushCompleted);
-                result = ResultStatus.SUCCESS;
-            } catch (RuntimeException e) {
-                log.error("Storing results of build push with id={} failed: ", buildPushCompleted.getOperationId(), e);
-                result = ResultStatus.SYSTEM_ERROR;
-                exceptionResolution = ExceptionResolution.builder()
-                        .reason(
-                                String.format(
-                                        "Storing results of deliverable operation with id=%s failed",
-                                        buildPushCompleted.getOperationId()))
-                        .proposal("Contact PNC IT Support")
-                        .build();
-            }
-
-            HttpUtils.performHttpRequest(
-                    buildPushCompleted.getCallback(),
-                    new Result(result, exceptionResolution),
-                    Optional.of(serviceAccountClient.getAuthHeaderValue()));
-        });
     }
 
     @Override

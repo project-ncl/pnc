@@ -37,7 +37,6 @@ public class SysConfigProducer {
         return new SystemConfig(
                 null,
                 null,
-                null,
                 "10",
                 null,
                 null,

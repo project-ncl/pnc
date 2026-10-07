@@ -737,11 +737,10 @@ public class BuildEndpointTest {
                 .getAll();
 
         assertThat(leafTempBuilds).hasSize(1);
-        Map<String, String> attributes = leafTempBuilds.iterator().next().getAttributes();
+        Build leafTempBuild = leafTempBuilds.iterator().next();
         assertThat(leafTempBuilds).first().extracting(Build::getTemporaryBuild).isEqualTo(true);
-        assertThat(attributes)
-                .containsEntry(org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME, "org.jboss.pnc:parent");
-        assertThat(attributes).containsEntry(org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION, "1.2.4");
+        assertThat(leafTempBuild.getExecutionRootName()).isEqualTo("org.jboss.pnc:parent");
+        assertThat(leafTempBuild.getExecutionRootVersion()).isEqualTo("1.2.4");
     }
 
     @Test

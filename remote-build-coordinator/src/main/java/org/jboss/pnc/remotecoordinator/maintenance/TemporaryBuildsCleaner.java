@@ -25,16 +25,11 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Attachment;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.BuildPushReport;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.AttachmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
@@ -64,10 +59,6 @@ public class TemporaryBuildsCleaner {
 
     private ArtifactRepository artifactRepository;
 
-    private BuildPushOperationRepository buildPushOperationRepository;
-
-    private BuildPushReportRepository buildPushReportRepository;
-
     private RemoteBuildsCleaner remoteBuildsCleaner;
 
     private AttachmentRepository attachmentRepository;
@@ -81,15 +72,11 @@ public class TemporaryBuildsCleaner {
             BuildRecordRepository buildRecordRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             ArtifactRepository artifactRepository,
-            BuildPushOperationRepository buildPushOperationRepository,
-            BuildPushReportRepository buildPushReportRepository,
             RemoteBuildsCleaner remoteBuildsCleaner,
             AttachmentRepository attachmentRepository) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.artifactRepository = artifactRepository;
-        this.buildPushOperationRepository = buildPushOperationRepository;
-        this.buildPushReportRepository = buildPushReportRepository;
         this.remoteBuildsCleaner = remoteBuildsCleaner;
         this.attachmentRepository = attachmentRepository;
     }
@@ -147,7 +134,6 @@ public class TemporaryBuildsCleaner {
 
         removeBuiltArtifacts(buildRecord);
         removeAttachments(buildRecord);
-        removeBuildPushOperations(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
@@ -222,29 +208,6 @@ public class TemporaryBuildsCleaner {
             log.debug("Deleting relation BR-Attachment. BR={}, attachment={}", buildRecord, attachment.toString());
             attachment.setBuildRecord(null);
             attachmentRepository.delete(attachment);
-        }
-    }
-
-    /**
-     * Remove build push operations linked to a build record
-     * 
-     * @param buildRecord build record to remove
-     */
-    private void removeBuildPushOperations(BuildRecord buildRecord) {
-
-        log.debug("Deleting build record {} brew push operations", buildRecord.getId());
-        List<BuildPushOperation> buildPushOperations = buildPushOperationRepository
-                .queryWithPredicates(BuildPushPredicates.withBuild(buildRecord.getId()));
-
-        if (buildPushOperations != null) {
-            for (BuildPushOperation buildPushOperation : buildPushOperations) {
-                log.debug("Deleting build push operation {}", buildPushOperation);
-                BuildPushReport report = buildPushOperation.getReport();
-                if (report != null) {
-                    buildPushReportRepository.delete(report);
-                }
-                buildPushOperationRepository.delete(buildPushOperation);
-            }
         }
     }
 }

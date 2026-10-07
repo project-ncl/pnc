@@ -36,14 +36,9 @@ import org.jboss.pnc.dto.Artifact;
 public class AnalyzedArtifact {
 
     /**
-     * Flag describing whether this artifact was built in some build system, e.g. PNC, Brew.
+     * Flag describing whether this artifact was built in some build system, e.g. PNC.
      */
     boolean builtFromSource;
-
-    /**
-     * The ID of the Brew build (in case the artifact was built in the Brew) in which was built this artifact.
-     */
-    Long brewId;
 
     /**
      * Artifact's actual data.

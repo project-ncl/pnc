@@ -20,7 +20,6 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
@@ -30,9 +29,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Product;
@@ -289,8 +286,7 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone created = client.createNew(newMilestone);
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
-        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId(), MilestoneCloseRequest.builder().build()))
-                .cause()
+        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId())).cause()
                 .isInstanceOfSatisfying(
                         ClientErrorException.class,
                         e -> assertThat(e.getResponse().getStatus()).isEqualTo(409));
@@ -598,22 +594,13 @@ public class ProductMilestoneEndpointTest {
     }
 
     @Test
-    public void shouldReturnBuildPushes() throws RemoteResourceException {
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<BuildPushOperation> pushOperations = client.getPushOperations(milestone.getId(), true);
-        assertThat(pushOperations).hasSize(1);
-        BuildPushOperation latest = pushOperations.iterator().next();
-        assertThat(latest.getParameters()).containsEntry(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foo-bar");
-    }
-
-    @Test
-    public void shouldCloseMilestoneWithoutBuildPush() throws RemoteResourceException {
+    public void shouldCloseMilestone() throws RemoteResourceException {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         ProductMilestone preClose = client.getSpecific(milestone6.getId());
         assertThat(preClose.getEndDate()).isNull();
 
-        client.closeMilestone(milestone6.getId(), MilestoneCloseRequest.builder().skipBrewPush(true).build());
+        client.closeMilestone(milestone6.getId());
 
         ProductMilestone postClose = client.getSpecific(milestone6.getId());
         assertThat(postClose.getEndDate()).isNotNull();

@@ -73,9 +73,6 @@
     <java>messaging-spi.jar</java>
   </module>
   <module>
-    <java>causeway-client.jar</java>
-  </module>
-  <module>
     <java>pncmetrics.jar</java>
   </module>
   <module>
