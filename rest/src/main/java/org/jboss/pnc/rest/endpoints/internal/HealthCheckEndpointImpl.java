@@ -20,12 +20,16 @@ package org.jboss.pnc.rest.endpoints.internal;
 import org.jboss.pnc.facade.providers.api.HealthCheckProvider;
 import org.jboss.pnc.rest.endpoints.internal.api.HealthCheckEndpoint;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
 @ApplicationScoped
+@RolesAllowed({ USERS_ADMIN })
 public class HealthCheckEndpointImpl implements HealthCheckEndpoint {
 
     @Inject

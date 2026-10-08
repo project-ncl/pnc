@@ -31,10 +31,14 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class ProjectEndpointImpl implements ProjectEndpoint {
 
     @Inject

@@ -17,15 +17,19 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import org.jboss.pnc.facade.providers.api.CacheProvider;
 import org.jboss.pnc.rest.api.endpoints.CacheEndpoint;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class CacheEndpointImpl implements CacheEndpoint {
 
     @Inject
@@ -52,6 +56,7 @@ public class CacheEndpointImpl implements CacheEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ADMIN })
     public Response clearCache() {
         cacheProvider.clearAllCache();
         return Response.ok().build();

@@ -23,12 +23,15 @@ import org.jboss.pnc.dto.response.LongResponse;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.rest.endpoints.internal.api.DebugEndpoint;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -41,6 +44,7 @@ import java.util.Optional;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @ApplicationScoped
+@RolesAllowed({ USERS_ADMIN })
 public class DebugEndpointImpl implements DebugEndpoint {
 
     @Inject

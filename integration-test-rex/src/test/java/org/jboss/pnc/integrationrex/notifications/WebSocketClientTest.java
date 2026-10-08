@@ -45,7 +45,7 @@ import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.integrationrex.BuildTest;
 import org.jboss.pnc.integrationrex.RemoteServices;
 import org.jboss.pnc.integrationrex.mock.ImportResultsMock;
-import org.jboss.pnc.integrationrex.setup.RestClientConfiguration;
+
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
@@ -94,6 +94,7 @@ public class WebSocketClientTest extends RemoteServices {
     private AdvancedBuildConfigurationClient buildConfigurationClient;
     private AdvancedGroupConfigurationClient groupConfigurationClient;
     private BuildTaskClient taskClient;
+    private String keycloakToken;
 
     private static BuildTest.BPMWireMock bpm;
 
@@ -111,13 +112,13 @@ public class WebSocketClientTest extends RemoteServices {
 
     @Before
     public void beforeEach() {
-        String token = KeycloakClient
+        keycloakToken = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
 
-        buildConfigurationClient = new AdvancedBuildConfigurationClient(withBearerToken(token));
-        groupConfigurationClient = new AdvancedGroupConfigurationClient(withBearerToken(token));
-        taskClient = new BuildTaskClient(withBearerToken(token));
+        buildConfigurationClient = new AdvancedBuildConfigurationClient(withBearerToken(keycloakToken));
+        groupConfigurationClient = new AdvancedGroupConfigurationClient(withBearerToken(keycloakToken));
+        taskClient = new BuildTaskClient(withBearerToken(keycloakToken));
     }
 
     @After
@@ -366,7 +367,7 @@ public class WebSocketClientTest extends RemoteServices {
     private Boolean groupBuildToFinish(String groupBuildId) {
         GroupBuild build = null;
         try {
-            build = new GroupBuildClient(RestClientConfiguration.asUser()).getSpecific(groupBuildId);
+            build = new GroupBuildClient(withBearerToken(keycloakToken)).getSpecific(groupBuildId);
             assertThat(build).isNotNull();
             if (!build.getStatus().isFinal())
                 return false;

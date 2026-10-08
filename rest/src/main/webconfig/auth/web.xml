@@ -70,6 +70,9 @@
         <!-- temporarily add it for attachment -->
         <role-name>pnc-app-rex-user</role-name>
     </security-role>
+    <security-role>
+        <role-name>pnc-app-build-tasks-user</role-name>
+    </security-role>
 
     <!-- make sure interceptor sees this and redirect user to sso server -->
     <!-- the rest is handled inside the SecurityConstraintFilter -->
