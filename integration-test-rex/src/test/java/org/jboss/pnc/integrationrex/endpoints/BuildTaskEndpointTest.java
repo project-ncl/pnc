@@ -1,51 +1,15 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.integrationrex.endpoints;
 
-import org.jboss.arquillian.container.test.api.RunAsClient;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.dto.internal.BuildDriverResultRest;
-import org.jboss.pnc.dto.internal.BuildImport;
-import org.jboss.pnc.dto.internal.BuildMeta;
-import org.jboss.pnc.dto.internal.BuildResultRest;
-import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
-import org.jboss.pnc.dto.internal.IdRev;
-import org.jboss.pnc.dto.internal.ImportBuildsRequest;
-import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
-import org.jboss.pnc.dto.internal.RepourResultRest;
-import org.jboss.pnc.auth.KeycloakClient;
-import org.jboss.pnc.client.BuildClient;
-import org.jboss.pnc.client.BuildConfigurationClient;
-import org.jboss.pnc.client.BuildTaskClient;
-import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.integrationrex.RemoteServices;
-import org.jboss.pnc.integrationrex.mock.BPMResultsMock;
-import org.jboss.pnc.dto.Artifact;
-import org.jboss.pnc.restclient.AdvancedBuildClient;
-import org.jboss.pnc.test.category.ContainerTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCollection;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.integrationrex.mock.ImportResultsMock.*;
+import static org.jboss.pnc.integrationrex.mock.ImportResultsMock.generateBuildImport;
+import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -58,12 +22,35 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCollection;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.integrationrex.mock.ImportResultsMock.*;
-import static org.jboss.pnc.integrationrex.mock.ImportResultsMock.generateBuildImport;
-import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.auth.KeycloakClient;
+import org.jboss.pnc.client.BuildClient;
+import org.jboss.pnc.client.BuildConfigurationClient;
+import org.jboss.pnc.client.BuildTaskClient;
+import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.internal.BuildDriverResultRest;
+import org.jboss.pnc.dto.internal.BuildImport;
+import org.jboss.pnc.dto.internal.BuildMeta;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
+import org.jboss.pnc.dto.internal.IdRev;
+import org.jboss.pnc.dto.internal.ImportBuildsRequest;
+import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
+import org.jboss.pnc.dto.internal.RepourResultRest;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.integrationrex.RemoteServices;
+import org.jboss.pnc.integrationrex.mock.BPMResultsMock;
+import org.jboss.pnc.restclient.AdvancedBuildClient;
+import org.jboss.pnc.test.category.ContainerTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 
 @RunAsClient
 @RunWith(Arquillian.class)

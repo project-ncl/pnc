@@ -1,26 +1,12 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.model;
 
-import lombok.ToString;
-import org.hibernate.annotations.Type;
-import org.hibernate.validator.constraints.URL;
-import org.jboss.pnc.api.enums.AttachmentType;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,13 +24,16 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Objects;
+
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.api.enums.AttachmentType;
+
+import lombok.ToString;
 
 @Entity
 @Table(
-        indexes = { @Index(name = "idx_attachment_name", columnList = "name"),
+        indexes = {
+                @Index(name = "idx_attachment_name", columnList = "name"),
                 @Index(name = "idx_attachment_url", columnList = "url"),
                 @Index(name = "idx_attachment_creationtime", columnList = "creationtime"),
                 @Index(name = "idx_attachment_type", columnList = "type"),

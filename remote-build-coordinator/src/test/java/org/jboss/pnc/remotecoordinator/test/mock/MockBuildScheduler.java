@@ -1,23 +1,27 @@
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014-2022 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
-import lombok.Setter;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.CANCELLED;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.FAILED;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.NO_REBUILD_REQUIRED;
+import static org.jboss.pnc.api.enums.orch.CompletionStatus.SYSTEM_ERROR;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
+
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
@@ -27,7 +31,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
@@ -37,21 +40,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.util.graph.Graph;
 import org.jetbrains.annotations.NotNull;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.jboss.pnc.api.enums.orch.CompletionStatus.CANCELLED;
-import static org.jboss.pnc.api.enums.orch.CompletionStatus.FAILED;
-import static org.jboss.pnc.api.enums.orch.CompletionStatus.NO_REBUILD_REQUIRED;
-import static org.jboss.pnc.api.enums.orch.CompletionStatus.SYSTEM_ERROR;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import lombok.Setter;
 
 @ApplicationScoped
 @Alternative

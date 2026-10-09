@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: Copyright © 2014 Red Hat, Inc., and individual contributors as indicated by the @author tags.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 /**
  * JBoss, Home of Professional Open Source.
@@ -18,12 +22,12 @@
  */
 package org.jboss.pnc.mapper;
 
-import org.mapstruct.Qualifier;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.mapstruct.Qualifier;
 
 /**
  * Classes that help when mapping builds. These specifically EXCLUDE those that fetch BC revisions from DB.
