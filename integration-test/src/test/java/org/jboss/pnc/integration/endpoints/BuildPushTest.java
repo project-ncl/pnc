@@ -20,44 +20,32 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.causewayclient.DefaultCausewayClient;
 import org.jboss.pnc.client.BuildClient;
+import org.jboss.pnc.client.BuildPushesClient;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
-import org.jboss.pnc.dingroguclient.DingroguClientImpl;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushOperation;
-import org.jboss.pnc.dto.BuildPushReport;
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.integration.mock.client.BifrostMock;
-import org.jboss.pnc.integration.mock.client.CausewayClientMock;
-import org.jboss.pnc.integration.mock.client.DingroguClientMock;
+import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunAsClient
@@ -65,28 +53,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Category(ContainerTest.class)
 public class BuildPushTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(BuildEndpointTest.class);
+    // does not exist
+    private static final String PUSH_OPERATION_ID = "AAAAAAAAAAAAA";
+
     private static String buildId;
-    private static String build2Id;
+    private static String groupBuildId;
 
     @Deployment
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive enterpriseArchive = Deployments.testEar();
-
-        JavaArchive causewayClientJar = enterpriseArchive.getAsType(JavaArchive.class, Deployments.CAUSEWAY_CLIENT_JAR);
-        causewayClientJar.deleteClass(DefaultCausewayClient.class);
-        causewayClientJar.addClass(CausewayClientMock.class);
-
-        JavaArchive dingroguClientJar = enterpriseArchive.getAsType(JavaArchive.class, Deployments.DINGROGU_CLIENT_JAR);
-        dingroguClientJar.deleteClass(DingroguClientImpl.class);
-        dingroguClientJar.addClass(DingroguClientMock.class);
-
-        return enterpriseArchive;
+        return Deployments.testEar();
     }
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         RemoteCollection<Build> builds = bc.getAll(null, null);
 
         // Sort by ID to retain IDs in the test
@@ -97,64 +77,51 @@ public class BuildPushTest {
                 .iterator();
 
         buildId = it.next().getId();
-        build2Id = it.next().getId();
+
+        GroupBuildClient gbc = new GroupBuildClient(RestClientConfiguration.asUser());
+        RemoteCollection<GroupBuild> groupBuilds = gbc.getAll();
+        groupBuildId = groupBuilds.iterator().next().getId();
     }
 
     @Test
-    public void shouldPushBuild() throws ClientException, InterruptedException {
+    public void shouldRejectBuildPushEndpoints() throws ClientException {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
-        OperationClient operationClient = new OperationClient(RestClientConfiguration.asUser());
-        Build build = client.getSpecific(buildId);
-
-        // first push accepted
         BuildPushParameters parameters = BuildPushParameters.builder().reimport(false).tagPrefix("test-tag").build();
-        BuildPushOperation result = client.push(build.getId(), parameters);
-        String buildPushResultId = result.getId();
-
-        assertThat(result).isNotNull();
-        assertThat(result.getProgressStatus()).isEqualTo(ProgressStatus.IN_PROGRESS);
-
-        // second push rejected because already in process
-        assertThatThrownBy(() -> client.push(build.getId(), parameters)).hasCauseInstanceOf(ClientErrorException.class);
-
-        // successful complete of first push
-        client.completePush(buildId, completion(buildPushResultId, 12));
-
-        Thread.sleep(500); // Wait for the result to be stored in DB. Assume success.
-
-        operationClient.finish(result.getId(), OperationOutcome.success());
-
-        // get result from db
-        BuildPushReport successPushResult = client.getPushResult(buildId);
-        assertThat(successPushResult.getResult()).isEqualTo(OperationResult.SUCCESSFUL);
-        assertThat(successPushResult.getBrewBuildId()).isEqualTo(12);
-
-        // next push should accept again
-        BuildPushOperation result2 = client.push(build.getId(), parameters);
-
-        assertThat(result2).isNotNull();
-        assertThat(result2.getProgressStatus()).isEqualTo(ProgressStatus.IN_PROGRESS);
-    }
-
-    @Test
-    public void shouldRefuseToPushNoRebuildRequiredStatusBuild() throws ClientException {
-        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
-        Build build = client.getSpecific(build2Id);
-        Build noRebuildStatus = build.toBuilder().status(BuildStatus.NO_REBUILD_REQUIRED).build();
-
-        client.update(build2Id, noRebuildStatus);
-
-        BuildPushParameters parameters = BuildPushParameters.builder().reimport(false).tagPrefix("test-tag").build();
-
-        assertThatThrownBy(() -> client.push(build2Id, parameters)).hasCauseInstanceOf(ForbiddenException.class);
-    }
-
-    private BuildPushCompleted completion(String operationId, int brewBuildId) {
-        return BuildPushCompleted.builder()
-                .operationId(operationId)
-                .brewBuildId(brewBuildId)
-                .brewBuildUrl("https://example.com/build/" + brewBuildId)
+        BuildPushCompleted completion = BuildPushCompleted.builder()
+                .operationId(PUSH_OPERATION_ID)
+                .brewBuildId(12)
+                .brewBuildUrl("https://example.com/build/12")
                 .callback(Request.builder().build())
                 .build();
+
+        assertThatThrownBy(() -> client.push(buildId, parameters)).hasCauseInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.cancelPush(buildId)).hasCauseInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.completePush(buildId, completion)).hasCauseInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.getPushResult(buildId)).hasCauseInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.getPushOperations(buildId)).hasCauseInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    public void shouldRejectGroupBuildPush() {
+        GroupBuildClient client = new GroupBuildClient(RestClientConfiguration.asUser());
+        GroupBuildPushRequest request = GroupBuildPushRequest.builder().tagPrefix("test-tag").build();
+
+        assertThatThrownBy(() -> client.brewPush(groupBuildId, request)).hasCauseInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    public void shouldRejectBuildPushOperationEndpoints() {
+        OperationClient client = new OperationClient(RestClientConfiguration.asUser());
+
+        assertThatThrownBy(() -> client.getSpecificBuildPush(PUSH_OPERATION_ID))
+                .hasCauseInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.getAllBuildPushOperation()).hasCauseInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    public void shouldRejectBuildPushReport() {
+        BuildPushesClient client = new BuildPushesClient(RestClientConfiguration.asUser());
+
+        assertThatThrownBy(() -> client.getPushReport(PUSH_OPERATION_ID)).hasCauseInstanceOf(ForbiddenException.class);
     }
 }

@@ -103,6 +103,7 @@ public class BuildRecordInsights {
     /**
      * Whether the build has used brew pull.
      */
+    @Deprecated
     private final Boolean brewpullactive;
 
     /**

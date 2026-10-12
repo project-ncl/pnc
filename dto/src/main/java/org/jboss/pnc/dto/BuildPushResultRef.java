@@ -39,6 +39,7 @@ import javax.validation.constraints.Null;
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = BuildPushResultRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated
 public class BuildPushResultRef implements DTOEntity {
 
     /**

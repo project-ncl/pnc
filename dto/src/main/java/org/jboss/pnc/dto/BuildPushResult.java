@@ -36,6 +36,7 @@ import javax.validation.constraints.Null;
 @Data
 @JsonDeserialize(builder = BuildPushResult.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated
 public class BuildPushResult extends BuildPushResultRef {
 
     /**

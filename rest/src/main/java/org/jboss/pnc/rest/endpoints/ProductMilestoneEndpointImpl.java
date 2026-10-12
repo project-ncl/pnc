@@ -44,9 +44,9 @@ import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
+import org.jboss.pnc.facade.validation.BrewNotSupportedException;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -71,9 +71,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private DeliverableAnalyzerOperationProvider delAnalyzerProvider;
-
-    @Inject
-    private BuildPushOperationProvider buildPushOperationProvider;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -113,8 +110,10 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public void closeMilestone(String id, MilestoneCloseRequest closeRequest) {
-        boolean skipPush = closeRequest != null && Boolean.TRUE.equals(closeRequest.getSkipBrewPush());
-        productMilestoneProvider.closeMilestone(id, skipPush);
+        if (closeRequest != null && Boolean.FALSE.equals(closeRequest.getSkipBrewPush())) {
+            throw new BrewNotSupportedException("Skipping Brew push is mandatory.");
+        }
+        productMilestoneProvider.closeMilestone(id, true);
     }
 
     @Override
@@ -124,13 +123,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public Page<BuildPushOperation> getPushOperations(String id, boolean latest, PageParameters pageParameters) {
-        return buildPushOperationProvider.getOperationsForMilestone(
-                pageParameters.getPageIndex(),
-                pageParameters.getPageSize(),
-                pageParameters.getSort(),
-                pageParameters.getQ(),
-                latest,
-                id);
+        throw new BrewNotSupportedException();
     }
 
     @Override

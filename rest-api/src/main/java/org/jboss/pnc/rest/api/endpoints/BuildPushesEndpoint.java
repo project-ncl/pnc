@@ -35,12 +35,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 
 /**
  * This endpoint provides API for manipulating with {@code BuildPushReport}.
@@ -60,22 +56,19 @@ public interface BuildPushesEndpoint {
      *
      * @param operationId {@value BUILD_PUSH_RESULT_ID}
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = GET_PUSH_REPORT_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @GET
     @Path("/{id}")
     @TimedMetric
+    @Deprecated
     BuildPushReport getPushReport(@Parameter(description = BUILD_PUSH_RESULT_ID) @PathParam("id") String operationId);
 
 }

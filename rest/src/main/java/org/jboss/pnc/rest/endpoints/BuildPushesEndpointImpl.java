@@ -19,12 +19,10 @@ package org.jboss.pnc.rest.endpoints;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dto.BuildPushReport;
-import org.jboss.pnc.facade.BrewPusher;
+import org.jboss.pnc.facade.validation.BrewNotSupportedException;
 import org.jboss.pnc.rest.api.endpoints.BuildPushesEndpoint;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -34,15 +32,8 @@ import javax.ws.rs.NotFoundException;
 @Slf4j
 public class BuildPushesEndpointImpl implements BuildPushesEndpoint {
 
-    @Inject
-    private BrewPusher brewPusher;
-
     @Override
     public BuildPushReport getPushReport(String operationId) {
-        BuildPushReport brewPushResult = brewPusher.getBrewPushReport(operationId);
-        if (brewPushResult == null) {
-            throw new NotFoundException("Build Push Report with id " + operationId + " not found.");
-        }
-        return brewPushResult;
+        throw new BrewNotSupportedException();
     }
 }

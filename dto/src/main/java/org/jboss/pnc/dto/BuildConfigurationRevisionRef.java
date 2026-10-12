@@ -98,6 +98,7 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
     /**
      * Whether brew pull active is on or off
      */
+    @Deprecated
     protected final boolean brewPullActive;
 
     @JsonPOJOBuilder(withPrefix = "")

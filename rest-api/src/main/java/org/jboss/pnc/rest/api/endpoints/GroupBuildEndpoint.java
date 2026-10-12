@@ -52,11 +52,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -193,25 +193,19 @@ public interface GroupBuildEndpoint {
      * 
      * @param id {@value GB_ID}
      * @param buildConfigSetRecordPushRequest
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = BREW_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
+    @Deprecated
     void brewPush(
             @Parameter(description = GB_ID) @PathParam("id") String id,
             GroupBuildPushRequest buildConfigSetRecordPushRequest);

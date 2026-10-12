@@ -2443,21 +2443,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushReport"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -2466,7 +2453,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/builds" : {
@@ -3498,21 +3486,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushReport"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3547,48 +3522,8 @@
           }
         },
         "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperation"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "403" : {
-            "description" : "Build contains artifacts of insufficient quality",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict while saving an entity",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3597,7 +3532,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       },
       "delete" : {
         "tags" : [ "Builds" ],
@@ -3613,14 +3549,8 @@
           }
         } ],
         "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing"
-          },
-          "404" : {
-            "description" : "Can not find any Brew push in progress."
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3629,7 +3559,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/builds/{id}/brew-push/complete" : {
@@ -3656,31 +3587,8 @@
           }
         },
         "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing"
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict while saving an entity",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3689,7 +3597,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/builds/{id}/build-config-revision" : {
@@ -3780,31 +3689,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperationPage"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3813,7 +3699,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/builds/{id}/cancel" : {
@@ -5463,31 +5350,8 @@
           }
         },
         "responses" : {
-          "202" : {
-            "description" : "Request was accepted for processing"
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict while saving an entity",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -5496,7 +5360,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/group-builds/{id}/builds" : {
@@ -6475,28 +6340,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperationPage"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -6505,7 +6350,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/operations/build-pushes/{id}" : {
@@ -6523,21 +6369,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperation"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -6546,7 +6379,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/operations/deliverable-analyzer" : {
@@ -7421,31 +7255,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Success with results",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BuildPushOperationPage"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid input parameters or validation error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Can not find specified result"
-          },
-          "500" : {
-            "description" : "Server error",
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -7454,7 +7265,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated" : true
       }
     },
     "/product-milestones/{id}/builds" : {
@@ -7590,6 +7402,16 @@
           },
           "400" : {
             "description" : "Invalid input parameters or validation error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Brew is not available in the current system.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -11937,33 +11759,6 @@
           },
           "user" : {
             "$ref" : "#/components/schemas/User"
-          }
-        }
-      },
-      "BuildPushOperationPage" : {
-        "type" : "object",
-        "properties" : {
-          "content" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/BuildPushOperation"
-            }
-          },
-          "pageIndex" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "totalHits" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
           }
         }
       },
