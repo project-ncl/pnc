@@ -32,7 +32,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -49,6 +48,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -211,22 +212,19 @@ public interface OperationEndpoint {
      *
      * @param id {@value OP_ID}
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = GET_SPECIFIC_BUILD_PUSH_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushOperation.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @GET
     @Path("/build-pushes/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
+    @Deprecated
     BuildPushOperation getSpecificBuildPush(@Parameter(description = OP_ID) @PathParam("id") String id);
 
     /**
@@ -234,23 +232,17 @@ public interface OperationEndpoint {
      *
      * @param pageParams
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = GET_ALL_BUILD_PUSH_OPERATIONS_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushOperationPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @GET
     @Path("/build-pushes")
+    @Deprecated
     Page<BuildPushOperation> getAllBuildPushOperation(@Valid @BeanParam PageParameters pageParams);
 }

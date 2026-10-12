@@ -32,8 +32,8 @@ import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.OperationsManager;
-import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
+import org.jboss.pnc.facade.validation.BrewNotSupportedException;
 import org.jboss.pnc.mapper.api.OperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.endpoints.OperationEndpoint;
@@ -53,20 +53,15 @@ public class OperationEndpointImpl implements OperationEndpoint {
     private DeliverableAnalyzerOperationProvider delAnalyzerOperationProvider;
 
     @Inject
-    private BuildPushOperationProvider buildPushOperationProvider;
-
-    @Inject
     private DeliverableAnalyzerManager deliverableAnalyzerManager;
 
     private EndpointHelper<Base32LongID, DeliverableAnalyzerOperation, OperationRef> delAnalyzerEndpointHelper;
-    private EndpointHelper<Base32LongID, BuildPushOperation, OperationRef> buildPushEndpointHelper;
 
     @PostConstruct
     public void init() {
         delAnalyzerEndpointHelper = new EndpointHelper<>(
                 DeliverableAnalyzerOperation.class,
                 delAnalyzerOperationProvider);
-        buildPushEndpointHelper = new EndpointHelper<>(BuildPushOperation.class, buildPushOperationProvider);
     }
 
     @Override
@@ -101,11 +96,11 @@ public class OperationEndpointImpl implements OperationEndpoint {
 
     @Override
     public BuildPushOperation getSpecificBuildPush(String id) {
-        return buildPushEndpointHelper.getSpecific(id);
+        throw new BrewNotSupportedException();
     }
 
     @Override
     public Page<BuildPushOperation> getAllBuildPushOperation(PageParameters pageParams) {
-        return buildPushEndpointHelper.getAll(pageParams);
+        throw new BrewNotSupportedException();
     }
 }

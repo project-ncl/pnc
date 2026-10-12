@@ -43,6 +43,7 @@ public class AnalyzedArtifact {
     /**
      * The ID of the Brew build (in case the artifact was built in the Brew) in which was built this artifact.
      */
+    @Deprecated
     Long brewId;
 
     /**

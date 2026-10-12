@@ -30,6 +30,7 @@ import lombok.extern.jackson.Jacksonized;
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuperBuilder(builderMethodName = "buildPushBuilder", toBuilder = true)
+@Deprecated
 public class BuildPushOperation extends Operation {
 
     /**

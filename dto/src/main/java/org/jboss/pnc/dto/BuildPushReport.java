@@ -18,8 +18,6 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -35,7 +33,7 @@ import java.time.Instant;
 @Builder
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
-@AllArgsConstructor(access = AccessLevel.PROTECTED) // TODO: Remove when BuildPushReportCompatibility is removed
+@Deprecated
 public class BuildPushReport implements DTOEntity {
 
     /**

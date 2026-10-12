@@ -72,6 +72,8 @@ import javax.ws.rs.core.Response;
 
 import java.util.List;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -260,6 +262,10 @@ public interface ProductMilestoneEndpoint {
                             description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(
+                            responseCode = FORBIDDEN_CODE,
+                            description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
                             responseCode = CONFLICTED_CODE,
                             description = CONFLICTED_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -308,27 +314,19 @@ public interface ProductMilestoneEndpoint {
      * @param pageParameters
      *
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = GET_PUSH_OPERATIONS_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(
-                                    schema = @Schema(implementation = SwaggerPages.BuildPushOperationPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @GET
     @Path("{id}/build-push-operations")
     @TimedMetric
+    @Deprecated
     Page<BuildPushOperation> getPushOperations(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Parameter(description = LATEST_OPERATION_DESC) @QueryParam("latest") @DefaultValue("false") boolean latest,

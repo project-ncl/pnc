@@ -46,7 +46,6 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.AttachmentPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -82,7 +81,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_D
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_PUSH_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
@@ -489,19 +488,15 @@ public interface BuildEndpoint {
      *
      * @param buildId {@value B_ID}
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = GET_PUSH_RESULT_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @GET
     @Path("/{id}/brew-push")
     @TimedMetric
@@ -516,26 +511,19 @@ public interface BuildEndpoint {
      * @param id {@value B_ID}
      * @param pageParameters
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = GET_PUSH_OPERATIONS_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushOperationPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @GET
     @Path("{id}/build-push-operations")
     @TimedMetric
+    @Deprecated
     Page<BuildPushOperation> getPushOperations(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
@@ -548,33 +536,19 @@ public interface BuildEndpoint {
      * @param id {@value B_ID}
      * @param buildPushParameters
      * @return
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = PUSH_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = ACCEPTED_CODE,
-                            description = ACCEPTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushOperation.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = FORBIDDEN_CODE,
-                            description = FORBIDDEN_PUSH_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
+    @Deprecated
     BuildPushOperation push(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid BuildPushParameters buildPushParameters);
@@ -585,20 +559,19 @@ public interface BuildEndpoint {
      * {@value CANCEL_PUSH_DESC}
      *
      * @param id {@value B_ID}
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = CANCEL_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = NOT_FOUND_CODE,
-                            description = "Can not find any Brew push in progress."),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
+    @Deprecated
     void cancelPush(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String COMPLETE_PUSH_DESC = "Notifies that the Brew push finished.";
@@ -608,26 +581,20 @@ public interface BuildEndpoint {
      *
      * @param id {@value B_ID}
      * @param buildPushCompleted
+     *
+     * @deprecated Brew is not available, the endpoint rejects every request
      */
     @Operation(
             summary = COMPLETE_PUSH_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+            responses = @ApiResponse(
+                    responseCode = FORBIDDEN_CODE,
+                    description = BREW_NOT_SUPPORTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))))
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/brew-push/complete")
+    @Deprecated
     void completePush(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushCompleted buildPushCompleted);
 
     static final String GET_BUILD_CONFIG_REVISION = "Gets the build config revision for specific build.";

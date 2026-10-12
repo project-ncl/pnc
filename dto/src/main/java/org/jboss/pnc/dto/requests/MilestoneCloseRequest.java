@@ -27,5 +27,10 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MilestoneCloseRequest {
+
+    /**
+     * Whether the Brew push should be skipped.
+     */
+    @Deprecated
     private Boolean skipBrewPush;
 }

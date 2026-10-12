@@ -33,6 +33,7 @@ import lombok.Data;
 @Data
 @Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = BuildPushParameters.Builder.class)
+@Deprecated
 public class BuildPushParameters {
 
     /**

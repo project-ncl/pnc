@@ -31,6 +31,7 @@ import lombok.Data;
 @Data
 @Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = GroupBuildPushRequest.Builder.class)
+@Deprecated
 public class GroupBuildPushRequest {
 
     /**
