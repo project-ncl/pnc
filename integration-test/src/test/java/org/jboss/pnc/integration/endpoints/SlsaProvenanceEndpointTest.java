@@ -71,14 +71,14 @@ public class SlsaProvenanceEndpointTest {
     @BeforeClass
     public static void prepareData() throws Exception {
 
-        try (ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous())) {
+        try (ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser())) {
             RemoteCollection<Artifact> artifacts = client.getAll(null, null, null);
             builtArtifacts = artifacts.getAll().stream().filter(a -> a.getBuild() != null).collect(Collectors.toList());
 
             assertThat(builtArtifacts.isEmpty()).isFalse();
         }
 
-        try (BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous())) {
+        try (BuildClient client = new BuildClient(RestClientConfiguration.asUser())) {
             builds = new ArrayList<>(client.getAll(null, null).getAll());
             assertThat(builds.isEmpty()).isFalse();
         }

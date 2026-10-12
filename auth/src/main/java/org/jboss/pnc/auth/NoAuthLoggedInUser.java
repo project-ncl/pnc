@@ -58,7 +58,7 @@ public class NoAuthLoggedInUser implements LoggedInUser {
 
     @Override
     public boolean isUserInRole(String role) {
-        return role.contains(role);
+        return true;
     }
 
     @Override

@@ -68,9 +68,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildConfigurationEndpointImpl.class);

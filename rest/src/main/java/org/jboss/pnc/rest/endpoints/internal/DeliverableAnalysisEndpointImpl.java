@@ -29,6 +29,9 @@ import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -37,6 +40,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 @Slf4j
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpoint {
 
     @Inject

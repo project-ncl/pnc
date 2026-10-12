@@ -21,10 +21,13 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
 import org.jboss.pnc.api.slsa.dto.provenance.v1.Provenance;
 import org.jboss.pnc.common.Configuration;
@@ -42,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import lombok.Getter;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class SlsaProvenanceV1EndpointImpl implements SlsaProvenanceV1Endpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(SlsaProvenanceV1EndpointImpl.class);

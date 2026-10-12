@@ -34,11 +34,11 @@ import javax.inject.Inject;
 
 import java.util.Optional;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ATTACHMENT_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
 @Slf4j
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class AttachmentEndpointImpl implements AttachmentEndpoint {
 
     private EndpointHelper<Integer, Attachment, AttachmentRef> endpointHelper;
@@ -70,11 +70,13 @@ public class AttachmentEndpointImpl implements AttachmentEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_REX, USERS_ADMIN })
     public Attachment create(Attachment attachment) {
         return endpointHelper.create(attachment);
     }
 
     @Override
+    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_REX, USERS_ADMIN })
     public void update(String id, Attachment attachment) {
         endpointHelper.update(id, attachment);
     }

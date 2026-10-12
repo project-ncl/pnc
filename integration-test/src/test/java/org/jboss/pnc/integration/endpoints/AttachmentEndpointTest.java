@@ -58,7 +58,7 @@ public class AttachmentEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient bc = new BuildClient(RestClientConfiguration.asUser());
         RemoteCollection<Build> builds = bc.getAll(null, null);
 
         Iterator<Build> it = builds.getAll()
@@ -78,7 +78,7 @@ public class AttachmentEndpointTest {
     @InSequence(10)
     public void testGetAll() throws RemoteResourceException {
         // given
-        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
+        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asUser());
 
         // when
         Collection<Attachment> all = client.getAll(null).getAll();
@@ -92,7 +92,7 @@ public class AttachmentEndpointTest {
     public void testGetBySha() throws RemoteResourceException {
         // given
         String searchedChecksum = "sha256-fake-abcdefhijklmno"; // from DemoDataInitializer
-        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
+        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asUser());
 
         // when
         Collection<Attachment> all = client.getAll(searchedChecksum).getAll();
@@ -110,7 +110,7 @@ public class AttachmentEndpointTest {
     public void testGetWithRsqlByUrl() throws RemoteResourceException {
         // given
         String searchedUrl = "http://url.com/attachments/build-cccc/alignment-log.log"; // from DemoDataInitializer
-        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
+        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asUser());
 
         // when
         Collection<Attachment> all = client.getAll(null, Optional.empty(), Optional.of("url==\"" + searchedUrl + "\""))
@@ -129,7 +129,7 @@ public class AttachmentEndpointTest {
     @InSequence(10)
     public void testGetByRecord() throws RemoteResourceException {
         // given
-        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
+        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asUser());
         String buildId1 = build1.getId();
 
         // when
@@ -145,7 +145,7 @@ public class AttachmentEndpointTest {
     public void testGetByType() throws RemoteResourceException {
         // given
         AttachmentType searchedType = AttachmentType.SBOM; // from DemoDataInitializer
-        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
+        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asUser());
 
         // when
         Collection<Attachment> all = client.getAll(null, Optional.empty(), Optional.of("type==" + searchedType))
@@ -204,7 +204,7 @@ public class AttachmentEndpointTest {
     public void testGetSpecific() throws RemoteResourceException {
         // given
         String searchedId = "100"; // from DemoDataInitializer
-        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asAnonymous());
+        AttachmentClient client = new AttachmentClient(RestClientConfiguration.asUser());
 
         // when
         Attachment attachment = client.getSpecific(searchedId);

@@ -91,6 +91,8 @@ public class BuildTest extends RemoteServices {
 
     private BuildUtils buildUtils;
 
+    private String keycloakToken;
+
     private static BPMWireMock bpm;
 
     @BeforeClass
@@ -108,22 +110,25 @@ public class BuildTest extends RemoteServices {
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
 
-        String token = KeycloakClient
+        keycloakToken = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
 
-        buildClient = new AdvancedBuildClient(withBearerToken(token));
-        buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
-        groupConfigurationClient = new GroupConfigurationClient(withBearerToken(token));
-        buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(token)));
+        buildClient = new AdvancedBuildClient(withBearerToken(keycloakToken));
+        buildConfigurationClient = new BuildConfigurationClient(withBearerToken(keycloakToken));
+        groupConfigurationClient = new GroupConfigurationClient(withBearerToken(keycloakToken));
+        buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(keycloakToken)));
     }
 
     @Test
     public void testThatBuildQueueSizeIsSet() {
-        Configuration conf = RestClientConfiguration.asAnonymous();
+        Configuration conf = RestClientConfiguration.asUser();
 
         given().baseUri(conf.getProtocol() + "://" + conf.getHost() + ":" + conf.getPort())
                 .basePath(BASE_REST_PATH)
+                .auth()
+                .preemptive()
+                .oauth2(keycloakToken)
                 .when()
                 .get("/debug/build-queue/size")
                 .then()

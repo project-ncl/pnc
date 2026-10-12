@@ -156,10 +156,10 @@ public class SecondLevelCacheStoreTest {
     @InSequence(-2)
     public void prepareData() throws Exception {
 
-        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asUser());
         environmentId = client.getAll().iterator().next().getId();
 
-        SCMRepositoryClient scmrc = new SCMRepositoryClient(RestClientConfiguration.asAnonymous());
+        SCMRepositoryClient scmrc = new SCMRepositoryClient(RestClientConfiguration.asUser());
         final Iterator<SCMRepository> scmrIt = scmrc.getAll(null, null).iterator();
         repositoryConfigurationBCId = scmrIt.next().getId();
         repositoryConfigurationDepBCId = scmrIt.next().getId();

@@ -17,36 +17,35 @@
  */
 package org.jboss.pnc.rest;
 
-import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.facade.util.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Priority;
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
-
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * Post-matching JAX-RS filter that enforces authentication (401) and role-based authorization (403). Reads
+ * {@link RolesAllowed}, {@link PermitAll}, and {@link DenyAll} annotations from the matched resource method/class.
  */
 @Provider
-@PreMatching
-@Priority(2)
+@Priority(10)
 public class SecurityConstraintFilter implements ContainerRequestFilter {
 
-    private Logger logger = LoggerFactory.getLogger(SecurityConstraintFilter.class);
-    private static final String REQUEST_EXECUTION_START = "request-execution-start";
+    @Context
+    private ResourceInfo resourceInfo;
 
     @Inject
     UserService userService;
@@ -56,29 +55,51 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        String method = requestContext.getRequest().getMethod().toUpperCase();
-        String path = requestContext.getUriInfo().getPath();
+        if (!userService.isUserLoggedIn()) {
+            throw new NotAuthorizedException("Authorization required to access this resource.");
+        }
 
-        if ((path.matches("/builds/ssh-credentials.*") || path.matches("/users/current.*"))
-                && Strings.anyStringEquals(method, HttpMethod.GET) && !userService.isUserLoggedIn()) {
-            throw new NotAuthorizedException("Authorization required to access this resource.");
+        if ("NO_AUTH".equals(systemConfig.getAuthenticationProviderId())) {
+            return;
         }
-        if (path.matches("/.*")
-                && Strings.anyStringEquals(method, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
-                && !userService.isUserLoggedIn()) {
-            throw new NotAuthorizedException("Authorization required to access this resource.");
+
+        Method method = resourceInfo.getResourceMethod();
+        Class<?> resourceClass = resourceInfo.getResourceClass();
+
+        if (method.isAnnotationPresent(DenyAll.class)) {
+            throw new ForbiddenException("Access denied.");
         }
-        if (systemConfig.isRequirePncUsersRoleForMutating()
-                && Strings.anyStringEquals(method, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
-                && !isInternalPath(path) && userService.isUserLoggedIn()
-                && !(userService.hasLoggedInUserRole(USERS) || userService.hasLoggedInUserRole(USERS_ADMIN))) {
-            throw new ForbiddenException("You must have the " + USERS + " role to perform this operation.");
+        if (method.isAnnotationPresent(PermitAll.class)) {
+            return;
+        }
+
+        RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);
+        if (rolesAllowed != null) {
+            checkRoles(rolesAllowed);
+            return;
+        }
+
+        if (resourceClass.isAnnotationPresent(DenyAll.class)) {
+            throw new ForbiddenException("Access denied.");
+        }
+        if (resourceClass.isAnnotationPresent(PermitAll.class)) {
+            return;
+        }
+
+        rolesAllowed = resourceClass.getAnnotation(RolesAllowed.class);
+        if (rolesAllowed != null) {
+            checkRoles(rolesAllowed);
+            return;
         }
     }
 
-    private static boolean isInternalPath(String path) {
-        return path.startsWith("/build-tasks/") || path.startsWith("/bpm/") || path.startsWith("/debug/")
-                || path.startsWith("/health") || path.matches("/deliverable-analyses/complete")
-                || path.matches("/builds/[^/]+/brew-push/complete") || path.matches("/operations/[^/]+/complete");
+    private void checkRoles(RolesAllowed rolesAllowed) {
+        for (String role : rolesAllowed.value()) {
+            if (userService.hasLoggedInUserRole(role)) {
+                return;
+            }
+        }
+        throw new ForbiddenException(
+                "Insufficient privileges: requires one of " + Arrays.toString(rolesAllowed.value()));
     }
 }

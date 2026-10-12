@@ -56,7 +56,7 @@ public class UserEndpointTest {
     public void testGetAllBuilds() throws ClientException {
 
         UserClient client = new UserClient(RestClientConfiguration.asUser());
-        BuildClient buildClient = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildClient buildClient = new BuildClient(RestClientConfiguration.asUser());
 
         BuildsFilterParameters params = new BuildsFilterParameters();
         params.setLatest(false);

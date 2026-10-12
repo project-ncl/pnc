@@ -67,10 +67,10 @@ public class ProductReleaseEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        ProductClient productClient = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient productClient = new ProductClient(RestClientConfiguration.asUser());
         product = productClient.getAll().iterator().next();
         productVersion = productClient.getProductVersions(product.getId()).iterator().next();
-        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asUser());
         milestone = productVersionClient.getMilestones(productVersion.getId()).iterator().next();
         releaseId = productVersionClient.getReleases(productVersion.getId()).iterator().next().getId();
     }
@@ -99,7 +99,7 @@ public class ProductReleaseEndpointTest {
 
     @Test
     public void testGetSpecific() throws ClientException {
-        ProductReleaseClient client = new ProductReleaseClient(RestClientConfiguration.asAnonymous());
+        ProductReleaseClient client = new ProductReleaseClient(RestClientConfiguration.asUser());
 
         ProductRelease dto = client.getSpecific(releaseId);
 
@@ -128,7 +128,7 @@ public class ProductReleaseEndpointTest {
 
     @Test
     public void testGetAllSupportLevel() throws ClientException {
-        ProductReleaseClient client = new ProductReleaseClient(RestClientConfiguration.asAnonymous());
+        ProductReleaseClient client = new ProductReleaseClient(RestClientConfiguration.asUser());
         Set<SupportLevel> all = client.getSupportLevels();
 
         assertThat(all).hasSameSizeAs(SupportLevel.values()).contains(SupportLevel.values());

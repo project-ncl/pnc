@@ -21,10 +21,12 @@ import org.jboss.pnc.api.dto.ComponentVersion;
 import org.jboss.pnc.environmentdriver.BuildInformationConstants;
 import org.jboss.pnc.rest.api.endpoints.VersionEndpoint;
 
+import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import java.time.ZonedDateTime;
 
 @ApplicationScoped
+@PermitAll
 public class VersionEndpointImpl implements VersionEndpoint {
 
     @Override

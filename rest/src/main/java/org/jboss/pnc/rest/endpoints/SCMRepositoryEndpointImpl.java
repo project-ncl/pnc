@@ -30,6 +30,7 @@ import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +38,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
 
     @Context

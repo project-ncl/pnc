@@ -78,6 +78,7 @@ import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -106,6 +107,7 @@ import java.util.stream.Collectors;
 import static java.lang.Integer.parseInt;
 import static java.text.MessageFormat.format;
 import static org.jboss.pnc.mapper.api.BuildTaskMappers.toBuildStatus;
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
@@ -117,6 +119,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withS
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSubmitTime;
 
 @Dependent
+@RolesAllowed({ USERS_BUILD_TASKS, USERS_ADMIN })
 public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpointImpl.class);

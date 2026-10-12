@@ -191,7 +191,7 @@ public class PncStatusEndpointTest {
     @InSequence(20)
     public void getBanner() throws RemoteResourceException {
         // given
-        var client = new PncStatusClient(RestClientConfiguration.asAnonymous());
+        var client = new PncStatusClient(RestClientConfiguration.asUser());
         var expectedPncStatus = PncStatus.builder().banner(BEFORE_MAINTENANCE_BANNER).isMaintenanceMode(false).build();
 
         // when
@@ -220,7 +220,7 @@ public class PncStatusEndpointTest {
     @InSequence(40)
     public void getBannerDuringMaintenance() throws RemoteResourceException {
         // given
-        var client = new PncStatusClient(RestClientConfiguration.asAnonymous());
+        var client = new PncStatusClient(RestClientConfiguration.asUser());
         var expectedPncStatus = PncStatus.builder()
                 .banner(MAINTENANCE_BANNER)
                 .eta(END_OF_MAINTENANCE_ETA)

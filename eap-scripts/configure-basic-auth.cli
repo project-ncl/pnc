@@ -21,10 +21,10 @@
 
 
 # Give out roles
-/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=admin, name=Roles, value=["user"])
-/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=user, name=Roles, value=["user"])
-/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=system, name=Roles, value=["pnc-users-admin", "user"])
-/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=demo-user, name=Roles, value=["user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=admin, name=Roles, value=["pnc-users", "user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=user, name=Roles, value=["pnc-users", "user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=system, name=Roles, value=["pnc-users", "pnc-users-admin", "pnc-app-build-tasks-user", "user"])
+/subsystem=elytron/filesystem-realm=FilesystemCredentialsRealm:add-identity-attribute(identity=demo-user, name=Roles, value=["pnc-users", "user"])
 
 # Configure role mapping from 'Roles' identity attribute
 /subsystem=elytron/simple-role-decoder=from-roles-attribute:add(attribute=Roles)

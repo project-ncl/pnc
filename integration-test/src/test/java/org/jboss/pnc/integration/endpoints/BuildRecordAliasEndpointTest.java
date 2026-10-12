@@ -43,7 +43,10 @@ public class BuildRecordAliasEndpointTest {
     @Test
     public void testRedirect() {
         int buildRecordId = 100;
-        given().redirects()
+        given().auth()
+                .preemptive()
+                .basic("user", "pass.1234")
+                .redirects()
                 .follow(false)
                 .port(8080)
                 .when()

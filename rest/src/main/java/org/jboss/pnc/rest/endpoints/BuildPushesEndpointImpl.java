@@ -22,9 +22,12 @@ import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.rest.api.endpoints.BuildPushesEndpoint;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
 /**
  *
@@ -32,6 +35,7 @@ import javax.ws.rs.NotFoundException;
  */
 @ApplicationScoped
 @Slf4j
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class BuildPushesEndpointImpl implements BuildPushesEndpoint {
 
     @Inject
