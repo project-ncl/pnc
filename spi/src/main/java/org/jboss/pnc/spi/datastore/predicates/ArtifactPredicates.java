@@ -224,7 +224,6 @@ public class ArtifactPredicates {
     public static javax.persistence.criteria.Predicate notProducedInBuild(
             CriteriaBuilder cb,
             Path<Artifact> artifacts) {
-        // build record being NULL is not enough because of Brew builds
         return artifacts.get(Artifact_.artifactQuality).in(ArtifactQuality.IMPORTED, ArtifactQuality.DELETED);
     }
 

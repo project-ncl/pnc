@@ -18,8 +18,6 @@
 package org.jboss.pnc.integration.mock.client;
 
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.dingroguclient.DingroguBrewPushDTO;
-import org.jboss.pnc.dingroguclient.DingroguBuildPushDTO;
 import org.jboss.pnc.dingroguclient.DingroguBuildWorkDTO;
 import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.dingroguclient.DingroguDeliverablesAnalysisDTO;
@@ -42,11 +40,6 @@ public class DingroguClientMock implements DingroguClient {
 
     @Override
     public void submitDeliverablesAnalysis(DingroguDeliverablesAnalysisDTO dto) {
-
-    }
-
-    @Override
-    public void submitBuildPush(DingroguBuildPushDTO dto) {
 
     }
 

@@ -72,8 +72,6 @@ public class BuildExecutionConfigurationRest implements Serializable {
     @Deprecated
     protected String tempBuildTimestamp;
 
-    protected boolean brewPullActive;
-
     protected String defaultAlignmentParams;
 
     protected AlignmentPreference alignmentPreference;

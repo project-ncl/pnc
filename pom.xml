@@ -64,7 +64,6 @@
     <module>constants</module>
     <module>test-common</module>
     <module>common</module>
-    <module>causeway-client</module>
     <module>dingrogu-client</module>
     <module>moduleconfig</module>
     <module>auth</module>
@@ -399,12 +398,6 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>common</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>causeway-client</artifactId>
         <version>${project.version}</version>
       </dependency>
 

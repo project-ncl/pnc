@@ -36,7 +36,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -543,34 +542,6 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             return null;
         }
         return groupBuild == null ? null : new GroupBuildChangedNotification(groupBuild);
-    }
-
-    @Override
-    public CompletableFuture<OperationNotification> catchBuildPushResult(
-            FallbackRequestSupplier<BuildPushOperation> reconnectSupplier,
-            Predicate<OperationNotification>... filters) {
-        return catchSingleNotification(
-                OperationNotification.class,
-                () -> mockBuildPushNotification(reconnectSupplier),
-                filters);
-    }
-
-    private OperationNotification mockBuildPushNotification(FallbackRequestSupplier<BuildPushOperation> fallback) {
-        BuildPushOperation pushResult;
-        try {
-            pushResult = fallback.get();
-        } catch (RemoteResourceException exception) {
-            log.warn("Failsafe reconnection failed.", exception);
-            return null;
-        }
-        return pushResult == null ? null
-                : new OperationNotification(
-                        "BUILD_PUSH",
-                        pushResult.getId(),
-                        pushResult.getProgressStatus(),
-                        pushResult.getProgressStatus(),
-                        pushResult.getResult(),
-                        pushResult);
     }
 
     @Override

@@ -69,7 +69,6 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
-            boolean brewPullActive,
             String defaultAlignmentParams,
             AlignmentPreference alignmentPreference,
             RebuildMode rebuildMode,
@@ -97,7 +96,6 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 genericParameters,
                 tempBuild,
                 tempBuildTimestamp,
-                brewPullActive,
                 defaultAlignmentParams,
                 alignmentPreference,
                 rebuildMode);
@@ -128,7 +126,6 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
-            boolean brewPullActive,
             String completionCallbackUrl,
             String defaultAlignmentParams,
             AlignmentPreference alignmentPreference,
@@ -156,7 +153,6 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 genericParameters,
                 tempBuild,
                 tempBuildTimestamp,
-                brewPullActive,
                 defaultAlignmentParams,
                 alignmentPreference,
                 rebuildMode);

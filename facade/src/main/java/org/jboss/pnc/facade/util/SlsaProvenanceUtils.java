@@ -389,7 +389,6 @@ public class SlsaProvenanceUtils {
                         .stream()
                         .filter(e -> e.getKey() != null && e.getValue() != null)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        mergedParameters.put(PROVENANCE_V1_BUILD_DETAILS_BREW_PULL_ACTIVE, String.valueOf(rev.isBrewPullActive()));
         // If not specified explicitly, it is implicitly the default STANDARD Build Category
         mergedParameters.putIfAbsent(
                 BuildConfigurationParameterKeys.BUILD_CATEGORY.toString(),

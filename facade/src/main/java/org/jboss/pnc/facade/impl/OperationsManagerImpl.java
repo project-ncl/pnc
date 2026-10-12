@@ -23,27 +23,20 @@ import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.OperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
-import org.jboss.pnc.spi.datastore.predicates.OperationPredicates;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.OperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
@@ -68,8 +61,6 @@ public class OperationsManagerImpl implements OperationsManager {
     private String callbackUrlTemplate = "%s/operations/%s/complete";
     @Inject
     private OperationRepository repository;
-    @Inject
-    private BuildPushOperationRepository buildPushRepository;
     @Inject
     private ProductMilestoneRepository productMilestoneRepository;
     @Inject
@@ -160,39 +151,6 @@ public class OperationsManagerImpl implements OperationsManager {
         } finally {
             MDCUtils.removeProcessContext();
         }
-    }
-
-    @Override
-    public BuildPushOperation newBuildPushOperation(BuildRecord build, Map<String, String> inputParams) {
-        Base32LongID operationId = new Base32LongID(Sequence.nextId());
-        try {
-            MDCUtils.addProcessContext(operationId.toString());
-            BuildPushOperation operation = BuildPushOperation.builder()
-                    .id(operationId)
-                    .progressStatus(ProgressStatus.NEW)
-                    .submitTime(Date.from(Instant.now()))
-                    .operationParameters(inputParams)
-                    .user(userService.currentUser())
-                    .build(build)
-                    .build();
-            operation = self.saveToDbExclusive(operation, () -> isBuildPushOperationNotRunning(build));
-            if (operation == null) {
-                throw new ConflictedEntryException(
-                        "Build Push operation for build " + build.getId() + " already in progress.",
-                        BuildPushOperation.class,
-                        null);
-            }
-            operationStatusChangedEventNotifier.fireAsync(new OperationChangedEventImpl(operation, null));
-            return operation;
-        } finally {
-            MDCUtils.removeProcessContext();
-        }
-    }
-
-    private boolean isBuildPushOperationNotRunning(BuildRecord build) {
-        List<BuildPushOperation> buildPushOperations = buildPushRepository
-                .queryWithPredicates(BuildPushPredicates.withBuild(build.getId()), OperationPredicates.inProgress());
-        return buildPushOperations.isEmpty();
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)

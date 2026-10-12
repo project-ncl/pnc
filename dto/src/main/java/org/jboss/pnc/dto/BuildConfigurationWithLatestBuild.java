@@ -70,7 +70,6 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
             User creationUser,
             User modificationUser,
             String defaultAlignmentParams,
-            Boolean brewPullActive,
             BuildRef latestBuild,
             String latestBuildUsername) {
         super(
@@ -91,8 +90,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
                 buildType,
                 creationUser,
                 modificationUser,
-                defaultAlignmentParams,
-                brewPullActive);
+                defaultAlignmentParams);
         this.latestBuild = latestBuild;
         this.latestBuildUsername = latestBuildUsername;
     }
@@ -111,7 +109,6 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
             this.modificationTime = buildConfiguration.modificationTime;
             this.buildType = buildConfiguration.buildType;
             this.defaultAlignmentParams = buildConfiguration.defaultAlignmentParams;
-            this.brewPullActive = buildConfiguration.brewPullActive;
             this.scmRepository = buildConfiguration.scmRepository;
             this.project = buildConfiguration.project;
             this.environment = buildConfiguration.environment;

@@ -293,7 +293,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
         Query query = entityManager.createNativeQuery(
                 "SELECT buildrecord_id, buildcontentid, submittime, starttime, endtime, lastupdatetime,"
                         + " submit_year, submit_month, submit_quarter,"
-                        + " status, temporarybuild, autoalign, brewpullactive, buildtype,"
+                        + " status, temporarybuild, autoalign, buildtype,"
                         + " executionrootname, executionrootversion, user_id, username,"
                         + " buildconfiguration_id, buildconfiguration_rev, buildconfiguration_name,"
                         + " buildconfigsetrecord_id, productmilestone_id, productmilestone_version,"

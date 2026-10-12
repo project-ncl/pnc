@@ -34,10 +34,6 @@ public enum JobNotificationType {
      */
     GROUP_BUILD,
     /**
-     * Job type representing import of a build into Brew.
-     */
-    BREW_PUSH,
-    /**
      * Job type representing asynchronous creation of SCM Repository.
      */
     SCM_REPOSITORY_CREATION,

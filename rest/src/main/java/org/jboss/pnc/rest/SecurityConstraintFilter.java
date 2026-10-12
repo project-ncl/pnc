@@ -79,6 +79,6 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
     private static boolean isInternalPath(String path) {
         return path.startsWith("/build-tasks/") || path.startsWith("/bpm/") || path.startsWith("/debug/")
                 || path.startsWith("/health") || path.matches("/deliverable-analyses/complete")
-                || path.matches("/builds/[^/]+/brew-push/complete") || path.matches("/operations/[^/]+/complete");
+                || path.matches("/operations/[^/]+/complete");
     }
 }

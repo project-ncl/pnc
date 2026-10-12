@@ -93,7 +93,6 @@ public class BuildCoordinatorFactory {
         return new SystemConfig(
                 "NO_AUTH",
                 "10",
-                "${product_short_name}-${product_version}-pnc",
                 "10",
                 null,
                 null,

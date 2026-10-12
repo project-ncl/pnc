@@ -55,7 +55,6 @@ public class DingroguBuildWorkDTO {
     BuildType buildType;
     BuildCategory buildCategory;
     String defaultAlignmentParams;
-    boolean brewPullActive;
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;

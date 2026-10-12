@@ -19,7 +19,6 @@ package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.common.Maps;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
@@ -74,7 +73,6 @@ public class ProductVersionProviderImpl extends
     private final ProductMilestoneRepository milestoneRepository;
     private final DeliverableArtifactRepository deliverableArtifactRepository;
     private final BuildConfigurationSetRepository groupConfigRepository;
-    private final SystemConfig systemConfig;
     private final ProductMilestoneMapper milestoneMapper;
 
     @Inject
@@ -85,8 +83,7 @@ public class ProductVersionProviderImpl extends
             ProductRepository productRepository,
             ProductMilestoneRepository milestoneRepository,
             DeliverableArtifactRepository deliverableArtifactRepository,
-            BuildConfigurationSetRepository groupConfigRepository,
-            SystemConfig systemConfig) {
+            BuildConfigurationSetRepository groupConfigRepository) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
@@ -94,7 +91,6 @@ public class ProductVersionProviderImpl extends
         this.milestoneMapper = milestoneMapper;
         this.productRepository = productRepository;
         this.groupConfigRepository = groupConfigRepository;
-        this.systemConfig = systemConfig;
         this.milestoneRepository = milestoneRepository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
     }
@@ -103,13 +99,6 @@ public class ProductVersionProviderImpl extends
     public ProductVersion store(ProductVersion restEntity) {
         validateBeforeSaving(restEntity);
         org.jboss.pnc.model.ProductVersion productVersionRestDb = mapper.toEntity(restEntity);
-
-        Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
-
-        productVersionRestDb.generateBrewTagPrefix(
-                product.getAbbreviation(),
-                restEntity.getVersion(),
-                systemConfig.getBrewTagPattern());
 
         org.jboss.pnc.model.ProductVersion productVersion = repository.save(productVersionRestDb);
         for (BuildConfiguration bc : productVersionRestDb.getBuildConfigurations()) {

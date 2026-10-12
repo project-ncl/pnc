@@ -13,7 +13,6 @@
             "delAnalUrl": "http://127.0.0.1:8007",
             "externalBifrostUrl": "http://1.2.3.4",
             "externalDaUrl": "http://1.2.3.5",
-            "externalCausewayUrl": "http://1.2.3.6",
             "externalIndyUrl": "http://1.2.3.7",
             "externalKafkaStoreUrl": "http://1.2.3.8",
             "externalPncUrl": "http://1.2.3.9",

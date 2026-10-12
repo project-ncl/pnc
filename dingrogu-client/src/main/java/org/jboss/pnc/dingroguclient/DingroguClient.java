@@ -30,8 +30,6 @@ public interface DingroguClient {
 
     void submitDeliverablesAnalysis(DingroguDeliverablesAnalysisDTO dto);
 
-    void submitBuildPush(DingroguBuildPushDTO dto);
-
     void submitRepositoryCreation(DingroguRepositoryCreationDTO dto);
 
     Request cancelProcessInstance(List<Request.Header> headers, String correlationId);

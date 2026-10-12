@@ -48,7 +48,6 @@ public interface BuildConfigurationMapper extends
     @Mapping(target = "genericParameters", source = "parameters")
     @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
-    @Mapping(target = "brewPullActive", source = "brewPullActive", defaultValue = "false")
     BuildConfiguration toEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity);
 
     @Override

@@ -40,7 +40,6 @@ import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.pnc.rest.endpoints.AttachmentEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
-import org.jboss.pnc.rest.endpoints.BuildPushesEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildRecordAliasEndpointImpl;
 import org.jboss.pnc.rest.endpoints.DeliverableAnalyzerReportEndpointImpl;
 import org.jboss.pnc.rest.endpoints.EnvironmentEndpointImpl;
@@ -211,7 +210,6 @@ public class JaxRsActivatorNew extends Application {
         resources.add(BpmEndpointImpl.class);
         resources.add(BuildEndpointImpl.class);
         resources.add(BuildTaskEndpointImpl.class);
-        resources.add(BuildPushesEndpointImpl.class);
 
         resources.add(BuildConfigurationEndpointImpl.class);
         resources.add(GroupBuildEndpointImpl.class);

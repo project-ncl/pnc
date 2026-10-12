@@ -46,7 +46,6 @@ public class GlobalConfigTest extends AbstractModuleConfigTest {
 
         assertEquals("http://1.2.3.4", globalConfig.getExternalBifrostUrl());
         assertEquals("http://1.2.3.5", globalConfig.getExternalDaUrl());
-        assertEquals("http://1.2.3.6", globalConfig.getExternalCausewayUrl());
         assertEquals("http://1.2.3.7", globalConfig.getExternalIndyUrl());
         assertEquals("http://1.2.3.8", globalConfig.getExternalKafkaStoreUrl());
         assertEquals("http://1.2.3.9", globalConfig.getExternalPncUrl());

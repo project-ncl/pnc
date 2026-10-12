@@ -27,11 +27,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildPushOperation;
-import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
-import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -46,7 +42,6 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.AttachmentPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -81,8 +76,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_C
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_PUSH_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
@@ -481,154 +474,6 @@ public interface BuildEndpoint {
     void removeAttribute(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ATTRIBUTE_KEY, required = true) @QueryParam("key") String key);
-
-    static final String GET_PUSH_RESULT_DESC = "Get latest Brew push result for specific build.";
-
-    /**
-     * {@value GET_PUSH_RESULT_DESC}
-     *
-     * @param buildId {@value B_ID}
-     * @return
-     */
-    @Operation(
-            summary = GET_PUSH_RESULT_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushReport.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("/{id}/brew-push")
-    @TimedMetric
-    @Deprecated(forRemoval = true, since = "3.2")
-    BuildPushReport getPushResult(@Parameter(description = B_ID) @PathParam("id") String buildId);
-
-    static final String GET_PUSH_OPERATIONS_DESC = "Get build push operations for specified build.";
-
-    /**
-     * {@value GET_PUSH_OPERATIONS_DESC}
-     *
-     * @param id {@value B_ID}
-     * @param pageParameters
-     * @return
-     */
-    @Operation(
-            summary = GET_PUSH_OPERATIONS_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = SUCCESS_CODE,
-                            description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushOperationPage.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @GET
-    @Path("{id}/build-push-operations")
-    @TimedMetric
-    Page<BuildPushOperation> getPushOperations(
-            @Parameter(description = B_ID) @PathParam("id") String id,
-            @Valid @BeanParam PageParameters pageParameters);
-
-    static final String PUSH_DESC = "Push build to Brew.";
-
-    /**
-     * {@value PUSH_DESC}
-     *
-     * @param id {@value B_ID}
-     * @param buildPushParameters
-     * @return
-     */
-    @Operation(
-            summary = PUSH_DESC,
-            responses = {
-                    @ApiResponse(
-                            responseCode = ACCEPTED_CODE,
-                            description = ACCEPTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushOperation.class))),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = FORBIDDEN_CODE,
-                            description = FORBIDDEN_PUSH_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @POST
-    @RespondWithStatus(Response.Status.ACCEPTED)
-    @Path("/{id}/brew-push")
-    BuildPushOperation push(
-            @Parameter(description = B_ID) @PathParam("id") String id,
-            @Valid BuildPushParameters buildPushParameters);
-
-    static final String CANCEL_PUSH_DESC = "Cancels push of build to Brew.";
-
-    /**
-     * {@value CANCEL_PUSH_DESC}
-     *
-     * @param id {@value B_ID}
-     */
-    @Operation(
-            summary = CANCEL_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = NOT_FOUND_CODE,
-                            description = "Can not find any Brew push in progress."),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @DELETE
-    @RespondWithStatus(Response.Status.ACCEPTED)
-    @Path("/{id}/brew-push")
-    void cancelPush(@Parameter(description = B_ID) @PathParam("id") String id);
-
-    static final String COMPLETE_PUSH_DESC = "Notifies that the Brew push finished.";
-
-    /**
-     * {@value COMPLETE_PUSH_DESC}
-     *
-     * @param id {@value B_ID}
-     * @param buildPushCompleted
-     */
-    @Operation(
-            summary = COMPLETE_PUSH_DESC,
-            tags = SwaggerConstants.TAG_INTERNAL,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @POST
-    @RespondWithStatus(Response.Status.CREATED)
-    @Path("/{id}/brew-push/complete")
-    void completePush(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushCompleted buildPushCompleted);
 
     static final String GET_BUILD_CONFIG_REVISION = "Gets the build config revision for specific build.";
 

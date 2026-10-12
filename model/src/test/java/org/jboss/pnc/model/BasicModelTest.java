@@ -20,7 +20,6 @@ package org.jboss.pnc.model;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.RepositoryType;
 import org.junit.After;
@@ -284,28 +283,4 @@ public class BasicModelTest extends AbstractModelTest {
         }
     }
 
-    @Test
-    public void testProductVersionBrewTagGeneration() {
-        EntityManager em = getEmFactory().createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-
-        final String version = "10.1";
-        Product product = Product.Builder.newBuilder().id(1).build();
-
-        ProductVersion productVersionOriginal = ProductVersion.Builder.newBuilder()
-                .version(version)
-                .product(product)
-                .generateBrewTagPrefix("TP1", version, "${product_short_name}-${product_version}-pnc")
-                .build();
-
-        tx.begin();
-        em.persist(productVersionOriginal);
-        tx.commit();
-
-        ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
-        Assert.assertEquals(
-                "tp1-" + version + "-pnc",
-                productVersionLoaded.getAttributes().get(Attributes.BREW_TAG_PREFIX));
-
-    }
 }

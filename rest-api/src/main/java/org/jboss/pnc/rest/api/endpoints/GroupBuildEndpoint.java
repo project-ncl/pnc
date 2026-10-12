@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -55,8 +54,6 @@ import javax.ws.rs.core.Response;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -185,36 +182,6 @@ public interface GroupBuildEndpoint {
             @Parameter(description = GB_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
-
-    static final String BREW_PUSH_DESC = "Push all perfomred builds from this group build to Brew.";
-
-    /**
-     * {@value BREW_PUSH_DESC}
-     * 
-     * @param id {@value GB_ID}
-     * @param buildConfigSetRecordPushRequest
-     */
-    @Operation(
-            summary = BREW_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                    @ApiResponse(
-                            responseCode = INVALID_CODE,
-                            description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = CONFLICTED_CODE,
-                            description = CONFLICTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(
-                            responseCode = SERVER_ERROR_CODE,
-                            description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @POST
-    @RespondWithStatus(Response.Status.ACCEPTED)
-    @Path("/{id}/brew-push")
-    void brewPush(
-            @Parameter(description = GB_ID) @PathParam("id") String id,
-            GroupBuildPushRequest buildConfigSetRecordPushRequest);
 
     static final String CANCEL_DESC = "Cancel all builds running in the build group.";
 

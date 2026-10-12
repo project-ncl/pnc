@@ -108,32 +108,11 @@ public class DeliverableAnalyzerReportEndpointTest {
 
         AnalyzedArtifact analyzedArtifact0 = it.next();
         assertThat(analyzedArtifact0.isBuiltFromSource()).isTrue();
-        assertThat(analyzedArtifact0.getBrewId()).isNull();
         assertThat(analyzedArtifact0.getArtifact().getIdentifier()).isEqualTo("demo:built-artifact1:jar:1.0");
 
         AnalyzedArtifact analyzedArtifact1 = it.next();
         assertThat(analyzedArtifact1.isBuiltFromSource()).isFalse();
-        assertThat(analyzedArtifact1.getBrewId()).isEqualTo(42L);
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
-    }
-
-    @Test
-    public void testGetAnalyzedArtifactsByBrewId() throws ClientException {
-        // given
-        Long brewId = 42L;
-        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
-                RestClientConfiguration.asAnonymous());
-
-        // when
-        RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client
-                .getAnalyzedArtifacts(operationId, Optional.empty(), Optional.of("brewId==" + brewId.toString()));
-
-        // then
-        assertThat(analyzedArtifacts.size()).isEqualTo(1); // analyzedArtifact7 (from DatabaseDataInitializer)
-
-        Iterator<AnalyzedArtifact> it = analyzedArtifacts.iterator();
-        AnalyzedArtifact analyzedArtifact0 = it.next();
-        assertThat(analyzedArtifact0.getBrewId()).isEqualTo(brewId);
     }
 
     @Test

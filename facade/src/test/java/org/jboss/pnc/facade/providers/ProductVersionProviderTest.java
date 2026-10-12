@@ -18,8 +18,6 @@
 package org.jboss.pnc.facade.providers;
 
 import org.assertj.core.api.Condition;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.response.Page;
@@ -67,9 +65,6 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
 
     @Mock
     private BuildConfigurationRepository configurationRepository;
-
-    @Mock
-    SystemConfig systemConfig;
 
     @Spy
     @InjectMocks
@@ -129,7 +124,6 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
         final ProductRef product = ProductRef.refBuilder().id(prodId.toString()).abbreviation(abbreviation).build();
         final Product productDB = prepareProduct(prodId, abbreviation);
         when(productRepository.queryById(prodId)).thenReturn(productDB);
-        when(systemConfig.getBrewTagPattern()).thenReturn("${product_short_name}-${product_version}-HI");
         org.jboss.pnc.dto.ProductVersion productVersion = org.jboss.pnc.dto.ProductVersion.builder()
                 .productMilestones(Collections.emptyMap())
                 .product(product)
@@ -143,7 +137,6 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
         assertThat(stored.getVersion()).isEqualTo(version);
         assertThat(stored.getProduct().getId()).isEqualTo(prodId.toString());
         assertThat(stored.getAttributes()).isNotNull();
-        assertThat(stored.getAttributes().get(Attributes.BREW_TAG_PREFIX)).isNotNull();
     }
 
     @Test

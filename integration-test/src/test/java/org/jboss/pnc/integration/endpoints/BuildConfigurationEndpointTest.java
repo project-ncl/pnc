@@ -299,7 +299,6 @@ public class BuildConfigurationEndpointTest {
                 .parameters(Collections.singletonMap(PARAMETER_KEY, updatedGenParamValue))
                 .scmRepository(SCMRepository.builder().id(repositoryConfigurationId).build())
                 .buildType(BuildType.MVN)
-                .brewPullActive(true)
                 .build();
 
         // when
@@ -316,7 +315,6 @@ public class BuildConfigurationEndpointTest {
         assertThat(updatedBC.getParameters().get(PARAMETER_KEY)).isEqualTo(updatedGenParamValue);
         assertThat(updatedBC.getEnvironment().getId()).isEqualTo(environmentId);
         assertThat(modificationTime).isNotEqualTo(updatedBC.getModificationTime());
-        assertThat(updatedBC.getBrewPullActive()).isTrue();
     }
 
     /**

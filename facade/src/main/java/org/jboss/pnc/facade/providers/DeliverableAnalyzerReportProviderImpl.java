@@ -204,7 +204,6 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
         return AnalyzedArtifact.builder()
                 .builtFromSource(deliverableArtifact.isBuiltFromSource())
-                .brewId(deliverableArtifact.getBrewBuildId())
                 .artifact(artifactMapper.toDTO(deliverableArtifact.getArtifact()))
                 .archiveFilenames(StringUtils.splitString(deliverableArtifact.getArchiveFilenames()))
                 .archiveUnmatchedFilenames(StringUtils.splitString(deliverableArtifact.getArchiveUnmatchedFilenames()))

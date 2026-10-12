@@ -18,15 +18,12 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
@@ -43,7 +40,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
@@ -67,7 +63,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
@@ -216,9 +211,6 @@ public class DatabaseDataInitializer {
     private DeliverableAnalyzerDistributionRepository deliverableAnalyzerDistributionRepository;
 
     @Inject
-    private BuildPushOperationRepository buildPushOperationRepository;
-
-    @Inject
     private AttachmentRepository attachmentRepository;
 
     @Inject
@@ -226,9 +218,6 @@ public class DatabaseDataInitializer {
 
     @Inject
     DemoDataConfig demoDataConfig;
-
-    @Inject
-    SystemConfig systemConfig;
 
     @Inject
     BuildConfigurationAuditedHelper helper;
@@ -373,30 +362,18 @@ public class DatabaseDataInitializer {
         ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_1)
                 .product(product1)
-                .generateBrewTagPrefix(
-                        product1.getAbbreviation(),
-                        PNC_PRODUCT_VERSION_1,
-                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion1 = productVersionRepository.save(productVersion1);
 
         ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_2)
                 .product(product1)
-                .generateBrewTagPrefix(
-                        product1.getAbbreviation(),
-                        PNC_PRODUCT_VERSION_2,
-                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 
         ProductVersion productVersion3 = ProductVersion.Builder.newBuilder()
                 .version(EAP_PRODUCT_VERSION)
                 .product(product2)
-                .generateBrewTagPrefix(
-                        product2.getAbbreviation(),
-                        EAP_PRODUCT_VERSION,
-                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion3 = productVersionRepository.save(productVersion3);
 
@@ -894,32 +871,6 @@ public class DatabaseDataInitializer {
                 "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
                         + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
         buildRecords.add(buildRecord1);
-
-        BuildPushOperation buildPush1 = BuildPushOperation.builder()
-                .id(new Base32LongID(Sequence.nextBase32Id()))
-                .build(buildRecord1)
-                .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
-                .startTime(Timestamp.from(Instant.now().minus(7, ChronoUnit.MINUTES)))
-                .endTime(Timestamp.from(Instant.now().minus(6, ChronoUnit.MINUTES)))
-                .operationParameters(Map.of(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foobar"))
-                .progressStatus(ProgressStatus.FINISHED)
-                .result(OperationResult.FAILED)
-                .user(demoUser)
-                .build();
-        buildPushOperationRepository.save(buildPush1);
-
-        BuildPushOperation buildPush2 = BuildPushOperation.builder()
-                .id(new Base32LongID(Sequence.nextBase32Id()))
-                .build(buildRecord1)
-                .submitTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
-                .startTime(Timestamp.from(Instant.now().minus(4, ChronoUnit.MINUTES)))
-                .endTime(Timestamp.from(Instant.now().minus(3, ChronoUnit.MINUTES)))
-                .operationParameters(Map.of(OperationParameters.BUILD_PUSH_TAG_PREFIX, "foo-bar"))
-                .progressStatus(ProgressStatus.FINISHED)
-                .result(OperationResult.SYSTEM_ERROR)
-                .user(demoUser)
-                .build();
-        buildPushOperationRepository.save(buildPush2);
 
         nextId = Sequence.nextBase32Id();
         log.info("####nextId: " + nextId);
@@ -1634,91 +1585,78 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact1)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact2 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact5)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact3 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact9)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact4 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact10)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact5 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact11)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact6 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(builtArtifact12)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact7 = DeliverableArtifact.builder()
                 .report(report1)
                 .artifact(importedArtifact2)
                 .distribution(distribution)
                 .builtFromSource(false)
-                .brewBuildId(42L)
                 .build();
         DeliverableArtifact analyzedArtifact8 = DeliverableArtifact.builder()
                 .report(report2)
                 .artifact(builtArtifact13)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact9 = DeliverableArtifact.builder()
                 .report(report3)
                 .artifact(builtArtifact14)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact10 = DeliverableArtifact.builder()
                 .report(report3)
                 .artifact(builtArtifact15)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact11a = DeliverableArtifact.builder()
                 .report(report4)
                 .artifact(builtArtifact16a)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact11b = DeliverableArtifact.builder()
                 .report(report4)
                 .artifact(builtArtifact16b)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
         DeliverableArtifact analyzedArtifact12 = DeliverableArtifact.builder()
                 .report(report5)
                 .artifact(builtArtifact16b)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact13 = DeliverableArtifact.builder()
@@ -1726,7 +1664,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact17)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact14 = DeliverableArtifact.builder()
@@ -1734,7 +1671,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact18)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact15 = DeliverableArtifact.builder()
@@ -1742,7 +1678,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact18)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact16 = DeliverableArtifact.builder()
@@ -1750,7 +1685,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact13)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact17 = DeliverableArtifact.builder()
@@ -1758,7 +1692,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact2)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact18 = DeliverableArtifact.builder()
@@ -1766,7 +1699,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact2)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact19 = DeliverableArtifact.builder()
@@ -1774,7 +1706,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact18)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact20 = DeliverableArtifact.builder()
@@ -1782,7 +1713,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact13)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         DeliverableArtifact analyzedArtifact21 = DeliverableArtifact.builder()
@@ -1790,7 +1720,6 @@ public class DatabaseDataInitializer {
                 .artifact(builtArtifact13)
                 .distribution(distribution)
                 .builtFromSource(true)
-                .brewBuildId(null)
                 .build();
 
         deliverableArtifactRepository.save(analyzedArtifact1);

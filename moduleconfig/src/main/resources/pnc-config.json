@@ -24,7 +24,6 @@
                     "authenticationProviderId": "JAAS",
                     "coordinatorThreadPoolSize": "1",
                     "coordinatorMaxConcurrentBuilds": "10",
-                    "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
                     "temporaryBuildsLifeSpan" : "14"
                 },
                 {

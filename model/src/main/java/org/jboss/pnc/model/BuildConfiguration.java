@@ -224,11 +224,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String defaultAlignmentParams;
 
     /**
-     * Indicates whether the Brew Bridge Pull feature is active or not
-     */
-    private boolean brewPullActive = false;
-
-    /**
      * Instantiates a new project build configuration.
      */
     public BuildConfiguration() {
@@ -636,14 +631,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.defaultAlignmentParams = Strings.nullIfBlank(defaultAlignmentParams);
     }
 
-    public boolean isBrewPullActive() {
-        return brewPullActive;
-    }
-
-    public void setBrewPullActive(boolean brewPullActive) {
-        this.brewPullActive = brewPullActive;
-    }
-
     @Override
     public String toString() {
         return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active="
@@ -681,7 +668,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.buildConfigurationSets = new HashSet<>(); // Don't add the clone to the set
         clone.buildEnvironment = buildEnvironment;
         clone.buildScript = buildScript;
-        clone.brewPullActive = brewPullActive;
         clone.creationTime = now;
         clone.dependants = new HashSet<>(); // Don't add the clone as dependency to parents.
         clone.dependencies = new HashSet<>(dependencies);
@@ -800,8 +786,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String defaultAlignmentParams;
 
-        private boolean brewPullActive = false;
-
         private Builder() {
             dependencies = new HashSet<>();
             dependants = new HashSet<>();
@@ -856,7 +840,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setLastModificationUser(lastModificationUser);
 
             buildConfiguration.setDefaultAlignmentParams(defaultAlignmentParams);
-            buildConfiguration.setBrewPullActive(brewPullActive);
 
             return buildConfiguration;
         }
@@ -963,11 +946,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder defaultAlignmentParams(String defaultAlignmentParams) {
             this.defaultAlignmentParams = defaultAlignmentParams;
-            return this;
-        }
-
-        public Builder brewPullActive(boolean brewPullActive) {
-            this.brewPullActive = brewPullActive;
             return this;
         }
     }
