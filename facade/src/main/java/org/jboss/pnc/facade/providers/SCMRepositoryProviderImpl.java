@@ -207,7 +207,7 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("You must specify the SCM URL.");
         }
         String bannedSCMUrl = config.getBannedScmAuthority();
-        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl)) {
+        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl) && !isWhitelistedScmGroup(scmUrl)) {
             throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
         }
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
@@ -311,6 +311,77 @@ public class SCMRepositoryProviderImpl
         }
 
         return isInternal && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
+    }
+
+    /**
+     * Whether the SCM URL falls under one of the configured whitelisted groups, and is therefore allowed even if it
+     * matches the banned authority.
+     */
+    boolean isWhitelistedScmGroup(String scmUrl) {
+        return isWhitelistedScmGroup(scmUrl, config.getAllowedScmGroups());
+    }
+
+    /**
+     * Host + group/subgroup prefix match, segment-aware: {@code gitlab.example.com/lw/lw-builds} allows
+     * {@code .../lw-builds} and {@code .../lw-builds/anything} but not {@code .../lw-buildsX}.
+     */
+    protected static boolean isWhitelistedScmGroup(String scmUrl, List<String> allowedGroups) {
+        if (allowedGroups == null || allowedGroups.isEmpty() || StringUtils.isEmpty(scmUrl)) {
+            return false;
+        }
+        String normalizedUrl = normalizeScmUrlForMatch(scmUrl);
+        for (String group : allowedGroups) {
+            String normalizedGroup = normalizeScmUrlForMatch(group);
+            if (!normalizedGroup.isEmpty()
+                    && (normalizedUrl.equals(normalizedGroup) || normalizedUrl.startsWith(normalizedGroup + "/"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Normalize an SCM URL to {@code host/path} (lower-cased, no scheme/userinfo/port, no {@code .git} suffix, no
+     * trailing slash) so host+group prefixes can be compared regardless of URL form (https, git+ssh, or scp-like
+     * {@code git@host:group/repo.git}).
+     */
+    protected static String normalizeScmUrlForMatch(String url) {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
+        String s = url.trim();
+        // strip the scheme, or the scp-like "git@" user prefix
+        if (s.startsWith("git@")) {
+            s = s.substring("git@".length());
+        } else {
+            s = Urls.stripProtocol(s);
+        }
+        // strip any remaining userinfo "user@host..."
+        int at = s.indexOf('@');
+        int slashAfterAt = s.indexOf('/');
+        if (at >= 0 && (slashAfterAt < 0 || at < slashAfterAt)) {
+            s = s.substring(at + 1);
+        }
+        // host/path separator: scp-like "host:group/..." -> "host/group/..."; "host:port" -> "host"
+        int colon = s.indexOf(':');
+        int slash = s.indexOf('/');
+        if (colon >= 0 && (slash < 0 || colon < slash)) {
+            String afterColon = (slash < 0) ? s.substring(colon + 1) : s.substring(colon + 1, slash);
+            if (!afterColon.isEmpty() && afterColon.chars().allMatch(Character::isDigit)) {
+                s = s.substring(0, colon) + (slash < 0 ? "" : s.substring(slash));
+            } else {
+                s = s.substring(0, colon) + "/" + s.substring(colon + 1);
+            }
+        }
+        // strip trailing slash, then ".git", then any trailing slash again
+        s = stripTrailingToken(s, "/");
+        s = stripTrailingToken(s, ".git");
+        s = stripTrailingToken(s, "/");
+        return s.toLowerCase();
+    }
+
+    private static String stripTrailingToken(String s, String suffix) {
+        return s.endsWith(suffix) ? s.substring(0, s.length() - suffix.length()) : s;
     }
 
     private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl, Integer ignoreId)
