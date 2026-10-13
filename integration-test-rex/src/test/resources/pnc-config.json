@@ -91,6 +91,17 @@
           "@module-config": "scheduler-config",
           "schedulerBaseUrl": "http://localhost:5679",
           "queueNameForBuilds": "builds"
+        },
+        {
+          "@module-config": "build-triggering-config",
+          "STANDARD": {
+            "persistent": true,
+            "temporary": true
+          },
+          "LIGHTWELL_NOVEL": {
+            "persistent": false,
+            "temporary": true
+          }
         }
       ]
     }
