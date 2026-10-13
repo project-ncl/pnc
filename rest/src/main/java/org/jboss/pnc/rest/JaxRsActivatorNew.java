@@ -69,6 +69,7 @@ import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
 import org.jboss.pnc.rest.provider.AlreadyRunningExceptionsMapper;
 import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
+import org.jboss.pnc.rest.provider.BuildTriggeringExceptionMapper;
 import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
 import org.jboss.pnc.rest.provider.EJBExceptionMapper;
 import org.jboss.pnc.rest.provider.InvalidLabelOperationExceptionMapper;
@@ -249,6 +250,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(AllOtherExceptionsMapper.class);
         resources.add(AlreadyRunningExceptionsMapper.class);
         resources.add(BuildConflictExceptionMapper.class);
+        resources.add(BuildTriggeringExceptionMapper.class);
         resources.add(ConstraintViolationExceptionMapper.class);
         resources.add(EJBExceptionMapper.class);
         resources.add(InvalidRequestExceptionMapper.class);
