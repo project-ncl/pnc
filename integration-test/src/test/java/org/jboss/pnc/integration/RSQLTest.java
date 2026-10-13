@@ -252,7 +252,7 @@ public class RSQLTest {
     public void shouldFilterBuildConfigsWithoutAssociatedProductVersion() throws RemoteResourceException {
         String query = "productVersion=isnull=true";
         RemoteCollection<BuildConfiguration> bcs = buildConfigClient.getAll(empty(), Optional.of(query));
-        assertThat(bcs).hasSize(3);
+        assertThat(bcs).hasSize(4);
     }
 
     @Test
