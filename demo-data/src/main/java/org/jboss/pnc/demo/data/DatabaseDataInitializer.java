@@ -620,6 +620,19 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfiguration6 = buildConfigurationRepository.save(buildConfiguration6);
 
+        BuildConfiguration buildConfiguration7 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
+                .name("Persistent building disabled")
+                .project(project6)
+                .description("Test build config for project eap with persistent building disabled")
+                .buildType(BuildType.MVN)
+                .buildEnvironment(environment1)
+                .buildScript("mvn clean deploy")
+                .repositoryConfiguration(repositoryConfiguration6)
+                .build();
+        buildConfiguration7.setGenericParameters(Map.of("BUILD_CATEGORY", "LIGHTWELL_NOVEL"));
+        buildConfigurationRepository.save(buildConfiguration7);
+
         // Build config set containing the three example build configs
         buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder()
                 .name("Example-Build-Group-1")

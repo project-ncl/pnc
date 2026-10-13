@@ -19,14 +19,16 @@ package org.jboss.pnc.facade.impl;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
+import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.json.moduleconfig.BuildTriggeringConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
-import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.BuildConfigurationParametersUtils;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
@@ -117,7 +119,6 @@ public class BuildTriggererImpl implements BuildTriggerer {
             BuildOptions buildOptions) throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
-        throwCoreExceptionIfPersistentBuildingDisabled(buildOptions.isTemporaryBuild());
 
         BuildSetTask result = doTriggerBuild(buildConfigId, buildConfigurationRevision, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigId);
@@ -128,7 +129,6 @@ public class BuildTriggererImpl implements BuildTriggerer {
             throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
-        throwCoreExceptionIfPersistentBuildingDisabled(buildOptions.isTemporaryBuild());
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
         return result.getBuildConfigSetRecord().get().getId().getId();
@@ -153,6 +153,10 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     "Can't find Build Configuration with id=" + buildConfigId + ", rev="
                             + buildConfigurationRevision.getAsInt());
 
+            validateTriggeringAllowed(
+                    buildConfigurationAudited.getGenericParameters(),
+                    buildOptions.isTemporaryBuild());
+
             deletePreviousLightwellUpstreamTemporaryBuild(
                     buildConfigId,
                     buildConfigurationAudited.getGenericParameters(),
@@ -168,6 +172,8 @@ public class BuildTriggererImpl implements BuildTriggerer {
             Preconditions.checkArgument(
                     buildConfiguration != null,
                     "Can't find Build Configuration with id=" + buildConfigId);
+
+            validateTriggeringAllowed(buildConfiguration.getGenericParameters(), buildOptions.isTemporaryBuild());
 
             deletePreviousLightwellUpstreamTemporaryBuild(
                     buildConfigId,
@@ -302,9 +308,20 @@ public class BuildTriggererImpl implements BuildTriggerer {
         List<BuildConfigurationRevisionRef> revisions = revs.map(GroupBuildRequest::getBuildConfigurationRevisions)
                 .orElse(Collections.emptyList());
 
+        Map<Integer, BuildConfigurationAudited> auditedsFromDB = loadAuditedsFromDB(buildConfigurationSet, revisions);
+
+        // A group may mix build categories, so validate every build configuration it triggers. For configurations with
+        // an explicitly requested revision use that revision's parameters, otherwise the configuration's current ones.
+        for (BuildConfiguration buildConfiguration : buildConfigurationSet.getBuildConfigurations()) {
+            BuildConfigurationAudited audited = auditedsFromDB.get(buildConfiguration.getId());
+            Map<String, String> genericParameters = audited != null ? audited.getGenericParameters()
+                    : buildConfiguration.getGenericParameters();
+            validateTriggeringAllowed(genericParameters, buildOptions.isTemporaryBuild());
+        }
+
         BuildSetTask buildSetTask = buildCoordinator.buildSet(
                 hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
-                loadAuditedsFromDB(buildConfigurationSet, revisions),
+                auditedsFromDB,
                 user.currentUser(),
                 buildOptions);
 
@@ -377,25 +394,46 @@ public class BuildTriggererImpl implements BuildTriggerer {
         }
     }
 
-    private void throwCoreExceptionIfPersistentBuildingDisabled(boolean isTemporaryBuild)
+    /**
+     * Validates that triggering a build of the kind given by {@code isTemporaryBuild} is allowed for the build category
+     * derived from the given generic parameters, according to the {@link BuildTriggeringConfig}.
+     *
+     * @throws BuildConflictException if triggering the requested build kind is disabled for the resolved build category
+     */
+    private void validateTriggeringAllowed(Map<String, String> genericParameters, boolean isTemporaryBuild)
             throws BuildConflictException {
-        System.out.println("******* throw core exception if persistent building disabled");
-
-        GlobalModuleGroup globalConfig = null;
+        BuildCategory category = resolveBuildCategory(genericParameters);
+        BuildTriggeringConfig buildTriggeringConfig = null;
         try {
-            globalConfig = configuration.getGlobalConfig();
+            buildTriggeringConfig = configuration.getModuleConfig(new PncConfigProvider<>(BuildTriggeringConfig.class));
         } catch (ConfigurationParseException e) {
-            throw new RuntimeException(e);
+            logger.error("Cannot read build triggering configuration for the category {}", category, e);
+            throw new IllegalArgumentException("Unknown build triggering configuration for the category " + category);
         }
 
-        final boolean isPersistentBuild = !isTemporaryBuild;
+        if (isTemporaryBuild) {
+            if (!buildTriggeringConfig.isTemporaryAllowed(category)) {
+                throw new BuildConflictException(
+                        "Triggering temporary builds is currently disabled for build category " + category
+                                + " at this PNC environment.");
+            }
+        } else {
+            if (!buildTriggeringConfig.isPersistentAllowed(category)) {
+                throw new BuildConflictException(
+                        "Triggering persistent builds is currently disabled for build category " + category
+                                + " at this PNC environment.");
+            }
+        }
+    }
 
-        System.out.println("************ is persistent build: " + isPersistentBuild);
-        System.out.println("************ persistent building allowed: " + globalConfig.isPersistentBuildingAllowed());
-
-        if (isPersistentBuild && !globalConfig.isPersistentBuildingAllowed()) {
-            throw new BuildConflictException(
-                    "Triggering persistent builds is currently disabled, only temporary builds triggering is allowed.");
+    private static BuildCategory resolveBuildCategory(Map<String, String> genericParameters) {
+        String categoryName = BuildConfigurationParametersUtils.withDefaults(genericParameters)
+                .get(BuildConfigurationParametersUtils.BUILD_CATEGORY_KEY);
+        try {
+            return BuildCategory.valueOf(categoryName);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Unknown build category '{}', falling back to {}.", categoryName, BuildCategory.STANDARD);
+            return BuildCategory.STANDARD;
         }
     }
 }

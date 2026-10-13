@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.BuildTriggeringConfig;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
@@ -83,6 +84,12 @@ public class ModuleConfigFactory {
     @Dependent
     SchedulerConfig createSchedulerConfig() throws ConfigurationParseException {
         return configuration.getModuleConfig(new PncConfigProvider<>(SchedulerConfig.class));
+    }
+
+    @Produces
+    @Dependent
+    BuildTriggeringConfig createBuildTriggeringConfig() throws ConfigurationParseException {
+        return configuration.getModuleConfig(new PncConfigProvider<>(BuildTriggeringConfig.class));
     }
 
     @Produces

@@ -13,8 +13,7 @@
       "externalIndyUrl": "http://localhost/indy-external/",
       "externalPncUrl": "",
       "externalBifrostUrl": "http://localhost:8081/",
-      "externalDingroguUrl": "http://host.testcontainers.internal:8088/",
-      "isPersistentBuildingAllowed": true
+      "externalDingroguUrl": "http://host.testcontainers.internal:8088/"
     },
     {
       "@module-group":"pnc",
@@ -92,6 +91,17 @@
           "@module-config": "scheduler-config",
           "schedulerBaseUrl": "http://localhost:5679",
           "queueNameForBuilds": "builds"
+        },
+        {
+          "@module-config": "build-triggering-config",
+          "STANDARD": {
+            "persistent": true,
+            "temporary": true
+          },
+          "LIGHTWELL_NOVEL": {
+            "persistent": false,
+            "temporary": true
+          }
         }
       ]
     }
