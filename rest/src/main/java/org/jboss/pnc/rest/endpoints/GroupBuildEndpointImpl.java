@@ -83,6 +83,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     public void delete(String id, String callback) {
         if (!provider.delete(id, callback)) {
             throw new NotFoundException("Temporary GroupBuild with id: " + id + " was not found.");

@@ -25,6 +25,11 @@
 
     <module-name>rest</module-name>
 
+    <context-param>
+        <param-name>resteasy.role.based.security</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
     <session-config>
         <session-timeout>600</session-timeout>
         <cookie-config>
