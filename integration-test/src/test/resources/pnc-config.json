@@ -12,8 +12,7 @@
       "externalDaUrl": "",
       "externalIndyUrl": "http://localhost/indy-external/",
       "externalPncUrl": "",
-      "externalBifrostUrl": "http://localhost:8081/",
-      "isPersistentBuildingAllowed": true
+      "externalBifrostUrl": "http://localhost:8081/"
     },
     {
       "@module-group": "slsa",
@@ -117,6 +116,17 @@
         {
           "@module-config": "scheduler-config",
           "schedulerBaseUrl": "http://localhost:8181/"
+        },
+        {
+          "@module-config": "build-triggering-config",
+          "STANDARD": {
+            "persistent": true,
+            "temporary": true
+          },
+          "LIGHTWELL_NOVEL": {
+            "persistent": false,
+            "temporary": true
+          }
         }
       ]
     }

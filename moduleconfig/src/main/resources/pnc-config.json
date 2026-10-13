@@ -13,8 +13,7 @@
 
             "externalDaUrl": "${env.PNC_UI_DA_URL}",
             "externalIndyUrl": "http://localhost/indy-external/",
-            "externalPncUrl": "${env.PNC_UI_PNC_URL}",
-            "isPersistentBuildingAllowed": true
+            "externalPncUrl": "${env.PNC_UI_PNC_URL}"
         },
         {
             "@module-group": "pnc",
@@ -67,6 +66,13 @@
                 {
                     "@module-config": "scheduler-config",
                     "schedulerBaseUrl": "http://localhost:8080/"
+                },
+                {
+                    "@module-config": "build-triggering-config",
+                    "STANDARD": {
+                        "persistent": true,
+                        "temporary": true
+                    }
                 }
             ]
         }

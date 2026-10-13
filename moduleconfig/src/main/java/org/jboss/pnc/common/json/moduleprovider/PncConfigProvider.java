@@ -20,6 +20,7 @@ package org.jboss.pnc.common.json.moduleprovider;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.BuildTriggeringConfig;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
@@ -45,5 +46,6 @@ public class PncConfigProvider<T extends AbstractModuleConfig> extends AbstractC
         addModuleConfig(new ProviderNameType(AlignmentConfig.class, AlignmentConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(ScmModuleConfig.class, ScmModuleConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(SchedulerConfig.class, SchedulerConfig.MODULE_NAME));
+        addModuleConfig(new ProviderNameType(BuildTriggeringConfig.class, BuildTriggeringConfig.MODULE_NAME));
     }
 }
