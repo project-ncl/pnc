@@ -51,6 +51,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.BuildRequestException;
+import org.jboss.pnc.spi.exception.BuildTriggeringException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
@@ -116,7 +117,8 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public String triggerBuild(
             final int buildConfigId,
             OptionalInt buildConfigurationRevision,
-            BuildOptions buildOptions) throws BuildConflictException, CoreException, BuildRequestException {
+            BuildOptions buildOptions)
+            throws BuildConflictException, CoreException, BuildRequestException, BuildTriggeringException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
@@ -126,7 +128,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
     @Override
     public String triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
-            throws BuildConflictException, CoreException, BuildRequestException {
+            throws BuildConflictException, CoreException, BuildRequestException, BuildTriggeringException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
@@ -142,7 +144,8 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private BuildSetTask doTriggerBuild(
             final int buildConfigId,
             OptionalInt buildConfigurationRevision,
-            BuildOptions buildOptions) throws BuildConflictException, CoreException, BuildRequestException {
+            BuildOptions buildOptions)
+            throws BuildConflictException, CoreException, BuildRequestException, BuildTriggeringException {
 
         BuildSetTask buildSetTask;
         if (buildConfigurationRevision.isPresent()) {
@@ -299,7 +302,8 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private BuildSetTask doTriggerGroupBuild(
             final int groupConfigId,
             Optional<GroupBuildRequest> revs,
-            BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException {
+            BuildOptions buildOptions)
+            throws CoreException, BuildRequestException, BuildConflictException, BuildTriggeringException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(groupConfigId);
         Preconditions.checkArgument(
                 buildConfigurationSet != null,
@@ -398,10 +402,11 @@ public class BuildTriggererImpl implements BuildTriggerer {
      * Validates that triggering a build of the kind given by {@code isTemporaryBuild} is allowed for the build category
      * derived from the given generic parameters, according to the {@link BuildTriggeringConfig}.
      *
-     * @throws BuildConflictException if triggering the requested build kind is disabled for the resolved build category
+     * @throws BuildTriggeringException if triggering the requested build kind is disabled for the resolved build
+     *         category
      */
     private void validateTriggeringAllowed(Map<String, String> genericParameters, boolean isTemporaryBuild)
-            throws BuildConflictException {
+            throws BuildTriggeringException {
         BuildCategory category = resolveBuildCategory(genericParameters);
         BuildTriggeringConfig buildTriggeringConfig = null;
         try {
@@ -413,13 +418,13 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
         if (isTemporaryBuild) {
             if (!buildTriggeringConfig.isTemporaryAllowed(category)) {
-                throw new BuildConflictException(
+                throw new BuildTriggeringException(
                         "Triggering temporary builds is currently disabled for build category " + category
                                 + " at this PNC environment.");
             }
         } else {
             if (!buildTriggeringConfig.isPersistentAllowed(category)) {
-                throw new BuildConflictException(
+                throw new BuildTriggeringException(
                         "Triggering persistent builds is currently disabled for build category " + category
                                 + " at this PNC environment.");
             }
