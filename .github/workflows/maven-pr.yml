@@ -9,7 +9,7 @@ on:
 
 jobs:
   call-maven-ci:
-    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@f0ec1696c5dfea0d6d16c135c14f54049b94edaf # v0.0.24
+    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@9735924b878ff3890cfaf16acb28e06531963ebf # v0.0.25
     with:
       java_version: 11
       build_command: "mvn clean install -DskipTests"
