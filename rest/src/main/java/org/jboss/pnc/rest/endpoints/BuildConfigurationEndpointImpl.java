@@ -39,7 +39,7 @@ import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
-import org.jboss.pnc.facade.validation.ConflictedStateException;
+import org.jboss.pnc.facade.validation.BuildTriggeringNotAllowedException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.InvalidRequestException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
@@ -186,7 +186,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
         } catch (BuildTriggeringException ex) {
-            throw new org.jboss.pnc.facade.validation.BuildTriggeringException(ex.getMessage());
+            throw new BuildTriggeringNotAllowedException(ex.getMessage(), ex);
         } catch (BuildRequestException ex) {
             throw new InvalidRequestException(ex);
         }
@@ -266,7 +266,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
         } catch (BuildTriggeringException ex) {
-            throw new org.jboss.pnc.facade.validation.BuildTriggeringException(ex.getMessage());
+            throw new BuildTriggeringNotAllowedException(ex.getMessage(), ex);
         } catch (BuildRequestException ex) {
             throw new InvalidRequestException(ex);
         }

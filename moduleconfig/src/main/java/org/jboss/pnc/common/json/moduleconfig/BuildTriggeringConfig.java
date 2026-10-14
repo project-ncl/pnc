@@ -38,8 +38,8 @@ import java.util.Map;
  * }
  * </pre>
  *
- * A category that is not listed is permissive by default (both persistent and temporary builds are allowed), so
- * restrictive environments must list every category they want to gate.
+ * A category that is not listed is forbidden by default (neither persistent nor temporary builds are allowed), so
+ * permissive environments must list every category they want to enable.
  */
 public class BuildTriggeringConfig extends AbstractModuleConfig {
 
@@ -58,20 +58,34 @@ public class BuildTriggeringConfig extends AbstractModuleConfig {
 
     /**
      * @return whether triggering persistent builds is allowed for the given category. Unconfigured categories are
-     *         permissive.
+     *         forbidden.
      */
-    public boolean isPersistentAllowed(BuildCategory category) {
-        CategoryConfig categoryConfig = categoryConfigs.get(category);
-        return categoryConfig == null || categoryConfig.isPersistent();
+    public boolean isPersistentBuildingAllowed(BuildCategory category) {
+        return isPersistentBuildingAllowed(categoryConfigs.get(category));
     }
 
     /**
      * @return whether triggering temporary builds is allowed for the given category. Unconfigured categories are
-     *         permissive.
+     *         forbidden.
      */
-    public boolean isTemporaryAllowed(BuildCategory category) {
-        CategoryConfig categoryConfig = categoryConfigs.get(category);
-        return categoryConfig == null || categoryConfig.isTemporary();
+    public boolean isTemporaryBuildingAllowed(BuildCategory category) {
+        return isTemporaryBuildingAllowed(categoryConfigs.get(category));
+    }
+
+    /**
+     * @return whether triggering persistent builds is allowed for the given category config. A {@code null} config
+     *         (unconfigured category) is forbidden.
+     */
+    public static boolean isPersistentBuildingAllowed(CategoryConfig categoryConfig) {
+        return categoryConfig != null && categoryConfig.isPersistent();
+    }
+
+    /**
+     * @return whether triggering temporary builds is allowed for the given category config. A {@code null} config
+     *         (unconfigured category) is forbidden.
+     */
+    public static boolean isTemporaryBuildingAllowed(CategoryConfig categoryConfig) {
+        return categoryConfig != null && categoryConfig.isTemporary();
     }
 
     @Override

@@ -21,6 +21,26 @@
             "externalUiLoggerUrl": "http://1.2.3.11",
             "externalDingroguUrl": "http://1.2.3.12",
             "externalReqourUrl": "http://1.2.3.13"
+        },
+        {
+            "@module-group": "pnc",
+            "configs": [
+                {
+                    "@module-config": "build-triggering-config",
+                    "STANDARD": {
+                        "persistent": true,
+                        "temporary": true
+                    },
+                    "SERVICE": {
+                        "persistent": false,
+                        "temporary": true
+                    },
+                    "LIGHTWELL": {
+                        "persistent": false,
+                        "temporary": false
+                    }
+                }
+            ]
         }
     ]
 }
