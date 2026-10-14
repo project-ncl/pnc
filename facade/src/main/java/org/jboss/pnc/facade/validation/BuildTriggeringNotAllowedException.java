@@ -21,9 +21,9 @@ package org.jboss.pnc.facade.validation;
  * Unchecked exception (unlike {@link org.jboss.pnc.spi.exception.BuildTriggeringException}) thrown when there is a
  * problem with triggering a build.
  */
-public class BuildTriggeringException extends RuntimeException {
+public class BuildTriggeringNotAllowedException extends RuntimeException {
 
-    public BuildTriggeringException(String message) {
-        super(message);
+    public BuildTriggeringNotAllowedException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

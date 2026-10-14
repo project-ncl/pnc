@@ -32,6 +32,7 @@ import org.jboss.pnc.facade.providers.api.GroupBuildPageInfo;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
+import org.jboss.pnc.facade.validation.BuildTriggeringNotAllowedException;
 import org.jboss.pnc.facade.validation.InvalidRequestException;
 import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -163,7 +164,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
         } catch (BuildTriggeringException ex) {
-            throw new org.jboss.pnc.facade.validation.BuildTriggeringException(ex.getMessage());
+            throw new BuildTriggeringNotAllowedException(ex.getMessage(), ex);
         } catch (BuildRequestException ex) {
             throw new InvalidRequestException(ex);
         } catch (CoreException ex) {

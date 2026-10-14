@@ -112,6 +112,26 @@ public class BuildTest {
     }
 
     @Test
+    public void shouldNotTriggerTemporaryBuildAndFinishWithException() throws ClientException {
+        // with
+        BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(asUser());
+        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll()
+                .getAll()
+                .stream()
+                .filter(
+                        bc -> bc.getParameters().containsKey("BUILD_CATEGORY")
+                                && bc.getParameters().containsValue("LIGHTWELL_NOVEL"))
+                .iterator()
+                .next();
+
+        // when
+        assertThatThrownBy(
+                () -> buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(true, true)))
+                        .isInstanceOf(RemoteResourceException.class)
+                        .hasMessageContaining("Triggering temporary builds is currently disabled");
+    }
+
+    @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() throws ClientException {
         // with
         BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
