@@ -17,13 +17,11 @@
  */
 package org.jboss.pnc.facade.impl;
 
-import org.jboss.pnc.common.Configuration;
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.enums.BuildCategory;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BuildTriggeringConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.json.moduleconfig.BuildTriggeringConfig.CategoryConfig;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildStatus;
@@ -108,7 +106,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private GenericSettingProvider genericSettingProvider;
 
     @Inject
-    private Configuration configuration;
+    private BuildTriggeringConfig buildTriggeringConfig;
 
     @Override
     public String triggerBuild(
@@ -153,8 +151,10 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     "Can't find Build Configuration with id=" + buildConfigId + ", rev="
                             + buildConfigurationRevision.getAsInt());
 
+            BuildCategory buildCategory = resolveBuildCategory(buildConfigurationAudited.getGenericParameters());
             validateTriggeringAllowed(
-                    buildConfigurationAudited.getGenericParameters(),
+                    buildTriggeringConfig.getCategoryConfig(buildCategory),
+                    buildCategory,
                     buildOptions.isTemporaryBuild());
 
             deletePreviousLightwellUpstreamTemporaryBuild(
@@ -173,7 +173,11 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     buildConfiguration != null,
                     "Can't find Build Configuration with id=" + buildConfigId);
 
-            validateTriggeringAllowed(buildConfiguration.getGenericParameters(), buildOptions.isTemporaryBuild());
+            BuildCategory buildCategory = resolveBuildCategory(buildConfiguration.getGenericParameters());
+            validateTriggeringAllowed(
+                    buildTriggeringConfig.getCategoryConfig(buildCategory),
+                    buildCategory,
+                    buildOptions.isTemporaryBuild());
 
             deletePreviousLightwellUpstreamTemporaryBuild(
                     buildConfigId,
@@ -317,7 +321,11 @@ public class BuildTriggererImpl implements BuildTriggerer {
             BuildConfigurationAudited audited = auditedsFromDB.get(buildConfiguration.getId());
             Map<String, String> genericParameters = audited != null ? audited.getGenericParameters()
                     : buildConfiguration.getGenericParameters();
-            validateTriggeringAllowed(genericParameters, buildOptions.isTemporaryBuild());
+            BuildCategory buildCategory = resolveBuildCategory(genericParameters);
+            validateTriggeringAllowed(
+                    buildTriggeringConfig.getCategoryConfig(buildCategory),
+                    buildCategory,
+                    buildOptions.isTemporaryBuild());
         }
 
         BuildSetTask buildSetTask = buildCoordinator.buildSet(
@@ -396,40 +404,34 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     /**
-     * Validates that triggering a build of the kind given by {@code isTemporaryBuild} is allowed for the build category
-     * derived from the given generic parameters, according to the {@link BuildTriggeringConfig}.
+     * Validates that triggering a build of the kind given by {@code isTemporaryBuild} is allowed for the given build
+     * category, according to its {@link CategoryConfig}. A {@code null} {@code buildCategoryConfig} means the category
+     * is not configured and is therefore forbidden.
      *
-     * @throws BuildTriggeringException if triggering the requested build kind is disabled for the resolved build
-     *         category
+     * @throws BuildTriggeringException if triggering the requested build kind is disabled for the given build category
      */
-    private void validateTriggeringAllowed(Map<String, String> genericParameters, boolean isTemporaryBuild)
-            throws BuildTriggeringException {
-        BuildCategory category = resolveBuildCategory(genericParameters);
-        BuildTriggeringConfig buildTriggeringConfig = null;
-        try {
-            buildTriggeringConfig = configuration.getModuleConfig(new PncConfigProvider<>(BuildTriggeringConfig.class));
-        } catch (ConfigurationParseException e) {
-            logger.error("Cannot read build triggering configuration for the category {}", category, e);
-            throw new IllegalArgumentException("Unknown build triggering configuration for the category " + category);
-        }
-
+    private void validateTriggeringAllowed(
+            CategoryConfig buildCategoryConfig,
+            BuildCategory buildCategory,
+            boolean isTemporaryBuild) throws BuildTriggeringException {
         if (isTemporaryBuild) {
-            if (!buildTriggeringConfig.isTemporaryAllowed(category)) {
+            if (!BuildTriggeringConfig.isTemporaryBuildingAllowed(buildCategoryConfig)) {
                 throw new BuildTriggeringException(
-                        "Triggering temporary builds is currently disabled for build category " + category
+                        "Triggering temporary builds is currently disabled for build category " + buildCategory
                                 + " at this PNC environment.");
             }
         } else {
-            if (!buildTriggeringConfig.isPersistentAllowed(category)) {
+            if (!BuildTriggeringConfig.isPersistentBuildingAllowed(buildCategoryConfig)) {
                 throw new BuildTriggeringException(
-                        "Triggering persistent builds is currently disabled for build category " + category
+                        "Triggering persistent builds is currently disabled for build category " + buildCategory
                                 + " at this PNC environment.");
             }
         }
     }
 
     private static BuildCategory resolveBuildCategory(Map<String, String> genericParameters) {
-        String categoryName = genericParameters.getOrDefault(BuildConfigurationParameterKeys.BUILD_CATEGORY.name(), BuildCategory.STANDARD.name());
+        String categoryName = genericParameters
+                .getOrDefault(BuildConfigurationParameterKeys.BUILD_CATEGORY.name(), BuildCategory.STANDARD.name());
         try {
             return BuildCategory.valueOf(categoryName);
         } catch (IllegalArgumentException e) {

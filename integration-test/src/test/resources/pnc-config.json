@@ -125,7 +125,7 @@
           },
           "LIGHTWELL_NOVEL": {
             "persistent": false,
-            "temporary": true
+            "temporary": false
           }
         }
       ]

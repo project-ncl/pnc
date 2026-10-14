@@ -27,6 +27,7 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -105,6 +106,26 @@ public class BuildTest {
                 () -> buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(false, true)))
                         .isInstanceOf(RemoteResourceException.class)
                         .hasMessageContaining("Triggering persistent builds is currently disabled");
+    }
+
+    @Test
+    public void shouldNotTriggerTemporaryBuildAndFinishWithException() throws ClientException {
+        // with
+        BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(asUser());
+        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll()
+                .getAll()
+                .stream()
+                .filter(
+                        bc -> bc.getParameters().containsKey("BUILD_CATEGORY")
+                                && bc.getParameters().containsValue("LIGHTWELL_NOVEL"))
+                .iterator()
+                .next();
+
+        // when
+        assertThatThrownBy(
+                () -> buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(true, true)))
+                        .isInstanceOf(RemoteResourceException.class)
+                        .hasMessageContaining("Triggering temporary builds is currently disabled");
     }
 
     @Test
