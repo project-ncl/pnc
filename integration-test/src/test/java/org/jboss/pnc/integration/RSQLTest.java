@@ -31,6 +31,7 @@ import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
@@ -280,7 +281,7 @@ public class RSQLTest {
     public void shouldLimitReturnedBuildConfigs() throws RemoteResourceException {
         BuildConfigPage page = given().auth()
                 .preemptive()
-                .basic("user", "pass.1234")
+                .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())

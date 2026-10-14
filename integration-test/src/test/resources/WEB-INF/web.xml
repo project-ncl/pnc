@@ -53,4 +53,7 @@
     <security-role>
         <role-name>pnc-app-attachment-user</role-name>
     </security-role>
+    <security-role>
+        <role-name>pnc-app-orch-process-commit</role-name>
+    </security-role>
 </web-app>

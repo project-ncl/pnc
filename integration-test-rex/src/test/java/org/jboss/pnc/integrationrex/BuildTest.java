@@ -91,8 +91,6 @@ public class BuildTest extends RemoteServices {
 
     private BuildUtils buildUtils;
 
-    private String keycloakToken;
-
     private static BPMWireMock bpm;
 
     @BeforeClass
@@ -110,25 +108,28 @@ public class BuildTest extends RemoteServices {
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
 
-        keycloakToken = KeycloakClient
+        String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
 
-        buildClient = new AdvancedBuildClient(withBearerToken(keycloakToken));
-        buildConfigurationClient = new BuildConfigurationClient(withBearerToken(keycloakToken));
-        groupConfigurationClient = new GroupConfigurationClient(withBearerToken(keycloakToken));
-        buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(keycloakToken)));
+        buildClient = new AdvancedBuildClient(withBearerToken(token));
+        buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
+        groupConfigurationClient = new GroupConfigurationClient(withBearerToken(token));
+        buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(token)));
     }
 
     @Test
-    public void testThatBuildQueueSizeIsSet() {
+    public void testThatBuildQueueSizeIsSet() throws ExecutionException, InterruptedException {
+        String token = KeycloakClient
+                .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
+                .getToken();
         Configuration conf = RestClientConfiguration.asUser();
 
         given().baseUri(conf.getProtocol() + "://" + conf.getHost() + ":" + conf.getPort())
                 .basePath(BASE_REST_PATH)
                 .auth()
                 .preemptive()
-                .oauth2(keycloakToken)
+                .oauth2(token)
                 .when()
                 .get("/debug/build-queue/size")
                 .then()

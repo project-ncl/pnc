@@ -40,6 +40,14 @@ public enum Credentials {
         this.pass = pass;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
     private String encodedCredentials() {
         return Base64.getEncoder().encodeToString((name + ":" + pass).getBytes());
     }

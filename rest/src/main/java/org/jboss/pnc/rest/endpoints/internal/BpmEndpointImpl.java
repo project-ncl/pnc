@@ -37,7 +37,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 @ApplicationScoped
-@RolesAllowed({ USERS, USERS_ADMIN })
+@RolesAllowed({ USERS_ADMIN, USERS_ORCH_PROCESS_COMMIT })
 public class BpmEndpointImpl implements BpmEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmEndpointImpl.class);

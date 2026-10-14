@@ -176,7 +176,7 @@ public class BuildEndpointTest {
         for (int pageIndex = 0; pageIndex <= 3; pageIndex++) {
             final io.restassured.response.Response response = given().auth()
                     .preemptive()
-                    .basic("user", "pass.1234")
+                    .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
                     .redirects()
                     .follow(false)
                     .port(8080)
@@ -193,7 +193,7 @@ public class BuildEndpointTest {
     public void shouldSupportPageSizeZero() throws Exception {
         final io.restassured.response.Response response = given().auth()
                 .preemptive()
-                .basic("user", "pass.1234")
+                .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
                 .redirects()
                 .follow(false)
                 .port(8080)
@@ -222,7 +222,7 @@ public class BuildEndpointTest {
         for (int pageIndex = 0; pageIndex < buildIds.size(); pageIndex++) {
             final io.restassured.response.Response response = given().auth()
                     .preemptive()
-                    .basic("user", "pass.1234")
+                    .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
                     .redirects()
                     .follow(false)
                     .port(8080)
@@ -242,7 +242,7 @@ public class BuildEndpointTest {
 
         final io.restassured.response.Response response = given().auth()
                 .preemptive()
-                .basic("user", "pass.1234")
+                .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
                 .redirects()
                 .follow(false)
                 .port(8080)

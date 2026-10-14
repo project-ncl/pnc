@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -45,7 +46,7 @@ public class BuildRecordAliasEndpointTest {
         int buildRecordId = 100;
         given().auth()
                 .preemptive()
-                .basic("user", "pass.1234")
+                .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
                 .redirects()
                 .follow(false)
                 .port(8080)

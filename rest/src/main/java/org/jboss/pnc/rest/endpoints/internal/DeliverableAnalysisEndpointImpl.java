@@ -40,7 +40,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 @Slf4j
-@RolesAllowed({ USERS, USERS_ADMIN })
+@RolesAllowed({ USERS_ORCH_PROCESS_COMMIT, USERS_ADMIN })
 public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpoint {
 
     @Inject

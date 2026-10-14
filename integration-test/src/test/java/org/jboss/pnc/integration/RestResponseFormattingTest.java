@@ -56,7 +56,7 @@ public class RestResponseFormattingTest {
     public void shouldReturnErrorInJsonFormat() {
         String response = given().auth()
                 .preemptive()
-                .basic("system", "system.1234")
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
                 .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
@@ -73,7 +73,7 @@ public class RestResponseFormattingTest {
     public void shouldReturnEmptyBodyAndStatus404() {
         String response = given().auth()
                 .preemptive()
-                .basic("system", "system.1234")
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
                 .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
@@ -90,7 +90,7 @@ public class RestResponseFormattingTest {
     public void shouldReturnInJsonAndStatusNoContent() {
         String response = given().auth()
                 .preemptive()
-                .basic("system", "system.1234")
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
                 .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
@@ -106,7 +106,7 @@ public class RestResponseFormattingTest {
     public void shouldReturnStatusUnauthorizedAndHeader() {
         String response = given().auth()
                 .preemptive()
-                .basic("system", "system.1234")
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
                 .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())

@@ -74,6 +74,7 @@ public class OperationEndpointImpl implements OperationEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ADMIN, USERS_ORCH_PROCESS_COMMIT })
     public void finish(String id, OperationOutcome operationOutcome) {
         operationsManager.setResult(OperationMapper.idMapper.toEntity(id), operationOutcome);
     }
