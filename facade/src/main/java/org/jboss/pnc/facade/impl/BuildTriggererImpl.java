@@ -25,7 +25,6 @@ import org.jboss.pnc.common.json.moduleconfig.BuildTriggeringConfig.CategoryConf
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.mapper.BuildConfigurationParametersUtils;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
@@ -431,8 +430,14 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     private static BuildCategory resolveBuildCategory(Map<String, String> genericParameters) {
-        String categoryName = BuildConfigurationParametersUtils.withDefaults(genericParameters)
-                .get(BuildConfigurationParametersUtils.BUILD_CATEGORY_KEY);
+        final String categoryName;
+        if (genericParameters == null) {
+            categoryName = BuildCategory.STANDARD.name();
+        } else {
+            categoryName = genericParameters
+                    .getOrDefault(BuildConfigurationParameterKeys.BUILD_CATEGORY.name(), BuildCategory.STANDARD.name());
+        }
+
         try {
             return BuildCategory.valueOf(categoryName);
         } catch (IllegalArgumentException e) {
