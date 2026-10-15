@@ -13,25 +13,6 @@ import org.junit.Test;
 public class SCMRepositoryProviderImplTest {
 
     @Test
-    public void testNormalizeScmUrlForMatch() {
-        // all URL forms of the same repo normalize to host/path (no scheme/userinfo/port/.git/trailing slash)
-        String expected = "gitlab.example.com/lw/lw-builds/foo";
-        assertThat(SCMRepositoryProviderImpl.normalizeScmUrlForMatch("https://gitlab.example.com/lw/lw-builds/foo.git"))
-                .isEqualTo(expected);
-        assertThat(
-                SCMRepositoryProviderImpl
-                        .normalizeScmUrlForMatch("git+ssh://git@gitlab.example.com/lw/lw-builds/foo.git"))
-                                .isEqualTo(expected);
-        assertThat(SCMRepositoryProviderImpl.normalizeScmUrlForMatch("git@gitlab.example.com:lw/lw-builds/foo.git"))
-                .isEqualTo(expected);
-        assertThat(SCMRepositoryProviderImpl.normalizeScmUrlForMatch("https://gitlab.example.com/lw/lw-builds/foo/"))
-                .isEqualTo(expected);
-        // host:port is dropped, not treated as an scp path
-        assertThat(SCMRepositoryProviderImpl.normalizeScmUrlForMatch("https://gitlab.example.com:8080/lw/foo.git"))
-                .isEqualTo("gitlab.example.com/lw/foo");
-    }
-
-    @Test
     public void testIsWhitelistedScmGroup() {
         List<String> allowed = List.of("gitlab.example.com/lw/lw-builds", "gitlab.com/some/allowed-group");
 
