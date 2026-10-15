@@ -33,19 +33,19 @@ public class ScmModuleConfig extends AbstractModuleConfig {
      * {@code gitlab.example.com/lw/lw-builds} allows {@code .../lw-builds/foo} but not {@code .../lw-buildsX}).
      * Empty/absent = no exceptions (previous behavior).
      */
-    private List<String> allowedScmGroups;
+    private List<String> bannedScmAllowedGroups;
 
     public ScmModuleConfig(
             @JsonProperty("internalScmAuthority") String internalScmAuthority,
             @JsonProperty("secondaryInternalScmAuthority") String secondaryInternalScmAuthority,
             @JsonProperty("bannedScmAuthority") String bannedScmAuthority,
-            @JsonProperty("allowedScmGroups") List<String> allowedScmGroups) {
+            @JsonProperty("bannedScmAllowedGroups") List<String> bannedScmAllowedGroups) {
         super();
         this.internalScmAuthority = StringUtils.stripEndingSlash(internalScmAuthority);
         this.secondaryInternalScmAuthority = StringUtils.stripEndingSlash(secondaryInternalScmAuthority);
         this.bannedScmAuthority = StringUtils.stripEndingSlash(bannedScmAuthority);
-        this.allowedScmGroups = allowedScmGroups == null ? Collections.emptyList()
-                : allowedScmGroups.stream()
+        this.bannedScmAllowedGroups = bannedScmAllowedGroups == null ? Collections.emptyList()
+                : bannedScmAllowedGroups.stream()
                         .filter(g -> g != null && !g.isBlank())
                         .map(StringUtils::stripEndingSlash)
                         .collect(Collectors.toUnmodifiableList());
@@ -64,8 +64,8 @@ public class ScmModuleConfig extends AbstractModuleConfig {
     }
 
     /** Whitelist of external SCM group prefixes allowed despite {@link #getBannedScmAuthority()}. */
-    public List<String> getAllowedScmGroups() {
-        return allowedScmGroups;
+    public List<String> getBannedScmAllowedGroups() {
+        return bannedScmAllowedGroups;
     }
 
     @Override
