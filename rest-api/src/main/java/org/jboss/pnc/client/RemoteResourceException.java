@@ -18,9 +18,10 @@
 package org.jboss.pnc.client;
 
 import java.util.Optional;
-import org.jboss.pnc.dto.response.ErrorResponse;
 
 import javax.ws.rs.WebApplicationException;
+
+import org.jboss.pnc.dto.response.ErrorResponse;
 
 import lombok.Getter;
 

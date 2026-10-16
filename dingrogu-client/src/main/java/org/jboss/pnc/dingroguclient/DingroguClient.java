@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.dingroguclient;
 
-import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 
 public interface DingroguClient {
     Request startBuildProcessInstance(RemoteBuildTask buildTask, List<Request.Header> headers, String correlationId);

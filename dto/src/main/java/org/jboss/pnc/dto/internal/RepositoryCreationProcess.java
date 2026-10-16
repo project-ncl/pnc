@@ -17,7 +17,12 @@
  */
 package org.jboss.pnc.dto.internal;
 
+import java.io.Serializable;
+
+import org.jboss.pnc.dto.BuildConfiguration;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,9 +30,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.dto.BuildConfiguration;
-
-import java.io.Serializable;
 
 /**
  * Repository creation configuration object.

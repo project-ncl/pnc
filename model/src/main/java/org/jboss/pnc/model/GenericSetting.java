@@ -18,7 +18,6 @@
 package org.jboss.pnc.model;
 
 import java.util.Objects;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,6 +29,8 @@ import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(indexes = { @Index(name = "idx_key", columnList = "key") })

@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.facade.deliverables.api;
 
-import lombok.Builder;
-import lombok.Value;
+import java.util.List;
+
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.model.Base32LongID;
 
-import java.util.List;
+import lombok.Builder;
+import lombok.Value;
 
 /**
  * AnalysisResult which is 1:1 mapping with {@link org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult}, of course

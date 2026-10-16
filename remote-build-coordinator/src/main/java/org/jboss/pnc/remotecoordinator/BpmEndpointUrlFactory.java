@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.remotecoordinator;
 
-import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.common.Strings;
-
 import java.net.URI;
 import java.util.List;
+
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.common.Strings;
 
 public class BpmEndpointUrlFactory {
 

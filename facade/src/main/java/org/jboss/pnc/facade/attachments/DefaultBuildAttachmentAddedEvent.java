@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.facade.attachments;
 
+import org.jboss.pnc.dto.Attachment;
+
 import lombok.Getter;
 import lombok.ToString;
-import org.jboss.pnc.dto.Attachment;
 
 @Getter
 @ToString

@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.spi.environment;
 
+import java.io.Serializable;
+import java.nio.file.Path;
+
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-
-import java.io.Serializable;
-import java.nio.file.Path;
 
 /**
  * Identification of environment started by environment driver

@@ -17,8 +17,9 @@
  */
 package org.jboss.pnc.dto.response;
 
-import lombok.Data;
 import org.jboss.pnc.enums.ResultStatus;
+
+import lombok.Data;
 
 /**
  * Result of the build deletion operation sent by callback.

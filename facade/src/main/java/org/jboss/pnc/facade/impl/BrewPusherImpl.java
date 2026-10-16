@@ -17,7 +17,22 @@
  */
 package org.jboss.pnc.facade.impl;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.jboss.pnc.api.constants.MDCKeys.BUILD_ID_KEY;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.constants.OperationParameters;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.OperationOutcome;
@@ -28,15 +43,14 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dingroguclient.DingroguBuildPushDTO;
 import org.jboss.pnc.dingroguclient.DingroguClient;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.OperationsManager;
-import org.jboss.pnc.mapper.ResultStatusMapper;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
+import org.jboss.pnc.mapper.ResultStatusMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.BuildPushReportMapper;
@@ -55,19 +69,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.api.constants.MDCKeys.BUILD_ID_KEY;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;

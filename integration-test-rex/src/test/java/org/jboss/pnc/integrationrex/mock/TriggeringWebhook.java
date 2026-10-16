@@ -17,15 +17,18 @@
  */
 package org.jboss.pnc.integrationrex.mock;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -41,17 +44,15 @@ import org.apache.hc.core5.util.Timeout;
 import org.wiremock.webhooks.WebhookDefinition;
 import org.wiremock.webhooks.WebhookTransformer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static java.util.stream.Collectors.toList;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 /**
  * Works similar to {@link org.wiremock.webhooks.Webhooks} with an exception that actions (callbacks) are added to the

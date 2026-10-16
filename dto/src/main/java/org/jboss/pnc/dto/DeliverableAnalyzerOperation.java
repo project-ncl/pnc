@@ -17,19 +17,13 @@
  */
 package org.jboss.pnc.dto;
 
-import java.time.Instant;
-import java.util.Map;
-
-import lombok.experimental.SuperBuilder;
-import org.jboss.pnc.api.enums.OperationResult;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.api.enums.ProgressStatus;
 
 @Data
 @Jacksonized

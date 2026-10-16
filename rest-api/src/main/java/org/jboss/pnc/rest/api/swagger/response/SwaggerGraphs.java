@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.rest.api.swagger.response;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Edge;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Vertex;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  *

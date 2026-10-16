@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.remotecoordinator.test.dependencies;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -30,13 +37,6 @@ import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * configC depends on configB, which in turn depends on configA. configD depends on configA and configB configE doesn't

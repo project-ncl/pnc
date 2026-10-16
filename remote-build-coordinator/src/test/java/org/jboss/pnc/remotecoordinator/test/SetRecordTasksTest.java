@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.remotecoordinator.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -30,14 +38,6 @@ import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class SetRecordTasksTest extends AbstractDependentBuildTest {
 

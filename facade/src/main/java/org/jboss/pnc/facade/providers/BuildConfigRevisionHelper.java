@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import java.util.Objects;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
@@ -28,14 +35,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
-import java.util.Objects;
-
-import javax.transaction.Transactional;
 
 @PermitAll
 @Stateless

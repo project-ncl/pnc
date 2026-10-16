@@ -17,16 +17,15 @@
  */
 package org.jboss.pnc.facade.util;
 
-import org.jboss.pnc.dto.response.Edge;
-import org.jboss.pnc.dto.response.Graph;
-import org.jboss.pnc.dto.response.Vertex;
-
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
+
+import org.jboss.pnc.dto.response.Edge;
+import org.jboss.pnc.dto.response.Graph;
+import org.jboss.pnc.dto.response.Vertex;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.ToString;
-import org.hibernate.annotations.Type;
-import org.hibernate.validator.constraints.URL;
-import org.jboss.pnc.api.enums.AttachmentType;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,13 +37,16 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Objects;
+
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.api.enums.AttachmentType;
+
+import lombok.ToString;
 
 @Entity
 @Table(
-        indexes = { @Index(name = "idx_attachment_name", columnList = "name"),
+        indexes = {
+                @Index(name = "idx_attachment_name", columnList = "name"),
                 @Index(name = "idx_attachment_url", columnList = "url"),
                 @Index(name = "idx_attachment_creationtime", columnList = "creationtime"),
                 @Index(name = "idx_attachment_type", columnList = "type"),

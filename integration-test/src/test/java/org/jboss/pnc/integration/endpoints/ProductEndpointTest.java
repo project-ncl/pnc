@@ -17,41 +17,35 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+
 import java.net.URISyntaxException;
+import java.util.Collections;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.client.patch.ProductPatchBuilder;
+import org.jboss.pnc.dto.Product;
+import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
-
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.client.ProductClient;
-import org.jboss.pnc.dto.Product;
-import org.jboss.pnc.dto.ProductVersion;
-
-import static org.junit.Assert.fail;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-import java.util.Collections;
-import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.client.patch.ProductPatchBuilder;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>

@@ -48,13 +48,13 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>dto</artifactId>
-      <classifier>patch-builders</classifier> <!-- needed for client compilation -->
+      <classifier>patch-builders</classifier>
+      <!-- needed for client compilation -->
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc.rex</groupId>
       <artifactId>rex-model</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -78,10 +78,10 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <scope>provided</scope>
-    </dependency>    
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
@@ -126,10 +126,10 @@
           </execution>
           <execution>
             <id>default-jar</id>
-            <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <excludes>
                 <exclude>org/jboss/pnc/client/**/*</exclude>

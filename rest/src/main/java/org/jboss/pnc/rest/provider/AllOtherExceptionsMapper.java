@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.resteasy.spi.Failure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAllowedException;
@@ -32,9 +31,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
+
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.resteasy.spi.Failure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mapper that catches all exception and extracts the http status code from the JAXRS/RESTEASY runtime exception. Status

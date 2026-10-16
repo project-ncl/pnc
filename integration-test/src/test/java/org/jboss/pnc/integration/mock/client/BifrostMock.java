@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.integration.mock.client;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.core.Response;
+
 import org.jboss.pnc.api.bifrost.dto.Line;
 import org.jboss.pnc.api.bifrost.dto.MetaData;
 import org.jboss.pnc.api.bifrost.enums.Direction;
 import org.jboss.pnc.api.bifrost.enums.Format;
 import org.jboss.pnc.api.bifrost.rest.Bifrost;
 import org.jboss.pnc.api.dto.ComponentVersion;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.List;
 
 @ApplicationScoped
 public class BifrostMock implements Bifrost {

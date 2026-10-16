@@ -18,6 +18,11 @@
 
 package org.jboss.pnc.facade.util;
 
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -25,11 +30,6 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
 
 /**
  * A work around for Hibernate's lazy initialization errors

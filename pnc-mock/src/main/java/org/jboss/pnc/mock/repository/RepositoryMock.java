@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import javax.persistence.LockModeType;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +25,14 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import javax.persistence.LockModeType;
+
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 7:03 AM

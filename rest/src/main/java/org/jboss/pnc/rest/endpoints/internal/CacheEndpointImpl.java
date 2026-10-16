@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import javax.ejb.Stateless;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;

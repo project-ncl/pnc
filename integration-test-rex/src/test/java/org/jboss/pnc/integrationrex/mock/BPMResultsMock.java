@@ -17,16 +17,21 @@
  */
 package org.jboss.pnc.integrationrex.mock;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.dto.internal.BuildResultRest;
-import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.Attachment;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildStatus;
@@ -52,12 +57,9 @@ import org.jboss.pnc.spi.BuildResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.SneakyThrows;
 
 public class BPMResultsMock {
 

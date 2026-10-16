@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.integrationrex.mock;
 
+import javax.enterprise.context.Dependent;
+
 import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
-
-import javax.enterprise.context.Dependent;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

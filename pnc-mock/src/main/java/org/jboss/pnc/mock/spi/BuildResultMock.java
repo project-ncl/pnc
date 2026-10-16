@@ -18,20 +18,20 @@
 
 package org.jboss.pnc.mock.spi;
 
-import org.jboss.pnc.api.enums.AttachmentType;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.Attachment;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.spi.coordinator.ProcessException;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.pnc.api.enums.AttachmentType;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Attachment;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

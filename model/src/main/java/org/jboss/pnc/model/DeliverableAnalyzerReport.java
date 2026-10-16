@@ -17,12 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-import org.jboss.pnc.model.utils.DeliverableAnalyzerReportLabelToStringConverter;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -32,10 +30,14 @@ import javax.persistence.Entity;
 import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.model.utils.DeliverableAnalyzerReportLabelToStringConverter;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * The report of the {@link DeliverableAnalyzerOperation}.

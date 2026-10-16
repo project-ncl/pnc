@@ -17,7 +17,23 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.EJBAccessException;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.dto.notification.GenericSettingNotification;
 import org.jboss.pnc.facade.util.UserService;
@@ -27,21 +43,7 @@ import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
-import javax.annotation.security.PermitAll;
-import javax.ejb.EJBAccessException;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
-import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import lombok.extern.slf4j.Slf4j;
 
 @PermitAll
 @Stateless

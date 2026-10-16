@@ -17,21 +17,21 @@
  */
 package org.jboss.pnc.auth.keycloakutil.operations;
 
+import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.composeResourceUrl;
+import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doDeleteJSON;
+import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doPostJSON;
+import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getIdForType;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
+
 import org.jboss.pnc.auth.keycloakutil.util.Headers;
 import org.jboss.pnc.auth.keycloakutil.util.HeadersBody;
 import org.jboss.pnc.auth.keycloakutil.util.HeadersBodyStatus;
 import org.jboss.pnc.auth.keycloakutil.util.HttpUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.util.JsonSerialization;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
-
-import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.composeResourceUrl;
-import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doDeleteJSON;
-import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doPostJSON;
-import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getIdForType;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Optional;
+
+import org.jboss.pnc.enums.BuildStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.jboss.pnc.enums.BuildStatus;
-
-import java.util.Optional;
 
 @Getter
 @AllArgsConstructor

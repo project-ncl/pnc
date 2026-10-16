@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-
-import javax.persistence.Tuple;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.Tuple;
+
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:24 PM

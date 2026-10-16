@@ -17,9 +17,13 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
-import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
+import java.util.List;
+
+import javax.enterprise.event.ObservesAsync;
+
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -28,9 +32,6 @@ import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
-
-import javax.enterprise.event.ObservesAsync;
-import java.util.List;
 
 public interface ProductMilestoneProvider
         extends Provider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {

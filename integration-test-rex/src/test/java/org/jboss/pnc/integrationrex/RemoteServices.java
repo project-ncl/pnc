@@ -17,7 +17,17 @@
  */
 package org.jboss.pnc.integrationrex;
 
-import dasniko.testcontainers.keycloak.KeycloakContainer;
+import static org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicroprofileConfig.SCHEDULER_URL_KEY;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Consumer;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.integrationrex.setup.Deployments;
 import org.jboss.pnc.integrationrex.setup.arquillian.AfterDeploy;
@@ -36,16 +46,7 @@ import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import static org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicroprofileConfig.SCHEDULER_URL_KEY;
+import dasniko.testcontainers.keycloak.KeycloakContainer;
 
 public class RemoteServices {
 

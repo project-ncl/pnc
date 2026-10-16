@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.common.util;
 
+import java.util.Comparator;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
-
-import java.util.Comparator;
-import java.util.List;
 
 public class QuicksortTest {
 

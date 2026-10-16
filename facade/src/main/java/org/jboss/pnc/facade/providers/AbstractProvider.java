@@ -17,7 +17,15 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.google.common.collect.ObjectArrays;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
@@ -27,7 +35,6 @@ import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -38,13 +45,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.security.PermitAll;
-import javax.inject.Inject;
-import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import com.google.common.collect.ObjectArrays;
 
 /**
  * Abstract provider with common functionality.

@@ -17,18 +17,21 @@
  */
 package org.jboss.pnc.dto.internal;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.dto.validation.groups.WhenImporting;
+import java.util.Date;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.PastOrPresent;
-import java.util.Date;
+
+import org.jboss.pnc.dto.validation.groups.WhenImporting;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Jacksonized

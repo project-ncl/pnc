@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.mock.spi;
 
+import java.util.Optional;
+
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-
-import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

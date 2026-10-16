@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:06 PM

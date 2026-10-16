@@ -17,25 +17,26 @@
  */
 package org.jboss.pnc.rest;
 
-import org.jboss.pnc.common.Strings;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.facade.util.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+
+import java.io.IOException;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.facade.util.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

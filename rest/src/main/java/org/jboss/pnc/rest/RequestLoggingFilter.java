@@ -17,17 +17,11 @@
  */
 package org.jboss.pnc.rest;
 
-import org.apache.commons.io.IOUtils;
-import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.common.util.MapUtils;
-import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import io.opentelemetry.api.trace.Span;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Principal;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -43,11 +37,18 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.Principal;
+
+import org.apache.commons.io.IOUtils;
+import org.jboss.pnc.api.constants.MDCKeys;
+import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.common.util.MapUtils;
+import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import io.opentelemetry.api.trace.Span;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,6 +17,15 @@
  */
 package org.jboss.pnc.remotecoordinator.notifications.buildTask;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.TransactionPhase;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.BuildStatusChanged;
@@ -25,15 +34,6 @@ import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.TransactionPhase;
-import javax.inject.Inject;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

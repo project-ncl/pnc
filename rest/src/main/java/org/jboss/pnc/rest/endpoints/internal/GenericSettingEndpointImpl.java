@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import org.jboss.pnc.dto.response.Banner;
-import org.jboss.pnc.rest.api.endpoints.GenericSettingEndpoint;
-import org.jboss.pnc.facade.providers.GenericSettingProvider;
-import org.jboss.util.Strings;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.jboss.pnc.dto.response.Banner;
+import org.jboss.pnc.facade.providers.GenericSettingProvider;
+import org.jboss.pnc.rest.api.endpoints.GenericSettingEndpoint;
+import org.jboss.util.Strings;
 
 @ApplicationScoped
 public class GenericSettingEndpointImpl implements GenericSettingEndpoint {

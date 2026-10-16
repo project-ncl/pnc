@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.coordinator.test.event;
 
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 @ApplicationScoped
 public class TestCDIBuildStatusChangedReceiver {

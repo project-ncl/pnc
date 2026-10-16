@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.dto.validation.constraints;
 
-import org.jboss.pnc.dto.validation.validators.NoHtmlValidator;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+
+import org.jboss.pnc.dto.validation.validators.NoHtmlValidator;
 
 /**
  * Annotation to add to a method or a field to validate that the String doesn't contain HTML tags. This is useful to

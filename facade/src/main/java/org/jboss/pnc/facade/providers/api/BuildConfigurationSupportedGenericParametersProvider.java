@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
-import org.jboss.pnc.dto.response.Parameter;
-
 import java.util.Set;
+
+import org.jboss.pnc.dto.response.Parameter;
 
 public interface BuildConfigurationSupportedGenericParametersProvider {
 

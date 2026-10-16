@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
@@ -27,9 +30,6 @@ import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Optional;
 
 public class GraphValidation {
 

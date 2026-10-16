@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.validation;
 
-import org.jboss.pnc.spi.exception.BuildRequestException;
-
 import javax.ejb.ApplicationException;
+
+import org.jboss.pnc.spi.exception.BuildRequestException;
 
 @ApplicationException(rollback = true)
 public class InvalidRequestException extends RuntimeException {

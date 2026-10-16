@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.model.GenericEntity;
-
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  *

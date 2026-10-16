@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.BuildType;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import org.jboss.pnc.enums.BuildType;
 
 /**
  * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit

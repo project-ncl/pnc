@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.Environment;
@@ -32,10 +35,6 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * Workaround for NCL-4889 and NCL-5257. This class will fetch the audited Build Config from DB if it is missing from

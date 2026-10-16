@@ -18,12 +18,12 @@
 
 package org.jboss.pnc.coordinator.builder.bpm;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
-
-import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

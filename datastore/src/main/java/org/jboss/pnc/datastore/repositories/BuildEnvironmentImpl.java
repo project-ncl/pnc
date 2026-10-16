@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class BuildEnvironmentImpl extends AbstractRepository<BuildEnvironment, Integer>

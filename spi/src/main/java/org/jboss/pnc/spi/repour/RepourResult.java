@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.spi.repour;
 
+import java.io.Serializable;
+
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
-
-import java.io.Serializable;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

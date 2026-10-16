@@ -17,24 +17,24 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.ProductRef;
-import org.jboss.pnc.dto.validation.groups.ValidationGroup;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.mapper.api.ProductMapper;
-import org.jboss.pnc.facade.providers.api.ProductProvider;
-import org.jboss.pnc.facade.validation.ConflictedEntryException;
-import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.dto.Product;
-import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
+import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withAbbrev;
+import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withAbbrev;
-import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
+import org.jboss.pnc.dto.Product;
+import org.jboss.pnc.dto.ProductRef;
+import org.jboss.pnc.dto.validation.groups.ValidationGroup;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.facade.providers.api.ProductProvider;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.ProductMapper;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 
 @PermitAll
 @Stateless

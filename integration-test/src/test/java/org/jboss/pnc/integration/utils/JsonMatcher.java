@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.integration.utils;
 
-import org.hamcrest.CustomMatcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.restassured.path.json.JsonPath.from;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static io.restassured.path.json.JsonPath.from;
+import org.hamcrest.CustomMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JsonMatcher {
 

@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.remotecoordinator.rexclient.provider;
 
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
-import org.jboss.pnc.remotecoordinator.rexclient.exception.BadRequestException;
-import org.jboss.pnc.rex.dto.responses.ErrorResponse;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
+import org.jboss.pnc.remotecoordinator.rexclient.exception.BadRequestException;
+import org.jboss.pnc.rex.dto.responses.ErrorResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BadRequestMapper implements ResponseExceptionMapper<BadRequestException> {

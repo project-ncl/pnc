@@ -18,14 +18,16 @@
 package org.jboss.pnc.facade.rsql;
 
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.DESC;
+
+import java.lang.reflect.Method;
+import java.util.Comparator;
+
+import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.LogicalNode;
-import java.lang.reflect.Method;
-import java.util.Comparator;
-import org.jboss.pnc.common.util.StringUtils;
 
 /**
  *

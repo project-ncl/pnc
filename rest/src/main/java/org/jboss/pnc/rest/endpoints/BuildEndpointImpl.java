@@ -17,19 +17,37 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.text.MessageFormat.format;
+import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.RedirectionException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -52,23 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.RedirectionException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.text.MessageFormat.format;
-import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *

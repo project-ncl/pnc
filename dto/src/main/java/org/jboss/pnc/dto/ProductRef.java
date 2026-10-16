@@ -17,25 +17,25 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
-
-import org.jboss.pnc.dto.validation.constraints.NoHtml;
-import org.jboss.pnc.constants.Patterns;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.processor.annotation.PatchSupport;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+import org.jboss.pnc.constants.Patterns;
+import org.jboss.pnc.dto.validation.constraints.NoHtml;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * A product is a deliverable package composed of multiple project.

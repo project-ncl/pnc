@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.spi.datastore.predicates.GenericSettingPredicates;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class GenericSettingRepositoryImpl extends AbstractRepository<GenericSetting, Integer>

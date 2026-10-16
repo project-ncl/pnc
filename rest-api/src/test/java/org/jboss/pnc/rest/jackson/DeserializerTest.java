@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.rest.jackson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.junit.Test;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  *

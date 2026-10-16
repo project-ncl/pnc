@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.remotecoordinator.rexclient;
 
-import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
-import org.jboss.pnc.api.constants.HttpHeaders;
-import org.jboss.pnc.auth.ServiceAccountClient;
-import org.jboss.pnc.common.log.MDCUtils;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import java.util.List;
-import java.util.Map;
+
+import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
+import org.jboss.pnc.api.constants.HttpHeaders;
+import org.jboss.pnc.auth.ServiceAccountClient;
+import org.jboss.pnc.common.log.MDCUtils;
 
 public class MyHeaderPropagator implements ClientHeadersFactory {
 

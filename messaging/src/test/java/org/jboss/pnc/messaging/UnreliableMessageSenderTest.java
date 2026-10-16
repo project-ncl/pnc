@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.messaging;
 
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.concurrent.MDCThreadPoolExecutor;
@@ -39,11 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.opentelemetry.context.Context;
-
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

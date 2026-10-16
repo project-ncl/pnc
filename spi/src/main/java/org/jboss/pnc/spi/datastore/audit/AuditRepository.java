@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.spi.datastore.audit;
 
-import org.jboss.pnc.model.GenericEntity;
-
 import java.util.List;
+
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  * Audited repository type.

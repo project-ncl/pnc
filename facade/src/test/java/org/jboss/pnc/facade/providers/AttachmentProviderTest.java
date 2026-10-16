@@ -17,10 +17,18 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.enterprise.event.Event;
+
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.api.enums.AttachmentType;
-import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.attachments.BuildAttachmentAddedEvent;
@@ -34,13 +42,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import javax.enterprise.event.Event;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AttachmentProviderTest extends AbstractIntIdProviderTest<org.jboss.pnc.model.Attachment> {

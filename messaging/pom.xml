@@ -23,14 +23,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>messaging</artifactId>
-  <name>messaging</name>
   <packaging>jar</packaging>
+  <name>messaging</name>
 
   <dependencies>
 
@@ -95,7 +95,6 @@
 
   </dependencies>
 
-
   <build>
     <plugins>
       <plugin>
@@ -111,7 +110,9 @@
     <profile>
       <id>provision-test-eap</id>
       <activation>
-        <property><name>!skipTests</name></property>
+        <property>
+          <name>!skipTests</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -120,10 +121,10 @@
             <artifactId>eap-maven-plugin</artifactId>
             <executions>
               <execution>
-                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>package</goal>
                 </goals>
+                <phase>pre-integration-test</phase>
                 <!-- Layers, excluded layers and scripts are inherited from parent plugin config -->
                 <configuration>
                   <layers combine.children="append">
@@ -146,6 +147,5 @@
       </build>
     </profile>
   </profiles>
-
 
 </project>

@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.test.cdi;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.util.TypeLiteral;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +24,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.enterprise.inject.Instance;
+import javax.enterprise.util.TypeLiteral;
 
 public class TestInstance<T> implements Instance<T> {
 

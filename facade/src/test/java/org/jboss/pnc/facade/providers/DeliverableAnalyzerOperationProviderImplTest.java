@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Condition;
-
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;

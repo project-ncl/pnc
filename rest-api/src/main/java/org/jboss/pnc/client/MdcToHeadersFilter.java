@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.common.util.StringUtils;
-import org.slf4j.MDC;
+import java.io.IOException;
+import java.util.Map;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.IOException;
-import java.util.Map;
+
+import org.jboss.pnc.common.util.StringUtils;
+import org.slf4j.MDC;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

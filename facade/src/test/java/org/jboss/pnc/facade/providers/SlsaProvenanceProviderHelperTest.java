@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -78,8 +79,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.*;
 
 /**
  *

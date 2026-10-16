@@ -17,18 +17,20 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
-import org.jboss.pnc.processor.annotation.PatchSupport;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 import java.util.Map;
 
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.Value;
 
 /**
  * A PNC project is something that can be thought of as an upstream (or internal) scm repository (e.g. GitHub).

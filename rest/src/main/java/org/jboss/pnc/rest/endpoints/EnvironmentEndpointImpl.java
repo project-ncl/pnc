@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.requests.EnvironmentDeprecationRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
 import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class EnvironmentEndpointImpl implements EnvironmentEndpoint {

@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductVersion;
@@ -25,10 +29,6 @@ import org.jboss.pnc.facade.providers.api.ProductProvider;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductEndpointImpl implements ProductEndpoint {

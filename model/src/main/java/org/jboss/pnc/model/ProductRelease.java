@@ -17,16 +17,15 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.jboss.pnc.common.Strings;
-import org.jboss.pnc.enums.SupportLevel;
+import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
+
+import java.util.Date;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -40,9 +39,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import java.util.Date;
-
-import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.enums.SupportLevel;
 
 /**
  * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a

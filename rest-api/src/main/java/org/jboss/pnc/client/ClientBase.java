@@ -17,13 +17,11 @@
  */
 package org.jboss.pnc.client;
 
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.jboss.pnc.client.patch.PatchBase;
-import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Closeable;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
@@ -35,11 +33,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.Closeable;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.jboss.pnc.client.patch.PatchBase;
+import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

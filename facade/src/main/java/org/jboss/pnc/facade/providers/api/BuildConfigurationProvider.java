@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import java.util.Optional;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -24,8 +26,6 @@ import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
-
-import java.util.Optional;
 
 public interface BuildConfigurationProvider
         extends Provider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> {

@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
+
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 
 @Provider
 public class RespondWithStatusFilter implements ContainerResponseFilter {

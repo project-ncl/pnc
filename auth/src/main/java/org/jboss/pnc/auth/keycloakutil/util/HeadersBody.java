@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.auth.keycloakutil.util;
 
+import static org.jboss.pnc.auth.keycloakutil.util.IoUtil.copyStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-
-import static org.jboss.pnc.auth.keycloakutil.util.IoUtil.copyStream;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

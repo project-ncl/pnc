@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.client;
 
+import java.io.IOException;
+import java.util.function.Supplier;
+
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
-import java.io.IOException;
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

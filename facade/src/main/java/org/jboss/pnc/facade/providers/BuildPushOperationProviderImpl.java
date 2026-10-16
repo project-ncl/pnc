@@ -17,18 +17,22 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.Build;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildPushOperationProvider;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
@@ -38,12 +42,6 @@ import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Set;
 
 @PermitAll
 @Stateless

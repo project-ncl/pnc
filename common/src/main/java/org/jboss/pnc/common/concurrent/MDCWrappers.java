@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.common.concurrent;
 
-import org.slf4j.MDC;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+
+import org.slf4j.MDC;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

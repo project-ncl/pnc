@@ -17,17 +17,19 @@
  */
 package org.jboss.pnc.dto;
 
+import java.time.Instant;
+
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-
-import javax.validation.constraints.Future;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
 
 /**
  * DTO for information about the actual status of the PNC: announcement banner, ETA and maintenance mode.

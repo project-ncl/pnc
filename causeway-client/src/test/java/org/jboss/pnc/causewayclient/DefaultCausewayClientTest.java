@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.causewayclient;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
 
 public class DefaultCausewayClientTest {
 

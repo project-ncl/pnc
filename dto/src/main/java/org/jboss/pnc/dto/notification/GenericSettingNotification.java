@@ -18,11 +18,12 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jboss.pnc.common.json.JsonUtils;
 import org.jboss.pnc.dto.PncStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class GenericSettingNotification extends Notification {
 

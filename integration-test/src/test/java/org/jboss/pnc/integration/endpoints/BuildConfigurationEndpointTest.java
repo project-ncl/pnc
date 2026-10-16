@@ -17,6 +17,27 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -62,26 +83,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.NotFoundException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -456,11 +457,11 @@ public class BuildConfigurationEndpointTest {
                 "modificationUser");
         assertThat(retrieved)
                 .isEqualToIgnoringGivenFields(clone, "modificationTime", "creationUser", "modificationUser"); // close
-                                                                                                              // of
-                                                                                                              // transaction
-                                                                                                              // changes
-        // the modification time -
-        // WONTFIX
+                                                                                                                                   // of
+                                                                                                                                   // transaction
+                                                                                                                                   // changes
+                                                                                                                                   // the modification time -
+                                                                                                                                   // WONTFIX
     }
 
     @Test

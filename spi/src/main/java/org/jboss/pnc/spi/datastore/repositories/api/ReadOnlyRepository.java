@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api;
 
-import org.jboss.pnc.model.GenericEntity;
-
-import javax.persistence.LockModeType;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+
+import javax.persistence.LockModeType;
+
+import org.jboss.pnc.model.GenericEntity;
 
 public interface ReadOnlyRepository<T extends GenericEntity<ID>, ID extends Serializable> {
     List<T> queryAll();

@@ -17,6 +17,17 @@
  */
 package org.jboss.pnc.remotecoordinator.maintenance;
 
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_GENERIC_HTTP;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
+
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.module.IndyStoresClientModule;
@@ -30,6 +41,7 @@ import org.commonjava.indy.model.core.dto.StoreListingDTO;
 import org.commonjava.indy.promote.client.IndyPromoteAdminClientModule;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
@@ -37,7 +49,6 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
@@ -51,16 +62,6 @@ import org.jboss.pnc.spi.datastore.predicates.OperationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
-
-import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_GENERIC_HTTP;
-import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
-import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

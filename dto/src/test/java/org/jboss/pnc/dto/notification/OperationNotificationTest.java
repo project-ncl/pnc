@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.dto.notification;
 
+import org.assertj.core.api.Fail;
+import org.junit.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.assertj.core.api.Fail;
-import org.junit.Test;
 
 public class OperationNotificationTest {
 

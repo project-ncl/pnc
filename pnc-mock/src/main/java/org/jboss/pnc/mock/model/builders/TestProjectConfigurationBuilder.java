@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.mock.model.builders;
 
+import java.util.Arrays;
+
+import javax.inject.Inject;
+
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-
-import javax.inject.Inject;
-import java.util.Arrays;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-10.

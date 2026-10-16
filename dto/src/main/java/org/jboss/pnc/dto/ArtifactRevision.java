@@ -20,6 +20,7 @@ package org.jboss.pnc.dto;
 import java.time.Instant;
 
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -28,7 +29,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jboss.pnc.enums.BuildCategory;
 
 /**
  * Revision of a an artifact created or used by build.

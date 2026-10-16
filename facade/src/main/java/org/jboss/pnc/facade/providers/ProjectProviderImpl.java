@@ -17,18 +17,18 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.Project;
-import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.mapper.api.ProjectMapper;
-import org.jboss.pnc.facade.providers.api.ProjectProvider;
-import org.jboss.pnc.facade.validation.ConflictedEntryException;
-import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProjectName;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProjectName;
+import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.facade.providers.api.ProjectProvider;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.mapper.api.ProjectMapper;
+import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 
 @PermitAll
 @Stateless

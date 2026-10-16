@@ -18,6 +18,12 @@
 
 package org.jboss.pnc.mock.coordinator;
 
+import java.util.function.Consumer;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -35,11 +41,6 @@ import org.jboss.pnc.spi.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

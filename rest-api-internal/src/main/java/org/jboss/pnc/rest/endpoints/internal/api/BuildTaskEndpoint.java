@@ -18,16 +18,11 @@
 
 package org.jboss.pnc.rest.endpoints.internal.api;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.internal.BuildResultRest;
-import org.jboss.pnc.dto.internal.ImportBuildsRequest;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-import org.jboss.pnc.rex.model.requests.NotificationRequest;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -40,11 +35,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-import java.util.Set;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.dto.internal.ImportBuildsRequest;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/build-tasks")

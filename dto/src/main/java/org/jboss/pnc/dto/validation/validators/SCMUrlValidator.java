@@ -17,14 +17,13 @@
  */
 package org.jboss.pnc.dto.validation.validators;
 
-import org.apache.commons.validator.routines.UrlValidator;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 
 /**

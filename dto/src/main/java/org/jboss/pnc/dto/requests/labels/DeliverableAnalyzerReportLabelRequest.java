@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.dto.requests.labels;
 
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
 /**
  * Label request for {@link DeliverableAnalyzerReportLabel} entity.

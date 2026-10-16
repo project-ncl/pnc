@@ -17,6 +17,25 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.wildfly.common.Assert.assertNotNull;
+import static org.wildfly.common.Assert.assertTrue;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ObjectAssert;
 import org.eclipse.jetty.http.HttpStatus;
@@ -44,30 +63,11 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.wildfly.common.Assert.assertNotNull;
-import static org.wildfly.common.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

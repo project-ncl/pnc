@@ -17,14 +17,21 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.persistence.PersistenceException;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.api.enums.RebuildMode;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -35,13 +42,6 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import javax.persistence.PersistenceException;
-
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -61,7 +61,7 @@ public class ConfigurationsIT extends ProjectBuilder {
     BuildCoordinator buildCoordinator;
 
     @Test(expected = PersistenceException.class) // TODO test is not run as expected exception is thrown
-                                                 // configurationBuilder.build...
+    // configurationBuilder.build...
     @InSequence(10)
     public void dependsOnItselfConfigurationTestCase() throws Exception {
 
@@ -83,7 +83,7 @@ public class ConfigurationsIT extends ProjectBuilder {
     }
 
     @Test(expected = PersistenceException.class) // TODO test is not run as expected exception is thrown
-                                                 // configurationBuilder.build...
+    // configurationBuilder.build...
     @InSequence(15)
     public void cycleConfigurationTestCase() throws Exception {
 

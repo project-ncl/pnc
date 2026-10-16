@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+
+import java.util.Date;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
@@ -28,14 +36,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
-import java.util.Date;
-
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

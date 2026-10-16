@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import java.io.File;
+import java.net.URI;
+
+import javax.enterprise.inject.Alternative;
+
 import org.jboss.pnc.api.bifrost.dto.Checksums;
 import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
 import org.jboss.pnc.bifrost.upload.BifrostUploadException;
 import org.jboss.pnc.bifrost.upload.LogMetadata;
 import org.jboss.pnc.bifrost.upload.TagOption;
-
-import javax.enterprise.inject.Alternative;
-import java.io.File;
-import java.net.URI;
 
 @Alternative
 public class BifrostLogUploaderMock extends BifrostLogUploader {

@@ -18,12 +18,12 @@
     limitations under the License.
 
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jboss.bom</groupId> <!-- Use BOM as parent to have access to the properties -->
+    <groupId>org.jboss.bom</groupId>
+    <!-- Use BOM as parent to have access to the properties -->
     <artifactId>jboss-eap-jakartaee8</artifactId>
     <version>7.4.7.GA</version>
   </parent>
@@ -41,17 +41,10 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <distribution>repo</distribution>
       <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
     </license>
   </licenses>
-
-  <scm>
-    <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
-    <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
-    <url>https://github.com/project-ncl/pnc/</url>
-    <tag>3.2.2</tag>
-  </scm>
 
   <developers>
     <developer>
@@ -86,13 +79,21 @@
     <module>demo-data</module>
     <module>integration-test</module>
     <module>integration-test-rex</module>
-    <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
+    <module>pnc-mock</module>
+    <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
     <module>rest-api-internal</module>
     <module>rest-client-internal</module>
   </modules>
+
+  <scm>
+    <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
+    <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
+    <tag>3.2.2</tag>
+    <url>https://github.com/project-ncl/pnc/</url>
+  </scm>
 
   <properties>
     <!-- minimum jdk and maven versions -->
@@ -167,7 +168,7 @@
     <!-- Jacoco & Sonar -->
     <sonar.jacoco.reportPath>${project.basedir}/target/jacoco-unit.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
-    <itCoverageAgent />
+    <itCoverageAgent/>
 
     <!-- KEEP IN SYNC WITH RUNTIME -->
     <!-- JBOSS EAP + XP pack -->
@@ -193,36 +194,8 @@
     <arquillian.container.type>managed</arquillian.container.type>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
-    <tagSuffix />
+    <tagSuffix/>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
 
   <dependencyManagement>
     <dependencies>
@@ -239,8 +212,8 @@
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-bom</artifactId>
         <version>${version.shrinkwrap.resolver.bom}</version>
-        <scope>import</scope>
         <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.jboss.arquillian</groupId>
@@ -533,8 +506,8 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>dto</artifactId>
-        <classifier>patch-builders</classifier>
         <version>${project.version}</version>
+        <classifier>patch-builders</classifier>
       </dependency>
 
       <dependency>
@@ -558,8 +531,8 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-api</artifactId>
-        <classifier>java-client</classifier>
         <version>${project.version}</version>
+        <classifier>java-client</classifier>
       </dependency>
 
       <dependency>
@@ -743,7 +716,8 @@
         <version>${version.org.glassfish.javax.el-impl}</version>
         <scope>test</scope>
         <exclusions>
-          <exclusion> <!-- using jboss-el-api -->
+          <exclusion>
+            <!-- using jboss-el-api -->
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el-api</artifactId>
           </exclusion>
@@ -780,10 +754,10 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>org.jboss.resteasy</groupId>
-          <artifactId>resteasy-client-microprofile</artifactId>
-          <version>${version.org.jboss.resteasy}</version>
-          <scope>test</scope>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-client-microprofile</artifactId>
+        <version>${version.org.jboss.resteasy}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -880,11 +854,10 @@
         <scope>provided</scope>
       </dependency>
 
-
       <dependency>
-          <groupId>org.mapstruct</groupId>
-          <artifactId>mapstruct</artifactId>
-          <version>${version.mapstruct}</version>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${version.mapstruct}</version>
       </dependency>
 
       <dependency>
@@ -936,7 +909,8 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.18.10</version> <!-- force version provided by mockito to override hibernate version -->
+        <version>1.18.10</version>
+        <!-- force version provided by mockito to override hibernate version -->
       </dependency>
 
       <dependency>
@@ -1163,9 +1137,9 @@
         <version>${version.org.hibernate.validator}</version>
       </dependency>
       <dependency>
-          <groupId>org.jsoup</groupId>
-          <artifactId>jsoup</artifactId>
-          <version>${version.org.jsoup.jsoup}</version>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>${version.org.jsoup.jsoup}</version>
       </dependency>
 
       <!--
@@ -1176,70 +1150,151 @@
 
       <!-- 1.76.0.redhat-00001 via keycloak-core and indy-promote-client -->
       <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk18on</artifactId>
-          <version>1.85</version>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>1.85</version>
       </dependency>
       <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk18on</artifactId>
-          <version>1.85</version>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk18on</artifactId>
+        <version>1.85</version>
       </dependency>
       <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcutil-jdk18on</artifactId>
-          <version>1.85</version>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcutil-jdk18on</artifactId>
+        <version>1.85</version>
       </dependency>
 
       <!-- kafka-clients-3.0.0.redhat-00008 via apicurio-registry-utils-kafka -->
       <dependency>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka-clients</artifactId>
-          <version>3.9.2</version>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>3.9.2</version>
       </dependency>
 
       <!-- 3.13.0 via apicurio-registry-common and apicurio-registry-utils-kafka -->
       <dependency>
-          <groupId>com.google.protobuf</groupId>
-          <artifactId>protobuf-java</artifactId>
-          <version>3.25.5</version>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>3.25.5</version>
       </dependency>
 
       <!-- 4.1.84.Final via vertx-core -->
       <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-bom</artifactId>
-          <version>4.1.137.Final</version>
-          <type>pom</type>
-          <scope>import</scope>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>4.1.137.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <!-- 4.1.77.Final-redhat-00001 via jboss-eap-jakartaee8 parent pom -->
       <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-handler</artifactId>
-          <version>4.1.137.Final</version>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+        <version>4.1.137.Final</version>
       </dependency>
 
       <!-- 5.1.3 via wiremock-jre8 -->
       <dependency>
-          <groupId>org.apache.httpcomponents.client5</groupId>
-          <artifactId>httpclient5</artifactId>
-          <version>5.6.4</version>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>5.6.4</version>
       </dependency>
 
       <dependency>
-          <groupId>com.networknt</groupId>
-          <artifactId>json-schema-validator</artifactId>
-          <version>${version.json-schema-validator}</version>
+        <groupId>com.networknt</groupId>
+        <artifactId>json-schema-validator</artifactId>
+        <version>${version.json-schema-validator}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central-portal-snapshots</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </repository>
+
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>mrrc-ga</id>
+      <name>Redhat GA</name>
+      <url>https://maven.repository.redhat.com/ga/</url>
+      <layout>default</layout>
+    </repository>
+
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </pluginRepository>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>mrrc-ga-plugins</id>
+      <name>Redhat GA</name>
+      <url>https://maven.repository.redhat.com/ga/</url>
+      <layout>default</layout>
+    </pluginRepository>
+  </pluginRepositories>
+
   <build>
     <testResources>
       <testResource>
-        <directory>src/test/resources</directory>
         <filtering>true</filtering>
+        <directory>src/test/resources</directory>
       </testResource>
     </testResources>
     <pluginManagement>
@@ -1249,13 +1304,6 @@
           <groupId>org.jboss.eap.plugins</groupId>
           <artifactId>eap-maven-plugin</artifactId>
           <version>${version.eap-maven-plugin}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>package</goal>
-              </goals>
-            </execution>
-          </executions>
           <configuration>
             <feature-packs>
               <!-- BASE LAYER -->
@@ -1301,6 +1349,13 @@
               </packaging-script>
             </packaging-scripts>
           </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>package</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
 
         <plugin>
@@ -1328,7 +1383,7 @@
               </goals>
               <configuration>
                 <rules>
-                  <requirePluginVersions />
+                  <requirePluginVersions/>
                 </rules>
               </configuration>
             </execution>
@@ -1345,7 +1400,7 @@
                     <checkProfiles>true</checkProfiles>
                     <failOnViolation>true</failOnViolation>
                     <regexIgnored>
-                        <regexIgnored>[{vertx\-core}]</regexIgnored>
+                      <regexIgnored>[{vertx\-core}]</regexIgnored>
                     </regexIgnored>
                   </requireManagedDeps>
                 </rules>
@@ -1371,11 +1426,11 @@
           <version>${version.buildnumber.plugin}</version>
           <executions>
             <execution>
-              <phase>validate</phase>
               <id>buildnumber</id>
               <goals>
                 <goal>create</goal>
               </goals>
+              <phase>validate</phase>
               <configuration>
                 <shortRevisionLength>8</shortRevisionLength>
                 <timestampFormat>{0,date,dd MMMM yyyy}</timestampFormat>
@@ -1407,7 +1462,7 @@
             </execution>
           </executions>
         </plugin>
-<!--todo look into using help plugin -->
+        <!--todo look into using help plugin -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>properties-maven-plugin</artifactId>
@@ -1467,7 +1522,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -1482,10 +1537,10 @@
           <executions>
             <execution>
               <id>sign-artifacts</id>
-              <phase>verify</phase>
               <goals>
                 <goal>sign</goal>
               </goals>
+              <phase>verify</phase>
             </execution>
           </executions>
         </plugin>
@@ -1508,12 +1563,8 @@
             <archive>
               <index>true</index>
               <manifest>
-                <addDefaultSpecificationEntries>
-                  true
-                </addDefaultSpecificationEntries>
-                <addDefaultImplementationEntries>
-                  true
-                </addDefaultImplementationEntries>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               </manifest>
               <manifestEntries>
                 <Implementation-URL>${project.url}</Implementation-URL>
@@ -1531,9 +1582,9 @@
           </configuration>
         </plugin>
         <plugin>
-            <groupId>io.github.git-commit-id</groupId>
-            <artifactId>git-commit-id-maven-plugin</artifactId>
-            <version>${version.git-commit-id-plugin}</version>
+          <groupId>io.github.git-commit-id</groupId>
+          <artifactId>git-commit-id-maven-plugin</artifactId>
+          <version>${version.git-commit-id-plugin}</version>
         </plugin>
         <plugin>
           <groupId>com.google.code.maven-replacer-plugin</groupId>
@@ -1621,28 +1672,28 @@
           </execution>
         </executions>
       </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>3.3.1</version>
-          <configuration>
-            <tagNameFormat>@{project.version}${tagSuffix}</tagNameFormat>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <useReleaseProfile>false</useReleaseProfile>
-            <releaseProfiles>skip-integration-tests,release,production,auth</releaseProfiles>
-            <goals>deploy</goals>
-          </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.11.0</version>
-            <extensions>true</extensions>
-            <configuration>
-                <!-- as defined in your settings.xml -->
-                <publishingServerId>central-publisher</publishingServerId>
-            </configuration>
-        </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+          <tagNameFormat>@{project.version}${tagSuffix}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>skip-integration-tests,release,production,auth</releaseProfiles>
+          <goals>deploy</goals>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.11.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <!-- as defined in your settings.xml -->
+          <publishingServerId>central-publisher</publishingServerId>
+        </configuration>
+      </plugin>
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -1678,6 +1729,15 @@
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+            <!--TODO rename tests to follow the convention. (*IT.java, IT*.java) -->
+          </includes>
+          <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+          <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -1686,24 +1746,16 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <includes>
-            <include>**/*.java</include> <!--TODO rename tests to follow the convention. (*IT.java, IT*.java) -->
-          </includes>
-          <groups>org.jboss.pnc.test.category.ContainerTest</groups>
-          <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
@@ -1749,60 +1801,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
-
-    <repository>
-      <name>Central Portal Snapshots</name>
-      <id>central-portal-snapshots</id>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-
-    <repository>
-      <id>mrrc-ga</id>
-      <name>Redhat GA</name>
-      <layout>default</layout>
-      <url>https://maven.repository.redhat.com/ga/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>mrrc-ga-plugins</id>
-      <name>Redhat GA</name>
-      <layout>default</layout>
-      <url>https://maven.repository.redhat.com/ga/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 
   <profiles>
     <profile>
@@ -1867,10 +1865,10 @@
             <artifactId>license-maven-plugin</artifactId>
             <executions>
               <execution>
-                <phase>process-sources</phase>
                 <goals>
                   <goal>format</goal>
                 </goals>
+                <phase>process-sources</phase>
               </execution>
             </executions>
           </plugin>
@@ -1937,6 +1935,9 @@
             <groupId>org.owasp</groupId>
             <artifactId>dependency-check-maven</artifactId>
             <version>12.2.0</version>
+            <configuration>
+              <name>cve-list</name>
+            </configuration>
             <executions>
               <execution>
                 <goals>
@@ -1944,9 +1945,6 @@
                 </goals>
               </execution>
             </executions>
-            <configuration>
-              <name>cve-list</name>
-            </configuration>
           </plugin>
         </plugins>
       </build>

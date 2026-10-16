@@ -50,7 +50,8 @@ import org.jboss.pnc.constants.Patterns;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        uniqueConstraints = { @UniqueConstraint(name = "uk_product_abbreviation", columnNames = "abbreviation"),
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_product_abbreviation", columnNames = "abbreviation"),
                 @UniqueConstraint(name = "uk_product_name", columnNames = "name") })
 public class Product implements GenericEntity<Integer> {
 

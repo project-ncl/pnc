@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildOptions;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * A task to be sent to the Rex

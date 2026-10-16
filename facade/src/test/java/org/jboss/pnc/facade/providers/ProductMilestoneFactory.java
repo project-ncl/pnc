@@ -17,19 +17,19 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductVersion;
+import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
+import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductVersion;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

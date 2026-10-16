@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 

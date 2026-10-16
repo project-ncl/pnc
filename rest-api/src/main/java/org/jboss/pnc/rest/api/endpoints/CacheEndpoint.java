@@ -24,6 +24,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import java.util.Map;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -35,15 +37,13 @@ import javax.ws.rs.core.Response;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-
-import java.util.Map;
 
 @Tag(name = "Cache statistics")
 @Path("/cache")
@@ -169,7 +169,8 @@ public interface CacheEndpoint {
     @Operation(
             summary = CLEAR_CACHE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,

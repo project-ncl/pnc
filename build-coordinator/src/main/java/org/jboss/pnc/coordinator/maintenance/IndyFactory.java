@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.Produces;
+
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.IndyClientHttp;
@@ -32,11 +37,6 @@ import org.jboss.pnc.common.Strings;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.log.MDCUtils;
-
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.Produces;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -87,7 +87,8 @@ public class IndyFactory {
                     .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                     .build();
 
-            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
+            IndyClientModule[] modules = new IndyClientModule[] {
+                    new IndyFoloAdminClientModule(),
                     new IndyPromoteClientModule() };
             this.indy = new Indy(
                     siteConfig,

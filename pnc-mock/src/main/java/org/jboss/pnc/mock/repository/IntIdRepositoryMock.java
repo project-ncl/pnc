@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.GenericEntity;
-
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.pnc.model.GenericEntity;
 
 public abstract class IntIdRepositoryMock<EntityType extends GenericEntity<Integer>>
         extends RepositoryMock<Integer, EntityType> {

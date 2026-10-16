@@ -19,6 +19,7 @@
 package org.jboss.pnc.facade.validation;
 
 import java.util.Optional;
+
 import javax.ejb.ApplicationException;
 
 /**

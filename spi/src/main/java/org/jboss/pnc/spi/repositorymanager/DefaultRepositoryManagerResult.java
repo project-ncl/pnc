@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import java.util.List;
+
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.model.Artifact;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor

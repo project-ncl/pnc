@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.spi.exception.ScheduleConflictException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.spi.exception.ScheduleConflictException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class ScheduleConflictExceptionMapper implements ExceptionMapper<ScheduleConflictException> {

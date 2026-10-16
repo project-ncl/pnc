@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.mapper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.model.BuildRecord;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.MappingTarget;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Workaround for NCL-4889.

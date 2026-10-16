@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.client;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

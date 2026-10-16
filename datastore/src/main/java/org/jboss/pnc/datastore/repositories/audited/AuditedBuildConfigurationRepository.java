@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.datastore.repositories.audited;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.hibernate.envers.AuditReader;
 import org.jboss.pnc.datastore.audit.AbstractAuditRepository;
 import org.jboss.pnc.model.BuildConfiguration;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class AuditedBuildConfigurationRepository extends AbstractAuditRepository<BuildConfiguration, Integer> {

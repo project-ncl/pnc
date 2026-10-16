@@ -24,11 +24,11 @@ import javax.validation.constraints.NotNull;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
+import org.jboss.pnc.api.enums.RebuildMode;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.api.enums.RebuildMode;
 
 // TODO: at some point sync this DTO with the one on the dingrogu url
 @Jacksonized

@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import java.util.Date;
+import java.util.Set;
+
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildPushOperation;
 import org.jboss.pnc.model.BuildPushOperation_;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-import java.util.Date;
-import java.util.Set;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildPushOperation} and {@link org.jboss.pnc.model.BuildPushReport}

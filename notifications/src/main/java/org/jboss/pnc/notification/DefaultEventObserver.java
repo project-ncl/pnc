@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.notification;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
@@ -37,11 +42,6 @@ import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
 
 /**
  * Observe build events

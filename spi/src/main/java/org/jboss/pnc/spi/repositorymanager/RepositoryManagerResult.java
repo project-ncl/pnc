@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.model.Artifact;
-
 import java.io.Serializable;
 import java.util.List;
+
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.model.Artifact;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.

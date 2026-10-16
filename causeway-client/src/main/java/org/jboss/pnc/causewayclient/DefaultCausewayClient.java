@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.causewayclient;
 
+import java.io.IOException;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
@@ -30,10 +35,6 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

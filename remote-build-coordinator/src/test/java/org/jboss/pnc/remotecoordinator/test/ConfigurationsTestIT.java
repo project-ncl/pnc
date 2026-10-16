@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.remotecoordinator.test;
 
+import javax.inject.Inject;
+import javax.persistence.PersistenceException;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
@@ -24,9 +27,6 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.

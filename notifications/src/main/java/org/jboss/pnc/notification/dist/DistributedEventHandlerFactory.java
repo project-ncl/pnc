@@ -18,7 +18,6 @@
 package org.jboss.pnc.notification.dist;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.spi.notifications.Notifier;
 
 /**
  * Create DistributedEventHandler e.g. Infinispan events, Kafka messages, ...

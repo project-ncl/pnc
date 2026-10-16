@@ -23,17 +23,17 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>build-coordinator</artifactId>
-  <name>build-coordinator</name>
   <packaging>jar</packaging>
+  <name>build-coordinator</name>
 
   <description>Contains implementations of action-controllers, which include the business logic for orchestrating build requests and collect the results. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios.</description>
-  
+
   <dependencies>
     <!-- Intermodule dependencies -->
     <dependency>
@@ -82,7 +82,6 @@
       <artifactId>bifrost-upload-client</artifactId>
     </dependency>
 
-
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -123,7 +122,6 @@
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-instrumentation-annotations</artifactId>
     </dependency>
-
 
     <!-- Test dependencies -->
     <dependency>

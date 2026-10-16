@@ -17,39 +17,10 @@
  */
 package org.jboss.pnc.coordinator.builder.datastore;
 
-import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
-import org.jboss.pnc.bifrost.upload.BifrostUploadException;
-import org.jboss.pnc.bifrost.upload.LogMetadata;
-import org.jboss.pnc.bifrost.upload.TagOption;
-import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.coordinator.BuildCoordinationException;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
-import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repour.RepourResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
+import static org.jboss.pnc.enums.BuildStatus.FAILED;
+import static org.jboss.pnc.enums.BuildStatus.NEW;
+import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -64,10 +35,39 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
-import static org.jboss.pnc.enums.BuildStatus.FAILED;
-import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
-import static org.jboss.pnc.enums.BuildStatus.NEW;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
+import org.jboss.pnc.bifrost.upload.BifrostUploadException;
+import org.jboss.pnc.bifrost.upload.LogMetadata;
+import org.jboss.pnc.bifrost.upload.TagOption;
+import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.coordinator.BuildCoordinationException;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repour.RepourResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.

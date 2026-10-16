@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.LabelEntryRepository;
+import java.io.Serializable;
 
 import javax.transaction.Transactional;
-import java.io.Serializable;
+
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.LabelEntryRepository;
 
 /**
  * Concrete implementations of this class MUST BE annotated @RequestScoped.

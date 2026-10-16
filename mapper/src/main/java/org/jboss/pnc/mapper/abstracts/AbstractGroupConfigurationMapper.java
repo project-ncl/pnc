@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.abstracts;
 
 import javax.inject.Inject;
+
 import org.jboss.pnc.mapper.CollectionMerger;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;

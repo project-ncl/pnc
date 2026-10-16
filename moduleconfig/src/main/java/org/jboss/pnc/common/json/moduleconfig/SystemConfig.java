@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Properties;
+
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SystemConfig extends AbstractModuleConfig {
 
@@ -73,19 +74,19 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private final String kafkaBootstrapServers; // list of Kafka bootstrap servers; ; required if distributedEventType
                                                 // is
-    // "kafka"
+                                                // "kafka"
     private final String kafkaTopic; // the Kafka topic used to distribute events in JSON form; required
     private final int kafkaNumOfConsumers; // number of Kafka consumers consuming 'kafkaTopic', default is 1
     private final int kafkaNumOfRetries; // number of retries the client will attempt to resend requests, default is 0
     private final int kafkaRetryBackoffMillis; // amount of time to wait before attempting to retry a failed request,
                                                // default
-    // is 0
+                                               // is 0
     private final String kafkaAcks; // The number of acknowledgments the producer requires the leader to have received
                                     // before
-    // considering a request complete; one of "all", "-1", "0", "1"
+                                    // considering a request complete; one of "all", "-1", "0", "1"
     private final String kafkaSecurityProtocol; // org.apache.kafka.common.security.auth.SecurityProtocol; one of
                                                 // PLAINTEXT |
-    // SASL_PLAINTEXT | SASL_SSL | SSL; optional
+                                                // SASL_PLAINTEXT | SASL_SSL | SSL; optional
     private final String kafkaSecuritySaslMechanism; // SASL mechanism configuration; optional
     private final String kafkaSecuritySaslJaasConf; // JAAS login context parameters for SASL connections; either
     // kafkaSecuritySaslJaasConf or (kafkaSecurityUser and

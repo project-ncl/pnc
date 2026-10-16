@@ -17,6 +17,17 @@
  */
 package org.jboss.pnc.facade;
 
+import static org.jboss.pnc.enums.ArtifactQuality.NEW;
+import static org.jboss.pnc.enums.BuildStatus.FAILED;
+import static org.jboss.pnc.enums.BuildStatus.NO_REBUILD_REQUIRED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -45,17 +56,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.stubbing.Answer;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.jboss.pnc.enums.ArtifactQuality.NEW;
-import static org.jboss.pnc.enums.BuildStatus.FAILED;
-import static org.jboss.pnc.enums.BuildStatus.NO_REBUILD_REQUIRED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(Parameterized.class)
 public class BuildPusherRejectionsTest {
@@ -91,7 +91,8 @@ public class BuildPusherRejectionsTest {
     @Parameterized.Parameters
     public static List<Object[]> testQualities() {
         return Arrays.asList(
-                new Object[][] { { FAILED, NEW, OperationNotAllowedException.class },
+                new Object[][] {
+                        { FAILED, NEW, OperationNotAllowedException.class },
                         { NO_REBUILD_REQUIRED, NEW, OperationNotAllowedException.class } });
     }
 

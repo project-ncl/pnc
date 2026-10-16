@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.rest.api.parameters;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import lombok.Data;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import org.jboss.pnc.rest.validation.GroupBuildParametersConstraint;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Data;
 
 /**
  * This class represents a set of options of how a group build should be executed.

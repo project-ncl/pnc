@@ -17,15 +17,17 @@
  */
 package org.jboss.pnc.dto.tasks;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.ResultStatus;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder(builderClassName = "Builder")

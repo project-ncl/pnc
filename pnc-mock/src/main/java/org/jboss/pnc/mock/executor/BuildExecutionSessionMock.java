@@ -18,11 +18,20 @@
 
 package org.jboss.pnc.mock.executor;
 
+import static org.jboss.pnc.enums.BuildExecutionStatus.DONE_WITH_ERRORS;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.DebugData;
-import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -33,15 +42,6 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import static org.jboss.pnc.enums.BuildExecutionStatus.DONE_WITH_ERRORS;
 
 /**
  * This is a Copy of org.jboss.pnc.executor.DefaultBuildExecutionSession due to a module dependency issue.

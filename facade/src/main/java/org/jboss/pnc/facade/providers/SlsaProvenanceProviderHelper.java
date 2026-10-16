@@ -17,6 +17,16 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_ARTIFACT_ID;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_BUILD_ID;
+import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_URI;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
+
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.Duration;
@@ -59,17 +69,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import lombok.NoArgsConstructor;
-
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_ARTIFACT_ID;
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_BUILD_ID;
-import static org.jboss.pnc.api.constants.slsa.ProvenanceKeys.PROVENANCE_V1_ARTIFACT_URI;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
-
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @PermitAll
 @Stateless

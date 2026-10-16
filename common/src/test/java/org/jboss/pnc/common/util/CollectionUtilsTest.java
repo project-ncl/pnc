@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.common.util;
 
-import org.junit.Test;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
+import org.junit.Test;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 10/7/16 Time: 10:50 AM

@@ -17,11 +17,6 @@
  */
 package org.jboss.pnc.common.test.util;
 
-import org.jboss.pnc.common.util.RandomUtils;
-import org.jboss.pnc.common.util.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import org.jboss.pnc.common.util.RandomUtils;
+import org.jboss.pnc.common.util.StringUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.

@@ -17,18 +17,18 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.ProductMilestone_;
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductRelease_;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductRelease_;
 
 /**
  *

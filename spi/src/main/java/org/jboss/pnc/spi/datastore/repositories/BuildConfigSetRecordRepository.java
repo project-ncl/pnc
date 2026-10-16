@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import java.util.Date;
+import java.util.List;
+
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.

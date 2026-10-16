@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.dto.OperationRef;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;

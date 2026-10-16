@@ -18,7 +18,6 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.BuildRef;
-import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildPushOperation;

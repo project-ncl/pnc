@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.auth.keycloakutil.operations;
 
-import java.util.List;
-
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.composeResourceUrl;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doDeleteJSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doPostJSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getIdForType;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

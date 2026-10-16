@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.coordinator.test;
 
+import java.util.function.Supplier;
+
 import org.jboss.pnc.api.enums.orch.BpmEventType;
-import org.jboss.pnc.dto.internal.BuildResultRest;
-import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
@@ -33,10 +33,12 @@ import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.mock.BifrostLogUploaderMock;
 import org.jboss.pnc.coordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.coordinator.test.mock.KeycloakServiceClientMock;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.BuildTaskMappersImpl;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.UserFetcher;
+import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -55,8 +57,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

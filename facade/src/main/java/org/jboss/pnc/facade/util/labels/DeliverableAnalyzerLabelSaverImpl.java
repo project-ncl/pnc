@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.facade.util.labels;
 
+import java.time.Instant;
+import java.util.Date;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.util.UserService;
@@ -24,12 +31,6 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.time.Instant;
-import java.util.Date;
 
 /**
  * Concrete implementation of {@link AbstractLabelSaver} for {@link DeliverableAnalyzerReport}.

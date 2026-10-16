@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.EnumMap;
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import java.util.EnumMap;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Configuration controlling which kinds of builds (persistent and/or temporary) are allowed to be triggered, decided

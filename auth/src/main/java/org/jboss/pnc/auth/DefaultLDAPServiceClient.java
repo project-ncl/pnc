@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.auth;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.LDAPClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * Implementaiton of LDAP Service Client

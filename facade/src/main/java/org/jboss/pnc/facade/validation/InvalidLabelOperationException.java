@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.facade.validation;
 
-import lombok.Getter;
+import java.util.EnumSet;
+
 import org.jboss.pnc.api.enums.LabelOperation;
 
-import java.util.EnumSet;
+import lombok.Getter;
 
 /**
  * This exception is being thrown in case the operation would lead the deliverable analyzer report to inconsistent state

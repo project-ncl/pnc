@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+
+import java.time.Instant;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
@@ -29,12 +31,11 @@ import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import java.time.Instant;
-
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a

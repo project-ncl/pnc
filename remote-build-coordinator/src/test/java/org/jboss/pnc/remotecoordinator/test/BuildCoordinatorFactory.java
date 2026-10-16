@@ -18,6 +18,9 @@
 
 package org.jboss.pnc.remotecoordinator.test;
 
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
@@ -28,9 +31,6 @@ import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import javax.persistence.metamodel.SetAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.model.Operation_;
-
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *

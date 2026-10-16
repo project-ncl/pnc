@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.api.enums.RebuildMode;
-import org.jboss.pnc.enums.BuildStatus;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
@@ -42,11 +42,12 @@ import javax.persistence.PersistenceException;
 import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.api.enums.RebuildMode;
+import org.jboss.pnc.enums.BuildStatus;
 
 /**
  * This class contains a summary of the build results of the execution of a build config set. This includes the start
@@ -57,7 +58,8 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        indexes = { @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
+        indexes = {
+                @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
                 @Index(name = "idx_buildconfigsetrecord_productversion", columnList = "productversion_id"),
                 @Index(name = "idx_buildconfigsetrecord_user", columnList = "user_id") })
 public class BuildConfigSetRecord implements GenericEntity<Base32LongID> {

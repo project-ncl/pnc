@@ -17,18 +17,18 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.ProductRelease;
-import org.jboss.pnc.dto.ProductReleaseRef;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.mapper.api.ProductReleaseMapper;
-import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
-import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
+import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.withProductVersionId;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.withProductVersionId;
+import org.jboss.pnc.dto.ProductRelease;
+import org.jboss.pnc.dto.ProductReleaseRef;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
+import org.jboss.pnc.mapper.api.ProductReleaseMapper;
+import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 
 @PermitAll
 @Stateless

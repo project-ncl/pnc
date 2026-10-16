@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.Tuple;
+
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.DeliverableArtifactPK;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-
-import javax.persistence.Tuple;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Interface for manipulating with {@link DeliverableArtifact} entity

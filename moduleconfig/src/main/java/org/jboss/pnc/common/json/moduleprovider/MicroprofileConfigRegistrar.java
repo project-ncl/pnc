@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.common.json.moduleprovider;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.microprofile.config.spi.ConfigSource;
 import org.eclipse.microprofile.config.spi.ConfigSourceProvider;
 import org.jboss.pnc.common.Configuration;
@@ -26,8 +28,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicroprofileConfig;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class registers Microprofile ConfigSources programmatically instead of having to specify each as META-INF

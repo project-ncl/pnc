@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.spi.coordinator.events;
 
+import java.util.Date;
+
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-
-import java.util.Date;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
