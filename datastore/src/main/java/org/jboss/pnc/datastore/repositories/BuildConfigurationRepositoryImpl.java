@@ -17,19 +17,18 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer>

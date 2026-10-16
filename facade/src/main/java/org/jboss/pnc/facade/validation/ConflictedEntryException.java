@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.facade.validation;
 
+import java.util.Optional;
+
 import org.jboss.pnc.facade.validation.model.ConflictedEntryDetailsRest;
 import org.jboss.pnc.model.GenericEntity;
-
-import java.util.Optional;
 
 /**
  * Exception thrown when there is a conflict with an existing entity.

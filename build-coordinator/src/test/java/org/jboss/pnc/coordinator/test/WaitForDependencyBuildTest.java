@@ -17,6 +17,16 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -32,16 +42,6 @@ import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

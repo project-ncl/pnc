@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.api.enums.LabelOperation;
-import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
+import java.util.EnumSet;
 
 import javax.transaction.Transactional;
-import java.util.EnumSet;
+
+import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
 /**
  * Concrete implementations of this class has to be annotated {@value @RequestScoped}.

@@ -17,16 +17,18 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import static org.jboss.pnc.enums.JobNotificationType.OPERATION;
+
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.JobNotificationType.OPERATION;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 /**
  * Notification about Operation type job progress.

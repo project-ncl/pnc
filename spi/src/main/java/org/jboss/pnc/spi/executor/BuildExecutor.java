@@ -18,10 +18,10 @@
 
 package org.jboss.pnc.spi.executor;
 
+import java.util.function.Consumer;
+
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-
-import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

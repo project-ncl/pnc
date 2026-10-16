@@ -17,51 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfiguration;
-import org.jboss.pnc.dto.BuildConfigurationRef;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
-import org.jboss.pnc.dto.GroupConfiguration;
-import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
-import org.jboss.pnc.dto.response.AlignmentParameters;
-import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
-import org.jboss.pnc.rest.api.parameters.BuildParameters;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigWithLatestPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.Set;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.BUILD_CONFIG_CREATED;
@@ -82,6 +37,53 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
+import java.util.Set;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.BuildConfigurationRef;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
+import org.jboss.pnc.dto.GroupConfiguration;
+import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.AlignmentParameters;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
+import org.jboss.pnc.rest.api.parameters.BuildParameters;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigWithLatestPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Build Configs")
 @Path("/build-configs")
@@ -212,7 +214,8 @@ public interface BuildConfigurationEndpoint {
      */
     @Operation(
             summary = UPDATE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -454,7 +457,8 @@ public interface BuildConfigurationEndpoint {
      */
     @Operation(
             summary = ADD_DEPENDENCY_DESC,
-            responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -480,7 +484,8 @@ public interface BuildConfigurationEndpoint {
      */
     @Operation(
             summary = REMOVE_DEPENDECY_DESC,
-            responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -700,12 +705,14 @@ public interface BuildConfigurationEndpoint {
     @Operation(
             summary = GET_SUPPORTED_PARAMS_DESC,
             description = GET_SUPPORTED_PARAMS_DESC2,
-            responses = { @ApiResponse(
-                    responseCode = SUCCESS_CODE,
-                    description = SUCCESS_DESCRIPTION,
-                    content = @Content(
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = org.jboss.pnc.dto.response.Parameter.class)))) })
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(
+                                                    implementation = org.jboss.pnc.dto.response.Parameter.class)))) })
     @GET
     @Path("/supported-parameters")
     Set<org.jboss.pnc.dto.response.Parameter> getSupportedParameters();
@@ -723,10 +730,11 @@ public interface BuildConfigurationEndpoint {
     @Operation(
             summary = GET_DEFAULT_ALIGNMENT_PARAMS_DESC,
             description = GET_DEFAULT_ALIGNMENT_PARAMS_DESC2,
-            responses = { @ApiResponse(
-                    responseCode = SUCCESS_CODE,
-                    description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = AlignmentParameters.class))) })
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = AlignmentParameters.class))) })
     @GET
     @Path("/default-alignment-parameters/{buildType}")
     AlignmentParameters getBuildTypeDefaultAlignmentParameters(

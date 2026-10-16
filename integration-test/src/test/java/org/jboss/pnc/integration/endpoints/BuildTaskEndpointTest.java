@@ -17,6 +17,15 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -29,16 +38,16 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.pnc.dto.internal.BuildDriverResultRest;
-import org.jboss.pnc.dto.internal.BuildResultRest;
-import org.jboss.pnc.mapper.BuildDriverResultMapperImpl;
-import org.jboss.pnc.mapper.api.BuildDriverResultMapper;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.http.HttpUtils;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.internal.BuildDriverResultRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
+import org.jboss.pnc.mapper.BuildDriverResultMapperImpl;
+import org.jboss.pnc.mapper.api.BuildDriverResultMapper;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.model.requests.MinimizedTask;
@@ -52,14 +61,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

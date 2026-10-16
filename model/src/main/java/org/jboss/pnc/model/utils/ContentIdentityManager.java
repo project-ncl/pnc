@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model.utils;
 
-import org.jboss.pnc.common.pnc.LongBase32IdConverter;
-
 /**
  * Component that contains the rules for generating various content ID's which are used to uniquely associate content
  * stored in external services with builds, build-sets, products, etc.

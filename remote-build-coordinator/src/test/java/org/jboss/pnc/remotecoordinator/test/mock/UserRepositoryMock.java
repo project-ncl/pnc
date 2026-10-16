@@ -17,20 +17,21 @@
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
+import javax.persistence.LockModeType;
+
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.persistence.LockModeType;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 @Alternative
 @ApplicationScoped

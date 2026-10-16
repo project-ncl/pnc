@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.auth.keycloakutil.httpcomponents;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-
 import java.net.URI;
+
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

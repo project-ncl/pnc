@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.messaging;
 
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
+
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

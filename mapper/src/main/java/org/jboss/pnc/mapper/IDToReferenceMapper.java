@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.mapper;
 
+import java.io.Serializable;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.IdMapper;
@@ -28,12 +35,6 @@ import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.Datastore;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
-import java.io.Serializable;
 
 /**
  * Maps <ID> fields into Database references without actual data (data are fetched if other fields than id is accessed)

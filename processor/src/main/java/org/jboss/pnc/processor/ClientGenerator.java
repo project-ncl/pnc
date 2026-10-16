@@ -17,10 +17,17 @@
  */
 package org.jboss.pnc.processor;
 
-import com.squareup.javapoet.*;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.processor.annotation.Client;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -44,17 +51,12 @@ import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.processor.annotation.Client;
+
+import com.squareup.javapoet.*;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

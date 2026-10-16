@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import static org.mapstruct.MappingConstants.ComponentModel.CDI;
+
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
-
-import static org.mapstruct.MappingConstants.ComponentModel.CDI;
 
 /**
  *

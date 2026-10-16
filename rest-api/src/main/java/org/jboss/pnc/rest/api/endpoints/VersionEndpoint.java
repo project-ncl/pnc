@@ -17,24 +17,25 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.api.dto.ComponentVersion;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.processor.annotation.Client;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import org.jboss.pnc.api.dto.ComponentVersion;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.processor.annotation.Client;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Version")
 @Path("/version")

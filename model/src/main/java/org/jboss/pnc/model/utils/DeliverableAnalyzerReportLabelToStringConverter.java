@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.model.utils;
 
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import java.util.EnumSet;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.util.EnumSet;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
 /**
  * The converter between {@link DeliverableAnalyzerReportLabel} and {@link String}.

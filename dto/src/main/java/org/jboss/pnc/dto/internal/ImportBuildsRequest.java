@@ -17,16 +17,19 @@
  */
 package org.jboss.pnc.dto.internal;
 
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.jboss.pnc.dto.validation.groups.WhenImporting;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.dto.validation.groups.WhenImporting;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Getter
 @Jacksonized

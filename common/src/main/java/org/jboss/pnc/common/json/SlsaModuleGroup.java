@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.common.json;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName(value = "slsa")
 public class SlsaModuleGroup extends AbstractModuleGroup {

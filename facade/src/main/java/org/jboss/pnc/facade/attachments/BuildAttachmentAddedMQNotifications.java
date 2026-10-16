@@ -17,17 +17,19 @@
  */
 package org.jboss.pnc.facade.attachments;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.messaging.spi.BuildAttachmentAdded;
-import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.remotecoordinator.notifications.buildTask.MessageSenderProvider;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
+import org.jboss.pnc.messaging.spi.BuildAttachmentAdded;
+import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.remotecoordinator.notifications.buildTask.MessageSenderProvider;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Dependent

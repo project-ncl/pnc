@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.model;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
@@ -27,12 +34,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 
 public class BasicModelTest extends AbstractModelTest {
 

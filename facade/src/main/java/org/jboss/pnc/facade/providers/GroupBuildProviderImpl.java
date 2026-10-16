@@ -17,11 +17,23 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.http.HttpUtils;
-import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
@@ -36,6 +48,7 @@ import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
+import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -50,19 +63,8 @@ import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @PermitAll
 @Stateless

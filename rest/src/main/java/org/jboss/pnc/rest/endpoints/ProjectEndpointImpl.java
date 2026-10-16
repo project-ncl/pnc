@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
@@ -29,10 +33,6 @@ import org.jboss.pnc.facade.providers.api.ProjectProvider;
 import org.jboss.pnc.rest.api.endpoints.ProjectEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProjectEndpointImpl implements ProjectEndpoint {

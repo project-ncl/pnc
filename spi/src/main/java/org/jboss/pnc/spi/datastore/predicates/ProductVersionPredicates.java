@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.SetJoin;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfiguration_;
 import org.jboss.pnc.model.Product;
@@ -24,9 +27,6 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.SetJoin;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.ProductVersion} entity.

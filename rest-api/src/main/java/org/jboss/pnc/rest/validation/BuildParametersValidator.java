@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.rest.validation;
 
-import org.jboss.pnc.rest.api.parameters.BuildParameters;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.jboss.pnc.rest.api.parameters.BuildParameters;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

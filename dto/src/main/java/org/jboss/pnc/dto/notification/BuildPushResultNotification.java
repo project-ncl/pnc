@@ -17,18 +17,20 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+import static org.jboss.pnc.enums.JobNotificationType.BREW_PUSH;
+
 import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
-import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
-import static org.jboss.pnc.enums.JobNotificationType.BREW_PUSH;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 /**
  * Notification about Brew Push.

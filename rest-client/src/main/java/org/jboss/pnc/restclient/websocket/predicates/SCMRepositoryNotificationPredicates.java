@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.restclient.websocket.predicates;
 
+import java.util.function.Predicate;
+
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
-
-import java.util.function.Predicate;
 
 public class SCMRepositoryNotificationPredicates {
 

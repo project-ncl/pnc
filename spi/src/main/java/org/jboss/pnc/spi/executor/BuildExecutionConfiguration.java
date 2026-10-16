@@ -18,17 +18,12 @@
 
 package org.jboss.pnc.spi.executor;
 
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
-import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

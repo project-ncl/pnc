@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import lombok.Data;
-import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.JobNotificationProgress;
+import org.jboss.pnc.enums.JobNotificationType;
+
+import lombok.Data;
 
 /**
  * Notification about progress of asynchronous job.

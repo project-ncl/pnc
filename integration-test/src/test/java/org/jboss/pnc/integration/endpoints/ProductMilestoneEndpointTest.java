@@ -17,6 +17,25 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.log;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ForbiddenException;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -30,16 +49,16 @@ import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
-import org.jboss.pnc.dto.response.ParsedArtifact;
-import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
+import org.jboss.pnc.dto.requests.MilestoneCloseRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.response.Edge;
 import org.jboss.pnc.dto.response.Graph;
+import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
@@ -59,24 +78,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.ForbiddenException;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.demo.data.DatabaseDataInitializer.log;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>

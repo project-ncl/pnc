@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.Operation;
-
 import javax.enterprise.context.ApplicationScoped;
+
+import org.jboss.pnc.model.Operation;
 
 /**
  *

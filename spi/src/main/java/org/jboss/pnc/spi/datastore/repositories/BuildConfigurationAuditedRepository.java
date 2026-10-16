@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.Project;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildConfigurationAudited} entity.

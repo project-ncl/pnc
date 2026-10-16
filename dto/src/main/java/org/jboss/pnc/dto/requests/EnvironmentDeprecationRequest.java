@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.dto.requests;
 
+import javax.validation.constraints.NotBlank;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-
-import javax.validation.constraints.NotBlank;
 
 @Data
 @Jacksonized

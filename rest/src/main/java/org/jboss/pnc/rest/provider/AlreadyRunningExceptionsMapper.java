@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.facade.validation.AlreadyRunningException;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.facade.validation.AlreadyRunningException;
 
 @Provider
 public class AlreadyRunningExceptionsMapper implements ExceptionMapper<AlreadyRunningException> {

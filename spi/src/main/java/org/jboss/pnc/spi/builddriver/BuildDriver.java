@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
+import java.util.function.Consumer;
+
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
-
-import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.

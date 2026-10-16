@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.pnc.dto.internal.ProcessException;
 import org.jboss.pnc.mapper.api.SimpleMapper;
-
-import javax.enterprise.context.ApplicationScoped;
 
 /**
  *

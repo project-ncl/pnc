@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ResultStatus;
-
-import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ResultStatusMapper {

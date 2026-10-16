@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.common.maven;
 
+import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

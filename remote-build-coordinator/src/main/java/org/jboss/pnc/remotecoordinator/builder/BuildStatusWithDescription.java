@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import org.jboss.pnc.enums.BuildStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jboss.pnc.enums.BuildStatus;
 
 @Getter
 @AllArgsConstructor

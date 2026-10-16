@@ -18,22 +18,16 @@
 
 package org.jboss.pnc.remotecoordinator.test;
 
+import java.util.function.Supplier;
+
 import org.jboss.pnc.api.enums.orch.BpmEventType;
-import org.jboss.pnc.dto.internal.BuildResultRest;
-import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
-import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
-import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetCallBack;
-import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.remotecoordinator.notifications.buildTask.BuildCallBack;
-import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
-import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildStatusChangedReceiver;
-import org.jboss.pnc.remotecoordinator.test.mock.EntityManagerMock;
+import org.jboss.pnc.dto.internal.BuildResultRest;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
+import org.jboss.pnc.mapper.api.BuildResultMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -44,11 +38,19 @@ import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
+import org.jboss.pnc.remotecoordinator.builder.RexFacade;
+import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetCallBack;
+import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetStatusNotifications;
+import org.jboss.pnc.remotecoordinator.notifications.buildTask.BuildCallBack;
+import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
+import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.remotecoordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.remotecoordinator.test.mock.GenericSettingsRepositoryMock;
 import org.jboss.pnc.remotecoordinator.test.mock.KeycloakServiceClientMock;
-import org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock;
-import org.jboss.pnc.remotecoordinator.builder.RexFacade;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
+import org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock;
 import org.jboss.pnc.remotecoordinator.test.mock.RexQueueHttpClientMock;
 import org.jboss.pnc.remotecoordinator.test.mock.UserRepositoryMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -61,8 +63,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.Attachment_;
+import java.util.Optional;
+
 import org.jboss.pnc.model.Attachment;
+import org.jboss.pnc.model.Attachment_;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import java.util.Optional;
 
 public class AttachmentPredicates {
     public static Predicate<Attachment> withSha256(Optional<String> sha256) {

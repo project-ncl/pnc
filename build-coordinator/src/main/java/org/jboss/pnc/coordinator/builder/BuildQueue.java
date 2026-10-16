@@ -17,20 +17,6 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +29,21 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 /**
  * <h3>Build task queue.</h3>

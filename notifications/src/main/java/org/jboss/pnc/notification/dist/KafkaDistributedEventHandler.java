@@ -21,12 +21,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
-import io.apicurio.registry.utils.IoUtil;
-import io.apicurio.registry.utils.kafka.AsyncProducer;
-import io.apicurio.registry.utils.kafka.ConsumerContainer;
-import io.apicurio.registry.utils.kafka.ConsumerSkipRecordsSerializationExceptionHandler;
-import io.apicurio.registry.utils.kafka.Oneof2;
-import io.apicurio.registry.utils.kafka.ProducerActions;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -41,6 +35,13 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.apicurio.registry.utils.IoUtil;
+import io.apicurio.registry.utils.kafka.AsyncProducer;
+import io.apicurio.registry.utils.kafka.ConsumerContainer;
+import io.apicurio.registry.utils.kafka.ConsumerSkipRecordsSerializationExceptionHandler;
+import io.apicurio.registry.utils.kafka.Oneof2;
+import io.apicurio.registry.utils.kafka.ProducerActions;
 
 public class KafkaDistributedEventHandler extends AbstractDistributedEventHandler {
 

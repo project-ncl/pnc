@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-import org.jboss.pnc.enums.BuildType;
-
 import java.util.List;
+
+import org.jboss.pnc.enums.BuildType;
 
 public interface BuildExecution {
 

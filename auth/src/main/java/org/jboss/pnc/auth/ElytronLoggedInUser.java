@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.auth;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.security.auth.server.SecurityDomain;
@@ -24,10 +29,6 @@ import org.wildfly.security.auth.server.SecurityIdentity;
 import org.wildfly.security.authz.Attributes;
 import org.wildfly.security.http.oidc.AccessToken;
 import org.wildfly.security.http.oidc.OidcSecurityContext;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ElytronLoggedInUser implements LoggedInUser {
 

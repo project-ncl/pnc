@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import java.util.concurrent.TimeoutException;
+
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

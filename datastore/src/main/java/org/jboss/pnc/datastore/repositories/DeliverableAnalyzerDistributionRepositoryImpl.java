@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerDistribution;
 import org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerDistributionPredicates;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerDistributionRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class DeliverableAnalyzerDistributionRepositoryImpl

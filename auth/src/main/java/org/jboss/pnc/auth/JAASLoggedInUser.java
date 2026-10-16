@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.auth;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

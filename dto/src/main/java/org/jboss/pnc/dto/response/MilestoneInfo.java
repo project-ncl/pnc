@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.dto.response;
 
+import java.time.Instant;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.time.Instant;
+
 import lombok.Builder;
 import lombok.Data;
 

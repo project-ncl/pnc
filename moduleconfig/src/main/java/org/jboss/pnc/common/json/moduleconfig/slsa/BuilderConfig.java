@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.common.json.moduleconfig.slsa;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BuilderConfig extends AbstractModuleConfig {
 

@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -26,13 +34,6 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.

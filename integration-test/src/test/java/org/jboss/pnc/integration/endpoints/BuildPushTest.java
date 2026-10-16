@@ -17,9 +17,17 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.util.Comparator;
+import java.util.Iterator;
+
+import javax.ws.rs.ForbiddenException;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.BuildPushesClient;
@@ -29,7 +37,6 @@ import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.integration.setup.Deployments;
@@ -41,12 +48,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import javax.ws.rs.ForbiddenException;
-import java.util.Comparator;
-import java.util.Iterator;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunAsClient
 @RunWith(Arquillian.class)

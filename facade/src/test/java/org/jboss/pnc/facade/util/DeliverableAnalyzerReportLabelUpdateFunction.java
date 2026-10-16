@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.facade.util;
 
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-
 import java.util.EnumSet;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
 @FunctionalInterface
 public interface DeliverableAnalyzerReportLabelUpdateFunction {

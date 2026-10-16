@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.notification.dist;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
+import javax.inject.Inject;
+
 import org.jboss.pnc.notification.Local;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
 
 /**
  * Variant of a Notifier that distributes messages meant for WS subscribers through all instances so that all are

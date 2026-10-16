@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints.internal.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

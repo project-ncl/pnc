@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.IDToReferenceMapper;
@@ -24,10 +32,10 @@ import org.jboss.pnc.mapper.UserFetcher;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.common.enums.StopFlag;
 import org.jboss.pnc.rex.common.enums.Transition;
 import org.jboss.pnc.rex.dto.TaskDTO;
-import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.TransitionTimeDTO;
 import org.jboss.pnc.rex.model.TransitionTime;
 import org.jboss.pnc.rex.model.requests.MinimizedTask;
@@ -42,14 +50,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @Mapper(
         config = MapperCentralConfig.class,
@@ -76,9 +76,21 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependants", source = "task.dependants")
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
-                    "remoteRollback", "stoppedCause", "milestoneTask" })
+            ignoreUnmappedSourceProperties = {
+                    "remoteStart",
+                    "remoteCancel",
+                    "callerNotifications",
+                    "state",
+                    "stopFlag",
+                    "serverResponses",
+                    "id",
+                    "idRev",
+                    "configuration",
+                    "timestamps",
+                    "queue",
+                    "remoteRollback",
+                    "stoppedCause",
+                    "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(TaskDTO task, BuildMeta meta);
 
     @Mapping(target = "buildConfigSetRecordId", ignore = true)
@@ -112,9 +124,21 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependants", source = "task.dependants")
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps", "queue",
-                    "remoteRollback", "stoppedCause", "milestoneTask" })
+            ignoreUnmappedSourceProperties = {
+                    "remoteStart",
+                    "remoteCancel",
+                    "callerNotifications",
+                    "state",
+                    "stopFlag",
+                    "serverResponses",
+                    "id",
+                    "idRev",
+                    "configuration",
+                    "timestamps",
+                    "queue",
+                    "remoteRollback",
+                    "stoppedCause",
+                    "milestoneTask" })
     DefaultBuildTaskRef toBuildTaskRef(MinimizedTask task, BuildMeta meta);
 
     @BeforeMapping

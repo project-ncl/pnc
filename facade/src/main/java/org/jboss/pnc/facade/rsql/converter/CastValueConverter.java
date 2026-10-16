@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.facade.rsql.converter;
 
-import org.jboss.pnc.facade.rsql.RSQLException;
-import org.jboss.pnc.model.GenericEntity;
-
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
 import java.util.Date;
+
+import org.jboss.pnc.facade.rsql.RSQLException;
+import org.jboss.pnc.model.GenericEntity;
 
 public class CastValueConverter implements ValueConverter {
 

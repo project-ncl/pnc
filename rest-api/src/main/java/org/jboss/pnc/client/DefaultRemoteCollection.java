@@ -17,11 +17,6 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,6 +24,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

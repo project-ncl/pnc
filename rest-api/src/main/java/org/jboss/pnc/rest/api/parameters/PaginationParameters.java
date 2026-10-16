@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.rest.api.parameters;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import javax.validation.constraints.Max;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
-import lombok.Data;
+
 import org.jboss.pnc.rest.configuration.Constants;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Data;
 
 /**
  * Parameters for pagination of results.

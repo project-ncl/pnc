@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
-import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 /**
  * Notification about failure in SCM Repository or Build Config creation. This notification is used when there is

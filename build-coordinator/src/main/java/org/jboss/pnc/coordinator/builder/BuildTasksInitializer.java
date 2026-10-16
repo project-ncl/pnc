@@ -18,6 +18,15 @@
 
 package org.jboss.pnc.coordinator.builder;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -36,15 +45,6 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

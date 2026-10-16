@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.abstracts;
 
 import javax.inject.Inject;
+
 import org.jboss.pnc.mapper.CollectionMerger;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
@@ -37,8 +38,14 @@ import org.mapstruct.Mapper;
 @Mapper(
         config = MapperCentralConfig.class,
         implementationName = "BuildConfigurationMapperImpl",
-        uses = { RefToReferenceMapper.class, ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class,
-                BuildConfigurationMapper.IDMapper.class, SCMRepositoryMapper.class, MapSetMapper.class,
+        uses = {
+                RefToReferenceMapper.class,
+                ProjectMapper.class,
+                ProductVersionMapper.class,
+                EnvironmentMapper.class,
+                BuildConfigurationMapper.IDMapper.class,
+                SCMRepositoryMapper.class,
+                MapSetMapper.class,
                 UserMapper.class })
 public abstract class AbstractBuildConfigurationMapper implements BuildConfigurationMapper {
 

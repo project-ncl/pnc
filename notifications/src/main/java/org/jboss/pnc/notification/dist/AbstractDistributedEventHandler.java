@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.notification.dist;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.jboss.pnc.rest.jackson.JacksonProvider;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jboss.pnc.rest.jackson.JacksonProvider;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public abstract class AbstractDistributedEventHandler implements DistributedEventHandler {
     private static final JacksonProvider mapperProvider = new JacksonProvider();

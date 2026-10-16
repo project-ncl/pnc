@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.DeliverableArtifactPK;
 import org.jboss.pnc.model.DeliverableArtifact_;
 import org.jboss.pnc.model.GenericEntity;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 
 @ApplicationScoped
 public class DeliverableArtifactRSQLMapper extends AbstractRSQLMapper<DeliverableArtifactPK, DeliverableArtifact> {

@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.notification;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
@@ -30,11 +35,6 @@ import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class DefaultObserverTest {
 

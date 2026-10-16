@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.response.Page;
@@ -24,12 +30,6 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.TargetRepositoryProvider;
 import org.jboss.pnc.rest.api.endpoints.TargetRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
 
 @ApplicationScoped
 public class TargetRepositoryEndpointImpl implements TargetRepositoryEndpoint {

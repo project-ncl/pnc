@@ -18,11 +18,7 @@
 package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
-import org.jboss.pnc.dto.OperationRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.model.Base32LongID;
-
-import java.util.Map;
 
 public interface DeliverableAnalyzerOperationProvider
         extends OperationProvider<org.jboss.pnc.model.DeliverableAnalyzerOperation, DeliverableAnalyzerOperation> {

@@ -17,20 +17,23 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.time.Instant;
+
+import javax.validation.constraints.Null;
+
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenImporting;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
-import javax.validation.constraints.Null;
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @ToString(callSuper = true)

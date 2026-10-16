@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.datastore;
 
+import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestDependencies;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.shrinkwrap.api.Archive;
@@ -27,14 +35,6 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestDependencies;
 
 public class DeploymentFactory {
 

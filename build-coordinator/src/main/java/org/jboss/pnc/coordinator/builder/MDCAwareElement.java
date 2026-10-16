@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
-import org.slf4j.MDC;
-
 import java.util.Map;
 import java.util.Objects;
+
+import org.slf4j.MDC;
 
 class MDCAwareElement<E> {
     private final E element;

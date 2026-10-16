@@ -18,190 +18,189 @@
     limitations under the License.
 
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>parent</artifactId>
-        <groupId>org.jboss.pnc</groupId>
-        <version>3.6.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.jboss.pnc</groupId>
+    <artifactId>parent</artifactId>
+    <version>3.6.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>dto</artifactId>
-    <packaging>jar</packaging>
+  <artifactId>dto</artifactId>
+  <packaging>jar</packaging>
 
-    <name>PNC :: DTO</name>
-    <description>Module with DTO model.</description>
-    <properties>
-      <!--  Java 8 enforced because this module is a dependency in PNC-API project -->
-      <maven.compiler.source>1.8</maven.compiler.source>
-      <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
+  <name>PNC :: DTO</name>
+  <description>Module with DTO model.</description>
+  <properties>
+    <!--  Java 8 enforced because this module is a dependency in PNC-API project -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
 
-    <dependencies>
+  <dependencies>
 
-        <!-- Project dependencies -->
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>constants</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>pnc-api</artifactId>
-        </dependency>
-        <!-- REST dependencies -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.java-json-tools</groupId>
-            <artifactId>json-patch</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.code.findbugs</groupId>
-                    <artifactId>jsr305</artifactId>
-                </exclusion>
-            </exclusions>
-            <optional>true</optional>
-        </dependency>
+    <!-- Project dependencies -->
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>constants</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-api</artifactId>
+    </dependency>
+    <!-- REST dependencies -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.java-json-tools</groupId>
+      <artifactId>json-patch</artifactId>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
-        <!-- Build dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>processor</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>test-common</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-        </dependency>
-    </dependencies>
+    <!-- Build dependencies -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>processor</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+    </dependency>
+  </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.5.1</version>
-                <executions>
-                    <execution>
-                        <id>with-patch-builders</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <classifier>patch-builders</classifier>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>org/jboss/pnc/client/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!-- Name integration test classes properly (*IT.java, IT*.java)-->
-                    <!-- <includes>-->
-                    <!--   <include>**/*.java</include>-->
-                    <!-- </includes>-->
-                    <groups>org.jboss.pnc.test.category.ContainerTest</groups>
-                    <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
-                    <!-- use classes directory, the default jar does not include all the classes -->
-                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.eclipse.transformer</groupId>
-                <artifactId>transformer-maven-plugin</artifactId>
-                <version>0.5.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <rules>
-                        <jakartaDefaults>true</jakartaDefaults>
-                    </rules>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>with-patch-builders</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <artifact>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                                <classifier>patch-builders</classifier>
-                            </artifact>
-                            <classifier>patch-builders-jakarta</classifier>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-jar</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <artifact>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                            </artifact>
-                            <classifier>jakarta</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.5.1</version>
+        <executions>
+          <execution>
+            <id>with-patch-builders</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <classifier>patch-builders</classifier>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <excludes>
+                <exclude>org/jboss/pnc/client/**/*</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <!-- Name integration test classes properly (*IT.java, IT*.java)-->
+          <!-- <includes>-->
+          <!--   <include>**/*.java</include>-->
+          <!-- </includes>-->
+          <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+          <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
+          <!-- use classes directory, the default jar does not include all the classes -->
+          <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.transformer</groupId>
+        <artifactId>transformer-maven-plugin</artifactId>
+        <version>0.5.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <rules>
+            <jakartaDefaults>true</jakartaDefaults>
+          </rules>
+        </configuration>
+        <executions>
+          <execution>
+            <id>with-patch-builders</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <artifact>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>${project.version}</version>
+                <classifier>patch-builders</classifier>
+              </artifact>
+              <classifier>patch-builders-jakarta</classifier>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <artifact>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>${project.version}</version>
+              </artifact>
+              <classifier>jakarta</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

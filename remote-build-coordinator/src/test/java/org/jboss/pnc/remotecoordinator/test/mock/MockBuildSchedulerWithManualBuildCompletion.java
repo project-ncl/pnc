@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.exception.CoreException;
 
 public class MockBuildSchedulerWithManualBuildCompletion extends MockBuildScheduler {
 

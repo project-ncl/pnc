@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.SystemImageType;
-
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -26,6 +24,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
+import org.jboss.pnc.enums.SystemImageType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

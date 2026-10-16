@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.common.logging;
 
+import java.time.Instant;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.time.Instant;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

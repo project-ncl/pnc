@@ -17,12 +17,6 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +24,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:25 PM

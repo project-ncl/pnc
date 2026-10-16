@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.time.ZonedDateTime;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.pnc.api.dto.ComponentVersion;
 import org.jboss.pnc.environmentdriver.BuildInformationConstants;
 import org.jboss.pnc.rest.api.endpoints.VersionEndpoint;
-
-import javax.enterprise.context.ApplicationScoped;
-import java.time.ZonedDateTime;
 
 @ApplicationScoped
 public class VersionEndpointImpl implements VersionEndpoint {

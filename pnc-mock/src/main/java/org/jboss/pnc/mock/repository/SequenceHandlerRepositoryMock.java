@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 2:20 PM

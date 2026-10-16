@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerReport;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
@@ -26,10 +30,6 @@ import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.endpoints.DeliverableAnalyzerReportEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class DeliverableAnalyzerReportEndpointImpl implements DeliverableAnalyzerReportEndpoint {

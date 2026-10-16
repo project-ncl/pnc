@@ -17,13 +17,15 @@
  */
 package org.jboss.pnc.dto.requests;
 
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.URL;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.hibernate.validator.constraints.URL;
-
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 @Data
 @Builder(builderClassName = "Builder")

@@ -17,14 +17,17 @@
  */
 package org.jboss.pnc.dto.response;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
-import org.jboss.pnc.enums.ValidationErrorType;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+
+import org.jboss.pnc.enums.ValidationErrorType;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * Response to a validation request.

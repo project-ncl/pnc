@@ -17,6 +17,17 @@
  */
 package org.jboss.pnc.rest.validation;
 
+import static org.jboss.pnc.api.enums.AlignmentPreference.PREFER_PERSISTENT;
+import static org.jboss.pnc.api.enums.AlignmentPreference.PREFER_TEMPORARY;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -26,16 +37,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-
-import static org.jboss.pnc.api.enums.AlignmentPreference.PREFER_PERSISTENT;
-import static org.jboss.pnc.api.enums.AlignmentPreference.PREFER_TEMPORARY;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -52,8 +53,11 @@ public class BuildParametersValidatorTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(
-                new Object[][] { { true, PREFER_TEMPORARY, true }, { true, PREFER_PERSISTENT, true },
-                        { false, PREFER_TEMPORARY, false }, { false, PREFER_PERSISTENT, false } });
+                new Object[][] {
+                        { true, PREFER_TEMPORARY, true },
+                        { true, PREFER_PERSISTENT, true },
+                        { false, PREFER_TEMPORARY, false },
+                        { false, PREFER_PERSISTENT, false } });
     }
 
     public BuildParametersValidatorTest(boolean temporary, AlignmentPreference alignmentPreference, boolean isValid) {

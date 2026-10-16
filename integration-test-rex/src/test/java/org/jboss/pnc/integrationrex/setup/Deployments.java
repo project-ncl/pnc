@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.integrationrex.setup;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.jboss.pnc.integrationrex.mock.RemoteBuildsCleanerMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -26,14 +34,6 @@ import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

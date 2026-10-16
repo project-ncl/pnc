@@ -17,8 +17,27 @@
  */
 package org.jboss.pnc.integrationrex;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import lombok.extern.slf4j.Slf4j;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.jboss.pnc.integrationrex.WireMockUtils.baseBPMWebhook;
+import static org.jboss.pnc.integrationrex.WireMockUtils.defaultConfiguration;
+import static org.jboss.pnc.integrationrex.WireMockUtils.response200;
+import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.BASE_REST_PATH;
+import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.api.enums.RebuildMode;
@@ -55,26 +74,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import com.github.tomakehurst.wiremock.WireMockServer;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.jboss.pnc.integrationrex.WireMockUtils.baseBPMWebhook;
-import static org.jboss.pnc.integrationrex.WireMockUtils.defaultConfiguration;
-import static org.jboss.pnc.integrationrex.WireMockUtils.response200;
-import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.BASE_REST_PATH;
-import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
+import lombok.extern.slf4j.Slf4j;
 
 @RunAsClient
 @RunWith(Arquillian.class)

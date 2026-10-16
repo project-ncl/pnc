@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
+
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AlignmentConfig extends AbstractModuleConfig {
 

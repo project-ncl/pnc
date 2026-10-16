@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
-import org.jboss.pnc.facade.rsql.converter.ValueConverter;
-import org.jboss.pnc.model.GenericEntity;
+import java.io.Serializable;
 
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
-import java.io.Serializable;
+
+import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  * Mappers that converts RSQL path with DTO field names to Criteria API path.

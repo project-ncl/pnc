@@ -17,6 +17,14 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.enums.BuildStatus;
@@ -24,13 +32,6 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
 
 @Stateless
 public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Base32LongID>

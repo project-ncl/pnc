@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,13 +43,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 @Tag(name = "Slsa Provenance")
 @Path("/slsa/build-provenance/v1")

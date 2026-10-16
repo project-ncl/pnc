@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import static org.jboss.pnc.common.Configuration.CONFIG_SYSPROP;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -30,11 +36,6 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import java.util.List;
-
-import static org.jboss.pnc.common.Configuration.CONFIG_SYSPROP;
 
 /**
  * Created by aabulawi on 10/07/15.

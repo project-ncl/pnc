@@ -18,12 +18,17 @@
 
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
-import org.jboss.pnc.mapper.api.RepositoryManagerResultMapper;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.RepositoryManagerResultMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
@@ -38,11 +43,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * Test serialization of Repository manager rest

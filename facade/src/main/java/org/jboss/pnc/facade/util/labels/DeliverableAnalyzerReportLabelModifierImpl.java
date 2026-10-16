@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-import org.jboss.pnc.api.enums.LabelOperation;
-import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
+import java.util.EnumSet;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.EnumSet;
+
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
 /**
  * {@link AbstractLabelModifier} for {@link DeliverableAnalyzerReportLabel} entity.

@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
-import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.persistence.metamodel.SingularAttribute;
+
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 public class DefaultSortInfo<T> implements SortInfo<T> {
     private final List<OrderInfo<T>> order; // immutable list

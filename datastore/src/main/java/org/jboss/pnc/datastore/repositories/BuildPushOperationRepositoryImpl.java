@@ -17,14 +17,12 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import javax.ejb.Stateless;
+
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
-import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
-
-import javax.ejb.Stateless;
 
 @Stateless
 public class BuildPushOperationRepositoryImpl extends AbstractRepository<BuildPushOperation, Base32LongID>

@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.facade;
 
+import java.util.Set;
+
+import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.BuildPushOperation;
 import org.jboss.pnc.dto.BuildPushReport;
-import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.model.Base32LongID;
-
-import java.util.Set;
 
 /**
  *

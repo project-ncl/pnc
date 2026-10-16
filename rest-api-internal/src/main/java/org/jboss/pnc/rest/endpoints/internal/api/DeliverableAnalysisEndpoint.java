@@ -17,28 +17,22 @@
  */
 package org.jboss.pnc.rest.endpoints.internal.api;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * This endpoint is used for interacting with Deliverable Analyzer processes.
@@ -54,9 +48,10 @@ public interface DeliverableAnalysisEndpoint {
 
     @Operation(
             summary = "Notify PNC about finished Deliverable anaylysis.",
-            responses = { @ApiResponse(
-                    responseCode = SwaggerConstants.ACCEPTED_CODE,
-                    description = SwaggerConstants.ACCEPTED_DESCRIPTION) })
+            responses = {
+                    @ApiResponse(
+                            responseCode = SwaggerConstants.ACCEPTED_CODE,
+                            description = SwaggerConstants.ACCEPTED_DESCRIPTION) })
     @POST
     @Path("/complete")
     @Consumes(MediaType.APPLICATION_JSON)

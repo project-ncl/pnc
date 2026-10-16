@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.GenericEntity;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *

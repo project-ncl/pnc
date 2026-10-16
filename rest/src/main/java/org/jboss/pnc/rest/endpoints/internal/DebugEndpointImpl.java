@@ -17,6 +17,15 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.ws.rs.ServiceUnavailableException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.LongResponse;
@@ -28,14 +37,6 @@ import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.ws.rs.ServiceUnavailableException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import java.util.Optional;
 
 /**
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;

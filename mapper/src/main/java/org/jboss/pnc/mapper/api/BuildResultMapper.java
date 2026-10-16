@@ -30,9 +30,15 @@ import org.mapstruct.Mapper;
 
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { BuildExecutionConfigurationMapper.class, EnvironmentDriverResultMapper.class,
-                BuildDriverResultMapper.class, RepourResultMapper.class, RepositoryManagerResultMapper.class,
-                OptionalMapper.class, ProcessExceptionMapper.class, AttachmentMapper.class })
+        uses = {
+                BuildExecutionConfigurationMapper.class,
+                EnvironmentDriverResultMapper.class,
+                BuildDriverResultMapper.class,
+                RepourResultMapper.class,
+                RepositoryManagerResultMapper.class,
+                OptionalMapper.class,
+                ProcessExceptionMapper.class,
+                AttachmentMapper.class })
 public interface BuildResultMapper extends SimpleMapper<BuildResultRest, BuildResult> {
     @Override
     BuildResult toEntity(BuildResultRest buildResultRest);

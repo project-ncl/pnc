@@ -17,6 +17,38 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
+import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
+import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
+import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.SetJoin;
+
 import org.apache.commons.collections.ListUtils;
 import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.api.constants.OperationParameters;
@@ -28,14 +60,14 @@ import org.jboss.pnc.common.util.ArtifactCoordinatesUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.datastore.repositories.internal.SortInfoConverter;
 import org.jboss.pnc.dto.BuildPushOperation;
-import org.jboss.pnc.dto.requests.BuildPushParameters;
-import org.jboss.pnc.dto.response.ParsedArtifact;
-import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
+import org.jboss.pnc.dto.response.DeliveredArtifactInMilestones;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.ParsedArtifact;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
@@ -80,37 +112,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
-import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
-import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
-import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
 @PermitAll
 @Stateless

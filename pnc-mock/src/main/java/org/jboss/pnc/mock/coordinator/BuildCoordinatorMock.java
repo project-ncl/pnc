@@ -18,7 +18,12 @@
 
 package org.jboss.pnc.mock.coordinator;
 
-import org.jboss.pnc.common.logging.BuildTaskContext;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
@@ -37,12 +42,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 //@ApplicationScoped
 //@Alternative

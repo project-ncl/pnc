@@ -17,8 +17,9 @@
  */
 package org.jboss.pnc.common.util;
 
-import javax.ws.rs.core.MultivaluedMap;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

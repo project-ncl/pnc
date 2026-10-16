@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import java.io.Serializable;
+
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.model.GenericEntity;
-
-import java.io.Serializable;
 
 /**
  * Mappers that converts database entity to DTO entities and vice versa.

@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.common.test.security;
 
-import org.jboss.pnc.common.security.Md5;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+
+import org.jboss.pnc.common.security.Md5;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,8 +17,14 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
-import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
+
+import java.io.IOException;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -38,13 +44,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 
 /**
  * @author <a href="mailto:dbrazdil@redhat.com">Dominik Brazdil</a>

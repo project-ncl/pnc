@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.remotecoordinator.builder.datastore;
 
-import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.auth.ServiceAccountClient;
-import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import java.net.URI;
+
+import org.jboss.pnc.auth.ServiceAccountClient;
+import org.jboss.pnc.bifrost.upload.BifrostLogUploader;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 
 @ApplicationScoped
 public class BifrostLogUploaderProducer {

@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
-import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import java.util.Collections;
+import java.util.List;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
-import java.util.Collections;
-import java.util.List;
+
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 /**
  * This class represents a {@link SortInfo} that has no defined sorting. Internally it uses a default stable sorting,

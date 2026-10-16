@@ -17,6 +17,20 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
@@ -37,19 +51,6 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromDeletedAnalysis;
-import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerReportPredicates.notFromScratchAnalysis;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.Artifact} entity.

@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.facade;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.BuildTriggeringException;
 import org.jboss.pnc.spi.exception.CoreException;
-
-import java.util.Optional;
-import java.util.OptionalInt;
 
 /**
  *

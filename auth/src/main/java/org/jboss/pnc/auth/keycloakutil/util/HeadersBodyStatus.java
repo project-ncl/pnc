@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.auth.keycloakutil.util;
 
-import org.keycloak.util.JsonSerialization;
-
 import java.io.InputStream;
 import java.util.Map;
+
+import org.keycloak.util.JsonSerialization;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

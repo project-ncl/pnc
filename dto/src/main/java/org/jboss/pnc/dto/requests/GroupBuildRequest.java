@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.dto.requests;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.List;
+
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;

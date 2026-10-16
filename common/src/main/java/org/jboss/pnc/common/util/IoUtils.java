@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.common.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +24,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-06.

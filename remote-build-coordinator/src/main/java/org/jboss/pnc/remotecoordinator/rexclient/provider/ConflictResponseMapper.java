@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.remotecoordinator.rexclient.provider;
 
-import lombok.extern.slf4j.Slf4j;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.BCAConflictException;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.BuildIDConflictException;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.ConflictResponseException;
 import org.jboss.pnc.rex.dto.responses.ErrorResponse;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
-import static javax.ws.rs.core.Response.Status.CONFLICT;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConflictResponseMapper implements ResponseExceptionMapper<ConflictResponseException> {

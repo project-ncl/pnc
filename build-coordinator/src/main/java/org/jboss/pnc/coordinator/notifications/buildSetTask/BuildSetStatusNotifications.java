@@ -21,16 +21,17 @@ package org.jboss.pnc.coordinator.notifications.buildSetTask;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BuildSetStatusNotifications {

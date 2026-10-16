@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.rest.endpoints.notifications;
 
-import org.jboss.pnc.notification.SessionBasedAttachedClient;
-import org.jboss.pnc.spi.notifications.Notifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+
+import org.jboss.pnc.notification.SessionBasedAttachedClient;
+import org.jboss.pnc.spi.notifications.Notifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Web Sockets notification implementation.

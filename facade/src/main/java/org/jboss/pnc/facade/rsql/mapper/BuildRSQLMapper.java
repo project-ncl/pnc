@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+
 import org.jboss.pnc.facade.rsql.RSQLException;
 import org.jboss.pnc.facade.rsql.converter.Base32EncodedLongValueConverter;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
@@ -26,10 +30,6 @@ import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *

@@ -18,11 +18,12 @@
 
 package org.jboss.pnc.facade.deliverables;
 
-import lombok.Getter;
+import java.util.List;
+
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 
-import java.util.List;
+import lombok.Getter;
 
 /**
  * @author jakubvanko

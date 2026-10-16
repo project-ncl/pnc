@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.spi.environment;
 
+import java.util.Map;
+
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-
-import java.util.Map;
 
 /**
  * SPI interface for Environment driver, which provides support to control different target environments.

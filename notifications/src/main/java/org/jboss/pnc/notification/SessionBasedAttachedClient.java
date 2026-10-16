@@ -18,12 +18,14 @@
 package org.jboss.pnc.notification;
 
 import java.util.Objects;
+
 import javax.websocket.Session;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class SessionBasedAttachedClient implements AttachedClient {
 

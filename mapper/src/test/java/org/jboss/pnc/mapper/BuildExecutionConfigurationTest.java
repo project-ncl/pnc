@@ -18,15 +18,20 @@
 
 package org.jboss.pnc.mapper;
 
+import static org.mockito.Mockito.spy;
+
+import java.io.IOException;
+import java.util.HashMap;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
-import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
-import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildExecutionConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
@@ -42,11 +47,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.HashMap;
-
-import static org.mockito.Mockito.spy;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

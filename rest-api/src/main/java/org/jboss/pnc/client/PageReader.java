@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.client;
 
+import java.util.function.Function;
+
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import java.util.function.Function;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -26,11 +26,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.pnc.dto.response.LongResponse;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
+
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.response.LongResponse;
-import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 1/25/17 Time: 2:25 PM

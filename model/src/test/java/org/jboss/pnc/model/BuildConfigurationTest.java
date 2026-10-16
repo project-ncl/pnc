@@ -17,6 +17,16 @@
  */
 package org.jboss.pnc.model;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.persistence.EntityManager;
+import javax.persistence.RollbackException;
+
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
@@ -26,15 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.EntityManager;
-import javax.persistence.RollbackException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for BuildConfiguration entity

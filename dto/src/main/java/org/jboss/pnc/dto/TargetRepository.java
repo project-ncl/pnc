@@ -17,10 +17,8 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 import org.jboss.pnc.dto.validation.constraints.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
@@ -29,8 +27,11 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.RepositoryType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * Contains information related to a repository of build artifacts (i.e. Maven, NPM, etc).

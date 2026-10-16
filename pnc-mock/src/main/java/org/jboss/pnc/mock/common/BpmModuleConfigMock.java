@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.mock.common;
 
+import java.io.IOException;
+
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.IoUtils;
-
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

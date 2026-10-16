@@ -17,17 +17,19 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.facade.providers.api.HealthCheckProvider;
-import org.jboss.pnc.model.GenericSetting;
-import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.jboss.pnc.facade.providers.api.HealthCheckProvider;
+import org.jboss.pnc.model.GenericSetting;
+import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
+
+import lombok.extern.slf4j.Slf4j;
 
 @PermitAll
 @Stateless

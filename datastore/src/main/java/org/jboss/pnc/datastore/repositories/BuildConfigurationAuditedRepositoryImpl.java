@@ -17,6 +17,18 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
@@ -32,17 +44,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Stateless
 public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurationAuditedRepository {

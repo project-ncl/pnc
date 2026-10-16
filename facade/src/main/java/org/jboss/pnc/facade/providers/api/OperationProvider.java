@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
-import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.dto.Operation;
 import org.jboss.pnc.dto.OperationRef;
 import org.jboss.pnc.model.Base32LongID;

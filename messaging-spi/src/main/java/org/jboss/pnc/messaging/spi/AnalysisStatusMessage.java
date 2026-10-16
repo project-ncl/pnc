@@ -18,10 +18,11 @@
 
 package org.jboss.pnc.messaging.spi;
 
-import lombok.Getter;
+import java.util.List;
+
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
-import java.util.List;
+import lombok.Getter;
 
 /**
  * @author jakubvanko

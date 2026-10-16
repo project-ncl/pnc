@@ -18,6 +18,10 @@
 
 package org.jboss.pnc.mock.spi;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.RebuildMode;
 import org.jboss.pnc.enums.BuildType;
@@ -25,10 +29,6 @@ import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

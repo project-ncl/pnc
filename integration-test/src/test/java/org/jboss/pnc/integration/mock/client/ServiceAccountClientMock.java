@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.integration.mock.client;
 
-import org.jboss.pnc.auth.ServiceAccountClient;
-
 import javax.enterprise.context.ApplicationScoped;
+
+import org.jboss.pnc.auth.ServiceAccountClient;
 
 @ApplicationScoped
 public class ServiceAccountClientMock implements ServiceAccountClient {

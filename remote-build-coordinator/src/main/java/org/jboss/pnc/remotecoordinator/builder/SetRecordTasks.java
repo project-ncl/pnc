@@ -17,7 +17,16 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -30,16 +39,7 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j

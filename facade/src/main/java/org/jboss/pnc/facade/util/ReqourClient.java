@@ -17,12 +17,6 @@
  */
 package org.jboss.pnc.facade.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.api.reqour.dto.TranslateRequest;
-import org.jboss.pnc.api.reqour.dto.TranslateResponse;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.util.StringUtils;
-
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.ProcessingException;
@@ -30,6 +24,13 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+
+import org.jboss.pnc.api.reqour.dto.TranslateRequest;
+import org.jboss.pnc.api.reqour.dto.TranslateResponse;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.util.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Dependent
 @Slf4j

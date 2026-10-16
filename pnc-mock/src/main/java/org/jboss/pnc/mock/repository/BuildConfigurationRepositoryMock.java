@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:06 PM

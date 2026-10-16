@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -33,12 +40,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.client.patch;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -30,10 +31,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.pnc.remotecoordinator.rexclient.RexQueueHttpClient;
-import org.jboss.pnc.rex.dto.responses.LongResponse;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.pnc.remotecoordinator.rexclient.RexQueueHttpClient;
+import org.jboss.pnc.rex.dto.responses.LongResponse;
 
 @ApplicationScoped
 @Alternative

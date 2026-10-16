@@ -18,19 +18,18 @@
 
 package org.jboss.pnc.facade.validation;
 
-import org.jboss.pnc.dto.validation.groups.ValidationGroup;
-import org.jboss.pnc.model.GenericEntity;
-
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.Set;
+import org.jboss.pnc.dto.validation.groups.ValidationGroup;
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 public class ValidationBuilder<T> {
 

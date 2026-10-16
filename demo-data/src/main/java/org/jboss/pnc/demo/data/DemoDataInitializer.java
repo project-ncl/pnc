@@ -17,19 +17,18 @@
  */
 package org.jboss.pnc.demo.data;
 
+import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.DependsOn;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 /**
  * This class runs at startup to initialize the application data.

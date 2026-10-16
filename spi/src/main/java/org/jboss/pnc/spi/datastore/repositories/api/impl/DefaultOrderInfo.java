@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
-import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
+import java.util.function.Function;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
-import java.util.function.Function;
+
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 
 public class DefaultOrderInfo<T> implements OrderInfo<T> {
     private final SortingDirection direction;

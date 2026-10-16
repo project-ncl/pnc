@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.mapper;
 
-import java.util.Collections;
-import java.util.Map;
-
-import org.jboss.pnc.api.enums.BuildCategory;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.jboss.pnc.mapper.BuildConfigurationParametersUtils.BUILD_CATEGORY_KEY;
 import static org.jboss.pnc.mapper.BuildConfigurationParametersUtils.DEFAULT_BUILD_CATEGORY;
 import static org.jboss.pnc.mapper.BuildConfigurationParametersUtils.withDefaults;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.jboss.pnc.api.enums.BuildCategory;
+import org.junit.Test;
 
 public class BuildConfigurationParametersUtilsTest {
 

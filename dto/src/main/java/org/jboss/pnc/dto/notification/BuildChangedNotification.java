@@ -17,19 +17,21 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+import static org.jboss.pnc.enums.JobNotificationProgress.PENDING;
+import static org.jboss.pnc.enums.JobNotificationType.BUILD;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
-import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
-import static org.jboss.pnc.enums.JobNotificationProgress.PENDING;
-import static org.jboss.pnc.enums.JobNotificationType.BUILD;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
 
 /**
  * Notification about change in Build.

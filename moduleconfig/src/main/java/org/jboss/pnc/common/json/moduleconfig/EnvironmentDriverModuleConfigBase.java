@@ -18,10 +18,10 @@
 
 package org.jboss.pnc.common.json.moduleconfig;
 
+import java.util.List;
+
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.helper.HttpDestinationConfig;
-
-import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

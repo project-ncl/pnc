@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.dto.requests;
 
+import javax.validation.constraints.NotBlank;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.validation.constraints.SCMUrl;
-
-import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

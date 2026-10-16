@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import java.io.Serializable;
+
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-
-import java.io.Serializable;
 
 /**
  *
