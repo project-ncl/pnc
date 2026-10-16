@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
@@ -34,14 +38,29 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     private String bannedScmAuthority;
 
+    /**
+     * Whitelist of external SCM groups/subgroups/organizations that are allowed even when they match
+     * {@link #bannedScmAuthority}. Each entry is a {@code host/group[/subgroup...]} prefix (scheme and {@code .git}
+     * suffix optional); it matches a repository URL under that path, segment-aware (so
+     * {@code gitlab.example.com/lw/lw-builds} allows {@code .../lw-builds/foo} but not {@code .../lw-buildsX}).
+     * Empty/absent = no exceptions (previous behavior).
+     */
+    private List<String> bannedScmAllowedGroups;
+
     public ScmModuleConfig(
             @JsonProperty("internalScmAuthority") String internalScmAuthority,
             @JsonProperty("secondaryInternalScmAuthority") String secondaryInternalScmAuthority,
-            @JsonProperty("bannedScmAuthority") String bannedScmAuthority) {
+            @JsonProperty("bannedScmAuthority") String bannedScmAuthority,
+            @JsonProperty("bannedScmAllowedGroups") List<String> bannedScmAllowedGroups) {
         super();
         this.internalScmAuthority = StringUtils.stripEndingSlash(internalScmAuthority);
         this.secondaryInternalScmAuthority = StringUtils.stripEndingSlash(secondaryInternalScmAuthority);
         this.bannedScmAuthority = StringUtils.stripEndingSlash(bannedScmAuthority);
+        this.bannedScmAllowedGroups = bannedScmAllowedGroups == null ? Collections.emptyList()
+                : bannedScmAllowedGroups.stream()
+                        .filter(g -> g != null && !g.isBlank())
+                        .map(StringUtils::stripEndingSlash)
+                        .collect(Collectors.toUnmodifiableList());
     }
 
     public String getInternalScmAuthority() {
@@ -54,6 +73,11 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     public String getBannedScmAuthority() {
         return bannedScmAuthority;
+    }
+
+    /** Whitelist of external SCM group prefixes allowed despite {@link #getBannedScmAuthority()}. */
+    public List<String> getBannedScmAllowedGroups() {
+        return bannedScmAllowedGroups;
     }
 
     @Override

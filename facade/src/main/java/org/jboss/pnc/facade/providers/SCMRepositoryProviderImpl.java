@@ -30,6 +30,7 @@ import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.scm.GitSCPUrl;
 import org.jboss.pnc.common.scm.ScmException;
+import org.jboss.pnc.common.scm.ScmUrlNormalizer;
 import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dingroguclient.DingroguClient;
@@ -219,7 +220,7 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("You must specify the SCM URL.");
         }
         String bannedSCMUrl = config.getBannedScmAuthority();
-        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl)) {
+        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl) && !isWhitelistedScmGroup(scmUrl)) {
             throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
         }
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
@@ -323,6 +324,33 @@ public class SCMRepositoryProviderImpl
         }
 
         return isInternal && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
+    }
+
+    /**
+     * Whether the SCM URL falls under one of the configured whitelisted groups, and is therefore allowed even if it
+     * matches the banned authority.
+     */
+    boolean isWhitelistedScmGroup(String scmUrl) {
+        return isWhitelistedScmGroup(scmUrl, config.getBannedScmAllowedGroups());
+    }
+
+    /**
+     * Host + group/subgroup prefix match, segment-aware: {@code gitlab.example.com/lw/lw-builds} allows
+     * {@code .../lw-builds} and {@code .../lw-builds/anything} but not {@code .../lw-buildsX}.
+     */
+    protected static boolean isWhitelistedScmGroup(String scmUrl, List<String> allowedGroups) {
+        if (allowedGroups == null || allowedGroups.isEmpty() || StringUtils.isEmpty(scmUrl)) {
+            return false;
+        }
+        String normalizedUrl = ScmUrlNormalizer.normalize(scmUrl);
+        for (String group : allowedGroups) {
+            String normalizedGroup = ScmUrlNormalizer.normalize(group);
+            if (!normalizedGroup.isEmpty()
+                    && (normalizedUrl.equals(normalizedGroup) || normalizedUrl.startsWith(normalizedGroup + "/"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl, Integer ignoreId)
