@@ -4,9 +4,11 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildEndpointImpl.class);
@@ -64,6 +67,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     public void delete(String id, String callback) {
         if (!provider.delete(id, callback)) {
             throw new NotFoundException("Temporary GroupBuild with id: " + id + " was not found.");

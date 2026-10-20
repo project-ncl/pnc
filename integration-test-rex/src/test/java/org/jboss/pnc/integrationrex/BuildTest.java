@@ -108,11 +108,17 @@ public class BuildTest extends RemoteServices {
     }
 
     @Test
-    public void testThatBuildQueueSizeIsSet() {
-        Configuration conf = RestClientConfiguration.asAnonymous();
+    public void testThatBuildQueueSizeIsSet() throws ExecutionException, InterruptedException {
+        String token = KeycloakClient
+                .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
+                .getToken();
+        Configuration conf = RestClientConfiguration.asUser();
 
         given().baseUri(conf.getProtocol() + "://" + conf.getHost() + ":" + conf.getPort())
                 .basePath(BASE_REST_PATH)
+                .auth()
+                .preemptive()
+                .oauth2(token)
                 .when()
                 .get("/debug/build-queue/size")
                 .then()

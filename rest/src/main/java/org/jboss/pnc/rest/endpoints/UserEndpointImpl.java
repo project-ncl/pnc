@@ -4,12 +4,15 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class UserEndpointImpl implements UserEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(UserEndpointImpl.class);

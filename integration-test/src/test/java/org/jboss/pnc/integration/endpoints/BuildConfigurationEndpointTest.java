@@ -122,23 +122,23 @@ public class BuildConfigurationEndpointTest {
     @SuppressWarnings("unchecked")
     @BeforeClass
     public static void prepareData() throws Exception {
-        BuildConfigurationClient bcc = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient bcc = new BuildConfigurationClient(RestClientConfiguration.asUser());
         Iterator<BuildConfiguration> it = bcc.getAll().iterator();
         configurationId = it.next().getId();
         configuration2Id = it.next().getId();
         configuration3Id = it.next().getId();
         configuration4Id = it.next().getId();
 
-        ProductClient pdc = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient pdc = new ProductClient(RestClientConfiguration.asUser());
         productId = pdc.getAll().iterator().next().getId();
 
-        EnvironmentClient ec = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+        EnvironmentClient ec = new EnvironmentClient(RestClientConfiguration.asUser());
         environmentId = ec.getAll().iterator().next().getId();
 
-        ProjectClient pjc = new ProjectClient(RestClientConfiguration.asAnonymous());
+        ProjectClient pjc = new ProjectClient(RestClientConfiguration.asUser());
         projectId = pjc.getAll().iterator().next().getId();
 
-        SCMRepositoryClient scmrc = new SCMRepositoryClient(RestClientConfiguration.asAnonymous());
+        SCMRepositoryClient scmrc = new SCMRepositoryClient(RestClientConfiguration.asUser());
         final Iterator<SCMRepository> scmrIt = scmrc.getAll(null, null).iterator();
         repositoryConfigurationId = scmrIt.next().getId();
         repositoryConfiguration2Id = scmrIt.next().getId();
@@ -148,7 +148,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     @InSequence(10)
     public void testGetAll() throws RemoteResourceException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<BuildConfiguration> all = client.getAll();
 
@@ -158,7 +158,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     @InSequence(10)
     public void testGetAllWithLatest() throws RemoteResourceException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<BuildConfigurationWithLatestBuild> bcsWithLatest = client.getAllWithLatestBuild();
 
@@ -252,7 +252,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     @InSequence(10)
     public void testGetSpecific() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         BuildConfiguration dto = client.getSpecific(configurationId);
 
@@ -402,7 +402,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void testGetBuilds() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Build> all = client.getBuilds(configurationId, null);
 
@@ -453,7 +453,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void testGetGroupConfig() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<GroupConfiguration> all = client.getGroupConfigs(configurationId);
 
@@ -463,7 +463,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     @InSequence(30)
     public void testGetDependencies() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<BuildConfiguration> all = client.getDependencies(configuration3Id);
 
@@ -473,7 +473,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     @InSequence(30)
     public void testGetDependants() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         List<String> allDependantIds = client.getDependants(configuration2Id)
                 .getAll()
@@ -532,7 +532,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void shouldGetBuildConfigurationRevisions() throws Exception {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<BuildConfigurationRevision> revisions = client.getRevisions(configurationId);
 
@@ -566,7 +566,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void shouldGetBuildConfigurationRevision() throws Exception {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         BuildConfigurationRevision revision = client.getRevision(configurationId, 1);
 
@@ -640,7 +640,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void testGetSupportedParameters() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         Set<Parameter> all = client.getSupportedParameters();
 
         assertThat(all).haveExactly(
@@ -655,7 +655,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void testGetBuildTypeDefaultAlignmentParameters() throws RemoteResourceException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         for (BuildType buildType : BuildType.values()) {
             AlignmentParameters params = client.getBuildTypeDefaultAlignmentParameters(buildType.name());
@@ -734,7 +734,7 @@ public class BuildConfigurationEndpointTest {
     public void shouldChangeRepositoryConfiguration() throws ClientException {
         // given
         BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
-        SCMRepositoryClient scmClient = new SCMRepositoryClient(RestClientConfiguration.asAnonymous());
+        SCMRepositoryClient scmClient = new SCMRepositoryClient(RestClientConfiguration.asUser());
         BuildConfiguration buildConfiguration = bcClient.getSpecific(configuration4Id);
 
         // make sure this RC is not already set
@@ -955,7 +955,7 @@ public class BuildConfigurationEndpointTest {
 
     @Test
     public void testRSQLUnderscoreIsNotAWildcardCharacter() throws ClientException {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
         RemoteCollection<BuildConfigurationWithLatestBuild> allWithLatestBuild = client
                 .getAllWithLatestBuild(Optional.empty(), Optional.of("name=like=\"pnc-%\""));

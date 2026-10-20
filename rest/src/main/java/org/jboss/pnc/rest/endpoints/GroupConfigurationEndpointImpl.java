@@ -4,12 +4,14 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
 import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -48,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupConfigurationEndpointImpl.class);

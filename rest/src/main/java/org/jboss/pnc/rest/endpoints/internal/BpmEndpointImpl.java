@@ -4,12 +4,15 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@RolesAllowed({ USERS_ADMIN, USERS_ORCH_PROCESS_COMMIT })
 public class BpmEndpointImpl implements BpmEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmEndpointImpl.class);

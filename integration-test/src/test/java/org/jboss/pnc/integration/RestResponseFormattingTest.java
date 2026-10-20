@@ -14,6 +14,7 @@ import org.hamcrest.core.IsEqual;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -39,7 +40,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnErrorInJsonFormat() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
@@ -53,7 +57,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnEmptyBodyAndStatus404() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
@@ -67,7 +74,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnInJsonAndStatusNoContent() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
@@ -80,7 +90,10 @@ public class RestResponseFormattingTest {
 
     @Test
     public void shouldReturnStatusUnauthorizedAndHeader() {
-        String response = given().header("Accept", "application/json")
+        String response = given().auth()
+                .preemptive()
+                .basic(Credentials.SYSTEM_USER.getName(), Credentials.SYSTEM_USER.getPass())
+                .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()

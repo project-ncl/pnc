@@ -4,7 +4,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -16,6 +19,7 @@ import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
 
     @Inject
@@ -39,11 +43,13 @@ public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     public Environment createNew(Environment environment) {
         return endpointHelper.create(environment);
     }
 
     @Override
+    @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     public Environment deprecate(String id, EnvironmentDeprecationRequest request) {
         return environmentProvider.deprecateEnvironment(id, request.getReplacementEnvironmentId());
     }

@@ -4,7 +4,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -28,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class OperationEndpointImpl implements OperationEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(OperationEndpointImpl.class);
@@ -51,11 +55,13 @@ public class OperationEndpointImpl implements OperationEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ADMIN, USERS_ORCH_PROCESS_COMMIT })
     public void finish(String id, OperationOutcome operationOutcome) {
         operationsManager.setResult(OperationMapper.idMapper.toEntity(id), operationOutcome);
     }
 
     @Override
+    @RolesAllowed({ USERS_ADMIN })
     public DeliverableAnalyzerOperation updateDeliverableAnalyzer(
             String id,
             @NotNull DeliverableAnalyzerOperation operation) {

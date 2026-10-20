@@ -51,14 +51,14 @@ public class EnvironmentEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asUser());
         environmentId = client.getAll().iterator().next().getId();
     }
 
     @Test
     @InSequence(10)
     public void testGetAllEnvironments() throws RemoteResourceException {
-        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Environment> all = client.getAll();
 
@@ -68,7 +68,7 @@ public class EnvironmentEndpointTest {
     @Test
     @InSequence(20)
     public void testGetSpecificEnvironment() throws ClientException {
-        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asUser());
 
         Environment environment = client.getSpecific(environmentId);
 
@@ -78,7 +78,7 @@ public class EnvironmentEndpointTest {
     @Test
     @InSequence(20)
     public void testQueryForEnvironment() throws RemoteResourceException {
-        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Environment> allNonDeprecated = client
                 .getAll(Optional.empty(), Optional.of("deprecated==false"));

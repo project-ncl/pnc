@@ -10,6 +10,7 @@ import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -30,7 +31,10 @@ public class BuildRecordAliasEndpointTest {
     @Test
     public void testRedirect() {
         int buildRecordId = 100;
-        given().redirects()
+        given().auth()
+                .preemptive()
+                .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
+                .redirects()
                 .follow(false)
                 .port(8080)
                 .when()

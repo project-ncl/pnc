@@ -4,6 +4,9 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.jboss.pnc.dto.BuildPushReport;
@@ -18,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @ApplicationScoped
 @Slf4j
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class BuildPushesEndpointImpl implements BuildPushesEndpoint {
 
     @Override

@@ -50,7 +50,7 @@ public class DeliverableAnalyzerReportEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        OperationClient operationClient = new OperationClient(RestClientConfiguration.asAnonymous());
+        OperationClient operationClient = new OperationClient(RestClientConfiguration.asUser());
         Iterator<DeliverableAnalyzerOperation> it = operationClient.getAllDeliverableAnalyzerOperation().iterator();
         it.next();
         operationId = it.next().getId();
@@ -59,8 +59,7 @@ public class DeliverableAnalyzerReportEndpointTest {
 
     @Test
     public void shouldGetDeliverableAnalyzerReports() throws RemoteResourceException {
-        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
-                RestClientConfiguration.asAnonymous());
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
         RemoteCollection<DeliverableAnalyzerReport> all = client.getAll();
 
         assertThat(all).hasSize(11);
@@ -68,8 +67,7 @@ public class DeliverableAnalyzerReportEndpointTest {
 
     @Test
     public void shouldGetSpecificDeliverableAnalyzerReport() throws ClientException {
-        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
-                RestClientConfiguration.asAnonymous());
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
 
         DeliverableAnalyzerReport report = client.getSpecific(operationId);
 
@@ -82,8 +80,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     @Test
     public void testGetAnalyzedArtifacts() throws ClientException {
         // given
-        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
-                RestClientConfiguration.asAnonymous());
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
 
         // when
         RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client.getAnalyzedArtifacts(operationId);
@@ -108,8 +105,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     public void testGetAnalyzedArtifactsByBrewId() throws ClientException {
         // given
         Long brewId = 42L;
-        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(
-                RestClientConfiguration.asAnonymous());
+        DeliverableAnalyzerReportClient client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
 
         // when
         RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client
@@ -126,7 +122,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     @Test
     public void testGetLabelHistory() throws ClientException {
         // given
-        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asAnonymous());
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
 
         // when
         RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);

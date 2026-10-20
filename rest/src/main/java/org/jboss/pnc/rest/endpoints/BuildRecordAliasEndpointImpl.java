@@ -4,6 +4,9 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 @Path("/build-records")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class BuildRecordAliasEndpointImpl {
 
     @GET

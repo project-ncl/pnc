@@ -35,6 +35,12 @@ public class UserRoles {
      */
     public static final String USERS_REX = "pnc-app-rex-user";
 
+    /** Role used by service accounts that interact with build-task endpoints (Rex) */
+    public static final String USERS_BUILD_TASKS = "pnc-app-build-tasks-user";
+
+    /** Role used by orchestrator service accounts to process commits (BPM, operation completion) */
+    public static final String USERS_ORCH_PROCESS_COMMIT = "pnc-app-orch-process-commit";
+
     /**
      * User's with this role are routed to new implementations that usually run in parallel to the old one (blue/green
      * testing).
