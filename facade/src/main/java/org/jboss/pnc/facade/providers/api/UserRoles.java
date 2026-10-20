@@ -18,8 +18,14 @@ public class UserRoles {
     /** Role used by humans / service accounts that modify artifacts */
     public static final String USERS_ARTIFACT_ADMIN = "pnc-app-artifact-user";
 
+    /** Role used by service accounts to read artifacts */
+    public static final String USERS_ARTIFACT_READ = "pnc-app-orch-artifact-read";
+
     /** Role used by humans / service accounts to delete temporary builds */
-    public static final String USERS_BUILD_DELETE = "pnc-app-build-delete";
+    public static final String USERS_BUILD_DELETE = "pnc-app-orch-build-delete";
+
+    /** Role used by service accounts to read builds */
+    public static final String USERS_BUILD_READ = "pnc-app-orch-build-read";
 
     /** Role used by humans / service accounts to create / change builds (including deletion) */
     public static final String USERS_BUILD_ADMIN = "pnc-app-build-user";
