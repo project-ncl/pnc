@@ -25,6 +25,7 @@ import org.jboss.pnc.facade.util.UserService;
 public class SecurityConstraintFilter implements ContainerRequestFilter {
 
     private static final String VERSION_ENDPOINT_PATH = "/version";
+    private static final String HEALTH_ENDPOINT_PATH = "/health";
 
     @Inject
     UserService userService;
@@ -40,6 +41,9 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
 
         String path = requestContext.getUriInfo().getPath();
         if (path.equals(VERSION_ENDPOINT_PATH) || path.equals(VERSION_ENDPOINT_PATH + "/")) {
+            return;
+        }
+        if (path.equals(HEALTH_ENDPOINT_PATH) || path.equals(HEALTH_ENDPOINT_PATH + "/")) {
             return;
         }
 
