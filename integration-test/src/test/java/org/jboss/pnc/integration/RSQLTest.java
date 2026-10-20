@@ -30,6 +30,7 @@ import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
@@ -55,10 +56,10 @@ public class RSQLTest {
 
     private static final Logger logger = LoggerFactory.getLogger(RSQLTest.class);
 
-    private final BuildClient buildClient = new BuildClient(RestClientConfiguration.asAnonymous());
+    private final BuildClient buildClient = new BuildClient(RestClientConfiguration.asUser());
     private final BuildConfigurationClient buildConfigClient = new BuildConfigurationClient(
-            RestClientConfiguration.asAnonymous());
-    private final ProjectClient projectClient = new ProjectClient(RestClientConfiguration.asAnonymous());
+            RestClientConfiguration.asUser());
+    private final ProjectClient projectClient = new ProjectClient(RestClientConfiguration.asUser());
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -296,7 +297,10 @@ public class RSQLTest {
 
     @Test
     public void shouldLimitReturnedBuildConfigs() throws RemoteResourceException {
-        BuildConfigPage page = given().accept(ContentType.JSON)
+        BuildConfigPage page = given().auth()
+                .preemptive()
+                .basic(Credentials.USER2.getName(), Credentials.USER2.getPass())
+                .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .when()

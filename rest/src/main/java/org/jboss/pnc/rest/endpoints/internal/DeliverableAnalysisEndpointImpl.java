@@ -4,9 +4,12 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @Slf4j
+@RolesAllowed({ USERS_ORCH_PROCESS_COMMIT, USERS_ADMIN })
 public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpoint {
 
     @Inject

@@ -77,7 +77,7 @@ public class ProductVersionEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        ProductClient productClient = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient productClient = new ProductClient(RestClientConfiguration.asUser());
         product = productClient.getAll().iterator().next();
         Iterator<ProductVersion> it = productClient.getProductVersions(product.getId()).iterator();
         productVersionsId = it.next().getId();
@@ -111,7 +111,7 @@ public class ProductVersionEndpointTest {
 
     @Test
     public void testGetSpecific() throws ClientException {
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         ProductVersion dto = client.getSpecific(productVersionsId);
 
@@ -140,7 +140,7 @@ public class ProductVersionEndpointTest {
 
     @Test
     public void testGetBuildConfigurations() throws ClientException {
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         RemoteCollection<BuildConfiguration> all = client.getBuildConfigs(productVersionsId);
 
@@ -149,7 +149,7 @@ public class ProductVersionEndpointTest {
 
     @Test
     public void testGetGroupConfigurations() throws ClientException {
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         RemoteCollection<GroupConfiguration> all = client.getGroupConfigs(productVersionsId);
 
@@ -158,7 +158,7 @@ public class ProductVersionEndpointTest {
 
     @Test
     public void testGetMilestones() throws ClientException {
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         RemoteCollection<ProductMilestone> all = client.getMilestones(productVersionsId);
 
@@ -167,7 +167,7 @@ public class ProductVersionEndpointTest {
 
     @Test
     public void testGetReleases() throws ClientException {
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         RemoteCollection<ProductRelease> all = client.getReleases(productVersionsId);
 
@@ -421,7 +421,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testGetStatisticsForExistingProductVersion() throws ClientException {
         // given
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         // from DatabaseDataInitializer: dPM = demoProductMilestone, bA = builtArtifact, iA = importedArtifact
         ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics
@@ -465,7 +465,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testGetStatisticsForNonexistingProductVersion() throws ClientException {
         // given
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
         ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
                 .milestones(0L)
                 .productDependencies(0L)
@@ -491,7 +491,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testGetArtifactQualitiesStatisticsForExistingProductVersion() throws ClientException {
         // given
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
@@ -528,7 +528,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testGetArtifactQualitiesStatisticsForNonexistingProductVersion() throws ClientException {
         // given
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         // when
         RemoteCollection<ProductMilestoneArtifactQualityStatistics> all = client
@@ -541,7 +541,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testGetRepositoryTypesStatisticsForExistingProductVersion() throws ClientException {
         // given
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
                 .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
@@ -576,7 +576,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testGetRepositoryTypesStatisticsForNonexistingProductVersion() throws ClientException {
         // given
-        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
         // when
         RemoteCollection<ProductMilestoneArtifactQualityStatistics> all = client

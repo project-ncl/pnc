@@ -4,9 +4,12 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -22,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class AttachmentEndpointImpl implements AttachmentEndpoint {
 
     private EndpointHelper<Integer, Attachment, AttachmentRef> endpointHelper;
@@ -53,11 +57,13 @@ public class AttachmentEndpointImpl implements AttachmentEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_REX, USERS_ADMIN })
     public Attachment create(Attachment attachment) {
         return endpointHelper.create(attachment);
     }
 
     @Override
+    @RolesAllowed({ USERS_ATTACHMENT_ADMIN, USERS_REX, USERS_ADMIN })
     public void update(String id, Attachment attachment) {
         endpointHelper.update(id, attachment);
     }

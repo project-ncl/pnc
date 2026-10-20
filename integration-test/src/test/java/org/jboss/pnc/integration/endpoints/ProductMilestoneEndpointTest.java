@@ -95,13 +95,13 @@ public class ProductMilestoneEndpointTest {
 
     @BeforeClass
     public static void prepareData() throws Exception {
-        ProductClient productClient = new ProductClient(RestClientConfiguration.asAnonymous());
+        ProductClient productClient = new ProductClient(RestClientConfiguration.asUser());
         Iterator<Product> productIt = productClient.getAll().iterator();
         product = productIt.next();
         Product product2 = productIt.next();
         productVersion = productClient.getProductVersions(product.getId()).iterator().next();
         ProductVersion productVersion2 = productClient.getProductVersions(product2.getId()).iterator().next();
-        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asUser());
         Iterator<ProductMilestone> milestoneIt1 = productVersionClient.getMilestones(productVersion.getId()).iterator();
         milestone = milestoneIt1.next();
         milestoneId = milestone.getId();
@@ -189,7 +189,7 @@ public class ProductMilestoneEndpointTest {
 
     @Test
     public void testGetSpecific() throws ClientException {
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         ProductMilestone dto = client.getSpecific(milestoneId);
 
@@ -284,7 +284,7 @@ public class ProductMilestoneEndpointTest {
 
     @Test
     public void testGetBuilds() throws ClientException {
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Build> all = client.getBuilds(milestoneId, null);
 
@@ -293,7 +293,7 @@ public class ProductMilestoneEndpointTest {
 
     @Test
     public void testGetDeliveredArtifacts() throws ClientException {
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
@@ -311,7 +311,7 @@ public class ProductMilestoneEndpointTest {
     @Test
     public void testGetDeliveredArtifactsArtifactFoundInMultipleAnalysisOfSameMilestone() throws ClientException {
         // arrange
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         // act
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts("105");
@@ -324,7 +324,7 @@ public class ProductMilestoneEndpointTest {
 
     @Test
     public void testGetDeliverableAnalyzerOperations() throws ClientException {
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
@@ -341,7 +341,7 @@ public class ProductMilestoneEndpointTest {
     @Test
     public void testGetStatistics() throws ClientException {
         // given
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         ProductMilestoneDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductMilestoneDeliveredArtifactsStatistics
                 .builder()
@@ -392,7 +392,7 @@ public class ProductMilestoneEndpointTest {
     @Test
     public void testCompareArtifactsDeliveredInMilestonesWithTwoMilestonesAndCommonPrefix() throws ClientException {
         // arrange
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         ParsedArtifact parsedArtifact1 = ParsedArtifact.builder()
                 .id("117")
@@ -430,7 +430,7 @@ public class ProductMilestoneEndpointTest {
     @Test
     public void testCompareArtifactsDeliveredInMilestonesWithTwoMilestonesAndNoCommonPrefix() throws ClientException {
         // arrange
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         // act
         List<DeliveredArtifactInMilestones> actualDeliveredArtifactsInMilestonesList = client
@@ -444,7 +444,7 @@ public class ProductMilestoneEndpointTest {
     public void testCompareArtifactsDeliveredInMilestonesArtifactFoundInMultipleAnalysisOfSameMilestone()
             throws ClientException {
         // arrange
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         ParsedArtifact parsedArtifact = ParsedArtifact.builder()
                 .id("114")
@@ -475,7 +475,7 @@ public class ProductMilestoneEndpointTest {
     @Test
     public void testGetMilestonesSharingDeliveredArtifactsGraph() throws ClientException {
         // arrange
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         Set<String> expectedVerticesKeys = Set.of("100", "101", "102", "104", "105");
         List<Edge> expectedEdges = List.of(
@@ -497,7 +497,7 @@ public class ProductMilestoneEndpointTest {
     @Test
     public void testGetDeliveredArtifactsSharedInMilestones() throws ClientException {
         // arrange
-        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         List<String> expectedSharedDeliveredArtifactIds = List.of("114", "101");
 

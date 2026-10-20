@@ -82,7 +82,7 @@ public class ArtifactEndpointTest {
 
     @Before
     public void setTargetRepository() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         List<Artifact> artifacts = new ArrayList<>();
         for (Artifact artifact : client.getAll(null, null, null)) {
@@ -99,7 +99,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifacts() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
@@ -108,7 +108,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsFilteredByIdentifier() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         RemoteCollection<ArtifactInfo> result;
 
         result = client.getAllFiltered("*demo:*:jar:*", null, null);
@@ -124,7 +124,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsFilteredByQualitiesList() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         RemoteCollection<ArtifactInfo> result;
 
         result = client.getAllFiltered(null, new HashSet<>(Arrays.asList(ArtifactQuality.NEW)), null);
@@ -139,7 +139,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsFilteredByBuildCategories() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         RemoteCollection<ArtifactInfo> result;
 
         result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.STANDARD)));
@@ -154,7 +154,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsFilteredByRepoType() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         RemoteCollection<ArtifactInfo> result;
 
         RepositoryType type = RepositoryType.NPM;
@@ -166,7 +166,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsWithMd5() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, artifactRest1.getMd5(), null);
 
@@ -177,7 +177,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsWithSha1() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, null, artifactRest2.getSha1());
 
@@ -188,7 +188,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsWithSha256() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest1.getSha256(), null, null);
 
@@ -200,7 +200,7 @@ public class ArtifactEndpointTest {
     @Test
     public void testGetAllArtifactsWithMd5AndSha1() throws RemoteResourceException {
 
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, artifactRest2.getMd5(), artifactRest2.getSha1());
 
@@ -209,7 +209,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsWithMd5AndSha256() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest1.getSha256(), artifactRest1.getMd5(), null);
 
@@ -218,7 +218,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetAllArtifactsWithSha1AndSha256() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest4.getSha256(), null, artifactRest4.getSha1());
 
@@ -227,7 +227,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void testGetSpecificArtifact() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         Artifact artifact = client.getSpecific(artifactRest1.getId());
 
@@ -335,7 +335,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetMilestoneInfoWithoutRsql() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<MilestoneInfo> milestonesInfo = client.getMilestonesInfo(artifactRest3.getId());
         assertThat(milestonesInfo).hasSize(2).first().extracting(MilestoneInfo::isBuilt).isEqualTo(false);
@@ -349,7 +349,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetTwoMilestoneInfosWithoutRsqlQuery() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<MilestoneInfo> milestonesInfoCollection = client
                 .getMilestonesInfo(artifactRest3.getId(), Optional.empty(), Optional.empty());
@@ -370,7 +370,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetTwoMilestoneInfosWithRsqlQuery() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         String productName = "Project Newcastle Demo Product";
         String productName2 = "JBoss EAP Demo Product";
 
@@ -391,7 +391,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetOneMilestoneInfosWithRsqlQueryOnAll() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         String productName = "Project Newcastle Demo Product";
         String productVersion = "1.0";
         String productMilestone = "1.0.0.Build1";
@@ -413,7 +413,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetOneMilestoneInfosWithRsqlQueryOnProductName() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         String productName = "Project Newcastle Demo Product";
 
         RemoteCollection<MilestoneInfo> milestonesInfoCollection = client.getMilestonesInfo(
@@ -429,7 +429,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetNoMilestoneInfoWithRsqlOnlyQuery() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         String productName = "Project Newcastle Demo Product";
         String productVersion = "1.0";
         String milestoneVersion = "1.0.0.Nonexistent";
@@ -446,7 +446,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetTwoMilestoneInDescOrderOfEnddate() throws ClientException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         String productName = "Project Newcastle Demo Product";
         String productName2 = "JBoss EAP Demo Product";
 
@@ -471,7 +471,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldThrowRsqlException() {
-        var client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        var client = new ArtifactClient(RestClientConfiguration.asUser());
         String selector = "nonexistent";
 
         RemoteResourceException remoteResourceException = assertThrows(
@@ -531,7 +531,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetArtifactRevision() throws Exception {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         Iterator<ArtifactRevision> itOriginal = client.getRevisions(artifactRest1.getId()).iterator();
         // given latest revision
         ArtifactRevision lastRevOriginal = itOriginal.next();

@@ -6,6 +6,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import static java.lang.Integer.parseInt;
 import static java.text.MessageFormat.format;
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 import static org.jboss.pnc.mapper.api.BuildTaskMappers.toBuildStatus;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -106,6 +108,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Dependent
+@RolesAllowed({ USERS_BUILD_TASKS, USERS_ADMIN })
 public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpointImpl.class);

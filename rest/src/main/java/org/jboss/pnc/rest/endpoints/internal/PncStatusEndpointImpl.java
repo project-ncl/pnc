@@ -4,6 +4,9 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -13,12 +16,14 @@ import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.rest.api.endpoints.PncStatusEndpoint;
 
 @ApplicationScoped
+@RolesAllowed({ USERS, USERS_ADMIN })
 public class PncStatusEndpointImpl implements PncStatusEndpoint {
 
     @Inject
     private GenericSettingProvider genericSettingProvider;
 
     @Override
+    @RolesAllowed({ USERS_ADMIN })
     public void setPncStatus(PncStatus pncStatus) {
         var isBannerEmpty = pncStatus.getBanner() == null || pncStatus.getBanner().isBlank();
 
