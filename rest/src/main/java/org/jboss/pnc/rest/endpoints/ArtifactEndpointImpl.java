@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-@RolesAllowed({ USERS, USERS_ADMIN })
+@RolesAllowed({ USERS_ARTIFACT_READ, USERS, USERS_ADMIN })
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
@@ -113,6 +113,7 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public ArtifactRevision createQualityLevelRevision(String id, String quality, String reason) {
         logger.debug("Updating quality of artifact with id {} to level {} for reason: {}", id, quality, reason);
         return artifactProvider.createQualityLevelRevision(id, quality, reason);

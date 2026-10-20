@@ -68,7 +68,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @ApplicationScoped
 @Slf4j
-@RolesAllowed({ USERS, USERS_ADMIN })
+@RolesAllowed({ USERS_BUILD_READ, USERS, USERS_ADMIN })
 public class BuildEndpointImpl implements BuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointImpl.class);
@@ -174,6 +174,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public void createBuiltArtifactsQualityLevelRevisions(String id, String quality, String reason) {
         Set<String> builtArtifactIds = provider.getBuiltArtifactIds(id);
         for (String builtArtifactId : builtArtifactIds) {
@@ -225,11 +226,13 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public void addAttribute(String id, String key, String value) {
         provider.addAttribute(id, key, value);
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public void removeAttribute(String id, String key) {
         provider.removeAttribute(id, key);
     }
@@ -245,16 +248,19 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public BuildPushOperation push(String id, BuildPushParameters buildPushParameters) {
         throw new BrewNotSupportedException();
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public void cancelPush(String id) {
         throw new BrewNotSupportedException();
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public void completePush(String id, BuildPushCompleted buildPushCompleted) {
         throw new BrewNotSupportedException();
     }
@@ -265,6 +271,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
+    @RolesAllowed({ USERS, USERS_ADMIN })
     public void cancel(String buildId) {
         try {
             MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, ContentIdentityManager.getBuildContentId(buildId));
