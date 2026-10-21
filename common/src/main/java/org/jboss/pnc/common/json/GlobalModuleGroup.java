@@ -47,6 +47,12 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalEttUrl;
     private String brewContentUrl;
 
+    // UI-specific URLs served through config.js. When set, they override the external URLs
+    // presented to the UI, allowing the UI to use different Bifrost / Kafka Store endpoints
+    // than the backend services.
+    private String uiBifrostUrl;
+    private String uiKafkaStoreUrl;
+
     public String getBpmUrl() {
         return bpmUrl;
     }
@@ -285,5 +291,21 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setBrewContentUrl(String brewContentUrl) {
         this.brewContentUrl = brewContentUrl;
+    }
+
+    public String getUiBifrostUrl() {
+        return uiBifrostUrl;
+    }
+
+    public void setUiBifrostUrl(String uiBifrostUrl) {
+        this.uiBifrostUrl = uiBifrostUrl;
+    }
+
+    public String getUiKafkaStoreUrl() {
+        return uiKafkaStoreUrl;
+    }
+
+    public void setUiKafkaStoreUrl(String uiKafkaStoreUrl) {
+        this.uiKafkaStoreUrl = uiKafkaStoreUrl;
     }
 }

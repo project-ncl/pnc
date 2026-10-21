@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 /**
  * Dynamically serves a configuration file for the UI.
@@ -42,7 +41,7 @@ public class UIConfigurationServletJs extends HttpServlet {
     public void init() throws ServletException {
         try {
             UiConfigRest configRest = UiConfigRestBuilder.build(configuration);
-            String json = JsonOutputConverterMapper.apply(configRest);
+            String json = UiConfigRestBuilder.toJson(configRest);
             this.uiConfig = generateJS(json);
         } catch (ConfigurationParseException e) {
             throw new ServletException(

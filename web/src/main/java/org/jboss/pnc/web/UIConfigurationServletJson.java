@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 /**
  * Dynamically serves a configuration file for the UI.
@@ -40,7 +39,7 @@ public class UIConfigurationServletJson extends HttpServlet {
     public void init() throws ServletException {
         try {
             UiConfigRest configRest = UiConfigRestBuilder.build(configuration);
-            this.uiConfig = JsonOutputConverterMapper.apply(configRest);
+            this.uiConfig = UiConfigRestBuilder.toJson(configRest);
         } catch (ConfigurationParseException e) {
             throw new ServletException(
                     "Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.",
