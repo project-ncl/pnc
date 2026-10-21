@@ -1210,7 +1210,7 @@
         "parameters" : [ {
           "name" : "buildType",
           "in" : "path",
-          "description" : "Build type specified in build config (e.g. MVN, NPM or GRADLE)",
+          "description" : "Build type specified in build config",
           "required" : true,
           "schema" : {
             "type" : "string"
