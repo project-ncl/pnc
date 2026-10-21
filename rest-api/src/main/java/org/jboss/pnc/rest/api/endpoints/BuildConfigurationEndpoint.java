@@ -80,7 +80,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface BuildConfigurationEndpoint {
     static final String BC_ID = "ID of the build config";
     static final String REV = "Revision number of the build config";
-    static final String B_TYPE = "Build type specified in build config (MVN, NPM or GRADLE)";
+    static final String B_TYPE = "Build type specified in build config";
 
     static final String GET_ALL_DESC = "Gets all build configs.";
 

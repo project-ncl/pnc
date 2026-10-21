@@ -61,6 +61,7 @@
             "MVN" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
             "NPM" : "",
             "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true",
+            "ANT" : "",
             "SBT" : "",
             "MVN_RPM" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true"
           }

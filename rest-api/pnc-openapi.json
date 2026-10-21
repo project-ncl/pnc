@@ -1210,7 +1210,7 @@
         "parameters" : [ {
           "name" : "buildType",
           "in" : "path",
-          "description" : "Build type specified in build config (MVN, NPM or GRADLE)",
+          "description" : "Build type specified in build config",
           "required" : true,
           "schema" : {
             "type" : "string"
@@ -11333,7 +11333,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "ANT", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11409,7 +11409,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "ANT", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11449,7 +11449,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "ANT", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11510,7 +11510,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "ANT", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",
@@ -11550,7 +11550,7 @@
           },
           "buildType" : {
             "type" : "string",
-            "enum" : [ "MVN", "NPM", "GRADLE", "SBT", "MVN_RPM", "RPM" ]
+            "enum" : [ "MVN", "NPM", "GRADLE", "ANT", "SBT", "MVN_RPM", "RPM" ]
           },
           "creationTime" : {
             "type" : "string",

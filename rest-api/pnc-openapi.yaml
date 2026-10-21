@@ -869,7 +869,7 @@ paths:
       parameters:
       - name: buildType
         in: path
-        description: "Build type specified in build config (MVN, NPM or GRADLE)"
+        description: Build type specified in build config
         required: true
         schema:
           type: string
@@ -8021,6 +8021,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8082,6 +8083,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8117,6 +8119,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8166,6 +8169,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8203,6 +8207,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
