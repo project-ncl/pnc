@@ -91,7 +91,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface BuildConfigurationEndpoint {
     static final String BC_ID = "ID of the build config";
     static final String REV = "Revision number of the build config";
-    static final String B_TYPE = "Build type specified in build config (MVN, NPM or GRADLE)";
+    static final String B_TYPE = "Build type specified in build config (e.g. MVN, NPM or GRADLE)";
 
     static final String GET_ALL_DESC = "Gets all build configs.";
 

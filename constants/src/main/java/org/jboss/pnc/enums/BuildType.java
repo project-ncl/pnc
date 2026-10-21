@@ -42,6 +42,12 @@ public enum BuildType {
     GRADLE(RepositoryType.MAVEN),
 
     /**
+     * Build using Ant as its build tool. Uses Ant Manipulator in pre-build oprations and {@link RepositoryType#MAVEN}
+     * repository.
+     */
+    ANT(RepositoryType.MAVEN),
+
+    /**
      * Build using SBT (Scala Build Tool) as its build tool. Uses project-manipulator in pre-build oprations and
      * {@link RepositoryType#MAVEN} repository.
      */

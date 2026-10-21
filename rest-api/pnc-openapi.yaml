@@ -5,7 +5,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 3.5.21-SNAPSHOT
+  version: 3.5.22-SNAPSHOT
 servers:
 - url: /pnc-rest
   variables: {}
@@ -869,7 +869,7 @@ paths:
       parameters:
       - name: buildType
         in: path
-        description: "Build type specified in build config (MVN, NPM or GRADLE)"
+        description: "Build type specified in build config (e.g. MVN, NPM or GRADLE)"
         required: true
         schema:
           type: string
@@ -8124,6 +8124,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8185,6 +8186,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8220,6 +8222,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8269,6 +8272,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
@@ -8306,6 +8310,7 @@ components:
           - MVN
           - NPM
           - GRADLE
+          - ANT
           - SBT
           - MVN_RPM
           - RPM
