@@ -19,10 +19,19 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
+import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
+import org.jboss.pnc.enums.JobNotificationType;
+import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.facade.util.ReqourClient;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
@@ -32,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -45,9 +55,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.jboss.pnc.facade.util.ReqourClient;
-import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,6 +77,12 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
 
     @Mock
     private ReqourClient reqourClient;
+
+    @Mock
+    private GlobalModuleGroup globalConfig;
+
+    @Mock
+    private DingroguClient dingroguClient;
 
     @InjectMocks
     private SCMRepositoryProviderImpl provider;
@@ -442,6 +458,125 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         assertFalse(
                 SCMRepositoryProviderImpl
                         .isInternalRepository("git.example.com", null, "git@git.another.com:group/repo.git"));
+    }
+
+    private static final String SSLIP_URL = "http://169.63.101.183.sslip.io/lightwell-builds/github.com-springfox-springfox.git";
+
+    @Test
+    public void testIsInternalRepositoryRejectsLookAlikeHosts() {
+        String authority = "github.ibm.com";
+        // the reported prod sample
+        assertFalse(SCMRepositoryProviderImpl.isInternalRepository(authority, null, SSLIP_URL));
+        // authority in the path
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository(authority, null, "git+ssh://x.net/github.ibm.com/y.git"));
+        assertFalse(SCMRepositoryProviderImpl.isInternalRepository(authority, null, "x/github.ibm.com/y.git"));
+        // authority as prefix / suffix of another host
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository(authority, null, "git@github.ibm.com.evil.net:pnc-prod/x.git"));
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository(authority, null, "git+ssh://github.ibm.com.evil.net/pnc-prod/x.git"));
+        assertFalse(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository(authority, null, "git@evil-github.ibm.com:pnc-prod/x.git"));
+    }
+
+    @Test
+    public void testIsInternalRepositoryAcceptsConfiguredHosts() {
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("github.ibm.com", null, "git@github.ibm.com:pnc-prod/x.git"));
+        assertTrue(
+                SCMRepositoryProviderImpl.isInternalRepository(
+                        "github.ibm.com",
+                        "git.secondary.com",
+                        "git@git.secondary.com:pnc-prod/x.git"));
+        // authority with a port
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("github.com:22", null, "git+ssh://github.com:22/org/x.git"));
+    }
+
+    @Test
+    public void testScpGithubIbmUrlPassesInternalValidation() {
+        configureInternalAuthority();
+        provider.validateInternalRepository("git@github.ibm.com:pnc-prod/x.git"); // must not throw
+    }
+
+    private RepositoryCreationResult.Builder successResult(String internalUrl) {
+        return RepositoryCreationResult.builder()
+                .status(ResultStatus.SUCCESS)
+                .repoCreatedSuccessfully(true)
+                .internalScmUrl(internalUrl)
+                .externalUrl("https://github.com/springfox/springfox.git")
+                .preBuildSyncEnabled(true)
+                .taskId(1L)
+                .jobType(JobNotificationType.SCM_REPOSITORY_CREATION);
+    }
+
+    private void configureInternalAuthority() {
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.ibm.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
+    }
+
+    @Test
+    public void testRepositoryCreationCompletedSavesValidInternalUrl() {
+        configureInternalAuthority();
+
+        provider.repositoryCreationCompleted(successResult("git@github.ibm.com:pnc-prod/x.git").build());
+
+        verify(repository).save(any());
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(notifier).sendMessage(sent.capture());
+        assertThat(sent.getValue()).isInstanceOf(SCMRepositoryCreationSuccess.class);
+    }
+
+    @Test
+    public void testRepositoryCreationCompletedRejectsSslipInternalUrl() {
+        configureInternalAuthority();
+
+        provider.repositoryCreationCompleted(successResult(SSLIP_URL).build()); // must not throw
+
+        verify(repository, never()).save(any());
+        assertCreationErrorSent();
+    }
+
+    @Test
+    public void testRepositoryCreationCompletedRejectsNullInternalUrl() {
+        provider.repositoryCreationCompleted(successResult(null).build()); // must not throw
+
+        verify(repository, never()).save(any());
+        assertCreationErrorSent();
+    }
+
+    /**
+     * The internal authority appearing only in the path of a foreign host must not be routed to the internal branch:
+     * the URL is external, so a clone task is submitted and nothing is saved.
+     */
+    @Test
+    public void testCreateSCMRepositoryWithAuthorityOnlyInPathIsExternal() {
+        configureInternalAuthority();
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("https://evil.net/github.ibm.com/x.git", true);
+
+        assertThat(response.getTaskId()).isNotNull();
+        assertThat(response.getRepository()).isNull();
+        verify(dingroguClient).submitRepositoryCreation(any());
+        verify(repository, never()).save(any());
+    }
+
+    private void assertCreationErrorSent() {
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(notifier).sendMessage(sent.capture());
+        assertThat(sent.getValue()).isInstanceOf(RepositoryCreationFailure.class);
+        RepositoryCreationFailure failure = (RepositoryCreationFailure) sent.getValue();
+        assertThat(failure.getNotificationType()).isEqualTo("RC_REPO_CREATION_ERROR");
+        assertThat(failure.getTaskId()).isEqualTo("1");
+        assertThat(failure.getMessage()).isNotEmpty();
     }
 
 }

@@ -223,8 +223,9 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
         }
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
-        if (scmUrl.contains(config.getInternalScmAuthority())
-                || (secondaryAuthority != null && scmUrl.contains(secondaryAuthority))) { // is internal repository
+        boolean internal = hasInternalHost(scmUrl, config.getInternalScmAuthority())
+                || hasInternalHost(scmUrl, secondaryAuthority);
+        if (internal) {
             // validation phase
             validateInternalRepository(scmUrl);
             validateRepositoryWithInternalURLDoesNotExist(scmUrl, null);
@@ -288,7 +289,7 @@ public class SCMRepositoryProviderImpl
             log.info("Invalid internal repo url: We only allow internal github repo url in scp format");
             throw new InvalidEntityException(
                     "Internal Github repository url has to follow format: git@<server>:<path to git repo>.git");
-        } else if (internalRepoUrl.split("://")[0].contains("http")) {
+        } else if (usesHttpScheme(internalRepoUrl)) {
             log.info("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException(
                     "Incorrect url protocol. Http and https protocols are not supported for internal repository. Try using 'git+ssh'");
@@ -309,20 +310,57 @@ public class SCMRepositoryProviderImpl
             internalRepoUrlNoProto = Urls.stripProtocol(internalRepoUrl);
         }
 
-        String internalRepoName;
-        internalRepoName = internalRepoUrlNoProto.replace(internalScmAuthority, "");
-
-        boolean isInternal = internalRepoUrlNoProto.startsWith(internalScmAuthority);
-        if (isInternal) {
-            internalRepoName = internalRepoUrlNoProto.replace(internalScmAuthority, "");
-        } else if (!StringUtils.isEmpty(secondaryInternalScmAuthority)) {
-            isInternal = internalRepoUrlNoProto.startsWith(secondaryInternalScmAuthority);
-            if (isInternal) {
-                internalRepoName = internalRepoUrlNoProto.replace(secondaryInternalScmAuthority, "");
-            }
+        String internalRepoName = stripAuthority(internalRepoUrlNoProto, internalScmAuthority);
+        if (internalRepoName == null) {
+            internalRepoName = stripAuthority(internalRepoUrlNoProto, secondaryInternalScmAuthority);
         }
 
-        return isInternal && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
+        return internalRepoName != null && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
+    }
+
+    /**
+     * Removes the leading authority from a URL without protocol (and without the 'git@' prefix), but only if the host
+     * of the URL is exactly the authority. The authority can contain a port (e.g. 'github.com:22').
+     *
+     * @return the rest of the URL after the authority (starting with '/' or ':', or empty), or null if the URL is not
+     *         on the authority (e.g. the authority is only a prefix of the host, or appears in the path)
+     */
+    private static String stripAuthority(String urlNoProto, String authority) {
+        if (StringUtils.isEmpty(authority) || !urlNoProto.startsWith(authority)) {
+            return null;
+        }
+        String rest = urlNoProto.substring(authority.length());
+        if (!rest.isEmpty() && rest.charAt(0) != '/' && rest.charAt(0) != ':') {
+            return null;
+        }
+        return rest;
+    }
+
+    /**
+     * Decides whether the URL points to the given authority, to be used to choose between the internal and the external
+     * repository creation. User info ('user@') is ignored here, so that URLs such as 'git+ssh://git@host/x.git' are
+     * routed to the internal validation (which rejects them) and not cloned as external.
+     */
+    private static boolean hasInternalHost(String scmUrl, String authority) {
+        if (StringUtils.isEmpty(authority)) {
+            return false;
+        }
+        String urlNoProto = Urls.stripProtocol(scmUrl);
+        int at = urlNoProto.indexOf('@');
+        int slash = urlNoProto.indexOf('/');
+        if (at >= 0 && (slash < 0 || at < slash)) {
+            urlNoProto = urlNoProto.substring(at + 1);
+        }
+        return stripAuthority(urlNoProto, authority) != null;
+    }
+
+    private static boolean usesHttpScheme(String url) {
+        int schemeEnd = url.indexOf("://");
+        if (schemeEnd < 0) {
+            return false;
+        }
+        String scheme = url.substring(0, schemeEnd);
+        return "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
     }
 
     private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl, Integer ignoreId)
@@ -402,6 +440,25 @@ public class SCMRepositoryProviderImpl
     @Override
     public void repositoryCreationCompleted(RepositoryCreationResult result) {
         if (result.getStatus().isSuccess()) {
+            try {
+                if (StringUtils.isEmpty(result.getInternalScmUrl())) {
+                    throw new InvalidEntityException("The repository creation result does not contain internal URL.");
+                }
+                validateInternalRepository(result.getInternalScmUrl());
+            } catch (InvalidEntityException e) {
+                // Do not throw: the caller (dingrogu) retries on non-2xx, the failure is reported by notification.
+                log.warn(
+                        "Rejecting repository creation result of task {}, internal URL '{}' is not valid: {}",
+                        result.getTaskId(),
+                        result.getInternalScmUrl(),
+                        e.getMessage());
+                notifier.sendMessage(
+                        createRepositoryCreationFailure(
+                                result,
+                                BpmEventType.RC_REPO_CREATION_ERROR.toString(),
+                                e.getMessage()));
+                return;
+            }
             RepositoryConfiguration existing = repository
                     .queryByPredicates(withExactInternalScmRepoUrl(result.getInternalScmUrl()));
             if (existing != null) {
@@ -438,27 +495,32 @@ public class SCMRepositoryProviderImpl
                 eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
             }
 
-            org.jboss.pnc.dto.internal.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.dto.internal.RepositoryConfiguration
-                    .builder()
-                    .externalUrl(result.getExternalUrl())
-                    .preBuildSyncEnabled(result.isPreBuildSyncEnabled())
-                    .build();
-            RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
-                    .repositoryConfiguration(repositoryConfiguration)
-                    .build();
-
             final String errorMessage = String.format(
                     "%s. %s",
                     result.getExceptionResolution().getReason(),
                     result.getExceptionResolution().getProposal());
-            notifier.sendMessage(
-                    new RepositoryCreationFailure(
-                            result.getJobType(),
-                            eventType,
-                            repositoryCreationProcess,
-                            result.getTaskId().toString(),
-                            errorMessage));
+            notifier.sendMessage(createRepositoryCreationFailure(result, eventType, errorMessage));
         }
+    }
+
+    private RepositoryCreationFailure createRepositoryCreationFailure(
+            RepositoryCreationResult result,
+            String eventType,
+            String errorMessage) {
+        org.jboss.pnc.dto.internal.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.dto.internal.RepositoryConfiguration
+                .builder()
+                .externalUrl(result.getExternalUrl())
+                .preBuildSyncEnabled(result.isPreBuildSyncEnabled())
+                .build();
+        RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
+                .repositoryConfiguration(repositoryConfiguration)
+                .build();
+        return new RepositoryCreationFailure(
+                result.getJobType(),
+                eventType,
+                repositoryCreationProcess,
+                result.getTaskId().toString(),
+                errorMessage);
     }
 
     /**
