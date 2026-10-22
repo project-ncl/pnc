@@ -207,10 +207,7 @@ public class SCMRepositoryProviderImpl
         if (StringUtils.isEmpty(scmUrl)) {
             throw new InvalidEntityException("You must specify the SCM URL.");
         }
-        String bannedSCMUrl = config.getBannedScmAuthority();
-        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl) && !isWhitelistedScmGroup(scmUrl)) {
-            throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
-        }
+        validateScmUrlNotBanned(scmUrl);
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
         if (scmUrl.contains(config.getInternalScmAuthority())
                 || (secondaryAuthority != null && scmUrl.contains(secondaryAuthority))) { // is internal repository
@@ -239,7 +236,19 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("Updating internal URL is prohibited. SCMRepo: " + id);
         }
         if (restEntity.getExternalUrl() != null && !restEntity.getExternalUrl().equals(entityInDb.getExternalUrl())) {
+            validateScmUrlNotBanned(restEntity.getExternalUrl());
             validateRepositoryWithExternalURLDoesNotExist(restEntity.getExternalUrl(), id);
+        }
+    }
+
+    /**
+     * Rejects an SCM URL that falls under the configured {@link ScmModuleConfig#getBannedScmAuthority() banned SCM
+     * authority}, unless it matches one of the whitelisted groups (see {@link #isWhitelistedScmGroup(String)}).
+     */
+    private void validateScmUrlNotBanned(String scmUrl) {
+        String bannedSCMUrl = config.getBannedScmAuthority();
+        if (bannedSCMUrl != null && scmUrl.contains(bannedSCMUrl) && !isWhitelistedScmGroup(scmUrl)) {
+            throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
         }
     }
 
