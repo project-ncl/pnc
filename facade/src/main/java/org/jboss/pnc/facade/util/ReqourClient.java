@@ -10,10 +10,12 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.pnc.api.reqour.dto.TranslateRequest;
 import org.jboss.pnc.api.reqour.dto.TranslateResponse;
+import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.StringUtils;
 
@@ -28,6 +30,9 @@ public class ReqourClient {
     @Inject
     private GlobalModuleGroup globalModuleGroupConfiguration;
 
+    @Inject
+    private ServiceAccountClient serviceAccountClient;
+
     private final Client client = ClientBuilder.newClient();
 
     public String translateExternalUrl(String externalUrl) {
@@ -36,6 +41,7 @@ public class ReqourClient {
             TranslateResponse response = client.target(globalModuleGroupConfiguration.getExternalReqourUrl())
                     .path(TRANSLATE_ENDPOINT)
                     .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header(HttpHeaders.AUTHORIZATION, serviceAccountClient.getAuthHeaderValue())
                     .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE), TranslateResponse.class);
             if (StringUtils.isEmpty(response.getInternalUrl())) {
                 throw new RuntimeException("Failed to read translation of external URL to internal one.");
