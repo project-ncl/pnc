@@ -569,6 +569,142 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         verify(repository, never()).save(any());
     }
 
+    /** An scp-like URL on the internal authority must be routed to the internal branch, not cloned as external. */
+    @Test
+    public void testCreateSCMRepositoryWithScpUrlOnInternalAuthorityIsInternal() {
+        configureInternalAuthority();
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("git@github.ibm.com:pnc-prod/x.git", true);
+
+        assertThat(response.getTaskId()).isNull();
+        assertThat(response.getRepository()).isNotNull();
+        verify(repository).save(any());
+        verify(dingroguClient, never()).submitRepositoryCreation(any());
+    }
+
+    /** The host is compared case-insensitively, for both routing and validation. */
+    @Test
+    public void testCreateSCMRepositoryHostMatchIsCaseInsensitive() {
+        configureInternalAuthority();
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("git@GITHUB.IBM.COM:pnc-prod/x.git", true);
+
+        assertThat(response.getTaskId()).isNull();
+        assertThat(response.getRepository()).isNotNull();
+        verify(dingroguClient, never()).submitRepositoryCreation(any());
+    }
+
+    /**
+     * Github internal URLs must be in scp format (NCL-8685). A non-scp URL on the internal authority, with or without
+     * user info, is routed to the internal branch and rejected there, not cloned as external.
+     */
+    @Test
+    public void testCreateSCMRepositoryGithubNonScpUrlIsRoutedInternalAndRejected() {
+        configureInternalAuthority();
+
+        for (String url : new String[] {
+                "git+ssh://github.ibm.com/pnc-prod/x.git",
+                "git+ssh://git@github.ibm.com/pnc-prod/x.git" }) {
+            assertThatThrownBy(() -> provider.createSCMRepository(url, true)).as(url)
+                    .isInstanceOf(InvalidEntityException.class)
+                    .hasMessageContaining("git@<server>:<path to git repo>.git");
+        }
+        verify(dingroguClient, never()).submitRepositoryCreation(any());
+        verify(repository, never()).save(any());
+    }
+
+    /** User info is ignored when matching the host; other providers may use 'git+ssh://git@host/...' (NCL-8685). */
+    @Test
+    public void testCreateSCMRepositoryNonGithubUrlWithUserInfoIsInternal() {
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("gitlab.company.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("git+ssh://git@gitlab.company.com/group/x.git", true);
+
+        assertThat(response.getTaskId()).isNull();
+        assertThat(response.getRepository()).isNotNull();
+        verify(dingroguClient, never()).submitRepositoryCreation(any());
+    }
+
+    @Test
+    public void testIsInternalRepositoryIsCaseInsensitiveAndIgnoresUrlPortForAuthorityWithPort() {
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("github.ibm.com", null, "git@GITHUB.IBM.COM:pnc-prod/x.git"));
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("GitHub.IBM.com", null, "git@github.ibm.com:pnc-prod/x.git"));
+        // an authority configured with a port matches the host whatever port the URL carries
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("github.com:22", null, "git+ssh://github.com/org/x.git"));
+        assertTrue(
+                SCMRepositoryProviderImpl
+                        .isInternalRepository("github.com:22", null, "git+ssh://github.com:2222/org/x.git"));
+    }
+
+    /** A '#ref' fragment is validated against the repository name pattern for scp-like and scheme URLs alike. */
+    @Test
+    public void testIsInternalRepositoryValidatesTheFragment() {
+        for (String url : new String[] {
+                "git@github.ibm.com:pnc-prod/x.git#abc123",
+                "git@github.ibm.com:pnc-prod/x.git#v1.0-rc_1",
+                "git+ssh://github.ibm.com/pnc-prod/x.git#abc123" }) {
+            assertTrue(url, SCMRepositoryProviderImpl.isInternalRepository("github.ibm.com", null, url));
+        }
+        for (String url : new String[] {
+                "git@github.ibm.com:pnc-prod/x.git#bad ref",
+                "git@github.ibm.com:pnc-prod/x.git#a!b",
+                "git@github.ibm.com:pnc-prod/x.git#",
+                "git+ssh://github.ibm.com/pnc-prod/x.git#bad ref",
+                "git+ssh://github.ibm.com/pnc-prod/x.git#a!b",
+                "git+ssh://github.ibm.com/pnc-prod/x.git#" }) {
+            assertFalse(url, SCMRepositoryProviderImpl.isInternalRepository("github.ibm.com", null, url));
+        }
+    }
+
+    /** A URL that cannot be parsed is not on the internal host; it must not fail with an exception (a 500). */
+    @Test
+    public void testIsInternalRepositoryIsFalseForUnparsableUrl() {
+        for (String url : new String[] {
+                "git@evil.net#github.ibm.com:pnc-prod/x.git",
+                "x",
+                "git@:a",
+                "https://",
+                "not a url" }) {
+            assertFalse(url, SCMRepositoryProviderImpl.isInternalRepository("github.ibm.com", null, url));
+        }
+    }
+
+    /** An unparsable URL is routed as external (cloned), not failed with an exception (a 500). */
+    @Test
+    public void testCreateSCMRepositoryWithUnparsableUrlIsRoutedExternal() {
+        configureInternalAuthority();
+
+        RepositoryCreationResponse response = provider.createSCMRepository("git@evil.net#github.ibm.com:x.git", true);
+
+        assertThat(response.getTaskId()).isNotNull();
+        verify(dingroguClient).submitRepositoryCreation(any());
+        verify(repository, never()).save(any());
+    }
+
+    /** An scp URL with a (valid) fragment on the internal authority is saved, not cloned. */
+    @Test
+    public void testCreateSCMRepositoryWithScpUrlAndFragmentIsInternal() {
+        configureInternalAuthority();
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("git@github.ibm.com:pnc-prod/x.git#abc123", true);
+
+        assertThat(response.getTaskId()).isNull();
+        assertThat(response.getRepository()).isNotNull();
+        verify(repository).save(any());
+        verify(dingroguClient, never()).submitRepositoryCreation(any());
+    }
+
     private void assertCreationErrorSent() {
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(notifier).sendMessage(sent.capture());
