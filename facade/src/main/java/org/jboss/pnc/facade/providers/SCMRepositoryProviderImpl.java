@@ -21,7 +21,6 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.api.enums.orch.BpmEventType;
 import org.jboss.pnc.dto.internal.RepositoryCreationProcess;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.Urls;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -223,11 +222,12 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("SCM repositories from " + bannedSCMUrl + " are not supported");
         }
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
-        boolean internal = hasInternalHost(scmUrl, config.getInternalScmAuthority())
-                || hasInternalHost(scmUrl, secondaryAuthority);
+        ScmUrlNormalizer parsedUrl = parseOrEmpty(scmUrl);
+        boolean internal = isAuthorityHost(parsedUrl, config.getInternalScmAuthority())
+                || isAuthorityHost(parsedUrl, secondaryAuthority);
         if (internal) {
             // validation phase
-            validateInternalRepository(scmUrl);
+            validateInternalRepository(scmUrl, parsedUrl);
             validateRepositoryWithInternalURLDoesNotExist(scmUrl, null);
 
             SCMRepository scmRepository = createSCMRepositoryFromValues(null, scmUrl, false);
@@ -277,9 +277,14 @@ public class SCMRepositoryProviderImpl
     }
 
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
+        validateInternalRepository(internalRepoUrl, parseOrEmpty(internalRepoUrl));
+    }
+
+    private void validateInternalRepository(String internalRepoUrl, ScmUrlNormalizer parsedUrl)
+            throws InvalidEntityException {
         String internalScmAuthority = config.getInternalScmAuthority();
         String secondaryInternalScmAuthority = config.getSecondaryInternalScmAuthority();
-        if (!isInternalRepository(internalScmAuthority, secondaryInternalScmAuthority, internalRepoUrl)) {
+        if (!isInternalRepository(internalScmAuthority, secondaryInternalScmAuthority, parsedUrl)) {
             log.info("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException(
                     "Internal repository url " + internalRepoUrl + " has to start with: <protocol>://"
@@ -303,55 +308,64 @@ public class SCMRepositoryProviderImpl
         if (StringUtils.isEmpty(internalRepoUrl) || internalScmAuthority == null) {
             throw new IllegalArgumentException("InternalScmAuthority and internalRepoUrl parameters must be set.");
         }
-        String internalRepoUrlNoProto;
-        if (internalRepoUrl.startsWith("git@")) {
-            internalRepoUrlNoProto = internalRepoUrl.substring(4);
-        } else {
-            internalRepoUrlNoProto = Urls.stripProtocol(internalRepoUrl);
-        }
+        return isInternalRepository(internalScmAuthority, secondaryInternalScmAuthority, parseOrEmpty(internalRepoUrl));
+    }
 
-        String internalRepoName = stripAuthority(internalRepoUrlNoProto, internalScmAuthority);
-        if (internalRepoName == null) {
-            internalRepoName = stripAuthority(internalRepoUrlNoProto, secondaryInternalScmAuthority);
+    private static boolean isInternalRepository(
+            String internalScmAuthority,
+            String secondaryInternalScmAuthority,
+            ScmUrlNormalizer parsedUrl) {
+        if (!isAuthorityHost(parsedUrl, internalScmAuthority)
+                && !isAuthorityHost(parsedUrl, secondaryInternalScmAuthority)) {
+            return false;
         }
-
+        String internalRepoName = repositoryName(parsedUrl);
         return internalRepoName != null && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
     }
 
     /**
-     * Removes the leading authority from a URL without protocol (and without the 'git@' prefix), but only if the host
-     * of the URL is exactly the authority. The authority can contain a port (e.g. 'github.com:22').
-     *
-     * @return the rest of the URL after the authority (starting with '/' or ':', or empty), or null if the URL is not
-     *         on the authority (e.g. the authority is only a prefix of the host, or appears in the path)
+     * Parses the URL once for all the checks. A URL that cannot be parsed gets the empty result (no host, no path),
+     * which matches no authority: routing must never fail on a malformed URL (that would be a 500, also for external
+     * URLs), it is just not on the internal host.
      */
-    private static String stripAuthority(String urlNoProto, String authority) {
-        if (StringUtils.isEmpty(authority) || !urlNoProto.startsWith(authority)) {
-            return null;
+    private static ScmUrlNormalizer parseOrEmpty(String url) {
+        try {
+            return ScmUrlNormalizer.parse(url);
+        } catch (IllegalArgumentException e) {
+            return ScmUrlNormalizer.parse(null);
         }
-        String rest = urlNoProto.substring(authority.length());
-        if (!rest.isEmpty() && rest.charAt(0) != '/' && rest.charAt(0) != ':') {
-            return null;
-        }
-        return rest;
     }
 
     /**
-     * Decides whether the URL points to the given authority, to be used to choose between the internal and the external
-     * repository creation. User info ('user@') is ignored here, so that URLs such as 'git+ssh://git@host/x.git' are
-     * routed to the internal validation (which rejects them) and not cloned as external.
+     * Decides whether the URL is hosted on the given authority, to be used to choose between the internal and the
+     * external repository creation. Only the host is compared (case-insensitively); scheme, user info ('user@') and
+     * port of the URL are ignored, as is the port of an authority configured with one. Whether a URL on the authority
+     * is acceptable as an internal URL is decided later by {@link #validateInternalRepository(String)} (e.g. Github
+     * internal URLs must be in scp format, NCL-8685), so a URL on the authority that is not acceptable is rejected
+     * there instead of being cloned as external.
      */
-    private static boolean hasInternalHost(String scmUrl, String authority) {
+    private static boolean isAuthorityHost(ScmUrlNormalizer parsedUrl, String authority) {
         if (StringUtils.isEmpty(authority)) {
             return false;
         }
-        String urlNoProto = Urls.stripProtocol(scmUrl);
-        int at = urlNoProto.indexOf('@');
-        int slash = urlNoProto.indexOf('/');
-        if (at >= 0 && (slash < 0 || at < slash)) {
-            urlNoProto = urlNoProto.substring(at + 1);
+        String expected = authority.toLowerCase();
+        int port = expected.indexOf(':');
+        if (port >= 0) {
+            expected = expected.substring(0, port);
         }
-        return stripAuthority(urlNoProto, authority) != null;
+        return parsedUrl.getHost().toLowerCase().equals(expected);
+    }
+
+    /**
+     * Repository-name part (leading '/' + path + '.git' + optional '#fragment') of an SCM URL, or null if the URL has
+     * no path. This is what {@link #REPOSITORY_NAME_PATTERN} validates.
+     */
+    private static String repositoryName(ScmUrlNormalizer parsedUrl) {
+        if (parsedUrl.getPath().isEmpty()) {
+            return null;
+        }
+        String fragment = parsedUrl.getFragment();
+        return "/" + parsedUrl.getPath() + (fragment == null ? "" : "#" + fragment);
     }
 
     private static boolean usesHttpScheme(String url) {
