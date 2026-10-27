@@ -30,6 +30,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.scm.GitSCPUrl;
 import org.jboss.pnc.common.scm.ScmException;
 import org.jboss.pnc.common.scm.ScmUrlGeneratorProvider;
+import org.jboss.pnc.common.scm.ScmUrlNormalizer;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dingroguclient.DingroguClient;
 import org.jboss.pnc.dingroguclient.DingroguRepositoryCreationDTO;
