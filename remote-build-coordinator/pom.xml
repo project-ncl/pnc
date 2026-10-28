@@ -75,11 +75,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>causeway-client</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
