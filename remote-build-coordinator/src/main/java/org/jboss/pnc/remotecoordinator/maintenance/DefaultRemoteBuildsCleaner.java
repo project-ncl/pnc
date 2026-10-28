@@ -5,32 +5,21 @@
 package org.jboss.pnc.remotecoordinator.maintenance;
 
 import java.text.MessageFormat;
-import java.util.List;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
-import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryRollbackRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryRollbackResult;
-import org.jboss.pnc.auth.ServiceAccountClient;
-import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.model.BuildPushOperation;
-import org.jboss.pnc.model.BuildPushReport;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.spi.datastore.predicates.BuildPushPredicates;
-import org.jboss.pnc.spi.datastore.predicates.OperationPredicates;
-import org.jboss.pnc.spi.datastore.repositories.BuildPushOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,25 +33,13 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private RepoDriverClient repoDriverClient;
 
-    private ServiceAccountClient serviceClient;
-
-    private CausewayClient causewayClient;
-
-    private final BuildPushOperationRepository buildPushOperationRepository;
-
     private final IndyRepoDriverModuleConfig indyRepoDriverConfig;
 
     @Inject
     public DefaultRemoteBuildsCleaner(
             Configuration configuration,
-            @RestClient RepoDriverClient repoDriverClient,
-            ServiceAccountClient serviceClient,
-            CausewayClient causewayClient,
-            BuildPushOperationRepository buildPushOperationRepository) {
+            @RestClient RepoDriverClient repoDriverClient) {
         this.repoDriverClient = repoDriverClient;
-        this.serviceClient = serviceClient;
-        this.causewayClient = causewayClient;
-        this.buildPushOperationRepository = buildPushOperationRepository;
 
         try {
             this.indyRepoDriverConfig = configuration
@@ -85,31 +62,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         // if (!result.isSuccess()) {
         //     return result;
         // }
-        result = requestDeleteViaCauseway(buildRecord);
-        if (!result.isSuccess()) {
-            return result;
-        }
         return new Result(BuildMapper.idMapper.toDto(buildRecord.getId()), ResultStatus.SUCCESS);
-    }
-
-    private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
-        List<BuildPushOperation> buildPushOperations = buildPushOperationRepository.queryWithPredicates(
-                BuildPushPredicates.withBuild(buildRecord.getId()),
-                OperationPredicates.withResult(OperationResult.SUCCESSFUL));
-        String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
-        for (BuildPushOperation buildPushOperation : buildPushOperations) {
-            BuildPushReport report = buildPushOperation.getReport();
-            boolean success = causewayUntag(report.getOperation().getTagPrefix(), report.getBrewBuildId());
-            if (!success) {
-                logger.error(
-                        "Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
-                        buildRecord.getId(),
-                        report.getBrewBuildId(),
-                        report.getOperation().getTagPrefix());
-                return new Result(externalBuildId, ResultStatus.FAILED, "Failed to un-tag pushed build record.");
-            }
-        }
-        return new Result(externalBuildId, ResultStatus.SUCCESS);
     }
 
     private Result deleteBuildsFromArtifactory(BuildRecord buildRecord) {
@@ -148,18 +101,6 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             result = new Result(buildContentId, ResultStatus.FAILED, description);
         }
         return result;
-    }
-
-    private boolean causewayUntag(String tagPrefix, int brewBuildId) {
-        String authHeaderValue = serviceClient.getAuthHeaderValue();
-
-        UntagRequest untagRequest = prepareUntagRequest(tagPrefix, brewBuildId);
-        return causewayClient.untagBuild(untagRequest, authHeaderValue);
-    }
-
-    private UntagRequest prepareUntagRequest(String tagPrefix, int brewBuildId) {
-        TaggedBuild taggedBuild = new TaggedBuild(tagPrefix, brewBuildId);
-        return new UntagRequest(null, taggedBuild);
     }
 
 }
