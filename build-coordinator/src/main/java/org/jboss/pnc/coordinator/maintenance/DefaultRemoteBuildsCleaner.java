@@ -4,38 +4,24 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
-import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_GENERIC_HTTP;
-import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
-import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
-
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.apache.commons.io.IOUtils;
-import org.commonjava.indy.client.core.Indy;
-import org.commonjava.indy.client.core.IndyClientException;
-import org.commonjava.indy.client.core.module.IndyStoresClientModule;
-import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
-import org.commonjava.indy.model.core.BatchDeleteRequest;
-import org.commonjava.indy.model.core.Group;
-import org.commonjava.indy.model.core.StoreKey;
-import org.commonjava.indy.model.core.StoreType;
-import org.commonjava.indy.model.core.dto.StoreListingDTO;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
-import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.repositorydriver.dto.RepositoryRollbackRequest;
+import org.jboss.pnc.api.repositorydriver.dto.RepositoryRollbackResult;
 import org.jboss.pnc.auth.ServiceAccountClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildPushOperation;
@@ -56,7 +42,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private Logger logger = LoggerFactory.getLogger(DefaultRemoteBuildsCleaner.class);
 
-    private final Indy indy;
+    private RepoDriverClient repoDriverClient;
 
     ServiceAccountClient serviceClient;
 
@@ -69,11 +55,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     @Inject
     public DefaultRemoteBuildsCleaner(
             Configuration configuration,
-            Indy indy,
+            @RestClient RepoDriverClient repoDriverClient,
             ServiceAccountClient serviceClient,
             CausewayClient causewayClient,
             BuildPushOperationRepository buildPushOperationRepository) {
-        this.indy = indy;
+        this.repoDriverClient = repoDriverClient;
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
         this.buildPushOperationRepository = buildPushOperationRepository;
@@ -90,10 +76,15 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     @Override
     public Result deleteRemoteBuilds(BuildRecord buildRecord) {
-        Result result = deleteBuildsFromIndy(buildRecord);
+        Result result = deleteBuildsFromArtifactory(buildRecord);
         if (!result.isSuccess()) {
             return result;
         }
+        // TODO
+        // result = deleteLogsFromBifrost(buildRecord);
+        // if (!result.isSuccess()) {
+        //     return result;
+        // }
         result = requestDeleteViaCauseway(buildRecord);
         if (!result.isSuccess()) {
             return result;
@@ -121,116 +112,42 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         return new Result(externalBuildId, ResultStatus.SUCCESS);
     }
 
-    private Result deleteBuildsFromIndy(BuildRecord buildRecord) {
+    private Result deleteBuildsFromArtifactory(BuildRecord buildRecord) {
         String buildContentId = buildRecord.getBuildContentId();
-        BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
-        String pkgKey = getRepoPkgKey(buildType);
 
         Result result;
         if (buildContentId == null) {
-            logger.debug("Build contentId is null. Nothing to be deleted from Indy.");
+            logger.debug("Build contentId is null. Nothing to be deleted from Artifactory.");
             return new Result(
                     buildContentId,
                     ResultStatus.SUCCESS,
-                    "BuildContentId is null. Nothing to be deleted from Indy.");
+                    "BuildContentId is null. Nothing to be deleted from Artifactory.");
         }
 
         try {
-            IndyStoresClientModule indyStores = indy.stores();
-            if (pkgKey != null) {
-                // delete artifacts from consolidated repository
-                // (failed builds are not promoted and don't have artifacts in consolidated repository)
-                if (buildRecord.getStatus().completedSuccessfully()) {
-                    String tempBuildPromotionTarget = resolveTempBuildPromotionTarget(buildRecord);
-                    StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionTarget);
-
-                    BatchDeleteRequest request = new BatchDeleteRequest();
-                    request.setTrackingID(buildContentId);
-                    request.setStoreKey(tempHostedKey);
-                    indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
-                }
-
-                // delete the content
-                StoreKey storeKey = new StoreKey(pkgKey, StoreType.hosted, buildContentId);
-                indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.", true);
-            }
-            // delete generic http repos
-            List<Group> genericGroups;
-            try {
-                StoreListingDTO<Group> groupListing = indyStores.listGroups(PKG_TYPE_GENERIC_HTTP);
-                genericGroups = groupListing.getItems();
-
-                for (Group genericGroup : genericGroups) {
-                    if (genericGroup.getName().startsWith("g-")
-                            && genericGroup.getName().endsWith("-" + buildContentId)) {
-                        deleteRepoGroup(indyStores, genericGroup);
-                    }
-                }
-            } catch (IndyClientException e) {
-                String description = MessageFormat
-                        .format("Error in deleting generic http repos for build {0}: {1}", buildContentId, e);
-                logger.error(description, e);
+            // delete artifacts from consolidated repositories
+            RepositoryRollbackRequest request = RepositoryRollbackRequest.builder()
+                    .buildContentId(buildContentId)
+                    .build();
+            RepositoryRollbackResult rollbackResult = repoDriverClient.rollback(request);
+            if (!rollbackResult.getStatus().isSuccess()) {
+                String description = MessageFormat.format(
+                        "Failed to rollback promoted artifacts identified by buildContentId {0}.",
+                        buildContentId);
+                result = new Result(buildContentId, ResultStatus.FAILED, description);
             }
 
-            // delete the tracking record
-            IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
-            foloAdmin.clearTrackingRecord(buildContentId);
+            // mark the repository for deletion and delete the tracking report
+            // TODO repoDriverClient.cleanup(buildContentId);
             result = new Result(buildContentId, ResultStatus.SUCCESS);
-        } catch (IndyClientException e) {
+        } catch (RuntimeException e) {
             String description = MessageFormat.format(
                     "Failed to delete temporary hosted repository identified by buildContentId {0}.",
                     buildContentId);
             logger.error(description, e);
             result = new Result(buildContentId, ResultStatus.FAILED, description);
-        } finally {
-            IOUtils.closeQuietly(indy);
         }
         return result;
-    }
-
-    private String resolveTempBuildPromotionTarget(BuildRecord buildRecord) {
-        Map<String, String> genericParameters = buildRecord.getBuildConfigurationAudited().getGenericParameters();
-        String buildCategory = null;
-        if (genericParameters != null) {
-            buildCategory = genericParameters.get(BuildConfigurationParameterKeys.BUILD_CATEGORY.name());
-        }
-        if (buildCategory == null) {
-            buildCategory = "STANDARD";
-        }
-        return indyRepoDriverConfig.getTempBuildPromotionTarget(buildCategory);
-    }
-
-    /**
-     * Gets the Indy package key based on build type. It reads the PNC repo type from the build type and translates it
-     * into the Indy package type.
-     *
-     * @param buildType the build type, cannot be {@code null}
-     * @return the package key or {@code null} in case an unsupported build type is passed in
-     */
-    private String getRepoPkgKey(BuildType buildType) {
-        switch (buildType.getRepoType()) {
-            case MAVEN:
-                return PKG_TYPE_MAVEN;
-
-            case NPM:
-                return PKG_TYPE_NPM;
-
-            default:
-                logger.error("No default repository type for build type {}.", buildType);
-                return null;
-        }
-    }
-
-    private void deleteRepoGroup(IndyStoresClientModule indyStores, Group group) throws IndyClientException {
-        for (StoreKey constituent : group.getConstituents()) {
-            if (StoreType.group == constituent.getType()) {
-                Group subgroup = indyStores.load(constituent, Group.class);
-                deleteRepoGroup(indyStores, subgroup);
-            } else {
-                indyStores.delete(constituent, "Scheduled cleanup of temporary builds.");
-            }
-        }
-        indyStores.delete(group.getKey(), "Scheduled cleanup of temporary builds.");
     }
 
     private boolean causewayUntag(String tagPrefix, int brewBuildId) {

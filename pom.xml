@@ -91,14 +91,13 @@
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.9</atlasVersion>
-    <indyVersion>3.4.5</indyVersion>
     <version.keycloak>18.0.11.redhat-00001</version.keycloak>
     <version.swagger2>2.2.42</version.swagger2>
     <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.46</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
     <version.pncmetrics>1.1.12</version.pncmetrics>
-    <version.pnc-api>3.6.0-SNAPSHOT</version.pnc-api>
+    <version.pnc-api>3.99.1-SNAPSHOT</version.pnc-api>
     <version.pnc-common>3.5.5-SNAPSHOT</version.pnc-common>
     <version.rex-api>1.2.3</version.rex-api>
     <bifrost-client.version>3.5.2-SNAPSHOT</bifrost-client.version>
@@ -901,33 +900,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-promote-client-java</artifactId>
-        <version>${indyVersion}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.commonjava.indy</groupId>
-        <artifactId>indy-folo-client-java</artifactId>
-        <version>${indyVersion}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured</artifactId>
         <version>${version.rest-assured}</version>
@@ -1135,7 +1107,7 @@
         TODO: check and remove when no longer relevant
       -->
 
-      <!-- 1.76.0.redhat-00001 via keycloak-core and indy-promote-client -->
+      <!-- 1.76.0.redhat-00001 via keycloak-core -->
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
