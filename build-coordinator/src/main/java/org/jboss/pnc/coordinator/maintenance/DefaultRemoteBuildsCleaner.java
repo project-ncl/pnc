@@ -88,11 +88,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                         "Failed to rollback promoted artifacts identified by buildContentId {0}.",
                         buildContentId);
                 result = new Result(buildContentId, ResultStatus.FAILED, description);
+            } else {
+                // mark the repository for deletion and delete the tracking report
+                // TODO repoDriverClient.cleanup(buildContentId);
+                result = new Result(buildContentId, ResultStatus.SUCCESS);
             }
-
-            // mark the repository for deletion and delete the tracking report
-            // TODO repoDriverClient.cleanup(buildContentId);
-            result = new Result(buildContentId, ResultStatus.SUCCESS);
         } catch (RuntimeException e) {
             String description = MessageFormat.format(
                     "Failed to delete temporary hosted repository identified by buildContentId {0}.",
