@@ -17,6 +17,12 @@ updates:
       exclude:
         - "org.jboss.da:*"
         - "org.jboss.pnc*:*"        # match org.jboss.pnc:xyz and org.jboss.pnc.group:xyz
+    ignore:
+      # smallrye-config 4.x is binary-incompatible with resteasy-client-microprofile 3.15.x;
+      # SmallRyeConfigProviderResolver#getConfig() changed return type, causing AbstractMethodError.
+      # Remove this exclusion when resteasy-client-microprofile is upgraded to a 4.x-compatible version.
+      - dependency-name: "io.smallrye.config:smallrye-config"
+        versions: ["4.x", "5.x"]
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
