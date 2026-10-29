@@ -125,7 +125,7 @@
     <version.mockito>5.24.0</version.mockito>
     <version.wiremock>2.35.0</version.wiremock>
     <version.dbunit>3.0.0</version.dbunit>
-    <version.h2db>2.4.240</version.h2db>
+    <version.h2db>2.5.252</version.h2db>
     <version.rest-assured>5.5.5</version.rest-assured>
     <version.weld-in-tests>3.1.4.Final</version.weld-in-tests>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
