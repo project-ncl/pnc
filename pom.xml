@@ -140,6 +140,7 @@
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.23.2</version.org.jsoup.jsoup>
     <version.org.slf4j>2.0.20</version.org.slf4j>
+    <version.bouncycastle>1.86</version.bouncycastle>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -1111,17 +1112,17 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
-        <version>1.85</version>
+        <version>${version.bouncycastle}</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk18on</artifactId>
-        <version>1.86</version>
+        <version>${version.bouncycastle}</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcutil-jdk18on</artifactId>
-        <version>1.86</version>
+        <version>${version.bouncycastle}</version>
       </dependency>
 
       <!-- kafka-clients-3.0.0.redhat-00008 via apicurio-registry-utils-kafka -->
