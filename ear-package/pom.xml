@@ -291,13 +291,6 @@
             </webModule>
           </modules>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-io</artifactId>
-            <version>3.8.1</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
