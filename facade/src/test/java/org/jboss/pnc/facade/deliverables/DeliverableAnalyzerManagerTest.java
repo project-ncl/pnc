@@ -8,6 +8,7 @@ import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -114,7 +115,7 @@ public class DeliverableAnalyzerManagerTest {
         when(artifactRepository.save(any())).thenAnswer(new RepositorSave(artifacts));
 
         when(artifactRepository.queryWithPredicates(any())).thenReturn(artifacts); // just return all for the cache
-        when((userService.currentUser())).thenReturn(USER);
+        lenient().when((userService.currentUser())).thenReturn(USER);
         when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
         when(deliverableAnalyzerOperationRepository.queryById(any())).thenReturn(deliverableAnalyzerOperation);
         when(deliverableAnalyzerReportRepository.save(any()))

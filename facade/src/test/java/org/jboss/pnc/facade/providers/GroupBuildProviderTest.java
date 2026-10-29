@@ -16,6 +16,7 @@ import static org.jboss.pnc.common.util.RandomUtils.randInt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -99,7 +100,7 @@ public class GroupBuildProviderTest extends AbstractBase32LongIDProviderTest<Bui
                 Arrays.asList(new BuildConfigSetRecord[] { a, b, c, d, e, bcsr }));
         fillRepository(records);
 
-        when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
+        lenient().when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
         when(serviceAccountClient.getAuthHeaderValue()).thenReturn("Bearer " + USER_TOKEN);
     }
 

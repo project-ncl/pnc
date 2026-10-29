@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
@@ -54,9 +54,6 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
 
     @Mock
     private Notifier notifier;
-
-    @Mock
-    private Configuration configuration;
 
     @Mock
     private ScmModuleConfig scmModuleConfig;
@@ -295,7 +292,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
 
     @Test
     public void testCreateNewRepositoryWithGitlabInternalUrlInScpFormatShouldFail() throws ConfigurationParseException {
-        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        lenient().when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getBannedScmAuthority()).thenReturn("gitlab.company.com");
 
         assertThatThrownBy(() -> provider.createSCMRepository("git@gitlab.company.com:haha/hoho.git", true))
@@ -306,7 +303,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     public void testCreateSCMRepositoryWithWrongUrlShouldFail() throws ConfigurationParseException {
 
         // when
-        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        lenient().when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
         when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 
@@ -319,7 +316,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     public void testCreateSCMRepositoryWithWrongUrlProtocolShouldFail() throws ConfigurationParseException {
 
         // when
-        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        lenient().when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
         when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 

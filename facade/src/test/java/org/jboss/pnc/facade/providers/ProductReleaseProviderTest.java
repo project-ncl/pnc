@@ -6,7 +6,7 @@ package org.jboss.pnc.facade.providers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,13 +200,13 @@ public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<Produc
         // when
         ProductMilestone milestone = prepareNewProductMilestone();
 
-        when(productRepository.queryById(milestone.getProductVersion().getProduct().getId()))
+        lenient().when(productRepository.queryById(milestone.getProductVersion().getProduct().getId()))
                 .thenReturn(milestone.getProductVersion().getProduct());
 
-        when(productVersionRepository.queryById(milestone.getProductVersion().getId()))
+        lenient().when(productVersionRepository.queryById(milestone.getProductVersion().getId()))
                 .thenReturn(milestone.getProductVersion());
 
-        when(productMilestoneRepository.queryById(milestone.getId())).thenReturn(milestone);
+        lenient().when(productMilestoneRepository.queryById(milestone.getId())).thenReturn(milestone);
 
         ProductMilestoneRef ref = productMilestoneMapper.toRef(milestone);
         ProductVersionRef productVersionRef = productVersionMapper.toRef(milestone.getProductVersion());
