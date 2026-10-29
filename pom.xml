@@ -1149,7 +1149,7 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcutil-jdk18on</artifactId>
-        <version>1.85</version>
+        <version>1.86</version>
       </dependency>
 
       <!-- kafka-clients-3.0.0.redhat-00008 via apicurio-registry-utils-kafka -->
