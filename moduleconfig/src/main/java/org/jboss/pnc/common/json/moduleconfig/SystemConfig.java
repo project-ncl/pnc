@@ -50,6 +50,14 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private final int temporaryBuildsLifeSpan;
 
+    private final String repoDriverClientConnectTimeout;
+    /**
+     * Repository Driver read timeout. Defaults to 1200 seconds (20 minutes) to allow safe sync calls of rollback
+     * endpoint.
+     */
+    private final String repoDriverClientReadTimeout;
+    private final String repoDriverClientFollowRedirects;
+
     private final String messageSenderId;
 
     private final int messagingInternalQueueSize;
@@ -111,6 +119,9 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("serviceAccountClientConfig") ServiceAccountClientConfig serviceAccountClientConfig,
             @JsonProperty("serviceTokenRefreshIfExpiresInSeconds") String serviceTokenRefreshIfExpiresInSeconds,
             @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan,
+            @JsonProperty("repoDriverClientConnectTimeout") String repoDriverClientConnectTimeout,
+            @JsonProperty("repoDriverClientReadTimeout") String repoDriverClientReadTimeout,
+            @JsonProperty("repoDriverClientFollowRedirects") String repoDriverClientFollowRedirects,
             @JsonProperty("messageSenderId") String messageSenderId,
             @JsonProperty("messagingInternalQueueSize") String messagingInternalQueueSize,
             @JsonProperty("distributedEventType") String distributedEventType,
@@ -151,6 +162,12 @@ public class SystemConfig extends AbstractModuleConfig {
                 serviceTokenRefreshIfExpiresInSeconds,
                 86400);
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
+
+        this.repoDriverClientConnectTimeout = repoDriverClientConnectTimeout;
+        this.repoDriverClientReadTimeout = repoDriverClientReadTimeout == null ? "1200000"
+                : repoDriverClientReadTimeout;
+        this.repoDriverClientFollowRedirects = repoDriverClientFollowRedirects;
+
         this.messageSenderId = messageSenderId;
         this.messagingInternalQueueSize = toIntWithDefault(
                 "messagingInternalQueueSize",
@@ -209,6 +226,18 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getTemporaryBuildsLifeSpan() {
         return temporaryBuildsLifeSpan;
+    }
+
+    public String getRepoDriverClientConnectTimeout() {
+        return repoDriverClientConnectTimeout;
+    }
+
+    public String getRepoDriverClientReadTimeout() {
+        return repoDriverClientReadTimeout;
+    }
+
+    public String getRepoDriverClientFollowRedirects() {
+        return repoDriverClientFollowRedirects;
     }
 
     public KeycloakClientConfig getKeycloakServiceAccountConfig() {

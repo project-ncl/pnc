@@ -13,6 +13,8 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleconfig.microprofile.RepoDriverClientMicroprofileConfig;
 import org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicroprofileConfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +46,17 @@ public class MicroprofileConfigRegistrar implements ConfigSourceProvider {
 
         try {
             microprofileConfig.add(new SchedulerMicroprofileConfig(getModuleConfig(SchedulerConfig.class)));
-        } catch (ConfigurationParseException ignored) {
+        } catch (@SuppressWarnings("unused") ConfigurationParseException ignored) {
             log.error("SchedulerConfig haven't been found and microprofile wrapper may be missing.");
+        }
+
+        try {
+            microprofileConfig.add(
+                    new RepoDriverClientMicroprofileConfig(
+                            configuration.getGlobalConfig(),
+                            getModuleConfig(SystemConfig.class)));
+        } catch (@SuppressWarnings("unused") ConfigurationParseException ignored) {
+            log.error("SystemConfig haven't been found and microprofile wrapper may be missing.");
         }
 
         return microprofileConfig;
