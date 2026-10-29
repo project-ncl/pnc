@@ -140,7 +140,7 @@
     <version.git-commit-id-plugin>9.0.2</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.23.2</version.org.jsoup.jsoup>
-    <version.org.slf4j>2.0.17</version.org.slf4j>
+    <version.org.slf4j>2.0.20</version.org.slf4j>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
