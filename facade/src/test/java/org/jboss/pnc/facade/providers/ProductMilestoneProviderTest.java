@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,8 +68,8 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
 
     @Before
     public void setup() {
-        when(keycloakServiceClient.getAuthToken()).thenReturn("eyUserToken");
-        when(userService.currentUsername()).thenReturn("dustin");
+        lenient().when(keycloakServiceClient.getAuthToken()).thenReturn("eyUserToken");
+        lenient().when(userService.currentUsername()).thenReturn("dustin");
 
         ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 
@@ -260,7 +261,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     @Test
     public void testCloseMilestone() {
         // when
-        when(buildPushOperationRepository.queryWithPredicates(any())).thenReturn(List.of());
+        lenient().when(buildPushOperationRepository.queryWithPredicates(any())).thenReturn(List.of());
         provider.closeMilestone(mock.getId().toString(), false);
 
         // then

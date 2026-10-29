@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
@@ -177,7 +178,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
     @Test
     public void testMissArtifactById() {
-        when(artifactRepository.queryById(importedArtifact.getId())).thenReturn(importedArtifact);
+        lenient().when(artifactRepository.queryById(importedArtifact.getId())).thenReturn(importedArtifact);
 
         try {
             providerHelper.getArtifactById("123321");
@@ -189,7 +190,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
     @Test
     public void testMissArtifactByPurl() {
-        when(artifactRepository.withPurl(importedArtifact.getPurl())).thenReturn(importedArtifact);
+        lenient().when(artifactRepository.withPurl(importedArtifact.getPurl())).thenReturn(importedArtifact);
 
         try {
             providerHelper.getArtifactByPurl("missing_purl");
@@ -223,7 +224,7 @@ public class SlsaProvenanceProviderHelperTest extends AbstractIntIdProviderTest<
 
     @Test
     public void testMissBuildById() {
-        when(buildRecordRepository.findByIdFetchProperties(any())).thenReturn(null);
+        lenient().when(buildRecordRepository.findByIdFetchProperties(any())).thenReturn(null);
 
         try {
             providerHelper.getBuildById("MISSING0BUILD0");

@@ -6,15 +6,20 @@ package org.jboss.pnc.facade.providers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -85,7 +90,7 @@ import org.mockito.stubbing.Answer;
  */
 public abstract class AbstractProviderTest<ID extends Serializable, T extends GenericEntity<ID>> {
     @Mock
-    private Configuration configuration;
+    protected Configuration configuration;
 
     @Mock
     protected PageInfoProducer pageInfoProducer;
@@ -182,26 +187,27 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Before
     public void prepareMockInAbstract() throws ConfigurationParseException {
+        injectMissingFields(provider());
         GlobalModuleGroup globalConfig = new GlobalModuleGroup();
         globalConfig.setIndyUrl("http://url.com");
         globalConfig.setExternalIndyUrl("http://url.com");
         IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig();
-        when(pageInfoProducer.getPageInfo(anyInt(), anyInt())).thenAnswer(this::withPageInfo);
+        lenient().when(pageInfoProducer.getPageInfo(anyInt(), anyInt())).thenAnswer(this::withPageInfo);
     }
 
     @Before
     public void prepareRepositoryMock() {
-        when(em.getReference(any(), any())).thenAnswer(inv -> {
+        lenient().when(em.getReference(any(), any())).thenAnswer(inv -> {
             Class<GenericEntity> type = inv.getArgument(0, Class.class);
             Serializable id = inv.getArgument(1, Serializable.class);
             GenericEntity mock = mock(type);
             when(mock.getId()).thenReturn(id);
             return mock;
         });
-        when(repository().queryWithPredicates(any(), any(), any(Predicate[].class)))
+        lenient().when(repository().queryWithPredicates(any(), any(), any(Predicate[].class)))
                 .thenAnswer(new ListAnswer<>(repositoryList));
-        when(repository().count(any(Predicate[].class))).thenAnswer(inv -> repositoryList.size());
-        when(repository().save(any())).thenAnswer(inv -> {
+        lenient().when(repository().count(any(Predicate[].class))).thenAnswer(inv -> repositoryList.size());
+        lenient().when(repository().save(any())).thenAnswer(inv -> {
             T entity = inv.getArgument(0);
             if (entity.getId() == null) {
                 entity.setId(getNextId());
@@ -222,15 +228,71 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
             ID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         };
-        when(repository().queryById(any(idType))).thenAnswer(findById);
-        when(repository().queryById(any(idType), any())).thenAnswer(findById);
+        lenient().when(repository().queryById(any(idType))).thenAnswer(findById);
+        lenient().when(repository().queryById(any(idType), any())).thenAnswer(findById);
 
-        doAnswer(inv -> {
+        lenient().doAnswer(inv -> {
             ID id = inv.getArgument(0);
             T object = repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
             repositoryList.remove(object);
             return null;
         }).when(repository()).delete(any(idType));
+    }
+
+    /**
+     * Newer Mockito versions no longer run field injection on an {@code @InjectMocks} instance that was already created
+     * through its constructor. Providers combine constructor injection with {@code @Inject} fields, so inject the
+     * remaining (null) fields from the mocks of this test, matching by type and then by name.
+     */
+    private void injectMissingFields(Object target) {
+        List<Object> mocks = new ArrayList<>();
+        Map<Object, String> names = new IdentityHashMap<>();
+        for (Class<?> c = getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers())) {
+                    continue;
+                }
+                try {
+                    f.setAccessible(true);
+                    Object value = f.get(this);
+                    if (value != null && mockingDetails(value).isMock() && value != target) {
+                        mocks.add(value);
+                        names.put(value, f.getName());
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+
+        for (Class<?> c = target.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers()) || Modifier.isFinal(f.getModifiers())
+                        || f.getType().isPrimitive()) {
+                    continue;
+                }
+                try {
+                    f.setAccessible(true);
+                    if (f.get(target) != null) {
+                        continue;
+                    }
+                    List<Object> candidates = new ArrayList<>();
+                    for (Object mock : mocks) {
+                        if (f.getType().isInstance(mock)) {
+                            candidates.add(mock);
+                        }
+                    }
+                    if (candidates.size() > 1) {
+                        candidates.removeIf(m -> !names.get(m).equals(f.getName()));
+                    }
+                    if (candidates.size() == 1) {
+                        f.set(target, candidates.get(0));
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
     }
 
     @After

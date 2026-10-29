@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,9 +95,10 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
     public void prepareMocks() throws ReflectiveOperationException {
         User currentUser = prepareNewUser();
         when(userService.currentUser()).thenReturn(currentUser);
-        when(rsqlPredicateProducer.getCriteriaPredicate(any(Class.class), anyString()))
+        lenient().when(rsqlPredicateProducer.getCriteriaPredicate(any(Class.class), anyString()))
                 .thenReturn(mock(Predicate.class));
-        when(rsqlPredicateProducer.getSortInfo(any(Class.class), anyString())).thenReturn(mock(SortInfo.class));
+        lenient().when(rsqlPredicateProducer.getSortInfo(any(Class.class), anyString()))
+                .thenReturn(mock(SortInfo.class));
     }
 
     private User prepareNewUser() {
