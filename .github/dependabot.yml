@@ -100,6 +100,16 @@ updates:
       # issues with the runtime environment.
       # Remove this exclusion when the runtime EAP container is upgraded to a newer release.
       - dependency-name: "org.jboss.bom:jboss-eap-jakartaee8"
+      # keycloak-core stays on the 18.x line, matching the Keycloak 18 adapter provisioned into
+      # the EAP 7.4 test container (keycloak-adapter-galleon-pack 18.0.x, version.keycloak-adapter.pack).
+      # Every 22.x - 26.x bump proposed since 2023 was reviewed and closed without merging: they
+      # compile and pass CI, but CI does not exercise the adapter/token handling at runtime on
+      # EAP 7, and keycloak-common 26 is built against jakarta.* (jakarta.activation) while
+      # EAP 7.4 is javax.*. 18.0.x micro/patch updates are still allowed.
+      # Remove this exclusion when the Keycloak adapter is replaced by the Elytron OIDC adapter
+      # (NCL-9445) or EAP is upgraded to a release that supports a newer Keycloak.
+      - dependency-name: "org.keycloak:keycloak-core"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
