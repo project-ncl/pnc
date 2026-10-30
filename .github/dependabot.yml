@@ -54,6 +54,12 @@ updates:
         versions: ["4.2.x"]
       - dependency-name: "io.netty:netty-handler"
         versions: ["4.2.x"]
+      # jboss-eap-jakartaee8 BOM is locked to 7.4.7.GA to match the targeted JBoss EAP 7.4
+      # runtime and provisioned test container (EAP XP 4.0.0 / 7.4.7). Upgrades to newer
+      # micro/patch versions (7.4.11.GA - 7.4.25.GA+) cause alignment and compatibility
+      # issues with the runtime environment.
+      # Remove this exclusion when the runtime EAP container is upgraded to a newer release.
+      - dependency-name: "org.jboss.bom:jboss-eap-jakartaee8"
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
