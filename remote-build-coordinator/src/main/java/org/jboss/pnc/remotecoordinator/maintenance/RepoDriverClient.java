@@ -13,14 +13,13 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.pnc.api.repositorydriver.rest.DriverEndpoint;
 import org.jboss.pnc.remotecoordinator.rexclient.MyHeaderPropagator;
 import org.jboss.pnc.remotecoordinator.rexclient.provider.BadRequestMapper;
-import org.jboss.pnc.remotecoordinator.rexclient.provider.RexJacksonProvider;
 
 @ApplicationScoped
 @RegisterRestClient(configKey = "repository-driver")
 @RegisterClientHeaders(MyHeaderPropagator.class)
 @RegisterProviders({
         @RegisterProvider(BadRequestMapper.class),
-        @RegisterProvider(RexJacksonProvider.class) })
+        @RegisterProvider(RepoDriverClientJacksonProvider.class) })
 public interface RepoDriverClient extends DriverEndpoint {
 
 }
