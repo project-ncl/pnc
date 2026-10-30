@@ -11,7 +11,6 @@ import org.jboss.pnc.enums.BuildStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 
@@ -20,7 +19,7 @@ import lombok.extern.jackson.Jacksonized;
  */
 @Getter
 @AllArgsConstructor
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildDriverResultRest implements Serializable {

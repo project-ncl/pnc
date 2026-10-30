@@ -5,12 +5,11 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class DefaultArtifactRepository implements ArtifactRepository {
     private final String id;
 

@@ -10,11 +10,10 @@ import org.jboss.pnc.dto.Attachment;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = BuildAttachmentAdded.Builder.class)
 public class BuildAttachmentAdded implements Message {
     public static final String ATTRIBUTE = "build-attachment-added-event";

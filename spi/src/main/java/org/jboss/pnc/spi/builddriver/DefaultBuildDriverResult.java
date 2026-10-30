@@ -9,12 +9,11 @@ import java.util.Optional;
 import org.jboss.pnc.enums.BuildStatus;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class DefaultBuildDriverResult implements BuildDriverResult {
     private final BuildStatus buildStatus;
 

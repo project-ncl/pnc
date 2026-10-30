@@ -6,13 +6,12 @@ package org.jboss.pnc.dto.requests;
 
 import javax.validation.constraints.NotBlank;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
 @Jacksonized
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class EnvironmentDeprecationRequest {
     /**
      * The ID of the environment, that should be used instead of the one being deprecated.

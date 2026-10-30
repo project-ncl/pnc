@@ -17,7 +17,6 @@ import org.jboss.pnc.enums.SystemImageType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
@@ -28,7 +27,7 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 @ToString
 @AllArgsConstructor
-@Builder(builderClassName = "Builder", builderMethodName = "newBuilder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", builderMethodName = "newBuilder", toBuilder = true)
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildExecutionConfigurationRest implements Serializable {

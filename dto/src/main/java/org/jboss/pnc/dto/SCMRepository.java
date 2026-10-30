@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -30,7 +29,7 @@ import lombok.Data;
  */
 @PatchSupport
 @Data
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = SCMRepository.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SCMRepository implements DTOEntity {

@@ -10,12 +10,11 @@ import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.validator.constraints.URL;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 @Jacksonized
 public class DeliverablesAnalysisRequest {
 

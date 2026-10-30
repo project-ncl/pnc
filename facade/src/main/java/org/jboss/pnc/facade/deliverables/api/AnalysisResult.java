@@ -9,7 +9,6 @@ import java.util.List;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.model.Base32LongID;
 
-import lombok.Builder;
 import lombok.Value;
 
 /**
@@ -17,7 +16,7 @@ import lombok.Value;
  * with IDs mapped as are in entities.
  */
 @Value
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 public class AnalysisResult {
 
     Base32LongID deliverableAnalyzerOperationId;

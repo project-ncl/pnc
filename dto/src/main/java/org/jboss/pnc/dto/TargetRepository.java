@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -26,7 +25,7 @@ import lombok.Data;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", builderMethodName = "refBuilder", toBuilder = true)
 @JsonDeserialize(builder = TargetRepository.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TargetRepository implements DTOEntity {
