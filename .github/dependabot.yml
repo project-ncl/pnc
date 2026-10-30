@@ -23,6 +23,10 @@ updates:
       # Remove this exclusion when resteasy-client-microprofile is upgraded to a 4.x-compatible version.
       - dependency-name: "io.smallrye.config:smallrye-config"
         versions: ["4.x", "5.x"]
+      # rest-assured 6.0.0+ requires JDK 17 minimum; CI still runs on JDK 11.
+      # Remove this exclusion when the CI baseline is raised to JDK 17.
+      - dependency-name: "io.rest-assured:rest-assured"
+        versions: ["6.x"]
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
