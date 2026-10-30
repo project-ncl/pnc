@@ -18,6 +18,15 @@ updates:
         - "org.jboss.da:*"
         - "org.jboss.pnc*:*"        # match org.jboss.pnc:xyz and org.jboss.pnc.group:xyz
     ignore:
+      # testcontainers-keycloak 3.x switched from keycloak-admin-client-jee (javax.ws.rs)
+      # to the standard keycloak-admin-client (jakarta.ws.rs), which is binary-incompatible
+      # with EAP 7.4's RESTEasy 3.x / javax.* stack.
+      # testcontainers-keycloak 4.x additionally requires testcontainers core 2.x,
+      # which conflicts with the project's pinned 1.x version.
+      # The safe ceiling is 2.x (latest: 2.6.0, which uses keycloak-admin-client-jee).
+      # Remove these exclusions when the project migrates to EAP 8 / Jakarta EE 10.
+      - dependency-name: "com.github.dasniko:testcontainers-keycloak"
+        versions: ["3.x", "4.x"]
       # json-schema-validator 3.x requires JDK 17+ and Jackson 3.x; CI is on JDK 11
       # and the project uses Jackson 2.x. The SchemaRegistry/SchemaRegistryConfig API
       # used in SlsaProvenanceUtils was also restructured in 3.x (binary-incompatible).
