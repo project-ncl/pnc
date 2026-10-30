@@ -27,6 +27,19 @@ updates:
       # Remove this exclusion when the CI baseline is raised to JDK 17.
       - dependency-name: "io.rest-assured:rest-assured"
         versions: ["6.x"]
+      # json-schema-validator 3.x requires JDK 17+ and Jackson 3.x; CI is on JDK 11
+      # and the project uses Jackson 2.x. The SchemaRegistry/SchemaRegistryConfig API
+      # used in SlsaProvenanceUtils was also restructured in 3.x (binary-incompatible).
+      # Remove this exclusion when the CI baseline is raised to JDK 17 and Jackson is
+      # upgraded to 3.x.
+      - dependency-name: "com.networknt:json-schema-validator"
+        versions: ["3.x"]
+      # dbunit 3.x overhauled the JUnit 4 base-class API (DBTestCase / DatabaseTestCase)
+      # and changed FlatXmlProducer / IDatabaseConnection semantics in ways that break
+      # the existing Arquillian/JUnit 4 integration tests in the model module.
+      # Remove this exclusion when the test suite is migrated to the 3.x API.
+      - dependency-name: "org.dbunit:dbunit"
+        versions: ["3.1.x", "3.2.x", "3.3.x", "3.4.x", "3.5.x"]
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
