@@ -60,6 +60,12 @@ updates:
       # issues with the runtime environment.
       # Remove this exclusion when the runtime EAP container is upgraded to a newer release.
       - dependency-name: "org.jboss.bom:jboss-eap-jakartaee8"
+      # kafka-clients 4.x is a major version upgrade incompatible with apicurio-registry-utils-kafka 1.3.2.Final,
+      # which was built against Kafka 2.x/3.x. Kafka 4.x also drops support for older broker versions and message
+      # formats. kafka-clients is managed solely as a transitive CVE override for Apicurio.
+      # Remove this exclusion when apicurio-registry-utils-kafka is upgraded or replaced.
+      - dependency-name: "org.apache.kafka:kafka-clients"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
