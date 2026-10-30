@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.jboss.pnc</groupId>
     <artifactId>parent</artifactId>
-    <version>3.6.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>messaging-spi</artifactId>
