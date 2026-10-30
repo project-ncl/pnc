@@ -18,6 +18,11 @@ updates:
         - "org.jboss.da:*"
         - "org.jboss.pnc*:*"        # match org.jboss.pnc:xyz and org.jboss.pnc.group:xyz
     ignore:
+      # spotless-maven-plugin 3.x requires JDK 17+ to run; CI still runs on JDK 11.
+      # The safe ceiling is 2.x (latest: 2.46.1).
+      # Remove this exclusion when the CI baseline is raised to JDK 17.
+      - dependency-name: "com.diffplug.spotless:spotless-maven-plugin"
+        versions: ["3.x"]
       # testcontainers-keycloak 3.x switched from keycloak-admin-client-jee (javax.ws.rs)
       # to the standard keycloak-admin-client (jakarta.ws.rs), which is binary-incompatible
       # with EAP 7.4's RESTEasy 3.x / javax.* stack.
