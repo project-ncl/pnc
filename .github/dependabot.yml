@@ -119,3 +119,5 @@ updates:
     # a compromised new version
     cooldown:
       default-days: 7
+      exclude:
+        - "project-ncl/shared-github-actions/*"
