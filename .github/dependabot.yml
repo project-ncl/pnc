@@ -57,9 +57,17 @@ updates:
       # dbunit 3.x overhauled the JUnit 4 base-class API (DBTestCase / DatabaseTestCase)
       # and changed FlatXmlProducer / IDatabaseConnection semantics in ways that break
       # the existing Arquillian/JUnit 4 integration tests in the model module.
-      # Remove this exclusion when the test suite is migrated to the 3.x API.
+      # Remove this exclusion when surefire and junit-platform are both
+      # upgraded to mutually compatible versions.
       - dependency-name: "org.dbunit:dbunit"
-        versions: ["3.1.x", "3.2.x", "3.3.x", "3.4.x", "3.5.x"]
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
+      # maven-surefire-plugin 3.6.x+ requires junit-platform-commons >=1.11.0 (ClassFilter
+      # moved packages in that release), but dbunit 3.0.0 forces junit-platform-commons:1.10.3
+      # onto the classpath via junit-platform-suite-engine, causing the junit-vintage engine
+      # to fail test discovery with "TestEngine with ID 'junit-vintage' failed to discover tests".
+      # Remove this exclusion when dbunit is upgraded past 3.0.0.
+      - dependency-name: "org.apache.maven.plugins:maven-surefire-plugin"
+        update-types: ["version-update:semver-minor"]
       # jboss-eap-jakartaee8 BOM is locked to 7.4.7.GA to match the targeted JBoss EAP 7.4
       # runtime and provisioned test container (EAP XP 4.0.0 / 7.4.7). Upgrades to newer
       # micro/patch versions (7.4.11.GA - 7.4.25.GA+) cause alignment and compatibility
