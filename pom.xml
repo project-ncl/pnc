@@ -128,6 +128,7 @@
     <version.rest-assured>5.5.5</version.rest-assured>
     <version.weld-in-tests>3.1.4.Final</version.weld-in-tests>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
+    <version.shrinkwrap.bom>1.2.6</version.shrinkwrap.bom>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.shrinkwrap.resolver.bom>3.3.4</version.shrinkwrap.resolver.bom>
     <version.arquillian-bom>1.10.2.Final</version.arquillian-bom>
@@ -192,6 +193,13 @@
         <groupId>org.jboss.arquillian.extension</groupId>
         <artifactId>arquillian-transaction-bom</artifactId>
         <version>${version.arquillian-transactions}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.shrinkwrap</groupId>
+        <artifactId>shrinkwrap-bom</artifactId>
+        <version>${version.shrinkwrap.bom}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
