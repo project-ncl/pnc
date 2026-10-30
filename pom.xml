@@ -91,7 +91,7 @@
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.2.3</atlasVersion>
-    <version.keycloak>18.0.11.redhat-00001</version.keycloak>
+    <version.keycloak>26.6.6.redhat-00001</version.keycloak>
     <version.swagger2>2.2.42</version.swagger2>
     <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.48</version.lombok>
