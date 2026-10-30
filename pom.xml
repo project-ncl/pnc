@@ -137,7 +137,7 @@
     <version.arquillian-transactions>1.0.5</version.arquillian-transactions>
     <version.arquillian-wildfly>3.0.1.Final</version.arquillian-wildfly>
     <version.logback>1.6.5</version.logback>
-    <version.git-commit-id-plugin>9.0.2</version.git-commit-id-plugin>
+    <version.git-commit-id-plugin>10.0.1</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
     <version.org.jsoup.jsoup>1.23.2</version.org.jsoup.jsoup>
     <version.org.slf4j>2.0.20</version.org.slf4j>
