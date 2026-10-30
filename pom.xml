@@ -1144,7 +1144,7 @@
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
-        <version>3.25.5</version>
+        <version>4.36.2</version>
       </dependency>
 
       <!-- 4.1.84.Final via vertx-core -->
