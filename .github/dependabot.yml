@@ -57,6 +57,15 @@ updates:
       # Remove this exclusion when resteasy-client-microprofile is upgraded to a 4.x-compatible version.
       - dependency-name: "io.smallrye.config:smallrye-config"
         versions: ["4.x", "5.x"]
+      # vertx-core 5.x removed the callback-style API and requires Netty 4.2.x (5.2.2 -> 4.2.19),
+      # which is also ignored above (EAP 7.4 ships Netty 4.1). VertxWebSocketClient in rest-client
+      # uses HttpClient#webSocket(.., Handler), WebSocket#close(Handler) and Vertx#close(Handler),
+      # which no longer exist, so compilation fails. The safe ceiling is 4.x: 4.5.x still has the
+      # callback API, compiles and passes rest-client tests unchanged, and uses Netty 4.1.x.
+      # Remove this exclusion when VertxWebSocketClient is migrated to the Future-based API
+      # and Netty 4.2.x is allowed.
+      - dependency-name: "io.vertx:vertx-core"
+        versions: ["5.x"]
       # kafka-clients 4.x is a major version upgrade incompatible with apicurio-registry-utils-kafka 1.3.2.Final,
       # which was built against Kafka 2.x/3.x. Kafka 4.x also drops support for older broker versions and message
       # formats. kafka-clients is managed solely as a transitive CVE override for Apicurio.
