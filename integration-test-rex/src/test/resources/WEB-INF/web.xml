@@ -11,6 +11,12 @@
 
     <module-name>rest</module-name>
 
+    <!-- WFLYRS0018: Use Jackson instead of Eclipse Yasson https://access.redhat.com/solutions/4600491 -->
+    <context-param>
+        <param-name>resteasy.preferJacksonOverJsonB</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
     <login-config>
         <auth-method>BASIC</auth-method>
         <realm-name>FilesystemCredentialsRealm</realm-name>
