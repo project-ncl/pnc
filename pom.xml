@@ -97,7 +97,7 @@
     <version.lombok>1.18.46</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
     <version.pncmetrics>1.1.12</version.pncmetrics>
-    <version.pnc-api>3.99.1-SNAPSHOT</version.pnc-api>
+    <version.pnc-api>4.0.0</version.pnc-api>
     <version.pnc-common>4.0.0</version.pnc-common>
     <version.rex-api>1.2.3</version.rex-api>
     <bifrost-client.version>3.5.2-SNAPSHOT</bifrost-client.version>
