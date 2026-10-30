@@ -6,7 +6,6 @@ package org.jboss.pnc.dto.response.statistics;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
@@ -16,7 +15,7 @@ import lombok.extern.jackson.Jacksonized;
  * @author Adam Kridl &lt;akridl@redhat.com&gt;
  */
 @Value
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Jacksonized
 public class ProductVersionStatistics {

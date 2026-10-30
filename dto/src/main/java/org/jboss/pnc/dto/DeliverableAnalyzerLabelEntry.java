@@ -11,12 +11,11 @@ import org.jboss.pnc.api.enums.LabelOperation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 @Value
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Jacksonized
 public class DeliverableAnalyzerLabelEntry {

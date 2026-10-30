@@ -10,7 +10,6 @@ import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.validator.constraints.URL;
 
-import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
@@ -19,7 +18,7 @@ import lombok.extern.jackson.Jacksonized;
  * only "SCRATCH" analysis.
  */
 @Value
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 @Jacksonized
 public class ScratchDeliverablesAnalysisRequest {
 

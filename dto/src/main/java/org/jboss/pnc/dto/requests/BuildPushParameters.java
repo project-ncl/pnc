@@ -9,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -18,7 +17,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = BuildPushParameters.Builder.class)
 @Deprecated
 public class BuildPushParameters {

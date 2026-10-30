@@ -20,14 +20,13 @@ import org.hibernate.annotations.Type;
 import org.jboss.pnc.api.enums.LicenseSource;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 @Entity
 public class DeliverableArtifactLicenseInfo implements GenericEntity<Base32LongID> {
 

@@ -10,12 +10,11 @@ import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.model.Artifact;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class DefaultRepositoryManagerResult implements RepositoryManagerResult {
     private final List<Artifact> builtArtifacts;
 

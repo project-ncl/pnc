@@ -13,7 +13,6 @@ import org.jboss.pnc.enums.ValidationErrorType;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -22,7 +21,7 @@ import lombok.Data;
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Data
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = ValidationResponse.Builder.class)
 public class ValidationResponse {
 

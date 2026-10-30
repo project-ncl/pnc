@@ -7,14 +7,13 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.rest.api.parameters.GroupBuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
  * @author Adam Kridl &lt;akridl@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class GroupBuildPageInfo {
 
     private int pageIndex;

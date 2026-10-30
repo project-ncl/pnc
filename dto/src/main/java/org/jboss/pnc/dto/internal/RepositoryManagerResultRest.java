@@ -14,7 +14,6 @@ import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 
@@ -22,7 +21,7 @@ import lombok.extern.jackson.Jacksonized;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Getter
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 @Jacksonized
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)

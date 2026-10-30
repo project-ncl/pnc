@@ -22,7 +22,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder", toBuilder = true)
 @Entity
 public class DeliverableAnalyzerDistribution implements GenericEntity<Base32LongID> {
 

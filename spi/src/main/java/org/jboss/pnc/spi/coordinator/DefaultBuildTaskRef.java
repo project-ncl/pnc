@@ -18,12 +18,11 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @AllArgsConstructor
-@Builder(toBuilder = true, builderClassName = "Builder")
+@lombok.Builder(toBuilder = true, builderClassName = "Builder")
 @ToString
 public class DefaultBuildTaskRef implements BuildTaskRef {
 
@@ -70,19 +69,19 @@ public class DefaultBuildTaskRef implements BuildTaskRef {
     private final BuildRecord noRebuildCause;
 
     @Getter
-    @Builder.Default
+    @lombok.Builder.Default
     private final Set<String> dependants = new HashSet<>();
 
     @Getter
-    @Builder.Default
+    @lombok.Builder.Default
     private final Set<String> dependencies = new HashSet<>();
 
     @Getter
-    @Builder.Default
+    @lombok.Builder.Default
     private final Set<String> taskDependants = new HashSet<>();
 
     @Getter
-    @Builder.Default
+    @lombok.Builder.Default
     private final Set<String> taskDependencies = new HashSet<>();
 
 }
