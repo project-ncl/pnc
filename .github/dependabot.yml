@@ -40,6 +40,20 @@ updates:
       # Remove this exclusion when the test suite is migrated to the 3.x API.
       - dependency-name: "org.dbunit:dbunit"
         versions: ["3.1.x", "3.2.x", "3.3.x", "3.4.x", "3.5.x"]
+      # Netty 4.2.x is a breaking major upgrade that cannot be applied here:
+      # 1. PNC runs inside JBoss EAP 7.4, whose module system provides Netty 4.1;
+      #    mixing 4.1 (container) and 4.2 (app) on the classpath causes LinkageError.
+      # 2. Vert.x 3.9.14 (version.vertx-core) was built against Netty 4.1 and is
+      #    incompatible with 4.2 (netty-codec jar was split; NioEventLoopGroup
+      #    semantics changed).
+      # 3. TLS hostname verification is now ON by default in 4.2, which would break
+      #    internal HTTPS calls that rely on the 4.1 opt-in behaviour.
+      # Remove these exclusions when EAP and Vert.x are both upgraded to versions
+      # that ship Netty 4.2.
+      - dependency-name: "io.netty:netty-bom"
+        versions: ["4.2.x"]
+      - dependency-name: "io.netty:netty-handler"
+        versions: ["4.2.x"]
   - package-ecosystem: "github-actions" # Also update Github actions
     directory: "/"
     schedule:
