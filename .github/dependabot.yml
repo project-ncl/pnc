@@ -35,6 +35,16 @@ updates:
       # Remove these exclusions when the project migrates to EAP 8 / Jakarta EE 10.
       - dependency-name: "com.github.dasniko:testcontainers-keycloak"
         versions: ["[3,)"]
+      # testcontainers core 2.x (docker-java 3.7.x) needs jackson-annotations >= 2.15
+      # (JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE), but the
+      # jboss-eap-jakartaee8 7.4.7.GA BOM pins jackson-annotations 2.12.6.redhat-00001.
+      # integration-test-rex then fails in RemoteServices.<clinit> with NoSuchFieldError
+      # when creating the KeycloakContainer, taking down all its tests (PR #4731).
+      # The safe ceiling is 1.x (latest: 1.21.x).
+      # Remove this exclusion when the EAP BOM provides jackson-annotations >= 2.15 or
+      # the test classpath is otherwise isolated from the EAP-pinned Jackson.
+      - dependency-name: "org.testcontainers:testcontainers"
+        versions: ["[2,)"]
       # json-schema-validator 3.x requires JDK 17+ and Jackson 3.x; CI is on JDK 11
       # and the project uses Jackson 2.x. The SchemaRegistry/SchemaRegistryConfig API
       # used in SlsaProvenanceUtils was also restructured in 3.x (binary-incompatible).
