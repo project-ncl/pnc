@@ -17,7 +17,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>3.6.0-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -78,7 +78,7 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
-    <tag>3.2.2</tag>
+    <tag>master</tag>
     <url>https://github.com/project-ncl/pnc/</url>
   </scm>
 
@@ -93,14 +93,14 @@
     <atlasVersion>1.2.3</atlasVersion>
     <version.keycloak>18.0.11.redhat-00001</version.keycloak>
     <version.swagger2>2.2.55</version.swagger2>
-    <version.buildagent>1.0.0</version.buildagent>
+    <version.buildagent>4.0.0</version.buildagent>
     <version.lombok>1.18.48</version.lombok>
     <version.mapstruct>1.6.3</version.mapstruct>
-    <version.pncmetrics>1.1.12</version.pncmetrics>
+    <version.pncmetrics>4.0.0</version.pncmetrics>
     <version.pnc-api>4.0.0</version.pnc-api>
     <version.pnc-common>4.0.0</version.pnc-common>
-    <version.rex-api>1.2.3</version.rex-api>
-    <bifrost-client.version>3.5.2-SNAPSHOT</bifrost-client.version>
+    <version.rex-api>4.0.0</version.rex-api>
+    <bifrost-client.version>4.0.0</bifrost-client.version>
     <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
     <version.vertx-core>3.9.14</version.vertx-core>
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
