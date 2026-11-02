@@ -21,6 +21,7 @@ updates:
       # NOTE: for Maven, Dependabot treats "versions" entries as Maven version requirements, so
       # a pattern like "6.x" is the literal version "6.x" and matches nothing. Use Maven range
       # syntax instead, e.g. "[6,)" = 6 and above. "update-types" is not affected.
+      #
       # spotless-maven-plugin 3.x requires JDK 17+ to run; CI still runs on JDK 11.
       # The safe ceiling is 2.x (latest: 2.46.1).
       # Remove this exclusion when the CI baseline is raised to JDK 17.
@@ -35,6 +36,14 @@ updates:
       # Remove these exclusions when the project migrates to EAP 8 / Jakarta EE 10.
       - dependency-name: "com.github.dasniko:testcontainers-keycloak"
         versions: ["[3,)"]
+      # protobuf-java 4.x is a breaking major upgrade incompatible with
+      # apicurio-registry-utils-kafka / apicurio-registry-common 1.3.2.Final (compiled
+      # with protoc 3.x) and JBoss EAP 7.4 runtime modules (which provide Protobuf 3.19.x).
+      # protobuf-java is managed solely as a transitive CVE override for Apicurio.
+      # The safe ceiling is 3.x (latest: 3.25.x).
+      # Remove this exclusion when Apicurio is upgraded or EAP is migrated to EAP 8.
+      - dependency-name: "com.google.protobuf:protobuf-java"
+        versions: ["[4,)"]
       # testcontainers core 2.x (docker-java 3.7.x) needs jackson-annotations >= 2.15
       # (JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE), but the
       # jboss-eap-jakartaee8 7.4.7.GA BOM pins jackson-annotations 2.12.6.redhat-00001.
