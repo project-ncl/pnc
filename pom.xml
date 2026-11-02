@@ -17,7 +17,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <version>4.0.0</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -78,7 +78,7 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
-    <tag>master</tag>
+    <tag>4.0.0.RC1</tag>
     <url>https://github.com/project-ncl/pnc/</url>
   </scm>
 
