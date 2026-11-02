@@ -61,6 +61,9 @@ public class BuildPushReport implements GenericEntity<Base32LongID> {
      */
     private String brewBuildUrl;
 
+    public static class Builder {
+    }
+
     public static Builder newBuilder() {
         return new Builder();
     }
