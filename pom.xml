@@ -17,7 +17,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -78,7 +78,7 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
-    <tag>4.0.0.RC1</tag>
+    <tag>master</tag>
     <url>https://github.com/project-ncl/pnc/</url>
   </scm>
 
@@ -156,7 +156,7 @@
     <!-- Jacoco & Sonar -->
     <sonar.jacoco.reportPath>${project.basedir}/target/jacoco-unit.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
-    <itCoverageAgent/>
+    <itCoverageAgent />
 
     <!-- KEEP IN SYNC WITH RUNTIME -->
     <!-- JBOSS EAP + XP pack -->
@@ -182,7 +182,7 @@
     <arquillian.container.type>managed</arquillian.container.type>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
-    <tagSuffix/>
+    <tagSuffix />
   </properties>
 
   <dependencyManagement>
@@ -1351,7 +1351,7 @@
               </goals>
               <configuration>
                 <rules>
-                  <requirePluginVersions/>
+                  <requirePluginVersions />
                 </rules>
               </configuration>
             </execution>
@@ -1491,7 +1491,7 @@ SPDX-License-Identifier: Apache-2.0
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -1742,7 +1742,7 @@ SPDX-License-Identifier: Apache-2.0
             </sortPom>
           </pom>
           <java>
-            <removeUnusedImports/>
+            <removeUnusedImports />
             <importOrder>
               <file>java-import-order.txt</file>
             </importOrder>

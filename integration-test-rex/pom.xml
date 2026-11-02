@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.jboss.pnc</groupId>
     <artifactId>parent</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>integration-test-rex</artifactId>
@@ -373,9 +373,9 @@
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
-                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.build.dir}/pnc-config.json"/>
+                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.build.dir}/pnc-config.json" />
                     <replace file="${test.server.build.dir}/pnc-config.json" propertyFile="${basedir}/target/test.properties">
-                      <replaceFilter property="keycloakPort" token="@keycloakPort@"/>
+                      <replaceFilter property="keycloakPort" token="@keycloakPort@" />
                     </replace>
                   </target>
                 </configuration>
