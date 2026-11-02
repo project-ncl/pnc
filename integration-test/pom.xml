@@ -302,11 +302,11 @@
                 <configuration>
                   <target>
                     <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
-                    <property environment="env" />
-                    <fail if="env.JBOSS_HOME" message="JBOSS_HOME must not be set" />
+                    <property environment="env"/>
+                    <fail if="env.JBOSS_HOME" message="JBOSS_HOME must not be set"/>
 
                     <echo>Copying pnc-config into provisioned EAP</echo>
-                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.build.dir}/pnc-config.json" />
+                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.build.dir}/pnc-config.json"/>
                   </target>
                 </configuration>
               </execution>
