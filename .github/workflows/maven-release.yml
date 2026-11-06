@@ -1,0 +1,36 @@
+name: "0 Central Release Job" # Adding the 0 so that it's on top of the list of github actions
+on:
+  workflow_dispatch: # Manual trigger so you don't release on every push
+    inputs:
+      ref_to_release:
+        description: '[Optional] Branch or commit to release. Default: Github default branch'
+        required: false
+        type: string
+        # default has to be a static string, no variables allowed
+        default: ''
+      tag_suffix:
+        description: '[Optional] Suffix appended to the release tag (-DtagSuffix). Default: none'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+    call-release-job:
+      permissions:
+        contents: write # needed to push commit and tag back to the repository
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-release.yml@e7102dd3bf74f91aaccae7a3539241c03a652d1a # v0.0.27
+      with:
+        java_version: 11
+        ref_to_release: ${{ inputs.ref_to_release }}
+        # Same as the shared default, plus the PNC specific flags used by Jenkins
+        release_command: 'mvn -B -V release:prepare release:perform -DskipTests=true -DtagSuffix=${{ inputs.tag_suffix }} -DpreparationGoals="clean install -DskipTests=true" -DlocalCheckout=true -DpushChanges=false -DcompletionGoals="spotless:apply"'
+        # Replaces the shared default, which targets the jboss-parent 'central-release' profile and
+        # 'central.*' properties. These do not exist in the jboss-parent:37 inherited by PNC; publishing
+        # is configured in the root pom (central-publishing-maven-plugin, serverId central-publisher)
+        # and the 'release' profile (sources, javadoc, gpg). -DreleaseProfiles is the one from the pom.
+        jboss_parent_override: '"-Darguments=-DskipTests -Prelease -Pproduction -Pauth" -DreleaseProfiles=skip-integration-tests,release,production,auth -DsignTag=false'
+      secrets:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
