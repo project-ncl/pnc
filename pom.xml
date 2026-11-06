@@ -183,6 +183,10 @@
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
     <tagSuffix/>
+    <jboss.releases.repo.id>central</jboss.releases.repo.id>
+    <jboss.releases.repo.url>https://central.sonatype.com</jboss.releases.repo.url>
+    <jboss.snapshots.repo.id>central</jboss.snapshots.repo.id>
+    <jboss.snapshots.repo.url>https://central.sonatype.com/repository/maven-snapshots</jboss.snapshots.repo.url>
   </properties>
 
   <dependencyManagement>
