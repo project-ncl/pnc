@@ -36,22 +36,22 @@ quarkus:
     password: password
     cache:
       "rex-counter":
-        configuration-resource: "counter-configuration.xml"
+        configuration-uri: "counter-configuration.xml"
         near-cache-mode: disabled
         near-cache-max-entries: -1
       "rex-tasks":
-        configuration-resource: "task-configuration.xml"
+        configuration-uri: "task-configuration.xml"
         near-cache-mode: invalidated
         near-cache-max-entries: 100
       "rex-constraints":
-        configuration-resource: "constraints-configuration.xml"
+        configuration-uri: "constraints-configuration.xml"
         near-cache-mode: invalidated
         near-cache-max-entries: 100
       "rex-signals":
-        configuration-resource: "signals-configuration.xml"
+        configuration-uri: "signals-configuration.xml"
         near-cache-mode: disabled
       "rex-cluster-jobs":
-        configuration-resource: "cluster-jobs-configuration.xml"
+        configuration-uri: "cluster-jobs-configuration.xml"
         near-cache-mode: disabled
   swagger-ui:
     always-include: true
