@@ -1,0 +1,22 @@
+name: Build snapshot version and upload to Maven Central
+
+permissions: {}
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+    call-snapshot-job:
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-snapshot.yml@e7102dd3bf74f91aaccae7a3539241c03a652d1a # v0.0.27
+      with:
+        project_name: 'project-ncl/pnc'
+        java_version: 11
+        # The shared default activates the jboss-parent 'central-release' profile, which does not exist
+        # in the jboss-parent:37 inherited by PNC. The central-publishing-maven-plugin is configured
+        # in the root pom instead (publishingServerId=central-publisher), so only the PNC profiles are needed.
+        snapshot_deploy_command: 'mvn -B -V deploy -DskipTests -Pproduction -Pauth'
+        jboss_parent_override: ''
+      secrets:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
