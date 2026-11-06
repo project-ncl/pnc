@@ -1,0 +1,24 @@
+name: "0 Central Release Job" # Adding the 0 so that it's on top of the list of github actions
+on:
+  workflow_dispatch: # Manual trigger so you don't release on every push
+    inputs:
+      ref_to_release:
+        description: '[Optional] Branch or commit to release. Default: Github default branch'
+        required: false
+        type: string
+        # default has to be a static string, no variables allowed
+        default: ''
+
+jobs:
+    call-release-job:
+      permissions:
+        contents: write # needed to push commit and tag back to the repository
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-release.yml@e7102dd3bf74f91aaccae7a3539241c03a652d1a # v0.0.27
+      with:
+        java_version: 11
+        ref_to_release: ${{ inputs.ref_to_release }}
+      secrets:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
