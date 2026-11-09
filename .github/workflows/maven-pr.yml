@@ -12,5 +12,5 @@ jobs:
     uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@dc16c38747e72ec04165d5e5e0177e85d21bc5c8 # main
     with:
       java_version: 11
-      build_command: "mvn clean install"
+      build_command: "mvn clean install -Pwithout-messaging -Pdevel -Pauth"
       upload_artifacts: true
