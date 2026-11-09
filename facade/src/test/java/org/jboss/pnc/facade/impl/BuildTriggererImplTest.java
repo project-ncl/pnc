@@ -50,7 +50,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Tests the project allow-list ({@code allowedProjects}) of {@link BuildTriggeringConfig} as enforced by
- * {@link BuildTriggererImpl} on all triggering paths.
+ * {@link BuildTriggererImpl} on all triggering paths. The allow-list applies to persistent builds only.
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class BuildTriggererImplTest {
@@ -92,18 +92,42 @@ public class BuildTriggererImplTest {
         buildTriggeringConfig.addCategoryConfig(BuildCategory.STANDARD.name(), new CategoryConfig(true, true, null));
         buildTriggeringConfig.addCategoryConfig(
                 BuildCategory.LIGHTWELL.name(),
-                new CategoryConfig(false, true, Set.of(ALLOWED_PROJECT)));
+                new CategoryConfig(true, true, Set.of(ALLOWED_PROJECT)));
         buildTriggeringConfig.addCategoryConfig(
                 BuildCategory.LIGHTWELL_NOVEL.name(),
+                new CategoryConfig(true, true, Set.of(ALLOWED_PROJECT)));
+        // persistent builds disabled altogether, regardless of the project list
+        buildTriggeringConfig.addCategoryConfig(
+                BuildCategory.LIGHTWELL_UPSTREAM.name(),
                 new CategoryConfig(false, true, Set.of(ALLOWED_PROJECT)));
         // an empty allowedProjects list means no restriction
-        buildTriggeringConfig
-                .addCategoryConfig(BuildCategory.SERVICE.name(), new CategoryConfig(false, true, Set.of()));
+        buildTriggeringConfig.addCategoryConfig(BuildCategory.SERVICE.name(), new CategoryConfig(true, true, Set.of()));
     }
 
     @Test
-    public void shouldTriggerLightwellBuildOfAllowedProject() throws Exception {
+    public void shouldTriggerPersistentLightwellBuildOfAllowedProject() throws Exception {
         BuildConfiguration bc = mockBuildConfiguration(ALLOWED_PROJECT, BuildCategory.LIGHTWELL);
+        mockSingleBuildResult(bc.getId());
+
+        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), persistent());
+
+        assertThat(buildId).isEqualTo("build-" + bc.getId());
+    }
+
+    @Test
+    public void shouldRejectPersistentLightwellBuildOfNotAllowedProject() throws Exception {
+        BuildConfiguration bc = mockBuildConfiguration(OTHER_PROJECT, BuildCategory.LIGHTWELL_NOVEL);
+
+        assertThatThrownBy(() -> buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), persistent()))
+                .isInstanceOf(BuildTriggeringException.class)
+                .hasMessageContaining("persistent builds of project '" + OTHER_PROJECT + "'")
+                .hasMessageContaining(BuildCategory.LIGHTWELL_NOVEL.name());
+        verify(buildCoordinator, never()).buildConfig(any(), any(), any());
+    }
+
+    @Test
+    public void shouldTriggerTemporaryLightwellBuildOfNotAllowedProject() throws Exception {
+        BuildConfiguration bc = mockBuildConfiguration(OTHER_PROJECT, BuildCategory.LIGHTWELL_NOVEL);
         mockSingleBuildResult(bc.getId());
 
         String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), temporary());
@@ -112,22 +136,11 @@ public class BuildTriggererImplTest {
     }
 
     @Test
-    public void shouldRejectLightwellBuildOfNotAllowedProject() throws Exception {
-        BuildConfiguration bc = mockBuildConfiguration(OTHER_PROJECT, BuildCategory.LIGHTWELL_NOVEL);
-
-        assertThatThrownBy(() -> buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), temporary()))
-                .isInstanceOf(BuildTriggeringException.class)
-                .hasMessageContaining("project '" + OTHER_PROJECT + "'")
-                .hasMessageContaining(BuildCategory.LIGHTWELL_NOVEL.name());
-        verify(buildCoordinator, never()).buildConfig(any(), any(), any());
-    }
-
-    @Test
     public void shouldNotRestrictProjectsWhenAllowedProjectsIsEmpty() throws Exception {
         BuildConfiguration bc = mockBuildConfiguration(OTHER_PROJECT, BuildCategory.SERVICE);
         mockSingleBuildResult(bc.getId());
 
-        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), temporary());
+        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), persistent());
 
         assertThat(buildId).isEqualTo("build-" + bc.getId());
     }
@@ -137,15 +150,15 @@ public class BuildTriggererImplTest {
         BuildConfiguration bc = mockBuildConfiguration(OTHER_PROJECT, BuildCategory.STANDARD);
         mockSingleBuildResult(bc.getId());
 
-        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), temporary());
+        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), persistent());
 
         assertThat(buildId).isEqualTo("build-" + bc.getId());
     }
 
     @Test
     public void shouldCheckBuildKindBeforeProject() {
-        // persistent builds of LIGHTWELL are disabled, even for an allowed project
-        BuildConfiguration bc = mockBuildConfiguration(ALLOWED_PROJECT, BuildCategory.LIGHTWELL);
+        // persistent builds of LIGHTWELL_UPSTREAM are disabled, even for an allowed project
+        BuildConfiguration bc = mockBuildConfiguration(ALLOWED_PROJECT, BuildCategory.LIGHTWELL_UPSTREAM);
 
         assertThatThrownBy(() -> buildTriggerer.triggerBuild(bc.getId(), OptionalInt.empty(), persistent()))
                 .isInstanceOf(BuildTriggeringException.class)
@@ -159,7 +172,7 @@ public class BuildTriggererImplTest {
         BuildConfigurationAudited audited = audited(bc, 7, OTHER_PROJECT, BuildCategory.LIGHTWELL);
         when(buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), 7))).thenReturn(audited);
 
-        assertThatThrownBy(() -> buildTriggerer.triggerBuild(bc.getId(), OptionalInt.of(7), temporary()))
+        assertThatThrownBy(() -> buildTriggerer.triggerBuild(bc.getId(), OptionalInt.of(7), persistent()))
                 .isInstanceOf(BuildTriggeringException.class)
                 .hasMessageContaining("project '" + OTHER_PROJECT + "'");
         verify(buildCoordinator, never()).buildConfigurationAudited(any(), any(), any());
@@ -173,19 +186,19 @@ public class BuildTriggererImplTest {
         BuildSetTask buildSetTask = buildSetTaskFor(bc.getId());
         when(buildCoordinator.buildConfigurationAudited(any(), any(), any())).thenReturn(buildSetTask);
 
-        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.of(7), temporary());
+        String buildId = buildTriggerer.triggerBuild(bc.getId(), OptionalInt.of(7), persistent());
 
         assertThat(buildId).isEqualTo("build-" + bc.getId());
     }
 
     @Test
-    public void shouldRejectGroupBuildContainingNotAllowedLightwellProject() throws Exception {
+    public void shouldRejectPersistentGroupBuildContainingNotAllowedLightwellProject() throws Exception {
         BuildConfigurationSet group = mockGroup(
                 mockBuildConfiguration(ALLOWED_PROJECT, BuildCategory.LIGHTWELL),
                 mockBuildConfiguration(OTHER_PROJECT, BuildCategory.STANDARD),
                 mockBuildConfiguration(OTHER_PROJECT, BuildCategory.LIGHTWELL));
 
-        assertThatThrownBy(() -> buildTriggerer.triggerGroupBuild(group.getId(), Optional.empty(), temporary()))
+        assertThatThrownBy(() -> buildTriggerer.triggerGroupBuild(group.getId(), Optional.empty(), persistent()))
                 .isInstanceOf(BuildTriggeringException.class)
                 .hasMessageContaining("project '" + OTHER_PROJECT + "'")
                 .hasMessageContaining(BuildCategory.LIGHTWELL.name());
@@ -193,19 +206,35 @@ public class BuildTriggererImplTest {
     }
 
     @Test
-    public void shouldTriggerGroupBuildWithAllowedLightwellProjects() throws Exception {
+    public void shouldTriggerPersistentGroupBuildWithAllowedLightwellProjects() throws Exception {
         BuildConfigurationSet group = mockGroup(
                 mockBuildConfiguration(ALLOWED_PROJECT, BuildCategory.LIGHTWELL),
                 mockBuildConfiguration(OTHER_PROJECT, BuildCategory.STANDARD));
+        mockGroupBuildResult();
+
+        String groupBuildId = buildTriggerer.triggerGroupBuild(group.getId(), Optional.empty(), persistent());
+
+        assertThat(groupBuildId).isEqualTo(new Base32LongID(42L).getId());
+    }
+
+    @Test
+    public void shouldTriggerTemporaryGroupBuildContainingNotAllowedLightwellProject() throws Exception {
+        BuildConfigurationSet group = mockGroup(
+                mockBuildConfiguration(ALLOWED_PROJECT, BuildCategory.LIGHTWELL),
+                mockBuildConfiguration(OTHER_PROJECT, BuildCategory.LIGHTWELL));
+        mockGroupBuildResult();
+
+        String groupBuildId = buildTriggerer.triggerGroupBuild(group.getId(), Optional.empty(), temporary());
+
+        assertThat(groupBuildId).isEqualTo(new Base32LongID(42L).getId());
+    }
+
+    private void mockGroupBuildResult() throws Exception {
         BuildConfigSetRecord record = mock(BuildConfigSetRecord.class);
         when(record.getId()).thenReturn(new Base32LongID(42L));
         BuildSetTask buildSetTask = mock(BuildSetTask.class);
         when(buildSetTask.getBuildConfigSetRecord()).thenReturn(Optional.of(record));
         when(buildCoordinator.buildSet(any(), any(), any(), any())).thenReturn(buildSetTask);
-
-        String groupBuildId = buildTriggerer.triggerGroupBuild(group.getId(), Optional.empty(), temporary());
-
-        assertThat(groupBuildId).isEqualTo(new Base32LongID(42L).getId());
     }
 
     private BuildConfiguration mockBuildConfiguration(String projectName, BuildCategory category) {

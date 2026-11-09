@@ -47,8 +47,10 @@ public class BuildTriggeringConfigTest extends AbstractModuleConfigTest {
         assertTrue(buildTriggeringConfig.isProjectAllowed(BuildCategory.STANDARD, "anything"));
         assertTrue(buildTriggeringConfig.getCategoryConfig(BuildCategory.STANDARD).getAllowedProjects().isEmpty());
 
-        // LIGHTWELL_NOVEL allows temporary builds of the Bouncycastle project only (see testConfig.json)
+        // LIGHTWELL_NOVEL allows temporary builds of any project, persistent builds of the Bouncycastle project only
+        // (see testConfig.json)
         assertTrue(buildTriggeringConfig.isTemporaryBuildingAllowed(BuildCategory.LIGHTWELL_NOVEL));
+        assertTrue(buildTriggeringConfig.isPersistentBuildingAllowed(BuildCategory.LIGHTWELL_NOVEL));
         assertTrue(buildTriggeringConfig.isProjectAllowed(BuildCategory.LIGHTWELL_NOVEL, "Bouncycastle"));
         assertFalse(buildTriggeringConfig.isProjectAllowed(BuildCategory.LIGHTWELL_NOVEL, "bouncycastle"));
         assertFalse(buildTriggeringConfig.isProjectAllowed(BuildCategory.LIGHTWELL_NOVEL, "termd"));

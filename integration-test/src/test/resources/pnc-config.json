@@ -129,7 +129,7 @@
             "temporary": false
           },
           "LIGHTWELL": {
-            "persistent": false,
+            "persistent": true,
             "temporary": true,
             "allowedProjects": [ "Bouncycastle" ]
           }
