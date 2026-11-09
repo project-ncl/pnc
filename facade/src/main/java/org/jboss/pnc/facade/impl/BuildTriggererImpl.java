@@ -37,6 +37,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -144,6 +145,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
             validateTriggeringAllowed(
                     buildTriggeringConfig.getCategoryConfig(buildCategory),
                     buildCategory,
+                    projectNameOf(buildConfigurationAudited.getProject()),
                     buildOptions.isTemporaryBuild());
 
             deletePreviousLightwellUpstreamTemporaryBuild(
@@ -166,6 +168,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
             validateTriggeringAllowed(
                     buildTriggeringConfig.getCategoryConfig(buildCategory),
                     buildCategory,
+                    projectNameOf(buildConfiguration.getProject()),
                     buildOptions.isTemporaryBuild());
 
             deletePreviousLightwellUpstreamTemporaryBuild(
@@ -310,10 +313,12 @@ public class BuildTriggererImpl implements BuildTriggerer {
             BuildConfigurationAudited audited = auditedsFromDB.get(buildConfiguration.getId());
             Map<String, String> genericParameters = audited != null ? audited.getGenericParameters()
                     : buildConfiguration.getGenericParameters();
+            Project project = audited != null ? audited.getProject() : buildConfiguration.getProject();
             BuildCategory buildCategory = resolveBuildCategory(genericParameters);
             validateTriggeringAllowed(
                     buildTriggeringConfig.getCategoryConfig(buildCategory),
                     buildCategory,
+                    projectNameOf(project),
                     buildOptions.isTemporaryBuild());
         }
 
@@ -395,13 +400,16 @@ public class BuildTriggererImpl implements BuildTriggerer {
     /**
      * Validates that triggering a build of the kind given by {@code isTemporaryBuild} is allowed for the given build
      * category, according to its {@link CategoryConfig}. A {@code null} {@code buildCategoryConfig} means the category
-     * is not configured and is therefore forbidden.
+     * is not configured and is therefore forbidden. If the category config restricts the allowed projects, the Build
+     * Configuration's project name must be one of them.
      *
      * @throws BuildTriggeringException if triggering the requested build kind is disabled for the given build category
+     *         or the project is not allowed for it
      */
     private void validateTriggeringAllowed(
             CategoryConfig buildCategoryConfig,
             BuildCategory buildCategory,
+            String projectName,
             boolean isTemporaryBuild) throws BuildTriggeringException {
         if (isTemporaryBuild) {
             if (!BuildTriggeringConfig.isTemporaryBuildingAllowed(buildCategoryConfig)) {
@@ -416,6 +424,15 @@ public class BuildTriggererImpl implements BuildTriggerer {
                                 + " at this PNC environment.");
             }
         }
+        if (!BuildTriggeringConfig.isProjectAllowed(buildCategoryConfig, projectName)) {
+            throw new BuildTriggeringException(
+                    "Triggering builds of project '" + projectName + "' is not allowed for build category "
+                            + buildCategory + " at this PNC environment.");
+        }
+    }
+
+    private static String projectNameOf(Project project) {
+        return project == null ? null : project.getName();
     }
 
     private static BuildCategory resolveBuildCategory(Map<String, String> genericParameters) {

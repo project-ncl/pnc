@@ -38,6 +38,11 @@
                     "LIGHTWELL": {
                         "persistent": false,
                         "temporary": false
+                    },
+                    "LIGHTWELL_NOVEL": {
+                        "persistent": false,
+                        "temporary": true,
+                        "allowedProjects": [ "Bouncycastle" ]
                     }
                 }
             ]

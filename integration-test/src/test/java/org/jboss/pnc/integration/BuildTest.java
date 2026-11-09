@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThrows;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -116,6 +117,33 @@ public class BuildTest {
                 () -> buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(true, true)))
                 .isInstanceOf(RemoteResourceException.class)
                 .hasMessageContaining("Triggering temporary builds is currently disabled");
+    }
+
+    @Test
+    public void shouldNotTriggerLightwellBuildOfNotAllowedProject() throws ClientException {
+        // with: a LIGHTWELL build config in a project that is not in the allowedProjects list (see pnc-config.json)
+        BuildConfiguration template = buildConfigurationClient.getAll().iterator().next();
+        assertThat(template.getProject().getName()).isNotEqualTo("Bouncycastle");
+        BuildConfiguration lightwellBuildConfiguration = new BuildConfigurationClient(asUser()).createNew(
+                BuildConfiguration.builder()
+                        .name("lightwell-not-allowed-project")
+                        .project(template.getProject())
+                        .environment(template.getEnvironment())
+                        .scmRepository(template.getScmRepository())
+                        .scmRevision(template.getScmRevision())
+                        .buildScript(template.getBuildScript())
+                        .buildType(template.getBuildType())
+                        .parameters(Collections.singletonMap("BUILD_CATEGORY", "LIGHTWELL"))
+                        .build());
+
+        // when / then
+        assertThatThrownBy(
+                () -> buildConfigurationClient
+                        .trigger(lightwellBuildConfiguration.getId(), getBuildParameters(true, true)))
+                .isInstanceOf(RemoteResourceException.class)
+                .hasMessageContaining(
+                        "Triggering builds of project '" + template.getProject().getName()
+                                + "' is not allowed for build category LIGHTWELL");
     }
 
     @Test
