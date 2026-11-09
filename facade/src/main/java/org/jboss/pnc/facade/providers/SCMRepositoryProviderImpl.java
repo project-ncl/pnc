@@ -224,8 +224,8 @@ public class SCMRepositoryProviderImpl
         }
         String secondaryAuthority = config.getSecondaryInternalScmAuthority();
         ScmUrlNormalizer parsedUrl = parseOrEmpty(scmUrl);
-        boolean internal = isAuthorityHost(parsedUrl, config.getInternalScmAuthority())
-                || isAuthorityHost(parsedUrl, secondaryAuthority);
+        boolean internal = isUnderAuthority(parsedUrl, config.getInternalScmAuthority())
+                || isUnderAuthority(parsedUrl, secondaryAuthority);
         if (internal) {
             // validation phase
             validateInternalRepository(scmUrl, parsedUrl);
@@ -316,8 +316,8 @@ public class SCMRepositoryProviderImpl
             String internalScmAuthority,
             String secondaryInternalScmAuthority,
             ScmUrlNormalizer parsedUrl) {
-        if (!isAuthorityHost(parsedUrl, internalScmAuthority)
-                && !isAuthorityHost(parsedUrl, secondaryInternalScmAuthority)) {
+        if (!isUnderAuthority(parsedUrl, internalScmAuthority)
+                && !isUnderAuthority(parsedUrl, secondaryInternalScmAuthority)) {
             return false;
         }
         String internalRepoName = repositoryName(parsedUrl);
@@ -338,23 +338,35 @@ public class SCMRepositoryProviderImpl
     }
 
     /**
-     * Decides whether the URL is hosted on the given authority, to be used to choose between the internal and the
-     * external repository creation. Only the host is compared (case-insensitively); scheme, user info ('user@') and
-     * port of the URL are ignored, as is the port of an authority configured with one. Whether a URL on the authority
-     * is acceptable as an internal URL is decided later by {@link #validateInternalRepository(String)} (e.g. Github
-     * internal URLs must be in scp format, NCL-8685), so a URL on the authority that is not acceptable is rejected
-     * there instead of being cloned as external.
+     * Decides whether the URL is under the given authority, to be used to choose between the internal and the external
+     * repository creation. The authority is {@code [user@]host[:port][/group[/subgroup...]]}. The host is compared
+     * case-insensitively; scheme, user info and port are ignored on both sides. An authority with a path only matches
+     * URLs under that path, segment by segment ({@code host/ws} matches {@code host/ws/repo.git}, not
+     * {@code host/ws2/repo.git}), so other groups on the same host are external and get cloned. Whether a URL under the
+     * authority is acceptable as an internal URL is decided later by {@link #validateInternalRepository(String)} (e.g.
+     * Github internal URLs must be in scp format, NCL-8685), so a URL under the authority that is not acceptable is
+     * rejected there instead of being cloned as external.
      */
-    private static boolean isAuthorityHost(ScmUrlNormalizer parsedUrl, String authority) {
+    private static boolean isUnderAuthority(ScmUrlNormalizer parsedUrl, String authority) {
         if (StringUtils.isEmpty(authority)) {
             return false;
         }
-        String expected = authority.toLowerCase();
-        int port = expected.indexOf(':');
-        if (port >= 0) {
-            expected = expected.substring(0, port);
+        String host = authority.trim().toLowerCase();
+        String path = "";
+        int slash = host.indexOf('/');
+        if (slash >= 0) {
+            path = host.substring(slash + 1).replaceAll("^/+|/+$", "");
+            host = host.substring(0, slash);
         }
-        return parsedUrl.getHost().toLowerCase().equals(expected);
+        host = host.substring(host.lastIndexOf('@') + 1);
+        int port = host.indexOf(':');
+        if (port >= 0) {
+            host = host.substring(0, port);
+        }
+        if (!parsedUrl.getHost().toLowerCase().equals(host)) {
+            return false;
+        }
+        return path.isEmpty() || parsedUrl.getPath().toLowerCase().startsWith(path + "/");
     }
 
     /**
