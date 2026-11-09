@@ -120,7 +120,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldNotTriggerLightwellBuildOfNotAllowedProject() throws ClientException {
+    public void shouldNotTriggerPersistentLightwellBuildOfNotAllowedProject() throws ClientException {
         // with: a LIGHTWELL build config in a project that is not in the allowedProjects list (see pnc-config.json)
         BuildConfiguration template = buildConfigurationClient.getAll().iterator().next();
         assertThat(template.getProject().getName()).isNotEqualTo("Bouncycastle");
@@ -139,10 +139,10 @@ public class BuildTest {
         // when / then
         assertThatThrownBy(
                 () -> buildConfigurationClient
-                        .trigger(lightwellBuildConfiguration.getId(), getBuildParameters(true, true)))
+                        .trigger(lightwellBuildConfiguration.getId(), getBuildParameters(false, true)))
                 .isInstanceOf(RemoteResourceException.class)
                 .hasMessageContaining(
-                        "Triggering builds of project '" + template.getProject().getName()
+                        "Triggering persistent builds of project '" + template.getProject().getName()
                                 + "' is not allowed for build category LIGHTWELL");
     }
 

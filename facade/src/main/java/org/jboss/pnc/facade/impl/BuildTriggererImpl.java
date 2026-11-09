@@ -400,11 +400,12 @@ public class BuildTriggererImpl implements BuildTriggerer {
     /**
      * Validates that triggering a build of the kind given by {@code isTemporaryBuild} is allowed for the given build
      * category, according to its {@link CategoryConfig}. A {@code null} {@code buildCategoryConfig} means the category
-     * is not configured and is therefore forbidden. If the category config restricts the allowed projects, the Build
-     * Configuration's project name must be one of them.
+     * is not configured and is therefore forbidden. For persistent builds, if the category config restricts the allowed
+     * projects, the Build Configuration's project name must be one of them; temporary builds are not restricted by
+     * project.
      *
      * @throws BuildTriggeringException if triggering the requested build kind is disabled for the given build category
-     *         or the project is not allowed for it
+     *         or the project is not allowed for persistent builds of it
      */
     private void validateTriggeringAllowed(
             CategoryConfig buildCategoryConfig,
@@ -424,9 +425,9 @@ public class BuildTriggererImpl implements BuildTriggerer {
                                 + " at this PNC environment.");
             }
         }
-        if (!BuildTriggeringConfig.isProjectAllowed(buildCategoryConfig, projectName)) {
+        if (!isTemporaryBuild && !BuildTriggeringConfig.isProjectAllowed(buildCategoryConfig, projectName)) {
             throw new BuildTriggeringException(
-                    "Triggering builds of project '" + projectName + "' is not allowed for build category "
+                    "Triggering persistent builds of project '" + projectName + "' is not allowed for build category "
                             + buildCategory + " at this PNC environment.");
         }
     }

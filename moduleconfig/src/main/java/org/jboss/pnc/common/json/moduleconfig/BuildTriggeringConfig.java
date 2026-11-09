@@ -32,15 +32,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * A category that is not listed is forbidden by default (neither persistent nor temporary builds are allowed), so
  * permissive environments must list every category they want to enable.
  * <p>
- * Each category may additionally restrict triggering to Build Configurations belonging to specific projects, matched
- * by exact project name:
+ * Each category may additionally restrict triggering of <b>persistent</b> builds to Build Configurations belonging to
+ * specific projects, matched by exact project name. Temporary builds are not restricted by project.
  *
  * <pre>
- * "LIGHTWELL": { "persistent": false, "temporary": true, "allowedProjects": [ "Bouncycastle" ] }
+ * "LIGHTWELL": { "persistent": true, "temporary": true, "allowedProjects": [ "Bouncycastle" ] }
  * </pre>
  *
- * If {@code allowedProjects} is omitted or empty, builds of any project are allowed. Otherwise only the listed projects
- * may be built.
+ * If {@code allowedProjects} is omitted or empty, persistent builds of any project are allowed. Otherwise only the
+ * listed projects may be built persistently.
  */
 public class BuildTriggeringConfig extends AbstractModuleConfig {
 
@@ -90,8 +90,8 @@ public class BuildTriggeringConfig extends AbstractModuleConfig {
     }
 
     /**
-     * @return whether triggering builds of Build Configurations belonging to the given project is allowed for the given
-     *         category. Unconfigured categories are forbidden; categories with an omitted or empty
+     * @return whether triggering persistent builds of Build Configurations belonging to the given project is allowed
+     *         for the given category. Unconfigured categories are forbidden; categories with an omitted or empty
      *         {@code allowedProjects} list allow any project.
      */
     public boolean isProjectAllowed(BuildCategory category, String projectName) {
@@ -99,8 +99,9 @@ public class BuildTriggeringConfig extends AbstractModuleConfig {
     }
 
     /**
-     * @return whether triggering builds of Build Configurations belonging to the given project is allowed for the given
-     *         category config. A {@code null} config (unconfigured category) is forbidden; a config with an omitted or
+     * @return whether triggering persistent builds of Build Configurations belonging to the given project is allowed
+     *         for the given category config. A {@code null} config (unconfigured category) is forbidden; a config with
+     *         an omitted or
      *         empty {@code allowedProjects} list allows any project.
      */
     public static boolean isProjectAllowed(CategoryConfig categoryConfig, String projectName) {
@@ -123,7 +124,7 @@ public class BuildTriggeringConfig extends AbstractModuleConfig {
         private final boolean temporary;
 
         /**
-         * Names of projects whose Build Configurations may be built; empty means no restriction.
+         * Names of projects whose Build Configurations may be built persistently; empty means no restriction.
          */
         private final Set<String> allowedProjects;
 
@@ -147,7 +148,7 @@ public class BuildTriggeringConfig extends AbstractModuleConfig {
         }
 
         /**
-         * @return names of projects whose Build Configurations may be built; empty if not restricted
+         * @return names of projects whose Build Configurations may be built persistently; empty if not restricted
          */
         public Set<String> getAllowedProjects() {
             return allowedProjects;
