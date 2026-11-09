@@ -15,7 +15,7 @@ jobs:
         # The shared default activates the jboss-parent 'central-release' profile, which does not exist
         # in the jboss-parent:37 inherited by PNC. The central-publishing-maven-plugin is configured
         # in the root pom instead (publishingServerId=central-publisher), so only the PNC profiles are needed.
-        snapshot_deploy_command: 'mvn -B -V deploy -DskipTests -Pproduction -Pauth'
+        snapshot_deploy_command: 'mvn -B -V deploy -DskipTests -Pwithout-messaging -Pdevel -Pauth'
         jboss_parent_override: ''
       secrets:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
