@@ -9,8 +9,10 @@ on:
 
 jobs:
   call-maven-ci:
-    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@e7102dd3bf74f91aaccae7a3539241c03a652d1a # v0.0.27
+    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@4dc4f499c9c36a24ab93ed7adba2ac3bc9fa09c3 # main
     with:
       java_version: 11
       build_command: "mvn clean install -Pwithout-messaging -Pdevel -Pauth"
       upload_artifacts: true
+      # Images used by the Testcontainers in integration-test-rex (see RemoteServices and InfinispanContainer)
+      pre_pull_docker_images: "quay.io/keycloak/keycloak:21.1.0,quay.io/infinispan/server:15.0.15.Final,quay.io/rh-newcastle-devel/rex:latest"
