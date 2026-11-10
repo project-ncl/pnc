@@ -3,9 +3,7 @@ name: Mend CLI scan for Maven
 on:
   push:
     branches:
-      - master
-  schedule:
-    - cron: "0 22 * * 0"
+      - "v3.5.x"
 
 permissions:
   contents: read
