@@ -1,54 +1,41 @@
-name: OpeanAPI diff
+name: OpenAPI diff
+
+# Cancel in-progress runs of the same workflow to avoid unnecessary runs when
+# multiple commits are pushed in a short period of time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
-  pull_request_target:
+  pull_request:
     paths:
       - 'rest-api/pnc-openapi.yaml'
   workflow_dispatch:
 
 jobs:
-  build:
+  openapi-diff:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
-      - name: Check out head branch
-        uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: git fetch --depth=1 origin ${{ github.base_ref }}
+
+      # Post full changelog (breaking + non-breaking) as a PR comment
+      # with a side-by-side review link. Does not fail the build.
+      - name: Post API changelog comment
+        uses: oasdiff/oasdiff-action/changelog@8a211b41745fcecdfa4a86531ffbf08934fb14f6 # v0.1.23
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-          path: head
-      - name: Check out master branch
-        uses: actions/checkout@v7
+          base: 'origin/${{ github.base_ref }}:rest-api/pnc-openapi.yaml'
+          revision: 'HEAD:rest-api/pnc-openapi.yaml'
+          github-token: ${{ github.token }}
+
+      # Fail the build and write inline annotations if breaking changes exist.
+      - name: Fail on breaking changes
+        uses: oasdiff/oasdiff-action/breaking@8a211b41745fcecdfa4a86531ffbf08934fb14f6 # v0.1.23
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          path: base
-      - name: Run OpenAPI Diff (from HEAD revision)
-        id: run-diff
-        uses: janinko/openapi-diff-action@v0.0.2
-        with:
-          head-spec: head/rest-api/pnc-openapi.yaml
-          base-spec: base/rest-api/pnc-openapi.yaml
-      - name: Check changes
-        id: check-change
-        run: |
-          if grep "No differences. Specifications are equivalents" openapi-diff.out; then
-            echo "changed=no" >> $GITHUB_OUTPUT
-          else
-            echo "changed=yes" >> $GITHUB_OUTPUT
-          fi
-      - name: Comment on PR
-        if: steps.check-change.outputs.changed == 'yes'
-        uses: mshick/add-pr-comment@v3
-        with:
-          message: |
-            # REST API CHANGED
-            ```
-            ${{ steps.run-diff.outputs.diff-output }}
-            ```
-      - name: Check compatibility break
-        if: steps.check-change.outputs.changed == 'yes'
-        run: |
-          if grep "API changes broke backward compatibility" openapi-diff.out; then
-            exit 1
-          fi
+          base: 'origin/${{ github.base_ref }}:rest-api/pnc-openapi.yaml'
+          revision: 'HEAD:rest-api/pnc-openapi.yaml'
+          fail-on: ERR
+          github-token: ${{ github.token }}
