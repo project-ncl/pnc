@@ -6,6 +6,8 @@ package org.jboss.pnc.rest.api.endpoints;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BAD_GATEWAY_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BAD_GATEWAY_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -17,6 +19,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_D
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.GATEWAY_TIMEOUT_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.GATEWAY_TIMEOUT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
@@ -25,6 +29,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVICE_UNAVAILABLE_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVICE_UNAVAILABLE_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
@@ -45,11 +51,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
+import org.jboss.pnc.api.reqour.rest.ScmContentEndpoint;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.Build;
@@ -77,6 +85,7 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -416,6 +425,162 @@ public interface BuildEndpoint {
     @GET
     @Path("/{id}/scm-archive")
     Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") String id);
+
+    static final String SCM_CONTENT_NOT_SERVED_DESC = "The internal SCM repository of the build is not served by "
+            + "reqour";
+    static final String SCM_ARCHIVE_NOT_FOUND_DESC = "The build, its internal SCM repository or its revisions do not "
+            + "exist";
+    static final String ALIGNMENT_DIFF_NOT_FOUND_DESC = "The build, its internal SCM repository or its pre- and "
+            + "post-alignment revisions do not exist";
+    static final String RETRY_AFTER_DESC = "Seconds after which the request can be tried again";
+
+    static final String GET_INTERNAL_SCM_ARCHIVE_CONTENT_DESC = "Gets the source archive (tar.gz) of a build from the "
+            + "internal SCM, through reqour: for clients that cannot reach the git provider";
+
+    /**
+     * {@value GET_INTERNAL_SCM_ARCHIVE_CONTENT_DESC}
+     *
+     * @param id {@value B_ID}
+     * @return the archive, with the revision it was made from in the {@code Reqour-Revision} header
+     */
+    @Operation(
+            summary = GET_INTERNAL_SCM_ARCHIVE_CONTENT_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            headers = @Header(
+                                    name = ScmContentEndpoint.REVISION_HEADER,
+                                    description = ScmContentEndpoint.REVISION_HEADER_DESC,
+                                    schema = @Schema(implementation = String.class)),
+                            content = @Content(
+                                    mediaType = ScmContentEndpoint.GZIP,
+                                    schema = @Schema(type = "string", format = "binary"))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = SCM_CONTENT_NOT_SERVED_DESC,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = NOT_FOUND_CODE,
+                            description = SCM_ARCHIVE_NOT_FOUND_DESC,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = BAD_GATEWAY_CODE,
+                            description = BAD_GATEWAY_DESCRIPTION,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVICE_UNAVAILABLE_CODE,
+                            description = SERVICE_UNAVAILABLE_DESCRIPTION,
+                            headers = @Header(
+                                    name = HttpHeaders.RETRY_AFTER,
+                                    description = RETRY_AFTER_DESC,
+                                    schema = @Schema(implementation = Integer.class)),
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = GATEWAY_TIMEOUT_CODE,
+                            description = GATEWAY_TIMEOUT_DESCRIPTION,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/scm-archive/content")
+    @Produces({ ScmContentEndpoint.GZIP, MediaType.APPLICATION_JSON })
+    Response getInternalScmArchive(@Parameter(description = B_ID) @PathParam("id") String id);
+
+    static final String GET_ALIGNMENT_DIFF_DESC = "Gets the complete alignment diff of a build (git unified diff, "
+            + "binary files included) from the internal SCM, through reqour";
+
+    /**
+     * {@value GET_ALIGNMENT_DIFF_DESC}
+     *
+     * @param id {@value B_ID}
+     * @return the diff, with the {@code Reqour-Diff-Base}, {@code Reqour-Diff-Head} and {@code Reqour-Diff-Mode}
+     *         headers
+     */
+    @Operation(
+            summary = GET_ALIGNMENT_DIFF_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            headers = {
+                                    @Header(
+                                            name = ScmContentEndpoint.DIFF_BASE_HEADER,
+                                            description = ScmContentEndpoint.DIFF_BASE_HEADER_DESC,
+                                            schema = @Schema(implementation = String.class)),
+                                    @Header(
+                                            name = ScmContentEndpoint.DIFF_HEAD_HEADER,
+                                            description = ScmContentEndpoint.DIFF_HEAD_HEADER_DESC,
+                                            schema = @Schema(implementation = String.class)),
+                                    @Header(
+                                            name = ScmContentEndpoint.DIFF_MODE_HEADER,
+                                            description = ScmContentEndpoint.DIFF_MODE_HEADER_DESC,
+                                            schema = @Schema(
+                                                    implementation = String.class,
+                                                    allowableValues = {
+                                                            ScmContentEndpoint.DIFF_MODE_COMPARE,
+                                                            ScmContentEndpoint.DIFF_MODE_COMMIT })) },
+                            content = @Content(
+                                    mediaType = ScmContentEndpoint.DIFF,
+                                    schema = @Schema(type = "string", format = "binary"))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = SCM_CONTENT_NOT_SERVED_DESC,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = NOT_FOUND_CODE,
+                            description = ALIGNMENT_DIFF_NOT_FOUND_DESC,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = BAD_GATEWAY_CODE,
+                            description = BAD_GATEWAY_DESCRIPTION,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVICE_UNAVAILABLE_CODE,
+                            description = SERVICE_UNAVAILABLE_DESCRIPTION,
+                            headers = @Header(
+                                    name = HttpHeaders.RETRY_AFTER,
+                                    description = RETRY_AFTER_DESC,
+                                    schema = @Schema(implementation = Integer.class)),
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = GATEWAY_TIMEOUT_CODE,
+                            description = GATEWAY_TIMEOUT_DESCRIPTION,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/alignment-diff")
+    @Produces({ ScmContentEndpoint.DIFF, MediaType.APPLICATION_JSON })
+    Response getAlignmentDiff(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String ADD_ATTRIBUTE_DESC = "Add attribute to a specific build.";
 

@@ -2939,6 +2939,115 @@
         }
       }
     },
+    "/builds/{id}/alignment-diff" : {
+      "get" : {
+        "tags" : [ "Builds" ],
+        "summary" : "Gets the complete alignment diff of a build (git unified diff, binary files included) from the internal SCM, through reqour",
+        "operationId" : "getAlignmentDiff",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "headers" : {
+              "Reqour-Diff-Base" : {
+                "description" : "The old side of the diff; only in compare mode",
+                "style" : "simple"
+              },
+              "Reqour-Diff-Head" : {
+                "description" : "The new side of the diff",
+                "style" : "simple"
+              },
+              "Reqour-Diff-Mode" : {
+                "description" : "compare (diff from a base that is an ancestor of the head) or commit (diff of the head commit against its parent)",
+                "style" : "simple"
+              }
+            },
+            "content" : {
+              "text/x-diff" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "The internal SCM repository of the build is not served by reqour",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The build, its internal SCM repository or its pre- and post-alignment revisions do not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502" : {
+            "description" : "An upstream service or the git provider answered with an error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Too many concurrent requests; try again after the Retry-After seconds",
+            "headers" : {
+              "Retry-After" : {
+                "description" : "Seconds after which the request can be tried again",
+                "style" : "simple"
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504" : {
+            "description" : "An upstream service or the git provider did not answer in time",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/builds/{id}/artifacts/built" : {
       "get" : {
         "tags" : [ "Builds" ],
@@ -3929,6 +4038,107 @@
           },
           "404" : {
             "description" : "Can not find specified result"
+          }
+        }
+      }
+    },
+    "/builds/{id}/scm-archive/content" : {
+      "get" : {
+        "tags" : [ "Builds" ],
+        "summary" : "Gets the source archive (tar.gz) of a build from the internal SCM, through reqour: for clients that cannot reach the git provider",
+        "operationId" : "getInternalScmArchive",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the build",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success with results",
+            "headers" : {
+              "Reqour-Revision" : {
+                "description" : "The revision the archive was made from",
+                "style" : "simple"
+              }
+            },
+            "content" : {
+              "application/gzip" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "The internal SCM repository of the build is not served by reqour",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The build, its internal SCM repository or its revisions do not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502" : {
+            "description" : "An upstream service or the git provider answered with an error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Too many concurrent requests; try again after the Retry-After seconds",
+            "headers" : {
+              "Retry-After" : {
+                "description" : "Seconds after which the request can be tried again",
+                "style" : "simple"
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504" : {
+            "description" : "An upstream service or the git provider did not answer in time",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }

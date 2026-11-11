@@ -33,6 +33,15 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
      */
     URI getInternalScmArchiveLink(String buildId);
 
+    /**
+     * Where the sources and the alignment diff of a build are in the internal SCM.
+     *
+     * @param buildId
+     * @return the candidates; lists are empty when the build has no such data (e.g. it failed before alignment)
+     * @throws EmptyEntityException if the build does not exist
+     */
+    ScmContentSource getScmContentSource(String buildId);
+
     void addAttribute(String buildId, String key, String value);
 
     void removeAttribute(String buildId, String key);

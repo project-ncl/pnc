@@ -8,12 +8,21 @@ import static java.text.MessageFormat.format;
 import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
 import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
@@ -22,11 +31,14 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.constants.MDCKeys;
+import org.jboss.pnc.api.reqour.rest.ScmContentEndpoint;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
@@ -38,6 +50,7 @@ import org.jboss.pnc.dto.BuildPushReport;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
@@ -48,6 +61,8 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.AttachmentProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.ScmContentSource;
+import org.jboss.pnc.facade.util.ReqourClient;
 import org.jboss.pnc.facade.validation.BrewNotSupportedException;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -105,6 +120,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private GlobalModuleGroup globalConfig;
+
+    @Inject
+    private ReqourClient reqourClient;
 
     private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
@@ -171,6 +189,206 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void setBuiltArtifacts(String id, List<String> artifactIds) {
         provider.setBuiltArtifacts(id, artifactIds);
+    }
+
+    @Override
+    public Response getInternalScmArchive(String id) {
+        ScmContentSource source = provider.getScmContentSource(id);
+        if (source.getRevisions().isEmpty()) {
+            throw new NotFoundException("Build " + id + " has no SCM revision.");
+        }
+        return fromReqour(
+                id,
+                source,
+                url -> reqourClient.scmArchive(url, source.getRevisions()),
+                "build-" + id + "-sources.tar.gz",
+                ScmContentEndpoint.REVISION_HEADER);
+    }
+
+    @Override
+    public Response getAlignmentDiff(String id) {
+        ScmContentSource source = provider.getScmContentSource(id);
+        if (source.getBases().isEmpty() || source.getHeads().isEmpty()) {
+            throw new NotFoundException("Build " + id + " has no pre- or post-alignment SCM revision.");
+        }
+        return fromReqour(
+                id,
+                source,
+                url -> reqourClient.scmDiff(url, source.getBases(), source.getHeads()),
+                "build-" + id + "-alignment.diff",
+                ScmContentEndpoint.DIFF_BASE_HEADER,
+                ScmContentEndpoint.DIFF_HEAD_HEADER,
+                ScmContentEndpoint.DIFF_MODE_HEADER);
+    }
+
+    /** Concurrent source and diff requests: each holds a worker thread and a reqour connection while streaming. */
+    static final int MAX_CONCURRENT_SCM_CONTENT = 8;
+    /**
+     * Frees the permit and closes reqour's answer when the container never starts writing the response (it does so
+     * right after the method returns).
+     */
+    private static final long PERMIT_SAFETY_RELEASE_MINUTES = 5;
+    static final ScheduledThreadPoolExecutor PERMIT_RELEASER = permitReleaser();
+
+    private final Semaphore scmContentPermits = new Semaphore(MAX_CONCURRENT_SCM_CONTENT);
+
+    private static ScheduledThreadPoolExecutor permitReleaser() {
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, r -> {
+            Thread thread = new Thread(r, "scm-content-permit-releaser");
+            thread.setDaemon(true);
+            return thread;
+        });
+        // a request leaves no task behind once its permit is released
+        executor.setRemoveOnCancelPolicy(true);
+        return executor;
+    }
+
+    /**
+     * Streams reqour's answer for the first internal URL it can serve.
+     * <ul>
+     * <li>The next URL is tried when reqour answers 400 (URL not served) or 404 (revisions not found there). Its 502
+     * and 504 (git provider error or timeout) are not retried: they do not depend on the URL.</li>
+     * <li>Reqour's 400, 404, 502 and 504 are passed on, and so is its 503 (too many diffs at once) with its
+     * {@code Retry-After}; any other status (its authentication errors with orch's service account, other 5xx) is a 502
+     * here. Non-JSON error bodies (e.g. from a gateway) are replaced by an {@link ErrorResponse}, with a 502.</li>
+     * <li>At most {@value #MAX_CONCURRENT_SCM_CONTENT} requests run at once; others get 503. The permit is held until
+     * the transfer ends, however long it takes.</li>
+     * </ul>
+     */
+    private Response fromReqour(
+            String id,
+            ScmContentSource source,
+            Function<String, Response> call,
+            String fileName,
+            String... forwardedHeaders) {
+        List<String> urls = source.getUrls();
+        if (urls.isEmpty()) {
+            throw new NotFoundException("Build " + id + " has no internal SCM repository.");
+        }
+        if (!scmContentPermits.tryAcquire()) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .header(HttpHeaders.RETRY_AFTER, "30")
+                    .entity(new ErrorResponse("TOO_MANY_REQUESTS", "Too many concurrent source and diff downloads."))
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .build();
+        }
+        Permit permit = new Permit(scmContentPermits);
+        boolean streaming = false;
+        try {
+            for (Iterator<String> it = urls.iterator();;) {
+                String url = it.next();
+                Response response = call.apply(url);
+                int status = response.getStatus();
+                if (status == Response.Status.OK.getStatusCode()) {
+                    streaming = true;
+                    return streamed(response, permit, fileName, forwardedHeaders);
+                }
+                if (!it.hasNext() || (status != 400 && status != 404)) {
+                    return reqourError(id, url, response);
+                }
+                logger.info("Reqour cannot serve {} for build {} ({}), trying the next URL", url, id, status);
+                response.close();
+            }
+        } finally {
+            if (!streaming) {
+                permit.release();
+            }
+        }
+    }
+
+    private Response reqourError(String id, String url, Response response) {
+        int status = response.getStatus();
+        boolean json = response.getMediaType() != null
+                && response.getMediaType().isCompatible(MediaType.APPLICATION_JSON_TYPE);
+        String retryAfter = response.getHeaderString(HttpHeaders.RETRY_AFTER);
+        String body;
+        try {
+            body = response.readEntity(String.class);
+        } finally {
+            response.close();
+        }
+        logger.warn("Reqour cannot serve {} for build {}: {} {}", url, id, status, body);
+        boolean busy = status == 503 && json;
+        int mapped = status == 400 || status == 404 || status == 502 || status == 504 || busy ? status : 502;
+        Object entity = json ? body : new ErrorResponse("REQOUR_ERROR", "Reqour answered HTTP " + status + ".");
+        Response.ResponseBuilder error = Response.status(mapped).entity(entity).type(MediaType.APPLICATION_JSON_TYPE);
+        if (busy && retryAfter != null) {
+            error.header(HttpHeaders.RETRY_AFTER, retryAfter);
+        }
+        return error.build();
+    }
+
+    /**
+     * A concurrency permit, released once: when the transfer ends, or by a safety timer when the transfer never starts
+     * (which also closes reqour's answer). The timer only runs until the transfer starts, so a long transfer keeps its
+     * permit, and it is cancelled on release.
+     */
+    static final class Permit {
+        private final Semaphore permits;
+        private final AtomicBoolean released = new AtomicBoolean();
+        private volatile Response pending;
+        private final ScheduledFuture<?> safety;
+
+        Permit(Semaphore permits) {
+            this(permits, PERMIT_SAFETY_RELEASE_MINUTES, TimeUnit.MINUTES);
+        }
+
+        Permit(Semaphore permits, long safetyDelay, TimeUnit unit) {
+            this.permits = permits;
+            this.safety = PERMIT_RELEASER.schedule(this::abandon, safetyDelay, unit);
+        }
+
+        /** Reqour's answer, waiting for the container to write it. */
+        void pending(Response response) {
+            pending = response;
+        }
+
+        /** False when the safety timer already gave the permit back: the transfer must not start. */
+        boolean start() {
+            return safety.cancel(false);
+        }
+
+        void release() {
+            safety.cancel(false);
+            if (released.compareAndSet(false, true)) {
+                permits.release();
+            }
+        }
+
+        private void abandon() {
+            Response response = pending;
+            if (response != null) {
+                logger.warn("The SCM content response was never written, closing reqour's answer");
+                response.close();
+            }
+            release();
+        }
+    }
+
+    private static Response streamed(Response response, Permit permit, String fileName, String... forwardedHeaders) {
+        permit.pending(response);
+        StreamingOutput body = out -> {
+            try {
+                if (!permit.start()) {
+                    throw new IOException("The SCM content response was abandoned");
+                }
+                try (InputStream in = response.readEntity(InputStream.class)) {
+                    in.transferTo(out);
+                }
+            } finally {
+                response.close();
+                permit.release();
+            }
+        };
+        Response.ResponseBuilder builder = Response.ok(body, response.getMediaType())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+        for (String header : forwardedHeaders) {
+            String value = response.getHeaderString(header);
+            if (value != null) {
+                builder.header(header, value);
+            }
+        }
+        return builder.build();
     }
 
     @Override

@@ -31,6 +31,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -44,6 +45,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
@@ -75,6 +77,7 @@ import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.facade.providers.BuildFetcher.BuildWithDeps;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.ScmContentSource;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -502,6 +505,36 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 throw new RepositoryViolationException(e);
             }
         }
+    }
+
+    @Override
+    public ScmContentSource getScmContentSource(String buildId) {
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(parseId(buildId));
+        if (buildRecord == null) {
+            throw new EmptyEntityException("Build with id: " + buildId + " does not exist!");
+        }
+        BuildConfigurationAudited config = buildRecord.getBuildConfigurationAudited();
+        // the configured revision is often a branch or tag, which may exist in the internal repository with another
+        // meaning (mirrored upstream branches): only a commit id is a safe fallback
+        String configCommit = config == null || config.getScmRevision() == null
+                || !COMMIT_ID.matcher(config.getScmRevision()).matches() ? null : config.getScmRevision();
+        String currentInternalUrl = config == null || config.getRepositoryConfiguration() == null ? null
+                : config.getRepositoryConfiguration().getInternalUrl();
+        return ScmContentSource.builder()
+                .urls(nonBlankDistinct(buildRecord.getScmRepoURL(), currentInternalUrl))
+                .revisions(nonBlankDistinct(buildRecord.getScmRevision(), configCommit))
+                .bases(nonBlankDistinct(buildRecord.getScmBuildConfigRevision(), configCommit))
+                .heads(nonBlankDistinct(buildRecord.getScmRevision(), buildRecord.getScmTag()))
+                .build();
+    }
+
+    private static final Pattern COMMIT_ID = Pattern.compile("[0-9a-fA-F]{40}");
+
+    private static List<String> nonBlankDistinct(String... values) {
+        return Arrays.stream(values)
+                .filter(v -> v != null && !v.isBlank())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**

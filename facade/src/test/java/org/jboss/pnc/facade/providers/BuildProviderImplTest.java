@@ -11,6 +11,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -40,6 +41,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Vertex;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
+import org.jboss.pnc.facade.providers.api.ScmContentSource;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -47,6 +49,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -290,6 +293,58 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         }
         repositoryList.add(0, br);
         return br;
+    }
+
+    @Test
+    public void testGetScmContentSource() {
+        BuildRecord build = mockBuildRecord();
+        build.setScmRepoURL("git@github.ibm.com:pnc-prod/repo.git");
+        build.setScmRevision("aligned-commit");
+        build.setScmTag("1.0.0.redhat-00001");
+        build.setScmBuildConfigRevision("upstream-commit");
+        build.getBuildConfigurationAudited().setScmRevision("v1.0.0");
+        build.getBuildConfigurationAudited()
+                .setRepositoryConfiguration(
+                        RepositoryConfiguration.Builder.newBuilder()
+                                .internalUrl("git@gitlab.cee.redhat.com:pnc-workspace/repo.git")
+                                .build());
+
+        ScmContentSource source = provider.getScmContentSource(build.getId().getId());
+
+        assertThat(source.getUrls())
+                .containsExactly(
+                        "git@github.ibm.com:pnc-prod/repo.git",
+                        "git@gitlab.cee.redhat.com:pnc-workspace/repo.git");
+        // a configured branch or tag is not a safe fallback
+        assertThat(source.getRevisions()).containsExactly("aligned-commit");
+        assertThat(source.getBases()).containsExactly("upstream-commit");
+        assertThat(source.getHeads()).containsExactly("aligned-commit", "1.0.0.redhat-00001");
+    }
+
+    @Test
+    public void testGetScmContentSourceFallsBackToAConfiguredCommitOnly() {
+        String commit = "0123456789abcdef0123456789abcdef01234567";
+        BuildRecord build = mockBuildRecord();
+        build.setScmRepoURL("git@gitlab.cee.redhat.com:pnc-workspace/repo.git");
+        build.getBuildConfigurationAudited().setScmRevision(commit);
+
+        ScmContentSource source = provider.getScmContentSource(build.getId().getId());
+
+        assertThat(source.getRevisions()).containsExactly(commit);
+        assertThat(source.getBases()).containsExactly(commit);
+        assertThatThrownBy(() -> source.getUrls().add("x")).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    public void testGetScmContentSourceOfBuildWithoutScmData() {
+        BuildRecord build = mockBuildRecord();
+
+        ScmContentSource source = provider.getScmContentSource(build.getId().getId());
+
+        assertThat(source.getUrls()).isEmpty();
+        assertThat(source.getRevisions()).isEmpty();
+        assertThat(source.getBases()).isEmpty();
+        assertThat(source.getHeads()).isEmpty();
     }
 
     @Test

@@ -41,6 +41,13 @@ public interface SwaggerConstants {
     public static final String TOO_EARLY_DESCRIPTION = "Request arrived earlier than expected";
     public static final String SERVER_ERROR_DESCRIPTION = "Server error";
     public static final String SERVER_ERROR_CODE = "500";
+    public static final String BAD_GATEWAY_DESCRIPTION = "An upstream service or the git provider answered with an error";
+    public static final String BAD_GATEWAY_CODE = "502";
+    public static final String SERVICE_UNAVAILABLE_DESCRIPTION = "Too many concurrent requests; try again after the "
+            + "Retry-After seconds";
+    public static final String SERVICE_UNAVAILABLE_CODE = "503";
+    public static final String GATEWAY_TIMEOUT_DESCRIPTION = "An upstream service or the git provider did not answer in time";
+    public static final String GATEWAY_TIMEOUT_CODE = "504";
     public static final String PAGE_INDEX_DESCRIPTION = "Index of the page to return. Index starts with 0.";
     public static final String PAGE_INDEX_QUERY_PARAM = "pageIndex";
     public static final String PAGE_INDEX_DEFAULT_VALUE = "0";
