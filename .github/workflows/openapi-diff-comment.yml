@@ -1,0 +1,99 @@
+name: OpenAPI Diff PR Comment
+
+on:
+  workflow_run: # zizmor: ignore[dangerous-triggers]
+    workflows: ["OpenAPI diff"]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: openapi-diff-comment-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+    steps:
+      - name: Download diff artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: openapi-diff-artifact
+          path: diff-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post or update PR comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const prNumberFile = path.join('diff-artifact', 'pr_number.txt');
+            const reportFile = path.join('diff-artifact', 'openapi-diff-report.md');
+            const reviewUrlFile = path.join('diff-artifact', 'review_url.txt');
+
+            if (!fs.existsSync(prNumberFile)) {
+              core.info('No pr_number.txt found in artifact. Skipping comment.');
+              return;
+            }
+
+            const prNumberStr = fs.readFileSync(prNumberFile, 'utf8').trim();
+            const prNumber = parseInt(prNumberStr, 10);
+            if (isNaN(prNumber) || prNumber <= 0) {
+              core.warning(`Invalid PR number: ${prNumberStr}`);
+              return;
+            }
+
+            let reportContent = '';
+            if (fs.existsSync(reportFile)) {
+              reportContent = fs.readFileSync(reportFile, 'utf8').trim();
+            }
+
+            let reviewUrl = '';
+            if (fs.existsSync(reviewUrlFile)) {
+              reviewUrl = fs.readFileSync(reviewUrlFile, 'utf8').trim();
+            }
+
+            const marker = '<!-- pnc-openapi-diff-comment -->';
+            let commentBody = `${marker}\n### 🔍 OpenAPI Specification Changes\n\n`;
+
+            if (reviewUrl) {
+              commentBody += `📊 **[View Side-by-Side Review on oasdiff.com](${reviewUrl})**\n\n`;
+            }
+
+            if (reportContent) {
+              commentBody += `<details>\n<summary><strong>Changelog Details</strong></summary>\n\n${reportContent}\n\n</details>\n`;
+            } else if (!reviewUrl) {
+              commentBody += `No API changes detected.\n`;
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existingComment = comments.find(c => c.body && c.body.includes(marker));
+
+            if (existingComment) {
+              core.info(`Updating existing comment ${existingComment.id} on PR #${prNumber}`);
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody,
+              });
+            } else {
+              core.info(`Creating new comment on PR #${prNumber}`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: commentBody,
+              });
+            }
