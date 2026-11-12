@@ -12,24 +12,33 @@ on:
       - 'rest-api/pnc-openapi.yaml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  openapi-diff:
+  diff:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: git fetch --depth=1 origin ${{ github.base_ref }}
+        with:
+          persist-credentials: false
 
-      # Post full changelog (breaking + non-breaking) as a PR comment
-      # with a side-by-side review link. Does not fail the build.
-      - name: Post API changelog comment
+      - name: Fetch base branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: git fetch --depth=1 origin "${BASE_REF}"
+
+      # Generate full changelog (breaking + non-breaking) in Markdown and obtain review URL.
+      # Posting PR comment is handled by the companion workflow_run workflow.
+      - name: Generate API changelog
+        id: changelog
         uses: oasdiff/oasdiff-action/changelog@8a211b41745fcecdfa4a86531ffbf08934fb14f6 # v0.1.23
         with:
           base: 'origin/${{ github.base_ref }}:rest-api/pnc-openapi.yaml'
           revision: 'HEAD:rest-api/pnc-openapi.yaml'
-          github-token: ${{ github.token }}
+          format: 'markdown'
+          output-to-file: 'openapi-diff-report.md'
+          github-token: ''
 
       # Fail the build and write inline annotations if breaking changes exist.
       - name: Fail on breaking changes
@@ -38,4 +47,26 @@ jobs:
           base: 'origin/${{ github.base_ref }}:rest-api/pnc-openapi.yaml'
           revision: 'HEAD:rest-api/pnc-openapi.yaml'
           fail-on: ERR
-          github-token: ${{ github.token }}
+          github-token: ''
+
+      # Save report and metadata for the comment-posting workflow
+      - name: Save PR metadata and diff report
+        if: always() && github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REVIEW_URL: ${{ steps.changelog.outputs.review_url }}
+        run: |
+          mkdir -p ./diff-artifact
+          echo "${PR_NUMBER}" > ./diff-artifact/pr_number.txt
+          echo "${REVIEW_URL}" > ./diff-artifact/review_url.txt
+          if [ -f "openapi-diff-report.md" ]; then
+            cp openapi-diff-report.md ./diff-artifact/
+          fi
+
+      - name: Upload diff artifact
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: openapi-diff-artifact
+          path: ./diff-artifact/
+          retention-days: 1
