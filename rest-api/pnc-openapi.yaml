@@ -29,6 +29,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -132,6 +133,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -376,6 +378,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -452,6 +455,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -505,6 +509,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -581,6 +586,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -743,6 +749,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -916,6 +923,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1161,6 +1169,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1265,6 +1274,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1322,6 +1332,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1443,6 +1454,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1500,6 +1512,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1780,6 +1793,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -1932,6 +1946,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -2206,6 +2221,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -2351,6 +2367,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -2449,6 +2466,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -2704,6 +2722,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -2796,6 +2815,8 @@ paths:
       - name: depthLimit
         in: query
         schema:
+          maximum: 5
+          minimum: 0
           type: integer
           format: int32
           default: 5
@@ -3091,6 +3112,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -3209,6 +3231,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -3266,6 +3289,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -3350,6 +3374,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -3810,6 +3835,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -3952,6 +3978,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4074,6 +4101,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4349,6 +4377,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4472,6 +4501,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4548,6 +4578,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4605,6 +4636,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4666,6 +4698,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -4974,6 +5007,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -5225,6 +5259,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -5271,6 +5306,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -5419,6 +5455,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -5476,6 +5513,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -5525,6 +5563,8 @@ paths:
       - name: depthLimit
         in: query
         schema:
+          maximum: 5
+          minimum: 0
           type: integer
           format: int32
           default: 5
@@ -5914,6 +5954,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -5971,6 +6012,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6028,6 +6070,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6085,6 +6128,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6142,6 +6186,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6200,6 +6245,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6284,6 +6330,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6483,6 +6530,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6534,6 +6582,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6733,6 +6782,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6790,6 +6840,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -6860,6 +6911,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -7087,6 +7139,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -7337,6 +7390,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -7466,6 +7520,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
@@ -7587,6 +7642,7 @@ paths:
         description: Number of entries that should be included in a page. Maximum
           page size is 200.
         schema:
+          maximum: 200
           type: integer
           format: int32
           default: 50
