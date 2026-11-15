@@ -693,6 +693,60 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         verify(dingroguClient, never()).submitRepositoryCreation(any());
     }
 
+    /** An authority with a path only covers repositories under that group, segment by segment. */
+    @Test
+    public void testIsInternalRepositoryWithAuthorityPath() {
+        String authority = "gitlab.company.com/workspace";
+        for (String url : new String[] { "git@gitlab.company.com:workspace/x.git",
+                "git+ssh://git@gitlab.company.com/workspace/x.git", "git@GITLAB.company.com:Workspace/sub/x.git" }) {
+            assertTrue(url, SCMRepositoryProviderImpl.isInternalRepository(authority, null, url));
+        }
+        for (String url : new String[] { "git@gitlab.company.com:other/x.git",
+                "git@gitlab.company.com:workspace2/x.git", "git@gitlab.company.com:workspace.git",
+                "git@gitlab.company.com:lw/workspace/x.git", "git@evil.net:workspace/x.git" }) {
+            assertFalse(url, SCMRepositoryProviderImpl.isInternalRepository(authority, null, url));
+        }
+        // trailing slash, user info and port in the authority are ignored
+        assertTrue(
+                SCMRepositoryProviderImpl.isInternalRepository(
+                        "git@gitlab.company.com:22/workspace/",
+                        null,
+                        "git@gitlab.company.com:workspace/x.git"));
+    }
+
+    /**
+     * With an authority path, a repository in another group on the internal host is external: it is cloned into the
+     * workspace instead of being registered as internal.
+     */
+    @Test
+    public void testCreateSCMRepositoryOutsideAuthorityPathIsExternal() {
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("gitlab.company.com/workspace");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn("github.company.com");
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("git@gitlab.company.com:lw/builds/x.git", true);
+
+        assertThat(response.getTaskId()).isNotNull();
+        assertThat(response.getRepository()).isNull();
+        verify(dingroguClient).submitRepositoryCreation(any());
+        verify(repository, never()).save(any());
+    }
+
+    /** With an authority path, a repository under it is still registered as internal. */
+    @Test
+    public void testCreateSCMRepositoryUnderAuthorityPathIsInternal() {
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("gitlab.company.com/workspace");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
+
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("git@gitlab.company.com:workspace/x.git", true);
+
+        assertThat(response.getTaskId()).isNull();
+        assertThat(response.getRepository()).isNotNull();
+        verify(repository).save(any());
+        verify(dingroguClient, never()).submitRepositoryCreation(any());
+    }
+
     private void assertCreationErrorSent() {
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(notifier).sendMessage(sent.capture());
