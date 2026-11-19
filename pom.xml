@@ -116,7 +116,6 @@
 
     <!-- OTEL Dependencies for Instrumentation -->
     <version.io.opentelemetry.instrumentation>2.32.0</version.io.opentelemetry.instrumentation>
-    <version.org.jboss.pnc.otel>2.1.0</version.org.jboss.pnc.otel>
 
     <!-- TEST Dependency properties (CVEs not critical) -->
     <version.junit>4.13.2</version.junit>
@@ -340,12 +339,6 @@
         <groupId>io.opentelemetry.instrumentation</groupId>
         <artifactId>opentelemetry-instrumentation-annotations</artifactId>
         <version>${version.io.opentelemetry.instrumentation}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc.otel</groupId>
-        <artifactId>opentelemetry-ext-cli-java</artifactId>
-        <version>${version.org.jboss.pnc.otel}</version>
       </dependency>
 
       <!-- Project modules, to support cross-module dependencies -->

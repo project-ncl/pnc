@@ -110,12 +110,6 @@
       <artifactId>commons-io</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- OTEL dependencies -->
-    <dependency>
-      <groupId>org.jboss.pnc.otel</groupId>
-      <artifactId>opentelemetry-ext-cli-java</artifactId>
-      <scope>provided</scope>
-    </dependency>
 
     <!-- Enterprise dependencies -->
     <dependency>
