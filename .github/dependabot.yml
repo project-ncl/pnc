@@ -17,6 +17,7 @@ updates:
       exclude:
         - "org.jboss.da:*"
         - "org.jboss.pnc*:*"        # match org.jboss.pnc:xyz and org.jboss.pnc.group:xyz
+        - "org.commonjava*:*"       # match org.commonjava:xyz and org.commonjava.group:xyz
     ignore:
       # NOTE: for Maven, Dependabot treats "versions" entries as Maven version requirements, so
       # a pattern like "6.x" is the literal version "6.x" and matches nothing. Use Maven range
