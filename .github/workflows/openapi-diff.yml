@@ -42,7 +42,7 @@ jobs:
 
       # Fail the build and write inline annotations if breaking changes exist.
       - name: Fail on breaking changes
-        uses: oasdiff/oasdiff-action/breaking@8a211b41745fcecdfa4a86531ffbf08934fb14f6 # v0.1.23
+        uses: oasdiff/oasdiff-action/breaking@0546e2ebdc9d3589d594cfcef445c61ca02cabf1 # v0.2.0
         with:
           base: 'origin/${{ github.base_ref }}:rest-api/pnc-openapi.yaml'
           revision: 'HEAD:rest-api/pnc-openapi.yaml'
