@@ -115,7 +115,7 @@
     <version.json-schema-validator>2.0.8</version.json-schema-validator>
 
     <!-- OTEL Dependencies for Instrumentation -->
-    <version.io.opentelemetry.instrumentation>2.32.0</version.io.opentelemetry.instrumentation>
+    <version.io.opentelemetry.instrumentation>2.33.1</version.io.opentelemetry.instrumentation>
 
     <!-- TEST Dependency properties (CVEs not critical) -->
     <version.junit>4.13.2</version.junit>
