@@ -9,7 +9,7 @@ on:
 
 jobs:
   call-maven-ci:
-    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@e7102dd3bf74f91aaccae7a3539241c03a652d1a # main
+    uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@af62bc3c8181df77581ddf64859f9bba9129fcad # v0.0.28
     with:
       java_version: 11
       build_command: "mvn clean install -Pwithout-messaging -Pdevel -Pauth"
