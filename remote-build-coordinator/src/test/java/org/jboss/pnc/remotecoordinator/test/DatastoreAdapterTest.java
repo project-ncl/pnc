@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
@@ -30,6 +31,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.builder.BifrostLogUploaderMock;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildResult;
@@ -44,6 +46,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.MDC;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -331,6 +334,30 @@ public class DatastoreAdapterTest {
         Assert.assertNotEquals(null, errLog.getUrl());
         Assert.assertTrue(errLog.getUrl().contains(record.getId().toString()));
 
+    }
+
+    /**
+     * The checksum lookup after the error log upload must use the process context from the MDC (key
+     * {@link MDCKeys#PROCESS_CONTEXT_KEY}), not the HTTP header name. Reading the wrong key sent
+     * <code>/final-log/null/build-log/checksums</code> to Bifrost.
+     */
+    @Test
+    public void shouldRequestErrorLogChecksumsForProcessContextFromMdc() throws DatastoreException {
+        DatastoreMock datastore = new DatastoreMock();
+        BifrostLogUploaderMock bifrostLogUploader = new BifrostLogUploaderMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore, bifrostLogUploader);
+
+        BuildTaskRef buildTask = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
+        String processContext = ContentIdentityManager.getBuildContentId(buildTask.getId());
+
+        MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, processContext);
+        try {
+            datastoreAdapter.storeResult(buildTask, Optional.empty(), new RuntimeException("Random exception"));
+        } finally {
+            MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
+        }
+
+        Assert.assertEquals(processContext, bifrostLogUploader.getLastChecksumsProcessContext());
     }
 
     private void storeResult(

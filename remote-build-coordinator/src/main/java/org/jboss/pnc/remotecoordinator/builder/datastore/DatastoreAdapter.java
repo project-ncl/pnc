@@ -509,7 +509,7 @@ public class DatastoreAdapter {
             // Update checksum of errorLog after modifying it.
             if (errorLogAttachment != null) {
                 Checksums checksums = bifrostLogUploader
-                        .getChecksums(MDC.get(MDCHeaderKeys.PROCESS_CONTEXT.getHeaderName()), TagOption.BUILD_LOG);
+                        .getChecksums(MDC.get(MDCHeaderKeys.PROCESS_CONTEXT.getMdcKey()), TagOption.BUILD_LOG);
                 errorLogAttachment.setSha256(checksums.getSha256());
 
                 // persist if not already persisted
