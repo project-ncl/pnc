@@ -29,6 +29,10 @@ import java.net.URI;
 
 @Alternative
 public class BifrostLogUploaderMock extends BifrostLogUploader {
+
+    /** processContext received by the last {@link #getChecksums(String, TagOption)} call. */
+    private volatile String lastChecksumsProcessContext;
+
     public BifrostLogUploaderMock() {
         super(URI.create("http://example.com"), () -> "", 1, 1);
     }
@@ -50,8 +54,13 @@ public class BifrostLogUploaderMock extends BifrostLogUploader {
     public void uploadString(String log, LogMetadata metadata, String md5sum) throws BifrostUploadException {
     }
 
+    public String getLastChecksumsProcessContext() {
+        return lastChecksumsProcessContext;
+    }
+
     @Override
     public Checksums getChecksums(String processContext, TagOption tag) throws BifrostUploadException {
+        lastChecksumsProcessContext = processContext;
         return Checksums.builder()
                 .md5("a57ec266854321dd2205727281a8a7d8")
                 .sha256("845acbfedd45309dfd9d11f5900dbf65289cfa37f5f683957c6784d3da46755f")
