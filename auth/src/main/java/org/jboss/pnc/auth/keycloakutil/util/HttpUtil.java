@@ -31,6 +31,7 @@ import org.apache.http.HeaderIterator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -68,6 +69,19 @@ public class HttpUtil {
      * reusing one fails the request with "Connection reset" (a POST, like a token request, is not retried).
      */
     static final long IDLE_CONNECTION_EVICTION_SECONDS = 20;
+    /** Without timeouts, a half-open connection would block a request (e.g. a token request) forever. */
+    static final int CONNECT_TIMEOUT_MILLIS = 10_000;
+    static final int SOCKET_TIMEOUT_MILLIS = 60_000;
+
+    /**
+     * The request could not be sent or its answer not received (an {@link IOException}, its cause); not thrown for an
+     * error answered by the server.
+     */
+    public static class RequestFailedException extends RuntimeException {
+        public RequestFailedException(String message, IOException cause) {
+            super(message, cause);
+        }
+    }
 
     private static HttpClient httpClient;
     private static SSLConnectionSocketFactory sslsf;
@@ -79,7 +93,7 @@ public class HttpUtil {
             request.setHeader(HttpHeaders.ACCEPT, acceptType);
             return doRequest(authorization, request);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to send request - " + e.getMessage(), e);
+            throw new RequestFailedException("Failed to send request - " + e.getMessage(), e);
         }
     }
 
@@ -92,7 +106,7 @@ public class HttpUtil {
         try {
             return doPostOrPut(contentType, acceptType, content, authorization, new HttpPost(url));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to send request - " + e.getMessage(), e);
+            throw new RequestFailedException("Failed to send request - " + e.getMessage(), e);
         }
     }
 
@@ -105,7 +119,7 @@ public class HttpUtil {
         try {
             return doPostOrPut(contentType, acceptType, content, authorization, new HttpPut(url));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to send request - " + e.getMessage(), e);
+            throw new RequestFailedException("Failed to send request - " + e.getMessage(), e);
         }
     }
 
@@ -114,7 +128,7 @@ public class HttpUtil {
             HttpDelete request = new HttpDelete(url);
             doRequest(authorization, request);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to send request - " + e.getMessage(), e);
+            throw new RequestFailedException("Failed to send request - " + e.getMessage(), e);
         }
     }
 
@@ -258,7 +272,13 @@ public class HttpUtil {
             HttpClientBuilder clientBuilder = HttpClientBuilder.create()
                     .useSystemProperties()
                     .evictExpiredConnections()
-                    .evictIdleConnections(IDLE_CONNECTION_EVICTION_SECONDS, TimeUnit.SECONDS);
+                    .evictIdleConnections(IDLE_CONNECTION_EVICTION_SECONDS, TimeUnit.SECONDS)
+                    .setDefaultRequestConfig(
+                            RequestConfig.custom()
+                                    .setConnectTimeout(CONNECT_TIMEOUT_MILLIS)
+                                    .setConnectionRequestTimeout(CONNECT_TIMEOUT_MILLIS)
+                                    .setSocketTimeout(SOCKET_TIMEOUT_MILLIS)
+                                    .build());
             if (sslRequired) {
                 if (sslsf != null) {
                     clientBuilder.setSSLSocketFactory(sslsf);

@@ -13,8 +13,12 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.util.function.Supplier;
 
+import org.apache.http.ConnectionClosedException;
+import org.apache.http.NoHttpResponseException;
+import org.jboss.pnc.auth.keycloakutil.util.HttpUtil;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.BasicAuthHelper;
 import org.keycloak.util.JsonSerialization;
@@ -81,19 +85,38 @@ public class KeycloakClient {
         }
     }
 
+    /** Before sending a token request again: the server or a load balancer may be closing connections. */
+    static final long RETRY_DELAY_MILLIS = 200;
+
     /**
-     * A token request has no side effect: it is sent again once when it failed with an I/O error (e.g. "Connection
-     * reset" on a pooled connection the server had closed). Errors answered by the server are not retried.
+     * A token request has no side effect: it is sent again once when the connection was dropped (reset or closed
+     * without an answer, e.g. a pooled connection the server had closed). Errors answered by the server, timeouts and
+     * TLS errors are not retried.
      */
     static <T> T retryOnceOnIoError(String url, Supplier<T> request) {
         try {
             return request.get();
-        } catch (RuntimeException e) {
-            if (!(e.getCause() instanceof IOException)) {
+        } catch (HttpUtil.RequestFailedException e) {
+            if (!connectionDropped(e.getCause())) {
                 throw e;
             }
-            log.warn("Token request to {} failed ({}), retrying once", url, e.getMessage());
+            log.warn(
+                    "Token request to {} failed ({}: {}), retrying once",
+                    url,
+                    e.getCause().getClass().getSimpleName(),
+                    e.getCause().getMessage());
+            try {
+                Thread.sleep(RETRY_DELAY_MILLIS);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
             return request.get();
         }
+    }
+
+    static boolean connectionDropped(Throwable cause) {
+        return cause instanceof SocketException || cause instanceof NoHttpResponseException
+                || cause instanceof ConnectionClosedException;
     }
 }

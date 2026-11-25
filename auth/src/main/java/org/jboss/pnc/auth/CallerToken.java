@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wildfly.security.http.oidc.OidcSecurityContext;
 
 /**
@@ -17,6 +19,8 @@ import org.wildfly.security.http.oidc.OidcSecurityContext;
  * Kept apart from {@link LoggedInUser#getTokenString()}, which ends up in {@code User} objects that are logged.
  */
 public final class CallerToken {
+
+    private static final Logger log = LoggerFactory.getLogger(CallerToken.class);
 
     private CallerToken() {
     }
@@ -39,7 +43,7 @@ public final class CallerToken {
                 }
             }
         } catch (NoClassDefFoundError e) {
-            // OIDC not deployed: no caller token
+            log.debug("OIDC is not available, the caller has no token to forward: {}", e.getMessage());
         }
         return Optional.empty();
     }

@@ -23,7 +23,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
@@ -78,6 +78,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -204,12 +205,10 @@ public class BuildEndpointImpl implements BuildEndpoint {
         if (source.getRevisions().isEmpty()) {
             throw new NotFoundException("Build " + id + " has no SCM revision.");
         }
-        ReqourAuth auth = reqourAuth();
         return fromReqour(
                 id,
                 source,
-                auth,
-                url -> reqourClient.scmArchive(url, source.getRevisions(), auth.header),
+                (url, authorization) -> reqourClient.scmArchive(url, source.getRevisions(), authorization),
                 "build-" + id + "-sources.tar.gz",
                 ScmContentEndpoint.REVISION_HEADER);
     }
@@ -220,12 +219,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
         if (source.getBases().isEmpty() || source.getHeads().isEmpty()) {
             throw new NotFoundException("Build " + id + " has no pre- or post-alignment SCM revision.");
         }
-        ReqourAuth auth = reqourAuth();
         return fromReqour(
                 id,
                 source,
-                auth,
-                url -> reqourClient.scmDiff(url, source.getBases(), source.getHeads(), auth.header),
+                (url, authorization) -> reqourClient
+                        .scmDiff(url, source.getBases(), source.getHeads(), authorization),
                 "build-" + id + "-alignment.diff",
                 ScmContentEndpoint.DIFF_BASE_HEADER,
                 ScmContentEndpoint.DIFF_HEAD_HEADER,
@@ -233,21 +231,20 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     /** How orch authenticates to reqour for one request. */
-    static final class ReqourAuth {
+    @Value
+    static class ReqourAuth {
         /** The Authorization header value. */
-        final String header;
+        String header;
         /** True when it is the caller's own token, false for orch's service account. */
-        final boolean caller;
-
-        ReqourAuth(String header, boolean caller) {
-            this.header = header;
-            this.caller = caller;
-        }
+        boolean caller;
     }
 
     /**
      * The caller's own OIDC token when it has one: reqour then checks the caller's roles itself and logs the real
      * caller. Callers without one (LDAP, basic authentication) go through orch's service account.
+     * <p>
+     * Reqour is trusted with the caller's token, which orch would also accept until it expires: reqour must never log
+     * the {@code Authorization} header, and neither must anything between orch and reqour (routes, proxies).
      */
     private ReqourAuth reqourAuth() {
         Optional<String> callerToken = CallerToken.of(httpServletRequest);
@@ -288,14 +285,14 @@ public class BuildEndpointImpl implements BuildEndpoint {
      * (passed on) and a 401 that reqour does not accept the caller's token (502); with orch's service account, both
      * are a 502.</li>
      * <li>At most {@value #MAX_CONCURRENT_SCM_CONTENT} requests run at once; others get 503. The permit is held until
-     * the transfer ends, however long it takes.</li>
+     * the transfer ends, however long it takes. The authorization (which may fetch the service account token) is only
+     * resolved once the permit is taken.</li>
      * </ul>
      */
     private Response fromReqour(
             String id,
             ScmContentSource source,
-            ReqourAuth auth,
-            Function<String, Response> call,
+            BiFunction<String, String, Response> call,
             String fileName,
             String... forwardedHeaders) {
         List<String> urls = source.getUrls();
@@ -312,9 +309,10 @@ public class BuildEndpointImpl implements BuildEndpoint {
         Permit permit = new Permit(scmContentPermits);
         boolean streaming = false;
         try {
+            ReqourAuth auth = reqourAuth();
             for (Iterator<String> it = urls.iterator();;) {
                 String url = it.next();
-                Response response = call.apply(url);
+                Response response = call.apply(url, auth.getHeader());
                 int status = response.getStatus();
                 if (status == Response.Status.OK.getStatusCode()) {
                     streaming = true;
@@ -358,33 +356,67 @@ public class BuildEndpointImpl implements BuildEndpoint {
         return error.build();
     }
 
+    /**
+     * Reqour's 401 or 403, explained. Reqour's own answer (e.g. the missing role) is logged and passed on in the
+     * details.
+     */
     private Response reqourAuthError(String id, String url, ReqourAuth auth, Response response) {
         int status = response.getStatus();
-        response.close();
-        logger.warn(
-                "Reqour refused the {} for {} of build {}: {}",
-                auth.caller ? "caller's token" : "service account of orch",
+        String body = errorBody(response);
+        String caller = httpServletRequest == null || httpServletRequest.getUserPrincipal() == null ? "unknown"
+                : httpServletRequest.getUserPrincipal().getName();
+        boolean callerForbidden = auth.isCaller() && status == 403;
+        String format = "Reqour refused {} ({}) for {} of build {}: {} {}";
+        Object[] args = {
+                auth.isCaller() ? "the caller's token" : "the service account of orch",
+                caller,
                 url,
                 id,
-                status);
-        ErrorResponse error;
-        int mapped;
-        if (auth.caller && status == 403) {
-            mapped = 403;
-            error = new ErrorResponse(
-                    "FORBIDDEN",
-                    "Reqour does not allow the caller to read SCM content (HTTP 403).");
-        } else if (auth.caller) {
-            mapped = 502;
-            error = new ErrorResponse("REQOUR_ERROR", "Reqour does not accept the caller's token (HTTP 401).");
-        } else {
-            mapped = 502;
-            error = new ErrorResponse(
-                    "REQOUR_ERROR",
-                    "Reqour refused the service account of orch (HTTP " + status
-                            + "): log in with an OIDC token to download sources and diffs through PNC.");
+                status,
+                body };
+        if (callerForbidden) {
+            logger.info(format, args);
+            return authError(
+                    Response.Status.FORBIDDEN,
+                    "ForbiddenException",
+                    "Reqour does not allow the caller to read SCM content (HTTP 403).",
+                    body);
         }
-        return Response.status(mapped).entity(error).type(MediaType.APPLICATION_JSON_TYPE).build();
+        logger.warn(format, args);
+        if (auth.isCaller()) {
+            return authError(
+                    Response.Status.BAD_GATEWAY,
+                    "REQOUR_ERROR",
+                    "Reqour does not accept the caller's token (HTTP 401): it may have expired, or been issued by an"
+                            + " identity provider reqour does not trust.",
+                    body);
+        }
+        return authError(
+                Response.Status.BAD_GATEWAY,
+                "REQOUR_ERROR",
+                "Reqour refused the service account of orch (HTTP " + status
+                        + "): log in with an OIDC token to download sources and diffs through PNC.",
+                body);
+    }
+
+    private static Response authError(Response.Status status, String type, String message, String reqourBody) {
+        return Response.status(status)
+                .entity(new ErrorResponse(type, message, reqourBody.isEmpty() ? null : reqourBody))
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
+    }
+
+    /** The beginning of reqour's error answer (at most 500 characters), or an empty string; closes the response. */
+    private static String errorBody(Response response) {
+        try {
+            String body = response.readEntity(String.class);
+            body = body == null ? "" : body.strip();
+            return body.length() > 500 ? body.substring(0, 500) : body;
+        } catch (RuntimeException e) {
+            return "";
+        } finally {
+            response.close();
+        }
     }
 
     /**
