@@ -21,6 +21,7 @@ import java.security.cert.X509Certificate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -61,6 +62,12 @@ public class HttpUtil {
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String UTF_8 = "utf-8";
+
+    /**
+     * Pooled connections idle for longer are closed: servers and load balancers drop idle keep-alive connections, and
+     * reusing one fails the request with "Connection reset" (a POST, like a token request, is not retried).
+     */
+    static final long IDLE_CONNECTION_EVICTION_SECONDS = 20;
 
     private static HttpClient httpClient;
     private static SSLConnectionSocketFactory sslsf;
@@ -248,7 +255,10 @@ public class HttpUtil {
 
     public static HttpClient getHttpClient() {
         if (httpClient == null) {
-            HttpClientBuilder clientBuilder = HttpClientBuilder.create().useSystemProperties();
+            HttpClientBuilder clientBuilder = HttpClientBuilder.create()
+                    .useSystemProperties()
+                    .evictExpiredConnections()
+                    .evictIdleConnections(IDLE_CONNECTION_EVICTION_SECONDS, TimeUnit.SECONDS);
             if (sslRequired) {
                 if (sslsf != null) {
                     clientBuilder.setSSLSocketFactory(sslsf);

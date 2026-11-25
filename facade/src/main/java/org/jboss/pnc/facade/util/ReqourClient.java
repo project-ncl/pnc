@@ -6,7 +6,9 @@ package org.jboss.pnc.facade.util;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.Dependent;
@@ -66,23 +68,55 @@ public class ReqourClient {
     }
 
     /**
+     * The Authorization header for SCM content requests: the caller's own token when it has one, so that reqour checks
+     * the caller's roles itself; else orch's service account.
+     *
+     * @param callerToken the OIDC access token the caller authenticated with, if any
+     * @throws WebApplicationException 502 when the service account token cannot be obtained
+     */
+    public String contentAuthorization(Optional<String> callerToken) {
+        return contentAuthorization(callerToken, serviceAccountClient::getAuthHeaderValue);
+    }
+
+    static String contentAuthorization(Optional<String> callerToken, Supplier<String> serviceAccount) {
+        if (callerToken.isPresent()) {
+            return "Bearer " + callerToken.get();
+        }
+        try {
+            return serviceAccount.get();
+        } catch (RuntimeException e) {
+            log.warn("Cannot obtain the service account token for reqour", e);
+            throw new WebApplicationException(
+                    "Orch cannot obtain the service account token it calls reqour with.",
+                    e,
+                    Response.Status.BAD_GATEWAY);
+        }
+    }
+
+    /**
      * The source archive of the first existing revision of an internal repository. The caller streams the response
      * entity and closes the response.
+     *
+     * @param authorization see {@link #contentAuthorization(Optional)}
      */
-    public Response scmArchive(String url, List<String> revisions) {
+    public Response scmArchive(String url, List<String> revisions, String authorization) {
         return get(
                 contentTarget(withValues(contentUri("/scm/archive", url), "revision", revisions)),
-                ScmContentEndpoint.GZIP);
+                ScmContentEndpoint.GZIP,
+                authorization);
     }
 
     /**
      * The complete alignment diff of an internal repository. The caller streams the response entity and closes the
      * response.
+     *
+     * @param authorization see {@link #contentAuthorization(Optional)}
      */
-    public Response scmDiff(String url, List<String> bases, List<String> heads) {
+    public Response scmDiff(String url, List<String> bases, List<String> heads, String authorization) {
         return get(
                 contentTarget(withValues(withValues(contentUri("/scm/diff", url), "base", bases), "head", heads)),
-                ScmContentEndpoint.DIFF);
+                ScmContentEndpoint.DIFF,
+                authorization);
     }
 
     private UriBuilder contentUri(String path, String url) {
@@ -126,10 +160,10 @@ public class ReqourClient {
         }
     }
 
-    private Response get(WebTarget target, String mediaType) {
+    private Response get(WebTarget target, String mediaType, String authorization) {
         try {
             return target.request(mediaType, MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, serviceAccountClient.getAuthHeaderValue())
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
                     .get();
         } catch (ProcessingException ex) {
             throw unreachable(target.getUri().getPath(), ex);

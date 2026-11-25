@@ -6,7 +6,9 @@ package org.jboss.pnc.rest.endpoints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,8 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,11 +36,13 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ScmContentSource;
 import org.jboss.pnc.facade.util.ReqourClient;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.wildfly.security.http.oidc.OidcSecurityContext;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class BuildEndpointImplScmContentTest {
@@ -46,8 +53,13 @@ public class BuildEndpointImplScmContentTest {
     @Mock
     private BuildProvider provider;
 
+    private static final String SERVICE_ACCOUNT = "Bearer orch-service-account";
+
     @Mock
     private ReqourClient reqourClient;
+
+    @Mock
+    private HttpServletRequest httpServletRequest;
 
     @InjectMocks
     private BuildEndpointImpl endpoint;
@@ -59,13 +71,83 @@ public class BuildEndpointImplScmContentTest {
             .heads(List.of("aligned", "1.0.0.redhat-00001"))
             .build();
 
+    @Before
+    public void callersWithoutAnOidcTokenUseTheServiceAccount() {
+        when(reqourClient.contentAuthorization(Optional.empty())).thenReturn(SERVICE_ACCOUNT);
+    }
+
+    private void callerToken(String token) {
+        when(httpServletRequest.getAttribute(OidcSecurityContext.class.getName()))
+                .thenReturn(new OidcSecurityContext(token, null, null, null));
+        when(reqourClient.contentAuthorization(Optional.of(token))).thenReturn("Bearer " + token);
+    }
+
+    @Test
+    public void theCallersOwnTokenIsSentToReqour() throws Exception {
+        callerToken("caller-token");
+        when(provider.getScmContentSource("B1")).thenReturn(single());
+        Response archive = ok("tgz", "application/gzip");
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), "Bearer caller-token")).thenReturn(archive);
+
+        Response response = endpoint.getInternalScmArchive("B1");
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(body(response)).isEqualTo("tgz");
+        verify(reqourClient, never()).contentAuthorization(Optional.empty());
+    }
+
+    @Test
+    public void aCallerReqourForbidsIsForbidden() {
+        callerToken("caller-token");
+        when(provider.getScmContentSource("B1")).thenReturn(source);
+        Response forbidden = error(403, "");
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), "Bearer caller-token"))
+                .thenReturn(forbidden);
+
+        Response response = endpoint.getAlignmentDiff("B1");
+
+        assertThat(response.getStatus()).isEqualTo(403);
+        assertThat(((ErrorResponse) response.getEntity()).getErrorMessage())
+                .isEqualTo("Reqour does not allow the caller to read SCM content (HTTP 403).");
+        verify(forbidden).close();
+        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList(), anyString());
+    }
+
+    @Test
+    public void aCallerTokenReqourDoesNotAcceptIsAGatewayError() {
+        callerToken("caller-token");
+        when(provider.getScmContentSource("B1")).thenReturn(single());
+        Response unauthorized = error(401, "");
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), "Bearer caller-token"))
+                .thenReturn(unauthorized);
+
+        Response response = endpoint.getInternalScmArchive("B1");
+
+        assertThat(response.getStatus()).isEqualTo(502);
+        assertThat(((ErrorResponse) response.getEntity()).getErrorMessage())
+                .isEqualTo("Reqour does not accept the caller's token (HTTP 401).");
+    }
+
+    @Test
+    public void serviceAccountTokenFailuresAreGatewayErrors() {
+        when(provider.getScmContentSource("B1")).thenReturn(single());
+        when(reqourClient.contentAuthorization(any())).thenThrow(
+                new WebApplicationException("no token", Response.Status.BAD_GATEWAY));
+
+        assertThatThrownBy(() -> endpoint.getInternalScmArchive("B1"))
+                .isInstanceOfSatisfying(
+                        WebApplicationException.class,
+                        e -> assertThat(e.getResponse().getStatus()).isEqualTo(502));
+        assertThat(availablePermitsUnchecked()).isEqualTo(BuildEndpointImpl.MAX_CONCURRENT_SCM_CONTENT);
+    }
+
     @Test
     public void streamsTheDiffWithReqourHeaders() throws Exception {
         when(provider.getScmContentSource("B1")).thenReturn(source);
         Response reqour = ok("diff --git a/x b/x\n", "text/x-diff");
         when(reqour.getHeaderString(ScmContentEndpoint.DIFF_MODE_HEADER)).thenReturn("compare");
         when(reqour.getHeaderString(ScmContentEndpoint.DIFF_BASE_HEADER)).thenReturn("upstream");
-        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads())).thenReturn(reqour);
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), SERVICE_ACCOUNT)).thenReturn(reqour);
 
         Response response = endpoint.getAlignmentDiff("B1");
 
@@ -76,17 +158,17 @@ public class BuildEndpointImplScmContentTest {
                 .isEqualTo("attachment; filename=\"build-B1-alignment.diff\"");
         assertThat(body(response)).isEqualTo("diff --git a/x b/x\n");
         verify(reqour).close();
-        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList());
+        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList(), anyString());
     }
 
     @Test
     public void triesTheCurrentInternalUrlWhenTheBuildOneIsNotServed() throws Exception {
         when(provider.getScmContentSource("B1")).thenReturn(source);
         Response notServed = error(400, "{\"errorMessage\":\"not internal\"}");
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions())).thenReturn(notServed);
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(notServed);
         Response archive = ok("tgz", "application/gzip");
         when(archive.getHeaderString(ScmContentEndpoint.REVISION_HEADER)).thenReturn("aligned");
-        when(reqourClient.scmArchive(CURRENT_URL, source.getRevisions())).thenReturn(archive);
+        when(reqourClient.scmArchive(CURRENT_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(archive);
 
         Response response = endpoint.getInternalScmArchive("B1");
 
@@ -99,36 +181,40 @@ public class BuildEndpointImplScmContentTest {
     }
 
     @Test
-    public void passesOnTheLastErrorAndHidesReqourAuthErrors() {
+    public void reqourRefusingTheServiceAccountIsExplained() {
         when(provider.getScmContentSource("B1")).thenReturn(source);
         Response notFound = error(404, "{\"errorMessage\":\"no revision\"}");
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions())).thenReturn(notFound);
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(notFound);
         Response unauthorized = error(401, "{\"errorMessage\":\"who are you\"}");
-        when(reqourClient.scmArchive(CURRENT_URL, source.getRevisions())).thenReturn(unauthorized);
+        when(reqourClient.scmArchive(CURRENT_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(unauthorized);
 
         Response response = endpoint.getInternalScmArchive("B1");
 
         assertThat(response.getStatus()).isEqualTo(502);
-        assertThat(response.getEntity()).isEqualTo("{\"errorMessage\":\"who are you\"}");
+        assertThat(((ErrorResponse) response.getEntity()).getErrorMessage()).isEqualTo(
+                "Reqour refused the service account of orch (HTTP 401): log in with an OIDC token to download sources"
+                        + " and diffs through PNC.");
+        verify(unauthorized).close();
     }
 
     @Test
     public void providerErrorsArePassedOn() {
         when(provider.getScmContentSource("B1")).thenReturn(source);
         Response badGateway = error(502, "{\"errorMessage\":\"HTTP 500 from gitlab\"}");
-        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads())).thenReturn(badGateway);
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), SERVICE_ACCOUNT))
+                .thenReturn(badGateway);
 
         Response response = endpoint.getAlignmentDiff("B1");
 
         assertThat(response.getStatus()).isEqualTo(502);
-        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList());
+        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList(), anyString());
     }
 
     @Test
     public void nonJsonErrorsAreWrappedAndUnknownStatusesAreGatewayErrors() {
         when(provider.getScmContentSource("B1")).thenReturn(single());
         Response gateway = error(503, "<html>Service Unavailable</html>", MediaType.TEXT_HTML_TYPE);
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions())).thenReturn(gateway);
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(gateway);
 
         Response response = endpoint.getInternalScmArchive("B1");
 
@@ -143,21 +229,22 @@ public class BuildEndpointImplScmContentTest {
         when(provider.getScmContentSource("B1")).thenReturn(source);
         Response busy = error(503, "{\"errorMessage\":\"Already building 4 diffs\"}");
         when(busy.getHeaderString(HttpHeaders.RETRY_AFTER)).thenReturn("30");
-        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads())).thenReturn(busy);
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), SERVICE_ACCOUNT)).thenReturn(busy);
 
         Response response = endpoint.getAlignmentDiff("B1");
 
         assertThat(response.getStatus()).isEqualTo(503);
         assertThat(response.getHeaderString(HttpHeaders.RETRY_AFTER)).isEqualTo("30");
         assertThat(response.getEntity()).isEqualTo("{\"errorMessage\":\"Already building 4 diffs\"}");
-        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList());
+        verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList(), anyString());
     }
 
     @Test
     public void providerTimeoutsArePassedOn() {
         when(provider.getScmContentSource("B1")).thenReturn(single());
         Response timeout = error(504, "{\"errorMessage\":\"timeout\"}");
-        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads())).thenReturn(timeout);
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), SERVICE_ACCOUNT))
+                .thenReturn(timeout);
 
         assertThat(endpoint.getAlignmentDiff("B1").getStatus()).isEqualTo(504);
     }
@@ -175,7 +262,7 @@ public class BuildEndpointImplScmContentTest {
             }
         };
         when(broken.readEntity(InputStream.class)).thenReturn(failing);
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions())).thenReturn(broken);
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(broken);
 
         Response response = endpoint.getInternalScmArchive("B1");
 
@@ -187,7 +274,7 @@ public class BuildEndpointImplScmContentTest {
     @Test
     public void concurrentDownloadsAreLimited() throws Exception {
         when(provider.getScmContentSource("B1")).thenReturn(single());
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions()))
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT))
                 .thenAnswer(invocation -> ok("tgz", "application/gzip"));
 
         List<Response> streaming = new java.util.ArrayList<>();
@@ -205,7 +292,7 @@ public class BuildEndpointImplScmContentTest {
     @Test
     public void errorsFreeThePermit() throws Exception {
         when(provider.getScmContentSource("B1")).thenReturn(single());
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions()))
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT))
                 .thenAnswer(invocation -> error(404, "{}"));
 
         for (int i = 0; i < BuildEndpointImpl.MAX_CONCURRENT_SCM_CONTENT + 2; i++) {
@@ -217,8 +304,9 @@ public class BuildEndpointImplScmContentTest {
     @Test
     public void requestsLeaveNoSafetyTaskBehind() throws Exception {
         when(provider.getScmContentSource("B1")).thenReturn(single());
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions())).thenAnswer(invocation -> error(404, "{}"));
-        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads()))
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT))
+                .thenAnswer(invocation -> error(404, "{}"));
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), SERVICE_ACCOUNT))
                 .thenAnswer(invocation -> ok("diff", "text/x-diff"));
         int queued = BuildEndpointImpl.PERMIT_RELEASER.getQueue().size();
 
@@ -269,6 +357,14 @@ public class BuildEndpointImplScmContentTest {
                 .bases(source.getBases())
                 .heads(source.getHeads())
                 .build();
+    }
+
+    private int availablePermitsUnchecked() {
+        try {
+            return availablePermits();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private int availablePermits() throws Exception {
