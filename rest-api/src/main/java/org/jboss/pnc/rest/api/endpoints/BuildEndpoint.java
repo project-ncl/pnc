@@ -433,6 +433,8 @@ public interface BuildEndpoint {
     static final String ALIGNMENT_DIFF_NOT_FOUND_DESC = "The build, its internal SCM repository or its pre- and "
             + "post-alignment revisions do not exist";
     static final String RETRY_AFTER_DESC = "Seconds after which the request can be tried again";
+    static final String SCM_CONTENT_FORBIDDEN_DESC = "Reqour does not allow the caller to read SCM content (orch"
+            + " forwards the caller's token, and reqour checks its roles)";
 
     static final String GET_INTERNAL_SCM_ARCHIVE_CONTENT_DESC = "Gets the source archive (tar.gz) of a build from the "
             + "internal SCM, through reqour: for clients that cannot reach the git provider";
@@ -459,6 +461,12 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = SCM_CONTENT_NOT_SERVED_DESC,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = FORBIDDEN_CODE,
+                            description = SCM_CONTENT_FORBIDDEN_DESC,
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))),
@@ -540,6 +548,12 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = SCM_CONTENT_NOT_SERVED_DESC,
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = FORBIDDEN_CODE,
+                            description = SCM_CONTENT_FORBIDDEN_DESC,
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))),

@@ -100,15 +100,18 @@ public class BuildEndpointImplScmContentTest {
     public void aCallerReqourForbidsIsForbidden() {
         callerToken("caller-token");
         when(provider.getScmContentSource("B1")).thenReturn(source);
-        Response forbidden = error(403, "");
+        Response forbidden = error(403, "{\"errorMessage\":\"needs pnc-users\"}");
         when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), "Bearer caller-token"))
                 .thenReturn(forbidden);
 
         Response response = endpoint.getAlignmentDiff("B1");
 
         assertThat(response.getStatus()).isEqualTo(403);
-        assertThat(((ErrorResponse) response.getEntity()).getErrorMessage())
+        ErrorResponse error = (ErrorResponse) response.getEntity();
+        assertThat(error.getErrorType()).isEqualTo("ForbiddenException");
+        assertThat(error.getErrorMessage())
                 .isEqualTo("Reqour does not allow the caller to read SCM content (HTTP 403).");
+        assertThat(error.getDetails()).isEqualTo("{\"errorMessage\":\"needs pnc-users\"}");
         verify(forbidden).close();
         verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList(), anyString());
     }
@@ -125,7 +128,9 @@ public class BuildEndpointImplScmContentTest {
 
         assertThat(response.getStatus()).isEqualTo(502);
         assertThat(((ErrorResponse) response.getEntity()).getErrorMessage())
-                .isEqualTo("Reqour does not accept the caller's token (HTTP 401).");
+                .isEqualTo(
+                        "Reqour does not accept the caller's token (HTTP 401): it may have expired, or been issued by an"
+                                + " identity provider reqour does not trust.");
     }
 
     @Test
@@ -139,6 +144,20 @@ public class BuildEndpointImplScmContentTest {
                         WebApplicationException.class,
                         e -> assertThat(e.getResponse().getStatus()).isEqualTo(502));
         assertThat(availablePermitsUnchecked()).isEqualTo(BuildEndpointImpl.MAX_CONCURRENT_SCM_CONTENT);
+    }
+
+    @Test
+    public void requestsOverTheConcurrencyLimitDoNotFetchATokenFirst() throws Exception {
+        when(provider.getScmContentSource("B1")).thenReturn(single());
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT))
+                .thenAnswer(invocation -> ok("tgz", "application/gzip"));
+        for (int i = 0; i < BuildEndpointImpl.MAX_CONCURRENT_SCM_CONTENT; i++) {
+            endpoint.getInternalScmArchive("B1");
+        }
+
+        assertThat(endpoint.getInternalScmArchive("B1").getStatus()).isEqualTo(503);
+        verify(reqourClient, org.mockito.Mockito.times(BuildEndpointImpl.MAX_CONCURRENT_SCM_CONTENT))
+                .contentAuthorization(Optional.empty());
     }
 
     @Test

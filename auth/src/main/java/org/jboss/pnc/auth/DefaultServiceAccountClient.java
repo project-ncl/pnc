@@ -45,7 +45,7 @@ public class DefaultServiceAccountClient implements ServiceAccountClient {
     public String getAuthHeaderValue() {
 
         Mode authMode = systemConfig.getServiceAccountClientConfig().getMode();
-        log.info("Service client mode is: {}", authMode);
+        log.debug("Service client mode is: {}", authMode);
         if (authMode == Mode.KEYCLOAK) {
             return oidcHeaderValue();
         } else if (authMode == Mode.LDAP) {

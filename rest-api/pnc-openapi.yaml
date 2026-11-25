@@ -2160,6 +2160,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: "Reqour does not allow the caller to read SCM content (orch\
+            \ forwards the caller's token, and reqour checks its roles)"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         "404":
           description: "The build, its internal SCM repository or its pre- and post-alignment\
             \ revisions do not exist"
@@ -2937,6 +2944,13 @@ paths:
                 format: binary
         "400":
           description: The internal SCM repository of the build is not served by reqour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: "Reqour does not allow the caller to read SCM content (orch\
+            \ forwards the caller's token, and reqour checks its roles)"
           content:
             application/json:
               schema:
