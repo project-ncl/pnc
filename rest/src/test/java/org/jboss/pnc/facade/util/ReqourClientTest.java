@@ -5,9 +5,13 @@
 package org.jboss.pnc.facade.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import java.util.Optional;
 
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.UriBuilder;
 
 import org.junit.Test;
@@ -26,17 +30,39 @@ public class ReqourClientTest {
 
     @Test
     public void reqourTimeoutsAreGatewayTimeoutsAndOtherFailuresGatewayErrors() {
-        javax.ws.rs.WebApplicationException timeout = ReqourClient.unreachable(
+        WebApplicationException timeout = ReqourClient.unreachable(
                 "/scm/diff",
-                new javax.ws.rs.ProcessingException(new RuntimeException(new java.net.SocketTimeoutException("read"))));
+                new ProcessingException(new RuntimeException(new java.net.SocketTimeoutException("read"))));
         assertThat(timeout.getResponse().getStatus()).isEqualTo(504);
         assertThat(timeout.getMessage()).isEqualTo("Reqour did not answer in time.");
 
-        javax.ws.rs.WebApplicationException refused = ReqourClient
+        WebApplicationException refused = ReqourClient
                 .unreachable(
                         "/scm/diff",
-                        new javax.ws.rs.ProcessingException(new java.net.ConnectException("refused")));
+                        new ProcessingException(new java.net.ConnectException("refused")));
         assertThat(refused.getResponse().getStatus()).isEqualTo(502);
         assertThat(refused.getMessage()).isEqualTo("Reqour cannot be reached.");
+    }
+
+    @Test
+    public void theCallersTokenIsUsedWhenThereIsOne() {
+        assertThat(ReqourClient.contentAuthorization(Optional.of("caller"), () -> {
+            throw new AssertionError("the service account must not be used");
+        })).isEqualTo("Bearer caller");
+    }
+
+    @Test
+    public void callersWithoutATokenUseTheServiceAccount() {
+        assertThat(ReqourClient.contentAuthorization(Optional.empty(), () -> "Bearer orch")).isEqualTo("Bearer orch");
+    }
+
+    @Test
+    public void aServiceAccountTokenThatCannotBeObtainedIsAGatewayError() {
+        assertThatThrownBy(() -> ReqourClient.contentAuthorization(Optional.empty(), () -> {
+            throw new RuntimeException("Failed to send request - Connection reset");
+        })).isInstanceOfSatisfying(WebApplicationException.class, e -> {
+            assertThat(e.getResponse().getStatus()).isEqualTo(502);
+            assertThat(e.getMessage()).isEqualTo("Orch cannot obtain the service account token it calls reqour with.");
+        });
     }
 }

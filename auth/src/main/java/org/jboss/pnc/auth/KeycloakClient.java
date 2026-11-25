@@ -13,14 +13,18 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.function.Supplier;
 
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.BasicAuthHelper;
 import org.keycloak.util.JsonSerialization;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Slf4j
 public class KeycloakClient {
 
     static AccessTokenResponse getAuthTokensBySecret(
@@ -59,18 +63,37 @@ public class KeycloakClient {
             }
 
             setSslRequired(sslRequired);
-            InputStream result = doPost(
-                    server + "/realms/" + realm + "/protocol/openid-connect/token",
-                    APPLICATION_FORM_URL_ENCODED,
-                    APPLICATION_JSON,
-                    body.toString(),
-                    BasicAuthHelper.createHeader(clientId, secret));
+            String url = server + "/realms/" + realm + "/protocol/openid-connect/token";
+            InputStream result = retryOnceOnIoError(
+                    url,
+                    () -> doPost(
+                            url,
+                            APPLICATION_FORM_URL_ENCODED,
+                            APPLICATION_JSON,
+                            body.toString(),
+                            BasicAuthHelper.createHeader(clientId, secret)));
             return JsonSerialization.readValue(result, AccessTokenResponse.class);
 
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Unexpected error: ", e);
         } catch (IOException e) {
             throw new RuntimeException("Error receiving response: ", e);
+        }
+    }
+
+    /**
+     * A token request has no side effect: it is sent again once when it failed with an I/O error (e.g. "Connection
+     * reset" on a pooled connection the server had closed). Errors answered by the server are not retried.
+     */
+    static <T> T retryOnceOnIoError(String url, Supplier<T> request) {
+        try {
+            return request.get();
+        } catch (RuntimeException e) {
+            if (!(e.getCause() instanceof IOException)) {
+                throw e;
+            }
+            log.warn("Token request to {} failed ({}), retrying once", url, e.getMessage());
+            return request.get();
         }
     }
 }

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -28,9 +29,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,6 +42,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.reqour.rest.ScmContentEndpoint;
+import org.jboss.pnc.auth.CallerToken;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
@@ -124,6 +128,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Inject
     private ReqourClient reqourClient;
 
+    @Context
+    private HttpServletRequest httpServletRequest;
+
     private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
     @PostConstruct
@@ -197,10 +204,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
         if (source.getRevisions().isEmpty()) {
             throw new NotFoundException("Build " + id + " has no SCM revision.");
         }
+        ReqourAuth auth = reqourAuth();
         return fromReqour(
                 id,
                 source,
-                url -> reqourClient.scmArchive(url, source.getRevisions()),
+                auth,
+                url -> reqourClient.scmArchive(url, source.getRevisions(), auth.header),
                 "build-" + id + "-sources.tar.gz",
                 ScmContentEndpoint.REVISION_HEADER);
     }
@@ -211,14 +220,38 @@ public class BuildEndpointImpl implements BuildEndpoint {
         if (source.getBases().isEmpty() || source.getHeads().isEmpty()) {
             throw new NotFoundException("Build " + id + " has no pre- or post-alignment SCM revision.");
         }
+        ReqourAuth auth = reqourAuth();
         return fromReqour(
                 id,
                 source,
-                url -> reqourClient.scmDiff(url, source.getBases(), source.getHeads()),
+                auth,
+                url -> reqourClient.scmDiff(url, source.getBases(), source.getHeads(), auth.header),
                 "build-" + id + "-alignment.diff",
                 ScmContentEndpoint.DIFF_BASE_HEADER,
                 ScmContentEndpoint.DIFF_HEAD_HEADER,
                 ScmContentEndpoint.DIFF_MODE_HEADER);
+    }
+
+    /** How orch authenticates to reqour for one request. */
+    static final class ReqourAuth {
+        /** The Authorization header value. */
+        final String header;
+        /** True when it is the caller's own token, false for orch's service account. */
+        final boolean caller;
+
+        ReqourAuth(String header, boolean caller) {
+            this.header = header;
+            this.caller = caller;
+        }
+    }
+
+    /**
+     * The caller's own OIDC token when it has one: reqour then checks the caller's roles itself and logs the real
+     * caller. Callers without one (LDAP, basic authentication) go through orch's service account.
+     */
+    private ReqourAuth reqourAuth() {
+        Optional<String> callerToken = CallerToken.of(httpServletRequest);
+        return new ReqourAuth(reqourClient.contentAuthorization(callerToken), callerToken.isPresent());
     }
 
     /** Concurrent source and diff requests: each holds a worker thread and a reqour connection while streaming. */
@@ -249,8 +282,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
      * <li>The next URL is tried when reqour answers 400 (URL not served) or 404 (revisions not found there). Its 502
      * and 504 (git provider error or timeout) are not retried: they do not depend on the URL.</li>
      * <li>Reqour's 400, 404, 502 and 504 are passed on, and so is its 503 (too many diffs at once) with its
-     * {@code Retry-After}; any other status (its authentication errors with orch's service account, other 5xx) is a 502
-     * here. Non-JSON error bodies (e.g. from a gateway) are replaced by an {@link ErrorResponse}, with a 502.</li>
+     * {@code Retry-After}; any other status (other 5xx) is a 502 here. Non-JSON error bodies (e.g. from a gateway) are
+     * replaced by an {@link ErrorResponse}, with a 502.</li>
+     * <li>Reqour's 401 and 403 are explained: with the caller's token, a 403 means the caller may not read SCM content
+     * (passed on) and a 401 that reqour does not accept the caller's token (502); with orch's service account, both
+     * are a 502.</li>
      * <li>At most {@value #MAX_CONCURRENT_SCM_CONTENT} requests run at once; others get 503. The permit is held until
      * the transfer ends, however long it takes.</li>
      * </ul>
@@ -258,6 +294,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     private Response fromReqour(
             String id,
             ScmContentSource source,
+            ReqourAuth auth,
             Function<String, Response> call,
             String fileName,
             String... forwardedHeaders) {
@@ -284,7 +321,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
                     return streamed(response, permit, fileName, forwardedHeaders);
                 }
                 if (!it.hasNext() || (status != 400 && status != 404)) {
-                    return reqourError(id, url, response);
+                    return reqourError(id, url, auth, response);
                 }
                 logger.info("Reqour cannot serve {} for build {} ({}), trying the next URL", url, id, status);
                 response.close();
@@ -296,8 +333,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
         }
     }
 
-    private Response reqourError(String id, String url, Response response) {
+    private Response reqourError(String id, String url, ReqourAuth auth, Response response) {
         int status = response.getStatus();
+        if (status == 401 || status == 403) {
+            return reqourAuthError(id, url, auth, response);
+        }
         boolean json = response.getMediaType() != null
                 && response.getMediaType().isCompatible(MediaType.APPLICATION_JSON_TYPE);
         String retryAfter = response.getHeaderString(HttpHeaders.RETRY_AFTER);
@@ -316,6 +356,35 @@ public class BuildEndpointImpl implements BuildEndpoint {
             error.header(HttpHeaders.RETRY_AFTER, retryAfter);
         }
         return error.build();
+    }
+
+    private Response reqourAuthError(String id, String url, ReqourAuth auth, Response response) {
+        int status = response.getStatus();
+        response.close();
+        logger.warn(
+                "Reqour refused the {} for {} of build {}: {}",
+                auth.caller ? "caller's token" : "service account of orch",
+                url,
+                id,
+                status);
+        ErrorResponse error;
+        int mapped;
+        if (auth.caller && status == 403) {
+            mapped = 403;
+            error = new ErrorResponse(
+                    "FORBIDDEN",
+                    "Reqour does not allow the caller to read SCM content (HTTP 403).");
+        } else if (auth.caller) {
+            mapped = 502;
+            error = new ErrorResponse("REQOUR_ERROR", "Reqour does not accept the caller's token (HTTP 401).");
+        } else {
+            mapped = 502;
+            error = new ErrorResponse(
+                    "REQOUR_ERROR",
+                    "Reqour refused the service account of orch (HTTP " + status
+                            + "): log in with an OIDC token to download sources and diffs through PNC.");
+        }
+        return Response.status(mapped).entity(error).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     /**
