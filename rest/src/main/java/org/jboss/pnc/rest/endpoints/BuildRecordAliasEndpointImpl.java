@@ -4,7 +4,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
+import static org.jboss.pnc.constants.UserRoles.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;

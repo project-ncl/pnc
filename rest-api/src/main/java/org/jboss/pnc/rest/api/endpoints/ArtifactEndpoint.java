@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -21,6 +22,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -68,6 +70,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS_ARTIFACT_READ, USERS, USERS_ADMIN })
 public interface ArtifactEndpoint {
     static final String A_ID = "ID of the artifact";
     static final String A_PURL = "Purl of the artifact";
@@ -227,6 +230,7 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
+    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     Artifact create(@NotNull Artifact artifact);
 
     static final String UPDATE_DESC = "Updates an existing Artifact";
@@ -256,6 +260,7 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
+    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
 
     static final String CREATE_ARTIFACT_QUALITY_REVISION = "Add a new quality level revision for this artifact. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with pnc-app-artifact-user, pnc-app-build-user, pnc-users-admin role can also specify BLACKLISTED and DELETED quality levels.";
@@ -291,6 +296,7 @@ public interface ArtifactEndpoint {
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/artifacts/quality")
+    @RolesAllowed({ USERS, USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     ArtifactRevision createQualityLevelRevision(
             @Parameter(description = A_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_QUALITY, required = true) @QueryParam("quality") String quality,

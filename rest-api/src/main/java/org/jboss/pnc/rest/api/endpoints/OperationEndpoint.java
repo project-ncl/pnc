@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
@@ -21,6 +22,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -58,6 +60,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface OperationEndpoint {
 
     static final String GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_DESC = "Gets all deliverable analyzer operations.";
@@ -93,6 +96,7 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/complete")
+    @RolesAllowed({ USERS_ADMIN, USERS_ORCH_PROCESS_COMMIT })
     void finish(
             @Parameter(description = OP_ID) @PathParam("id") String id,
             @NotNull @Valid OperationOutcome operationOutcome);
@@ -122,6 +126,7 @@ public interface OperationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/deliverable-analyzer/{id}")
+    @RolesAllowed({ USERS_ADMIN })
     DeliverableAnalyzerOperation updateDeliverableAnalyzer(
             @Parameter(description = OP_ID) @PathParam("id") String id,
             @NotNull DeliverableAnalyzerOperation operation);

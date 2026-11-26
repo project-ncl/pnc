@@ -4,11 +4,8 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
-
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -18,7 +15,6 @@ import org.jboss.pnc.rest.api.endpoints.GenericSettingEndpoint;
 import org.jboss.util.Strings;
 
 @ApplicationScoped
-@RolesAllowed({ USERS, USERS_ADMIN })
 public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
 
     @Inject
@@ -33,7 +29,6 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_ADMIN })
     public void setAnnouncementBanner(String banner) {
         genericSettingProvider.setAnnouncementBanner(banner);
         genericSettingProvider.notifyListeners();
@@ -45,7 +40,6 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_ADMIN })
     public void setPNCVersion(String version) {
         genericSettingProvider.setPNCVersion(version);
         genericSettingProvider.notifyListeners();
@@ -62,7 +56,6 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_ADMIN })
     public void activateMaintenanceMode(String reason) {
         genericSettingProvider.activateMaintenanceMode();
         genericSettingProvider.setAnnouncementBanner(reason); // For backwards-compatibility
@@ -71,7 +64,6 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_ADMIN })
     public void deactivateMaintenanceMode() {
         genericSettingProvider.deactivateMaintenanceMode();
         genericSettingProvider.setAnnouncementBanner(Strings.EMPTY); // For backwards-compatibility
@@ -84,13 +76,11 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_ADMIN })
     public void addLimitedBuildUser(String username) {
         genericSettingProvider.addLimitedBuildUser(username);
     }
 
     @Override
-    @RolesAllowed({ USERS_ADMIN })
     public void removeLimitedBuildUser(String username) {
         genericSettingProvider.removeLimitedBuildUser(username);
     }

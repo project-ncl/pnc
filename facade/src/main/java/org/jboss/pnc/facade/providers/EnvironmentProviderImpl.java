@@ -4,8 +4,8 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ENVIRONMENT_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ENVIRONMENT_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.replacedBy;
 import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.withEnvironmentNameAndActive;
 

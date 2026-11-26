@@ -4,8 +4,10 @@
  */
 package org.jboss.pnc.rest.endpoints.internal.api;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -30,6 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS_ADMIN, USERS_ORCH_PROCESS_COMMIT })
 public interface BpmEndpoint {
 
     @Operation(summary = "", responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })

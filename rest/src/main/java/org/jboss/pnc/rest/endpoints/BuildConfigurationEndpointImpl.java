@@ -4,15 +4,13 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJBAccessException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,7 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-@RolesAllowed({ USERS, USERS_ADMIN })
 public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildConfigurationEndpointImpl.class);

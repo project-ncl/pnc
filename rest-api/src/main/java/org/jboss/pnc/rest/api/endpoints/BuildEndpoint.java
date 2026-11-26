@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.BAD_GATEWAY_CODE;
@@ -36,6 +37,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -96,6 +98,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS_BUILD_READ, USERS, USERS_ADMIN })
 public interface BuildEndpoint {
     static final String B_ID = "ID of the build";
     static final String BUILD_STATUS = "Status of the build";
@@ -190,6 +193,7 @@ public interface BuildEndpoint {
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
+    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     void delete(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = CALLBACK_URL) @QueryParam("callback") String callback);
@@ -221,6 +225,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     void update(@Parameter(description = B_ID) @PathParam("id") String id, @NotNull Build build);
 
     static final String GET_BUILT_ARTIFACTS_DESC = "Gets artifacts built in a specific build.";
@@ -280,6 +285,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}/artifacts/built")
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     void setBuiltArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_IDS) List<String> artifactIds);
@@ -312,6 +318,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/artifacts/built/quality")
+    @RolesAllowed({ USERS, USERS_ADMIN })
     void createBuiltArtifactsQualityLevelRevisions(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_QUALITY, required = true) @QueryParam("quality") String quality,
@@ -405,6 +412,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}/artifacts/dependencies")
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     void setDependentArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_IDS) List<String> artifactIds);
@@ -621,6 +629,7 @@ public interface BuildEndpoint {
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/attributes")
+    @RolesAllowed({ USERS, USERS_ADMIN })
     void addAttribute(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ATTRIBUTE_KEY, required = true) @QueryParam("key") String key,
@@ -649,6 +658,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     @Path("/{id}/attributes")
+    @RolesAllowed({ USERS, USERS_ADMIN })
     void removeAttribute(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ATTRIBUTE_KEY, required = true) @QueryParam("key") String key);
@@ -721,6 +731,7 @@ public interface BuildEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     @Deprecated
+    @RolesAllowed({ USERS, USERS_ADMIN })
     BuildPushOperation push(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid BuildPushParameters buildPushParameters);
@@ -744,6 +755,7 @@ public interface BuildEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     @Deprecated
+    @RolesAllowed({ USERS, USERS_ADMIN })
     void cancelPush(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String COMPLETE_PUSH_DESC = "Notifies that the Brew push finished.";
@@ -767,6 +779,7 @@ public interface BuildEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/brew-push/complete")
     @Deprecated
+    @RolesAllowed({ USERS, USERS_ADMIN })
     void completePush(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushCompleted buildPushCompleted);
 
     static final String GET_BUILD_CONFIG_REVISION = "Gets the build config revision for specific build.";
@@ -812,6 +825,7 @@ public interface BuildEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/cancel")
+    @RolesAllowed({ USERS, USERS_ADMIN })
     void cancel(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String GET_DEPENDENCY_GRAPH = "Gets dependency graph for a build.";

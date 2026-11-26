@@ -4,7 +4,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
