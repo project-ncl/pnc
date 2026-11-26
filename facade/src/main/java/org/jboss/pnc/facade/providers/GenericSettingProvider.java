@@ -8,7 +8,7 @@ import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNE
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_ETA;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
 
 import java.time.Instant;
 import java.util.Arrays;

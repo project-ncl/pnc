@@ -4,15 +4,12 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -23,7 +20,6 @@ import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductReleaseEndpoint;
 
 @ApplicationScoped
-@RolesAllowed({ USERS, USERS_ADMIN })
 public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {
 
     @Inject

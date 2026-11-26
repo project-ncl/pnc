@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
@@ -17,6 +18,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -44,6 +46,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface GenericSettingEndpoint {
 
     static final String GET_ANNOUNCEMENT_BANNER_DESC = "Get announcement banner";
@@ -101,6 +104,7 @@ public interface GenericSettingEndpoint {
     @POST
     @Path("announcement-banner")
     @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further info
+    @RolesAllowed({ USERS_ADMIN })
     public void setAnnouncementBanner(@Parameter(description = BANNER_TEXT, required = true) String banner);
 
     static final String GET_PNC_VERSION_DESC = "Get PNC System version";
@@ -158,6 +162,7 @@ public interface GenericSettingEndpoint {
     @POST
     @Path("pnc-version")
     @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
+    @RolesAllowed({ USERS_ADMIN })
     public void setPNCVersion(@Parameter(description = PNC_VERSION, required = true) String version);
 
     static final String IS_IN_MAINTENANCE_MODE_DESC = "Get status of maintenance mode";
@@ -241,6 +246,7 @@ public interface GenericSettingEndpoint {
     @POST
     @Path("activate-maintenance-mode")
     @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
+    @RolesAllowed({ USERS_ADMIN })
     public void activateMaintenanceMode(@Parameter(description = MAINTENANCE_REASON, required = true) String reason);
 
     static final String DEACTIVATE_MAINTENANCE_MODE_DESC = "Deactivate maintenance mode. needs to be admin";
@@ -265,6 +271,7 @@ public interface GenericSettingEndpoint {
     @POST
     @Path("deactivate-maintenance-mode")
     @Deprecated(forRemoval = true, since = "2.7.0") // See Javadoc for further details.
+    @RolesAllowed({ USERS_ADMIN })
     public void deactivateMaintenanceMode();
 
     static final String LIMITED_BUILD_USER = "Username of the limited build user";
@@ -319,6 +326,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("limited-build-users/{username}")
+    @RolesAllowed({ USERS_ADMIN })
     void addLimitedBuildUser(
             @Parameter(description = LIMITED_BUILD_USER, required = true) @PathParam("username") String username);
 
@@ -345,6 +353,7 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     @Path("limited-build-users/{username}")
+    @RolesAllowed({ USERS_ADMIN })
     void removeLimitedBuildUser(
             @Parameter(description = LIMITED_BUILD_USER, required = true) @PathParam("username") String username);
 }

@@ -9,6 +9,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
 @Client
+@PermitAll
 public interface VersionEndpoint {
 
     static final String GET_CURRENT_VERSION = "Gets current version";

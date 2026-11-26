@@ -4,6 +4,9 @@
  */
 package org.jboss.pnc.rest.endpoints.internal.api;
 
+import static org.jboss.pnc.constants.UserRoles.*;
+
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,6 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Path("/debug")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RolesAllowed({ USERS_ADMIN })
 public interface DebugEndpoint {
 
     @GET

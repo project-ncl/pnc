@@ -4,13 +4,10 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
-
 import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -37,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-@RolesAllowed({ USERS_ARTIFACT_READ, USERS, USERS_ADMIN })
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
@@ -101,19 +97,16 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public Artifact create(Artifact artifact) {
         return endpointHelper.create(artifact);
     }
 
     @Override
-    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public void update(String id, Artifact artifact) {
         endpointHelper.update(id, artifact);
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ARTIFACT_ADMIN, USERS_ADMIN })
     public ArtifactRevision createQualityLevelRevision(String id, String quality, String reason) {
         logger.debug("Updating quality of artifact with id {} to level {} for reason: {}", id, quality, reason);
         return artifactProvider.createQualityLevelRevision(id, quality, reason);

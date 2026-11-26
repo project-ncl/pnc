@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -17,6 +18,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -50,6 +52,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface EnvironmentEndpoint {
     static final String E_ID = "ID of the environment";
 
@@ -132,6 +135,7 @@ public interface EnvironmentEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
+    @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     Environment createNew(@NotNull Environment environment);
 
     /**
@@ -156,6 +160,7 @@ public interface EnvironmentEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/deprecate")
+    @RolesAllowed({ USERS_ENVIRONMENT_ADMIN, USERS_ADMIN })
     Environment deprecate(
             @Parameter(description = E_ID) @PathParam("id") String id,
             @Valid EnvironmentDeprecationRequest request);

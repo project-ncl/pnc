@@ -6,7 +6,6 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import java.util.Map;
 
-import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -15,7 +14,6 @@ import org.jboss.pnc.facade.providers.api.HealthCheckProvider;
 import org.jboss.pnc.rest.endpoints.internal.api.HealthCheckEndpoint;
 
 @ApplicationScoped
-@PermitAll
 public class HealthCheckEndpointImpl implements HealthCheckEndpoint {
 
     @Inject

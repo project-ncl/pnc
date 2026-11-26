@@ -4,11 +4,8 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
-
 import java.util.Optional;
 
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -32,7 +29,6 @@ import org.jboss.pnc.spi.exception.RemoteRequestException;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @ApplicationScoped
-@RolesAllowed({ USERS_ADMIN })
 public class DebugEndpointImpl implements DebugEndpoint {
 
     @Inject

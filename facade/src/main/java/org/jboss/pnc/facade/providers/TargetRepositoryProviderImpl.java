@@ -4,9 +4,9 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ARTIFACT_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_BUILD_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.TargetRepositoryPredicates.withIdentifierAndPathIn;
 
 import java.util.Collections;

@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -23,6 +24,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -69,6 +71,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface GroupConfigurationEndpoint {
     static final String GC_ID = "ID of the group config";
 

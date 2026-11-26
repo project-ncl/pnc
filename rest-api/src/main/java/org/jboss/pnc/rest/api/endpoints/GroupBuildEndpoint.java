@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
@@ -18,6 +19,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -58,6 +60,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface GroupBuildEndpoint {
 
     static final String GB_ID = "ID of the group build";
@@ -137,6 +140,7 @@ public interface GroupBuildEndpoint {
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
+    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     void delete(
             @Parameter(description = GB_ID) @PathParam("id") String id,
             @Parameter(description = CALLBACK_URL) @QueryParam("callback") String callback);

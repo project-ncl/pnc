@@ -4,6 +4,7 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
@@ -13,6 +14,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -37,6 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface CacheEndpoint {
 
     static final String GET_GENERIC_STATS_DESC = "Get general statistics related to Hibernate.";
@@ -167,6 +170,7 @@ public interface CacheEndpoint {
                             description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
+    @RolesAllowed({ USERS_ADMIN })
     public Response clearCache();
 
 }

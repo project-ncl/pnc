@@ -4,9 +4,11 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import static org.jboss.pnc.constants.UserRoles.*;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.BREW_NOT_SUPPORTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,6 +36,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
+@RolesAllowed({ USERS, USERS_ADMIN })
 public interface BuildPushesEndpoint {
 
     static final String GET_PUSH_REPORT_DESC = "Get specific Report of Build Push Operation.";

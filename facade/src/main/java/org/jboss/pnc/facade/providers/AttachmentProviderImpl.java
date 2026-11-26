@@ -4,9 +4,9 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ATTACHMENT_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_REX;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_ATTACHMENT_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_REX;
 import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.AttachmentPredicates.withSha256;
 

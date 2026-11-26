@@ -6,7 +6,6 @@ package org.jboss.pnc.rest.endpoints;
 
 import static java.text.MessageFormat.format;
 import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
-import static org.jboss.pnc.facade.providers.api.UserRoles.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -88,7 +86,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @ApplicationScoped
 @Slf4j
-@RolesAllowed({ USERS_BUILD_READ, USERS, USERS_ADMIN })
 public class BuildEndpointImpl implements BuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointImpl.class);
@@ -145,7 +142,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     public void delete(String id, String callback) {
         if (!provider.delete(id, callback)) {
             throw new NotFoundException("Temporary build with id: " + id + " was not found.");
@@ -153,7 +149,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void update(String id, Build build) {
         endpointHelper.update(id, build);
     }
@@ -194,7 +189,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void setBuiltArtifacts(String id, List<String> artifactIds) {
         provider.setBuiltArtifacts(id, artifactIds);
     }
@@ -493,7 +487,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public void createBuiltArtifactsQualityLevelRevisions(String id, String quality, String reason) {
         Set<String> builtArtifactIds = provider.getBuiltArtifactIds(id);
         for (String builtArtifactId : builtArtifactIds) {
@@ -528,7 +521,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     public void setDependentArtifacts(String id, List<String> artifactIds) {
         provider.setDependentArtifacts(id, artifactIds);
     }
@@ -545,13 +537,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public void addAttribute(String id, String key, String value) {
         provider.addAttribute(id, key, value);
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public void removeAttribute(String id, String key) {
         provider.removeAttribute(id, key);
     }
@@ -567,19 +557,16 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public BuildPushOperation push(String id, BuildPushParameters buildPushParameters) {
         throw new BrewNotSupportedException();
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public void cancelPush(String id) {
         throw new BrewNotSupportedException();
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public void completePush(String id, BuildPushCompleted buildPushCompleted) {
         throw new BrewNotSupportedException();
     }
@@ -590,7 +577,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    @RolesAllowed({ USERS, USERS_ADMIN })
     public void cancel(String buildId) {
         try {
             MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, ContentIdentityManager.getBuildContentId(buildId));
