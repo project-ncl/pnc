@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
@@ -45,20 +44,13 @@ public class ReqourClientTest {
     }
 
     @Test
-    public void theCallersTokenIsUsedWhenThereIsOne() {
-        assertThat(ReqourClient.contentAuthorization(Optional.of("caller"), () -> {
-            throw new AssertionError("the service account must not be used");
-        })).isEqualTo("Bearer caller");
-    }
-
-    @Test
-    public void callersWithoutATokenUseTheServiceAccount() {
-        assertThat(ReqourClient.contentAuthorization(Optional.empty(), () -> "Bearer orch")).isEqualTo("Bearer orch");
+    public void contentRequestsUseTheServiceAccount() {
+        assertThat(ReqourClient.contentAuthorization(() -> "Bearer orch")).isEqualTo("Bearer orch");
     }
 
     @Test
     public void aServiceAccountTokenThatCannotBeObtainedIsAGatewayError() {
-        assertThatThrownBy(() -> ReqourClient.contentAuthorization(Optional.empty(), () -> {
+        assertThatThrownBy(() -> ReqourClient.contentAuthorization(() -> {
             throw new RuntimeException("Failed to send request - Connection reset");
         })).isInstanceOfSatisfying(WebApplicationException.class, e -> {
             assertThat(e.getResponse().getStatus()).isEqualTo(502);

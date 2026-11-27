@@ -3005,7 +3005,7 @@
             }
           },
           "403" : {
-            "description" : "Reqour does not allow the caller to read SCM content (orch forwards the caller's token, and reqour checks its roles)",
+            "description" : "The caller does not have a role that allows reading builds",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -4116,7 +4116,7 @@
             }
           },
           "403" : {
-            "description" : "Reqour does not allow the caller to read SCM content (orch forwards the caller's token, and reqour checks its roles)",
+            "description" : "The caller does not have a role that allows reading builds",
             "content" : {
               "application/json" : {
                 "schema" : {
