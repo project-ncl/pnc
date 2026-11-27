@@ -6,7 +6,6 @@ package org.jboss.pnc.facade.util;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -68,20 +67,16 @@ public class ReqourClient {
     }
 
     /**
-     * The Authorization header for SCM content requests: the caller's own token when it has one, so that reqour checks
-     * the caller's roles itself; else orch's service account.
+     * The Authorization header for SCM content requests: orch's service account. Callers are checked by orch's own
+     * roles before this is used; their credentials are never passed on to reqour.
      *
-     * @param callerToken the OIDC access token the caller authenticated with, if any
      * @throws WebApplicationException 502 when the service account token cannot be obtained
      */
-    public String contentAuthorization(Optional<String> callerToken) {
-        return contentAuthorization(callerToken, serviceAccountClient::getAuthHeaderValue);
+    public String contentAuthorization() {
+        return contentAuthorization(serviceAccountClient::getAuthHeaderValue);
     }
 
-    static String contentAuthorization(Optional<String> callerToken, Supplier<String> serviceAccount) {
-        if (callerToken.isPresent()) {
-            return "Bearer " + callerToken.get();
-        }
+    static String contentAuthorization(Supplier<String> serviceAccount) {
         try {
             return serviceAccount.get();
         } catch (RuntimeException e) {
@@ -97,7 +92,7 @@ public class ReqourClient {
      * The source archive of the first existing revision of an internal repository. The caller streams the response
      * entity and closes the response.
      *
-     * @param authorization see {@link #contentAuthorization(Optional)}
+     * @param authorization see {@link #contentAuthorization()}
      */
     public Response scmArchive(String url, List<String> revisions, String authorization) {
         return get(
@@ -110,7 +105,7 @@ public class ReqourClient {
      * The complete alignment diff of an internal repository. The caller streams the response entity and closes the
      * response.
      *
-     * @param authorization see {@link #contentAuthorization(Optional)}
+     * @param authorization see {@link #contentAuthorization()}
      */
     public Response scmDiff(String url, List<String> bases, List<String> heads, String authorization) {
         return get(

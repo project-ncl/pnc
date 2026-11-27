@@ -6,7 +6,9 @@ package org.jboss.pnc.rest.endpoints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.jboss.pnc.constants.UserRoles.USERS;
+import static org.jboss.pnc.constants.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.constants.UserRoles.USERS_BUILD_READ;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,10 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
@@ -36,6 +40,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ScmContentSource;
 import org.jboss.pnc.facade.util.ReqourClient;
+import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,71 +77,67 @@ public class BuildEndpointImplScmContentTest {
             .build();
 
     @Before
-    public void callersWithoutAnOidcTokenUseTheServiceAccount() {
-        when(reqourClient.contentAuthorization(Optional.empty())).thenReturn(SERVICE_ACCOUNT);
-    }
-
-    private void callerToken(String token) {
-        when(httpServletRequest.getAttribute(OidcSecurityContext.class.getName()))
-                .thenReturn(new OidcSecurityContext(token, null, null, null));
-        when(reqourClient.contentAuthorization(Optional.of(token))).thenReturn("Bearer " + token);
+    public void contentRequestsUseTheServiceAccount() {
+        when(reqourClient.contentAuthorization()).thenReturn(SERVICE_ACCOUNT);
     }
 
     @Test
-    public void theCallersOwnTokenIsSentToReqour() throws Exception {
-        callerToken("caller-token");
+    public void callersCredentialsAreNeverSentToReqour() throws Exception {
+        when(httpServletRequest.getAttribute(OidcSecurityContext.class.getName()))
+                .thenReturn(new OidcSecurityContext("caller-token", null, null, null));
+        when(httpServletRequest.getUserPrincipal()).thenReturn(() -> "user");
+        when(httpServletRequest.getAuthType()).thenReturn(HttpServletRequest.BASIC_AUTH);
+        when(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic dXNlcjpwYXNzd29yZA==");
         when(provider.getScmContentSource("B1")).thenReturn(single());
         Response archive = ok("tgz", "application/gzip");
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), "Bearer caller-token")).thenReturn(archive);
+        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), SERVICE_ACCOUNT)).thenReturn(archive);
 
         Response response = endpoint.getInternalScmArchive("B1");
 
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(body(response)).isEqualTo("tgz");
-        verify(reqourClient, never()).contentAuthorization(Optional.empty());
+        verify(httpServletRequest, never()).getHeader(HttpHeaders.AUTHORIZATION);
+        verify(httpServletRequest, never()).getHeaders(HttpHeaders.AUTHORIZATION);
     }
 
     @Test
-    public void aCallerReqourForbidsIsForbidden() {
-        callerToken("caller-token");
+    public void scmContentIsGuardedByTheEndpointRoles() throws Exception {
+        // RESTEasy reads the security annotations from the interface carrying @Path
+        RolesAllowed roles = BuildEndpoint.class.getAnnotation(RolesAllowed.class);
+        assertThat(roles.value()).containsExactlyInAnyOrder(USERS_BUILD_READ, USERS, USERS_ADMIN);
+        for (String name : List.of("getInternalScmArchive", "getAlignmentDiff")) {
+            for (Class<?> type : List.of(BuildEndpoint.class, BuildEndpointImpl.class)) {
+                Method method = type.getMethod(name, String.class);
+                assertThat(method.getAnnotation(PermitAll.class)).as(type.getSimpleName() + "#" + name).isNull();
+                assertThat(method.getAnnotation(RolesAllowed.class)).as(type.getSimpleName() + "#" + name).isNull();
+            }
+        }
+    }
+
+    @Test
+    public void reqourForbiddingTheServiceAccountIsAGatewayError() {
         when(provider.getScmContentSource("B1")).thenReturn(source);
-        Response forbidden = error(403, "{\"errorMessage\":\"needs pnc-users\"}");
-        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), "Bearer caller-token"))
+        Response forbidden = error(403, "{\"errorMessage\":\"needs pnc-app-orch-build-read\"}");
+        when(reqourClient.scmDiff(BUILD_URL, source.getBases(), source.getHeads(), SERVICE_ACCOUNT))
                 .thenReturn(forbidden);
 
         Response response = endpoint.getAlignmentDiff("B1");
 
-        assertThat(response.getStatus()).isEqualTo(403);
+        assertThat(response.getStatus()).isEqualTo(502);
         ErrorResponse error = (ErrorResponse) response.getEntity();
-        assertThat(error.getErrorType()).isEqualTo("ForbiddenException");
-        assertThat(error.getErrorMessage())
-                .isEqualTo("Reqour does not allow the caller to read SCM content (HTTP 403).");
-        assertThat(error.getDetails()).isEqualTo("{\"errorMessage\":\"needs pnc-users\"}");
+        assertThat(error.getErrorType()).isEqualTo("REQOUR_ERROR");
+        assertThat(error.getErrorMessage()).isEqualTo(
+                "Reqour refused the service account of orch (HTTP 403): it needs a reqour role that allows reading SCM"
+                        + " content.");
+        assertThat(error.getDetails()).isEqualTo("{\"errorMessage\":\"needs pnc-app-orch-build-read\"}");
         verify(forbidden).close();
         verify(reqourClient, never()).scmDiff(eq(CURRENT_URL), anyList(), anyList(), anyString());
     }
 
     @Test
-    public void aCallerTokenReqourDoesNotAcceptIsAGatewayError() {
-        callerToken("caller-token");
-        when(provider.getScmContentSource("B1")).thenReturn(single());
-        Response unauthorized = error(401, "");
-        when(reqourClient.scmArchive(BUILD_URL, source.getRevisions(), "Bearer caller-token"))
-                .thenReturn(unauthorized);
-
-        Response response = endpoint.getInternalScmArchive("B1");
-
-        assertThat(response.getStatus()).isEqualTo(502);
-        assertThat(((ErrorResponse) response.getEntity()).getErrorMessage())
-                .isEqualTo(
-                        "Reqour does not accept the caller's token (HTTP 401): it may have expired, or been issued by an"
-                                + " identity provider reqour does not trust.");
-    }
-
-    @Test
     public void serviceAccountTokenFailuresAreGatewayErrors() {
         when(provider.getScmContentSource("B1")).thenReturn(single());
-        when(reqourClient.contentAuthorization(any())).thenThrow(
+        when(reqourClient.contentAuthorization()).thenThrow(
                 new WebApplicationException("no token", Response.Status.BAD_GATEWAY));
 
         assertThatThrownBy(() -> endpoint.getInternalScmArchive("B1"))
@@ -157,7 +158,7 @@ public class BuildEndpointImplScmContentTest {
 
         assertThat(endpoint.getInternalScmArchive("B1").getStatus()).isEqualTo(503);
         verify(reqourClient, org.mockito.Mockito.times(BuildEndpointImpl.MAX_CONCURRENT_SCM_CONTENT))
-                .contentAuthorization(Optional.empty());
+                .contentAuthorization();
     }
 
     @Test
@@ -211,8 +212,8 @@ public class BuildEndpointImplScmContentTest {
 
         assertThat(response.getStatus()).isEqualTo(502);
         assertThat(((ErrorResponse) response.getEntity()).getErrorMessage()).isEqualTo(
-                "Reqour refused the service account of orch (HTTP 401): log in with an OIDC token to download sources"
-                        + " and diffs through PNC.");
+                "Reqour refused the service account of orch (HTTP 401): it needs a reqour role that allows reading SCM"
+                        + " content.");
         verify(unauthorized).close();
     }
 

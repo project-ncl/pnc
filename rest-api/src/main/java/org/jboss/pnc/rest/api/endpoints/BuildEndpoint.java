@@ -441,8 +441,7 @@ public interface BuildEndpoint {
     static final String ALIGNMENT_DIFF_NOT_FOUND_DESC = "The build, its internal SCM repository or its pre- and "
             + "post-alignment revisions do not exist";
     static final String RETRY_AFTER_DESC = "Seconds after which the request can be tried again";
-    static final String SCM_CONTENT_FORBIDDEN_DESC = "Reqour does not allow the caller to read SCM content (orch"
-            + " forwards the caller's token, and reqour checks its roles)";
+    static final String SCM_CONTENT_FORBIDDEN_DESC = "The caller does not have a role that allows reading builds";
 
     static final String GET_INTERNAL_SCM_ARCHIVE_CONTENT_DESC = "Gets the source archive (tar.gz) of a build from the "
             + "internal SCM, through reqour: for clients that cannot reach the git provider";
